@@ -1,0 +1,23 @@
+{
+  "name": "chimera-registryd",
+  "description": "Local Unix-socket CHMRG01 registry service with generation-checked journaled writes",
+  "exec": "python3 /usr/lib/chimera/registry/registryd.py",
+  "start_after": [
+    "local-fs",
+    "aegis-policy"
+  ],
+  "restart": "on-failure",
+  "sandbox": true,
+  "network": "none",
+  "user": "root",
+  "group": "chimera-admin",
+  "socket": "/run/chimera/registry.sock",
+  "socket_mode": "0660",
+  "writable": [
+    "/etc/chimera/registry",
+    "/run/chimera"
+  ],
+  "requires": [
+    "python3"
+  ]
+}
