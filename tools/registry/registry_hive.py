@@ -4,7 +4,7 @@ import argparse,json,os,pathlib,struct,sys,zlib
 MAGIC=b"CHMRG01\0"; H=struct.Struct("<8sHHIIIQII"); R=struct.Struct("<HBBI")
 T={"u32":1,"u64":2,"bool":3,"string":4,"bytes":5}
 def valid_path(p):
- if not isinstance(p,str) or not p or p.startswith("/") or p.endswith("/") or "\\0" in p: return False
+ if not isinstance(p,str) or not p or p.startswith("/") or p.endswith("/") or chr(0) in p: return False
  parts=p.split("/")
  return all(x and x!="." and x!=".." and all(("a"<=c<="z") or ("0"<=c<="9") or c in "._-" for c in x) for x in parts)
 def encode(s):
@@ -29,13 +29,14 @@ def encode(s):
   if len(vb)>1<<20: raise ValueError("value too large")
   payload.append(R.pack(len(pb),T[t],0,len(vb))+pb+vb)
  body=b"".join(payload); total=H.size+len(body); gen=int(s.get("generation",1))
+ if total>16<<20: raise ValueError("hive exceeds 16 MiB limit")
  if not 0<=gen<1<<64: raise ValueError("generation out of range")
  pc=zlib.crc32(body)&0xffffffff
  h=H.pack(MAGIC,1,0,H.size,total,len(es),gen,pc,0)
  hc=zlib.crc32(h[:36])&0xffffffff
  return H.pack(MAGIC,1,0,H.size,total,len(es),gen,pc,hc)+body
 def verify(b):
- if len(b)<H.size: raise ValueError("truncated header")
+ if len(b)<H.size or len(b)>16<<20: raise ValueError("invalid hive size")
  magic,maj,minor,hs,total,count,gen,pc,hc=H.unpack_from(b)
  if (magic,maj,minor,hs)!=(MAGIC,1,0,H.size) or total!=len(b) or count>4096: raise ValueError("invalid header")
  if zlib.crc32(b[H.size:])&0xffffffff!=pc or zlib.crc32(b[:36])&0xffffffff!=hc: raise ValueError("CRC mismatch")
