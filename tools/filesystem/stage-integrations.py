@@ -34,6 +34,12 @@ def stage(source,root):
   (cfg/(name+".json")).write_text(json.dumps(data,indent=2,sort_keys=True)+"\n")
   (cfg/(name+".hive")).write_bytes(h.encode(data))
  os.chmod(cfg,488)
+ samba=root/"etc/samba";samba.mkdir(parents=True,exist_ok=True)
+ smbconf=samba/"smb.conf";default=source/"services/network/smb.conf.default"
+ if not smbconf.exists() or not smbconf.read_text(errors="ignore").startswith("# CHIMERA-SECURE-SMB-CONFIG"):
+  backup=samba/"smb.conf.package-default"
+  if smbconf.exists() and not backup.exists():shutil.copy2(smbconf,backup)
+  copy(default,smbconf,420)
  wants=root/"etc/systemd/system/multi-user.target.wants";wants.mkdir(parents=True,exist_ok=True)
  service=wants/"chimera-registryd.service"
  if not service.exists() and not service.is_symlink():service.symlink_to("/usr/lib/systemd/system/chimera-registryd.service")
