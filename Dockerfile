@@ -81,7 +81,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     krb5-user realmd adcli sssd sssd-ad sssd-ldap sssd-tools ldap-utils \
     libsasl2-modules-gssapi-mit avahi-daemon avahi-utils gvfs-backends \
     udisks2 util-linux xorriso udftools \
-    && if apt-cache show wsdd >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd || echo "[WARN] wsdd install failed; DNS-SD remains available"; fi \
+    && if apt-cache show wsdd >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd || echo "[WARN] wsdd client install failed; DNS-SD remains available"; fi; \
+    if apt-cache show wsdd-server >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd-server || echo "[WARN] wsdd-server install failed; WSD host advertisement unavailable"; fi \
     && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
