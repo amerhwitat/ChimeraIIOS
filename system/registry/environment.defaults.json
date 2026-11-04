@@ -27,6 +27,11 @@
       "path": "environment.terminal",
       "type": "string",
       "value": "/dev/console"
+    },
+    {
+      "path": "environment.network.workgroup",
+      "type": "string",
+      "value": "WORKGROUP"
     }
   ]
 }
