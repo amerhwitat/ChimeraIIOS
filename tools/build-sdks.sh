@@ -183,6 +183,15 @@ for entry in "${FOUND[@]}"; do
   count=$((count + 1))
 done
 
+# Probe the macOS cross-development toolchain and SDK without bundling Apple SDK files.
+# The helper writes blocked/review-required when the external SDK or license is unavailable.
+if [ -x "$ROOT/tools/build-macos-sdk.sh" ]; then
+  bash "$ROOT/tools/build-macos-sdk.sh" "$WORK/macos-sdk-report.json" || true
+  record macos-sdk "sdk/macos" "skipped" 0 "cross-toolchain discovery only; inspect macos-sdk-report.json before compiling"
+else
+  record macos-sdk "sdk/macos" "skipped" 0 "macOS integration helper missing"
+fi
+
 # Plain-language sources that need no build system but must still parse.
 # Compile portable Java SDK/runtime sources as one compilation unit so
 # package dependencies resolve together. Android sources and JUnit test files
