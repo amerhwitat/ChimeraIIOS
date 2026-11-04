@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """CHMRG01 binary registry hive builder/verifier; Python standard library only."""
-import argparse,json,pathlib,struct,sys,zlib
+import argparse,json,os,pathlib,struct,sys,zlib
 MAGIC=b"CHMRG01\0"; H=struct.Struct("<8sHHIIIQII"); R=struct.Struct("<HBBI")
 T={"u32":1,"u64":2,"bool":3,"string":4,"bytes":5}
+def valid_path(p):
+ if not isinstance(p,str) or not p or p.lower()!=p or p.startswith("/") or p.endswith("/") or "\\0" in p: return False
+ parts=p.split("/")
+ return all(x and x!="." and x!=".." and all(c.islower() or c.isdigit() or c in "._-" for c in x) for x in parts)
 def encode(s):
  if s.get("schema_version")!=1: raise ValueError("unsupported schema version")
  es=s.get("entries")
@@ -41,7 +45,7 @@ def verify(b):
   plen,typ,flags,vlen=R.unpack_from(b,off); off+=R.size
   if not 0<plen<=255 or typ not in T.values() or flags or vlen>1<<20 or off+plen+vlen>total: raise ValueError("invalid record bounds")
   p=b[off:off+plen].decode("utf-8"); off+=plen
-  if p.lower()!=p or p.startswith("/") or ".." in p.split("/") or p in seen: raise ValueError("invalid/duplicate path")
+  if not valid_path(p) or p in seen: raise ValueError("invalid/duplicate path")
   seen.add(p); v=b[off:off+vlen]; off+=vlen
   if (typ==3 and (vlen!=1 or v[0]>1)) or (typ==1 and vlen!=4) or (typ==2 and vlen!=8): raise ValueError("invalid scalar")
  if off!=total: raise ValueError("trailing bytes")
@@ -53,7 +57,13 @@ def main():
  try:
   if x.cmd=="build":
    d=encode(json.loads(pathlib.Path(x.input).read_text())); o=pathlib.Path(x.output); o.parent.mkdir(parents=True,exist_ok=True)
-   t=o.with_suffix(o.suffix+".tmp"); t.write_bytes(d); t.replace(o); print("registry-hive: wrote",o,len(d),"bytes")
+   t=o.with_suffix(o.suffix+".tmp"); with t.open("wb") as f:
+    f.write(d); f.flush(); os.fsync(f.fileno())
+   t.replace(o)
+   dfd=os.open(str(o.parent),os.O_RDONLY)
+   try: os.fsync(dfd)
+   finally: os.close(dfd)
+   print("registry-hive: wrote",o,len(d),"bytes")
   else: print("registry-hive: valid",json.dumps(verify(pathlib.Path(x.hive).read_bytes()),sort_keys=True))
  except (OSError,ValueError,KeyError,TypeError,UnicodeError,struct.error) as e:
   print("registry-hive: ERROR:",e,file=sys.stderr); return 1
