@@ -125,7 +125,7 @@
         "syscall_implementation": "not implemented"
       },
       "detection": {
-        "method": "not implemented"
+        "method": "CPUID vendor/model/features and legacy topology leaves (runtime probing; no native ISO target)"
       },
       "encoding_model": "variable-length x86 encoding"
     },
@@ -187,7 +187,7 @@
         "syscall_implementation": "not implemented"
       },
       "detection": {
-        "method": "not implemented"
+        "method": "compile-target macro only; no bootable native target pipeline"
       },
       "encoding_model": "32-bit A32 plus 16/32-bit Thumb"
     },
@@ -218,7 +218,7 @@
         "syscall_implementation": "not implemented"
       },
       "detection": {
-        "method": "not implemented"
+        "method": "compile-target macro only; no bootable native target pipeline"
       },
       "encoding_model": "16/32-bit base plus extensions"
     },
@@ -962,7 +962,7 @@
         "syscall_implementation": "not implemented"
       },
       "detection": {
-        "method": "not implemented"
+        "method": "compile-target macro only; no bootable native target pipeline"
       },
       "encoding_model": "Thumb/T32 mixed 16/32-bit instruction encodings"
     },
