@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Train and evaluate the small advisory character-RNN on the curated knowledge DB."""
 from __future__ import annotations
-import argparse, hashlib, json, math, random
+import argparse, hashlib, json, math, random, sys
 from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
 from tools.cognition.trainable_rnn_lm import CharRNN
 
 def main():
