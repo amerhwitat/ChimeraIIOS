@@ -279,7 +279,7 @@
         "physical-cd-dvd"
       ],
       "backends": {
-        "linux": "chimera-iso-mount+util-linux+kernel-iso9660-udf"
+        "linux": "udisks2+mount-image.py+kernel-iso9660-udf"
       }
     },
     {
