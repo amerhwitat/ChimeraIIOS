@@ -22,7 +22,7 @@
     "installer": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "desktop": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
     "library": "/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg",
-    "splash_video": "/usr/share/chimera/aurora/assets/init.mp4",
+    "splash_video": "/usr/share/chimera/aurora/assets/Init.mp4",
     "spitfire_background": "/boot/visual/spitfire_background.svg",
     "jasper_background": "/boot/visual/jasper_background.svg",
     "grub_background": "/boot/visual/aurora-wayland-glass.jpg",

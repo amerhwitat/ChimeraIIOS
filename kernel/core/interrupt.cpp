@@ -93,7 +93,7 @@ extern "C" int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out) {
     return 0;
 }
 
-extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
+extern "C" void chimera_interrupt_dispatch(uint64_t vector, const chimera_interrupt_frame *frame) {
     (void)frame;
     if (vector > 255u) return;
     g_last = (uint32_t)vector;
