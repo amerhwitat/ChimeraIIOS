@@ -12,9 +12,9 @@ LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
-    def test_grub_menu_waits_30_seconds_for_user_selection(self):
+    def test_grub_menu_waits_two_minutes_for_user_selection(self):
         self.assertIn("set timeout_style=menu", GRUB)
-        self.assertIn("set timeout=30", GRUB)
+        self.assertIn("set timeout=120", GRUB)
         self.assertIn("set default=0", GRUB)
 
     def test_installer_menu_passes_installer_modules_to_koronos(self):
