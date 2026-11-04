@@ -5,11 +5,20 @@ import json
 import re
 import subprocess
 import sys
+from urllib.parse import urlsplit
 
 DOMAIN = re.compile(r"^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*$")
 URI = re.compile(r"^(ldaps://|ldap://)[A-Za-z0-9.-]+(?::[0-9]{1,5})?/?$")
 
-def valid_ldap_uri(value):\n    if not URI.fullmatch(value):\n        return False\n    try:\n        parsed = urlsplit(value)\n        return bool(parsed.hostname) and (parsed.port is None or 1 <= parsed.port <= 65535) and parsed.path in ('', '/')\n    except ValueError:\n        return False\n\ndef run(argv, timeout=90):
+def valid_ldap_uri(value):
+    if not URI.fullmatch(value):
+        return False
+    try:
+        parsed = urlsplit(value)
+        return bool(parsed.hostname) and (parsed.port is None or 1 <= parsed.port <= 65535) and parsed.path in ("", "/")
+    except ValueError:
+        return False
+\ndef run(argv, timeout=90):
     return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
 
 def main():
