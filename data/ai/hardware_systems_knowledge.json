@@ -23,7 +23,7 @@
     "license_review_required_before_redistributing_source_text": true,
     "external_upload": false
   },
-  "source_count": 38,
+  "source_count": 42,
   "sources": [
     {
       "id": "intel-sdm",
@@ -328,9 +328,41 @@
       "url": "https://www.adaic.org/resources/add_content/standards/22rm/html/RM-TTL.html",
       "kind": "language-standard",
       "authority": "standards-primary"
+    },
+    {
+      "id": "linux-sound",
+      "publisher": "Linux Kernel",
+      "title": "Sound Subsystem Documentation",
+      "url": "https://docs.kernel.org/sound/",
+      "kind": "driver-api",
+      "authority": "upstream-primary"
+    },
+    {
+      "id": "linux-napi",
+      "publisher": "Linux Kernel",
+      "title": "NAPI networking event handling",
+      "url": "https://docs.kernel.org/networking/napi.html",
+      "kind": "network-driver-api",
+      "authority": "upstream-primary"
+    },
+    {
+      "id": "linux-input",
+      "publisher": "Linux Kernel",
+      "title": "Input Subsystem",
+      "url": "https://docs.kernel.org/input/input.html",
+      "kind": "input-driver-api",
+      "authority": "upstream-primary"
+    },
+    {
+      "id": "linux-hwmon",
+      "publisher": "Linux Kernel",
+      "title": "Hardware Monitoring kernel API",
+      "url": "https://docs.kernel.org/hwmon/hwmon-kernel-api.html",
+      "kind": "sensor-driver-api",
+      "authority": "upstream-primary"
     }
   ],
-  "entry_count": 145,
+  "entry_count": 151,
   "entries": [
     {
       "id": "arch-chimera-c8192",
@@ -6180,6 +6212,131 @@
       ],
       "status": "curated-reference",
       "verification": "summarized-from-listed-primary-documentation; verify exact revision before implementation"
+    },
+    {
+      "id": "audio-drivers",
+      "domain": "Drivers",
+      "title": "Audio and DSP drivers",
+      "summary": "Audio drivers expose PCM, mixer, MIDI and compressed-audio capabilities through a common audio subsystem while coordinating codec buses, DMA, interrupts, clocks, power sequencing and low-latency buffers. SoC audio often separates machine, platform, CPU-DAI and codec drivers. Validate supported formats, rates, channels, buffer periods and synchronization against the actual hardware.",
+      "tags": [
+        "ALSA",
+        "PCM",
+        "audio codec",
+        "DSP",
+        "DMA",
+        "I2S"
+      ],
+      "source_ids": [
+        "linux-sound",
+        "linux-dma",
+        "linux-drivers"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-upstream-driver-documentation"
+    },
+    {
+      "id": "network-event-processing",
+      "domain": "Drivers",
+      "title": "Network driver event processing and NAPI",
+      "summary": "High-throughput NIC drivers commonly combine interrupt notification with a deferred polling mechanism such as NAPI to process receive/transmit completions in batches. Correct drivers manage interrupt masking/unmasking, queue ownership, packet lifetime, CPU affinity, concurrency, backpressure and teardown. The exact model is OS-specific; NAPI is a Linux implementation, not a universal hardware standard.",
+      "tags": [
+        "NAPI",
+        "networking",
+        "interrupt",
+        "polling",
+        "NIC",
+        "packet queues"
+      ],
+      "source_ids": [
+        "linux-napi",
+        "linux-drivers",
+        "linux-dma"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-upstream-driver-documentation"
+    },
+    {
+      "id": "input-hid-drivers",
+      "domain": "Drivers",
+      "title": "Keyboard, mouse, touch and HID drivers",
+      "summary": "Input stacks separate hardware-facing drivers from event handlers and userspace interfaces. Devices may arrive over USB, Bluetooth, I2C, SPI or platform buses. Parse and validate descriptors, normalize key/button/absolute/relative events, manage device open/close and disconnect, and protect event paths from sleeping or unsafe operations in interrupt context.",
+      "tags": [
+        "HID",
+        "keyboard",
+        "mouse",
+        "touch",
+        "input events",
+        "USB"
+      ],
+      "source_ids": [
+        "linux-input",
+        "linux-usb",
+        "linux-drivers"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-upstream-driver-documentation"
+    },
+    {
+      "id": "sensors-hwmon-thermal",
+      "domain": "Drivers",
+      "title": "Sensor, hardware-monitoring and thermal drivers",
+      "summary": "Sensor and hwmon drivers expose measured temperature, voltage, current, power, energy, fan and PWM data through defined subsystem interfaces. Thermal frameworks coordinate sensor trips, cooling devices and governors. Drivers must document units, scaling, update intervals, calibration, fault states and safe limits; telemetry values are not automatically trusted control commands.",
+      "tags": [
+        "hwmon",
+        "thermal",
+        "sensors",
+        "temperature",
+        "fan",
+        "PWM",
+        "power"
+      ],
+      "source_ids": [
+        "linux-hwmon",
+        "linux-drivers"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-upstream-driver-documentation"
+    },
+    {
+      "id": "serial-uart-drivers",
+      "domain": "Drivers",
+      "title": "UART, serial and TTY drivers",
+      "summary": "Serial drivers manage UART register access, baud divisors, FIFOs, DMA, interrupts, flow control, line discipline and TTY lifecycle. Console paths have early-boot and panic constraints that differ from ordinary userspace serial devices. Validate register access, clock rates, framing errors, interrupt acknowledgement and hot-unplug behavior against the controller specification.",
+      "tags": [
+        "UART",
+        "serial",
+        "TTY",
+        "console",
+        "baud rate",
+        "FIFO"
+      ],
+      "source_ids": [
+        "linux-drivers",
+        "linux-device-model"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-driver-API-index; controller-specific manuals required"
+    },
+    {
+      "id": "power-clock-reset-drivers",
+      "domain": "Drivers",
+      "title": "Clock, reset, regulator and power-management drivers",
+      "summary": "Platform drivers must sequence clocks, resets, regulators, power domains and pin control in hardware-defined order. Runtime power management and suspend/resume require explicit ownership, dependency tracking, wakeup policy and rollback on partial failures. Never toggle unknown MMIO registers or power rails based only on a device name.",
+      "tags": [
+        "clock framework",
+        "reset controller",
+        "regulator",
+        "runtime PM",
+        "power domain",
+        "pin control"
+      ],
+      "source_ids": [
+        "linux-drivers",
+        "linux-dt",
+        "linux-device-model"
+      ],
+      "status": "curated-reference",
+      "verification": "summarized-from-upstream-driver-documentation"
     }
   ],
   "training": {
