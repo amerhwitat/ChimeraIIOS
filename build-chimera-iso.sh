@@ -1659,7 +1659,7 @@ for path in sorted(root.rglob("*")):
         items.append({"path":path.relative_to(root).as_posix(),"size_bytes":len(data),
                       "sha256":hashlib.sha256(data).hexdigest()})
 out.write_text(json.dumps({"schema":"chimera-macos-app-build-v1",
-                           "status":"built","bundle":"HelloMacOS.app","files":items},indent=2)+"\\n")
+                           "status":"built","bundle":"HelloMacOS.app","files":items},indent=2)+"\n")
 PYMAC
       cp -f "$ROOTFS_DIR/opt/chimera/apps/macos/macos-app-build-manifest.json" "$ISO_DIR/opt/chimera/apps/macos/"
       log_success "License-reviewed macOS Objective-C app bundle staged."
