@@ -1,0 +1,20 @@
+[Unit]
+Description=Chimera optional Samba SMB2/SMB3 server
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/samba/smb.conf
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/smbd --foreground --no-process-group
+Restart=on-failure
+RestartSec=3
+UMask=0077
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
