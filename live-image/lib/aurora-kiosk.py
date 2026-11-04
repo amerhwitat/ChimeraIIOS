@@ -16,7 +16,7 @@ gi.require_version("WebKit2", "4.1")
 from gi.repository import Gdk, Gtk, GLib, WebKit2  # noqa: E402
 
 DEFAULT_URI = "file:///opt/aurora/desktop/aurora-shell/index.html"
-TRUSTED_URI = "file:///opt/aurora/desktop/aurora-shell/index.html"
+TRUSTED_URIS = {"file:///opt/aurora/desktop/aurora-shell/index.html", "file:///opt/aurora/desktop/index.html"}
 REGISTRY_SOCKET = "/run/chimera/registry.sock"
 SMB_TOOL = "/usr/lib/chimera/network/smb-browse.py"
 DIRECTORY_TOOL = "/usr/lib/chimera/network/directoryctl.py"
@@ -161,7 +161,7 @@ def main():
     win.set_default_size(width, height)
     win.set_position(Gtk.WindowPosition.CENTER)
 
-    trusted_local_shell = uri.split("?", 1)[0].split("#", 1)[0] == TRUSTED_URI
+    trusted_local_shell = uri.split("?", 1)[0].split("#", 1)[0] in TRUSTED_URIS
     manager = WebKit2.UserContentManager()
     manager.register_script_message_handler("chimera")
     if trusted_local_shell:
