@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """SMB network discovery and share enumeration using maintained Samba tools."""
-import argparse,json,shutil,subprocess,sys
+import argparse,json,re,shutil,subprocess,sys
 def run(argv,timeout=25):
  return subprocess.run(argv,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout,check=False)
 def discover():
@@ -16,11 +16,13 @@ def discover():
    if host and port.isdigit(): hosts[host]={"name":name,"host":host,"port":int(port)}
  return list(hosts.values())
 def shares(host,user=None,kerberos=False):
+ if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.:-]{0,252}",host): raise ValueError("invalid SMB host name")
+ if not user and not kerberos: raise ValueError("authenticate with --user or --kerberos; anonymous access is disabled")
  if not shutil.which("smbclient"): raise RuntimeError("smbclient is not installed")
  cmd=["smbclient","-g","-L","//"+host]
  if kerberos: cmd += ["--use-kerberos=required"]
  elif user: cmd += ["-U",user]
- else: cmd += ["-N"]
+
  p=run(cmd,35)
  if p.returncode: raise RuntimeError(p.stderr.strip() or "SMB share enumeration failed")
  result=[]
