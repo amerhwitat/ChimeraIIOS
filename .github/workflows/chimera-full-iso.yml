@@ -92,6 +92,9 @@ jobs:
             test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          extract /boot/targets/target-init-live.elf "$tmp/target-init-live.elf"
+          extract /boot/targets/target-init-installer.elf "$tmp/target-init-installer.elf"
+          extract /boot/targets/target-init-recovery.elf "$tmp/target-init-recovery.elf"
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
           extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
@@ -100,6 +103,11 @@ jobs:
           extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
           extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
+          for target in live installer recovery; do
+            readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+            readelf -lW "$tmp/target-init-$target.elf" | grep -Eq 'LOAD.*R E'
+            grep -Fq "module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target" "$tmp/grub.cfg"
+          done
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
           # Inspect the initramfs actually embedded in the ISO. This is a
