@@ -58,7 +58,9 @@
       ],
       "linux_syscall_return": "RAX",
       "linux_syscall_secondary_return": "RDX",
-      "linux_syscall_error": "negative errno encoded in RAX"
+      "linux_syscall_error": "negative errno encoded in RAX",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "i386",
@@ -87,7 +89,9 @@
         "EBP"
       ],
       "linux_syscall_return": "EAX",
-      "linux_syscall_secondary_return": "EDX"
+      "linux_syscall_secondary_return": "EDX",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "m68k",
@@ -115,7 +119,9 @@
         "D5",
         "A0"
       ],
-      "linux_syscall_return": "D0"
+      "linux_syscall_return": "D0",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "s390x",
@@ -144,7 +150,9 @@
         "R7"
       ],
       "linux_syscall_return": "R2",
-      "linux_syscall_secondary_return": "R3"
+      "linux_syscall_secondary_return": "R3",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "alpha",
@@ -174,7 +182,9 @@
       ],
       "linux_syscall_return": "V0",
       "linux_syscall_secondary_return": "A4",
-      "linux_syscall_error": "A3"
+      "linux_syscall_error": "A3",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "arm64",
@@ -217,7 +227,9 @@
         "X5"
       ],
       "linux_syscall_return": "X0",
-      "linux_syscall_secondary_return": "X1"
+      "linux_syscall_secondary_return": "X1",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "arm",
@@ -247,7 +259,9 @@
         "R6"
       ],
       "linux_syscall_return": "R0",
-      "linux_syscall_secondary_return": "R1"
+      "linux_syscall_secondary_return": "R1",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "riscv64",
@@ -286,7 +300,9 @@
         "A5"
       ],
       "linux_syscall_return": "A0",
-      "linux_syscall_secondary_return": "A1"
+      "linux_syscall_secondary_return": "A1",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "riscv32",
@@ -315,7 +331,9 @@
         "A5"
       ],
       "linux_syscall_return": "A0",
-      "linux_syscall_secondary_return": "A1"
+      "linux_syscall_secondary_return": "A1",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "powerpc64",
@@ -344,7 +362,9 @@
         "R8"
       ],
       "linux_syscall_return": "R3",
-      "linux_syscall_error": "CR0.SO"
+      "linux_syscall_error": "CR0.SO",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "mips",
@@ -374,7 +394,9 @@
       ],
       "linux_syscall_return": "V0",
       "linux_syscall_secondary_return": "V1",
-      "linux_syscall_error": "A3"
+      "linux_syscall_error": "A3",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "sparc64",
@@ -404,7 +426,9 @@
       ],
       "linux_syscall_return": "O0",
       "linux_syscall_secondary_return": "O1",
-      "linux_syscall_error": "PSR/CSR carry flag"
+      "linux_syscall_error": "PSR/CSR carry flag",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "loongarch64",
@@ -433,7 +457,9 @@
         "A5",
         "A6"
       ],
-      "linux_syscall_return": "A0"
+      "linux_syscall_return": "A0",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "arc",
@@ -461,7 +487,9 @@
         "R4",
         "R5"
       ],
-      "linux_syscall_return": "R0"
+      "linux_syscall_return": "R0",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "openrisc",
@@ -519,7 +547,9 @@
         "R22",
         "R21"
       ],
-      "linux_syscall_return": "R28"
+      "linux_syscall_return": "R28",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "nios2",
@@ -548,7 +578,9 @@
         "R9"
       ],
       "linux_syscall_return": "R2",
-      "linux_syscall_error": "R7"
+      "linux_syscall_error": "R7",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "microblaze",
@@ -576,7 +608,9 @@
         "R9",
         "R10"
       ],
-      "linux_syscall_return": "R3"
+      "linux_syscall_return": "R3",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "xtensa",
@@ -604,7 +638,9 @@
         "A8",
         "A9"
       ],
-      "linux_syscall_return": "A2"
+      "linux_syscall_return": "A2",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "sh",
@@ -634,7 +670,9 @@
         "R2"
       ],
       "linux_syscall_return": "R0",
-      "linux_syscall_secondary_return": "R1"
+      "linux_syscall_secondary_return": "R1",
+      "linux_syscall_abi_status": "verified-from-Linux-man-pages",
+      "linux_syscall_abi_source": "https://man7.org/linux/man-pages/man2/syscall.2.html"
     },
     {
       "id": "csky",
