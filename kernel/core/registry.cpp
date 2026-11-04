@@ -3,7 +3,14 @@ namespace {
 static uint16_t r16(const uint8_t*p){return (uint16_t)p[0]|((uint16_t)p[1]<<8);}
 static uint32_t r32(const uint8_t*p){return (uint32_t)p[0]|((uint32_t)p[1]<<8)|((uint32_t)p[2]<<16)|((uint32_t)p[3]<<24);}
 static uint64_t r64(const uint8_t*p){return (uint64_t)r32(p)|((uint64_t)r32(p+4)<<32);}
-static bool path_eq(const uint8_t*p,uint16_t n,const char*s){uint16_t i=0;for(;i<n&&s[i];++i)if(p[i]!=(uint8_t)s[i])return false;return i==n&&s[i]=='\\0';}
+static bool valid_path(const uint8_t*p,uint16_t n){
+ if(!p||!n||p[0]=='/'||p[n-1]=='/')return false;
+ uint16_t segment=0;
+ for(uint16_t i=0;i<n;++i){uint8_t x=p[i];if(x=='/'){if(!segment||(segment==1&&p[i-1]=='.')||(segment==2&&p[i-1]=='.'&&p[i-2]=='.'))return false;segment=0;continue;}
+  if(!((x>='a'&&x<='z')||(x>='0'&&x<='9')||x=='.'||x=='_'||x=='-'))return false;++segment;}
+ return !((segment==1&&p[n-1]=='.')||(segment==2&&p[n-1]=='.'&&p[n-2]=='.'));
+}
+static bool path_eq(const uint8_t*p,uint16_t n,const char*s){uint16_t i=0;for(;i<n&&s[i];++i)if(p[i]!=(uint8_t)s[i])return false;return i==n&&s[i]==0;}
 }
 extern "C" uint32_t koronos_registry_crc32(const uint8_t*p,uint32_t n){uint32_t c=0xffffffffu;if(!p&&n)return 0;for(uint32_t i=0;i<n;++i){c^=p[i];for(uint32_t b=0;b<8;++b)c=(c>>1)^(0xedb88320u&(0u-(c&1u)));}return ~c;}
 extern "C" int koronos_registry_validate(const void*raw,uint32_t n,koronos_registry_view*out){
