@@ -166,7 +166,7 @@ RemainAfterExit=yes
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/etc/group /etc/gshadow
+ReadWritePaths=/etc
 RestrictAddressFamilies=AF_UNIX
 
 [Install]
@@ -203,7 +203,7 @@ WantedBy=multi-user.target
 UNIT
 ln -sfn ../chimera-registryd.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-registryd.service"
 systemctl --root="$WORK" enable avahi-daemon.service >/dev/null 2>&1 || true
-systemctl --root="$WORK" disable smbd.service nmbd.service wsdd.service sssd.service >/dev/null 2>&1 || true
+for unit in smbd.service nmbd.service wsdd.service sssd.service; do systemctl --root="$WORK" disable "$unit" >/dev/null 2>&1 || true; done
 cat > "$WORK/etc/samba/smb.conf" <<'SMB'
 [global]
    workgroup = WORKGROUP
