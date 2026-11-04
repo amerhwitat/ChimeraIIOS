@@ -177,6 +177,9 @@ cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$RO
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
 cp "$ROOT/boot/jasper/jasper.cfg" "$DIST/boot/jasper/jasper.cfg"
+cp "$ROOT/boot/jasper/live-image.cfg" "$DIST/boot/jasper/live-image.cfg"
+mkdir -p "$DIST/boot/gates"
+cp "$ROOT/boot/gates/gates-menu.cfg" "$DIST/boot/gates/gates-menu.cfg"
 # Legacy Jasper contract: older installers and recovery tooling look for
 # /boot/jasper/grub.cfg. Keep it synchronized with the canonical GRUB entry.
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/jasper/grub.cfg"
@@ -195,21 +198,7 @@ cp "$ROOT/boot/boot-menu-contract.json" "$DIST/boot/boot-menu-contract.json"
 cp "$ROOT/boot/livecd/live-manifest.json" "$DIST/boot/live-manifest.json"
 if [[ -d "$ROOT/build/live-boot/boot/live" ]]; then cp -a "$ROOT/build/live-boot/boot/live" "$DIST/boot/"; fi
 
-cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
-set timeout=5
-set default=0
-insmod normal
-insmod gfxterm
-insmod png
-insmod search
-if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/background.png; fi
-menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/koronos/koronos.elf
-  module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest }
-menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/koronos/koronos.elf }
-menuentry "Jasper Recovery — GRUB Command Line" { commandline }
-menuentry "Jasper Recovery — Reboot" { reboot }
-menuentry "Jasper Recovery — Power Off" { halt }
-EOF
+cp "$ROOT/boot/jasper/recovery.cfg" "$DIST/boot/jasper/recovery.cfg"
 
 [[ -f "$ROOT/boot/boot-artwork-manifest.json" ]] && cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/"
 cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/spitfire/"

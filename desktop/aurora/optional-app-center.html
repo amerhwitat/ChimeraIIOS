@@ -16,6 +16,27 @@ main{max-width:1100px;margin:auto}h1{font-size:clamp(25px,4vw,40px);margin:0 0 5
 <div class="notice"><strong>Catalog, not installation state.</strong> These entries identify upstream applications for Windows, Linux and macOS. A listing does not mean an app is installed, ported to ChimeraIIOS, licensed for redistribution, or executable here. Install only through a verified package provider or the official publisher, after checking licensing and compatibility.</div>
 <div class="filters"><input id="search" type="search" placeholder="Search names, categories, licenses…" aria-label="Search applications"><select id="platform" aria-label="Platform"><option value="all">All platforms</option><option>Windows</option><option>Linux</option><option>macOS</option><option>Web</option></select><select id="category" aria-label="Category"><option value="all">All categories</option></select></div>
 <p id="status" class="status" role="status">Loading catalog…</p><section id="apps" class="apps" aria-label="Optional applications"></section>
+
+<section id="polyglot-apps" class="polyglot-panel" aria-labelledby="polyglot-title">
+<h2 id="polyglot-title">Python · Java · Web Applications</h2>
+<p>Implementation inventory and available launchable Python entrypoints. Library modules are not presented as standalone applications.</p>
+<input id="polyglot-search" type="search" placeholder="Search development applications" aria-label="Search development applications">
+<p id="polyglot-status" role="status">Loading implementation inventory…</p><div id="polyglot-list" class="polyglot-grid"></div>
+</section>
+<style>
+.polyglot-panel{margin:28px auto;max-width:1200px;padding:20px;border:1px solid #8be8ed44;border-radius:18px;background:#071b30d9;color:#effaff}
+.polyglot-panel input{width:100%;padding:12px;border-radius:10px;background:#0c2946;color:#fff;border:1px solid #8be8ed55}
+.polyglot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:14px}
+.polyglot-card{padding:14px;border:1px solid #8be8ed33;border-radius:12px;background:#ffffff09}
+.polyglot-card h3{margin:0 0 6px;font-size:15px}.polyglot-card small{color:#a9d5e8}
+</style>
+<script>
+(()=>{const list=document.getElementById("polyglot-list"),status=document.getElementById("polyglot-status"),search=document.getElementById("polyglot-search");if(!list||!status)return;let rows=[];
+const el=(tag,txt,cls)=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n};
+function render(){const q=(search.value||"").toLowerCase();list.replaceChildren();const found=rows.filter(x=>(x.name+" "+x.kind+" "+x.source).toLowerCase().includes(q));for(const x of found){const c=el("article","","polyglot-card");c.append(el("h3",x.name),el("small",x.kind+" · "+x.source));if(x.build)c.append(el("p","Build: "+x.build));list.append(c)}status.textContent=found.length+" entries shown."}
+fetch("../../apps/polyglot/polyglot-apps.json").then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json()}).then(d=>{rows=[...(d.python||[]),...(d.java_sources||[]).map(p=>({name:p.split("/").pop(),kind:"java-source",source:p})),...(d.web_sources||[]).map(p=>({name:p.split("/").pop(),kind:"web-source",source:p}))];render()}).catch(e=>{status.textContent="Inventory not bundled yet: "+e.message+"; source remains in the repository."});
+search.addEventListener("input",render)})();
+</script>
 </main>
 <script>
 (()=>{const search=document.querySelector("#search"),platform=document.querySelector("#platform"),category=document.querySelector("#category"),apps=document.querySelector("#apps"),status=document.querySelector("#status");let items=[];

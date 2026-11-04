@@ -1,14 +1,54 @@
 {
-  "schema":"CHM-BOOT-MENU-4",
-  "kernel":"Koronos",
-  "primary_loader":"Spit Fire",
-  "menu_manager":"Jasper",
-  "firmware_menu":"Gates",
-  "fallback_loader":"GRUB2",
-  "installation_menu":"/boot/installation/menu.cfg",
-  "entries":["live","safe-graphics","install","recovery","diagnostics","spitfire","firmware","reboot","poweroff"],
-  "kernel_policy":{"live":"multiboot2 /boot/koronos/koronos.elf","safe-graphics":"multiboot2 /boot/koronos/koronos.elf","install":"multiboot2 /boot/koronos/koronos.elf","recovery":"multiboot2 /boot/koronos/koronos.elf","diagnostics":"multiboot2 /boot/koronos/koronos.elf"},
-  "artwork_policy":{"canonical":"/boot/visual/aurora-wayland-glass.jpg","desktop":"/usr/share/chimera/aurora/ChimeraIIOS-Aurora-Wayland-Glass.jpg","fallback":"desktop/aurora/assets/aurora-desktop.svg"},
-  "handoff":"Spit Fire -> Jasper/Gates -> Multiboot2/CHMBOOT1 -> Koronos -> hardware/driver discovery -> Aurora session",
-  "linux_vmlinuz":false
+  "schema": "CHM-BOOT-MENU-5",
+  "kernel": "Koronos native diagnostic kernel plus Debian Linux Live kernel",
+  "primary_loader": "GRUB2 BIOS/UEFI El Torito",
+  "firmware_menu": "Gates",
+  "policy_menu": "Gates",
+  "menu_manager": "Jasper",
+  "fallback_loader": "Linux Rescue Shell is a separate Linux runtime; not native Koronos Recovery",
+  "entries": [
+    "spitfire-to-gates",
+    "gates-to-jasper",
+    "live-linux",
+    "live-safe",
+    "linux-rescue",
+    "native-installer",
+    "native-recovery",
+    "koronos-diagnostics",
+    "classic-x",
+    "diagnostics",
+    "firmware",
+    "grub-command-line",
+    "reboot",
+    "poweroff"
+  ],
+  "kernel_policy": {
+    "live-linux": "linux /live/vmlinuz + initrd /live/initrd.img; Init.mp4 plays after Openbox/Aurora startup",
+    "live-safe": "linux /live/vmlinuz + initrd /live/initrd.img with nomodeset and SVGA fallbacks",
+    "linux-rescue": "linux /live/vmlinuz + initrd /live/initrd.img with chimera.mode=recovery; independent read-only-first Linux rescue",
+    "native-installer": "BLOCKED unless /boot/candidates/installer/native-installer-runtime.ready and every dedicated candidate image/manifest exists",
+    "native-recovery": "BLOCKED unless /boot/candidates/recovery/native-recovery-runtime.ready and every dedicated candidate image/manifest exists",
+    "koronos-diagnostics": "multiboot2 /boot/koronos.elf; early-entry markers are not userspace readiness"
+  },
+  "artwork_policy": {
+    "canonical": "/boot/grub/background.jpg",
+    "embedded_source": "/opt/aurora/wallpapers/wp01.jpg",
+    "desktop_default": "/usr/share/backgrounds/aurora-default.jpg",
+    "intro_video": "/boot/spitfire/Init.mp4 and /usr/share/chimera/aurora/assets/Init.mp4",
+    "fallback": "the ISO synthesizes a 1920x1080 Init.mp4 from embedded wp01/wp02/wp03 if the tracked source asset is empty"
+  },
+  "handoff": "Firmware -> GRUB2 BIOS/UEFI El Torito loader -> Spit Fire menu -> Gates policy menu -> Jasper target menu -> Linux Live/Rescue kernel+initramfs or experimental Koronos Multiboot2 diagnostic ELF",
+  "linux_vmlinuz": true,
+  "boot_policy_stage": "Spit Fire GRUB menu",
+  "spitfire_artifacts": {
+    "bios": "SF0 512-byte MBR plus assembled SF1/SF2 stage2 and SHA-256 are packaged as experimental raw-disk bootstrap artifacts; not written to the ISO El Torito boot sectors",
+    "uefi": "GRUB2 EFI image performs UEFI boot; Spit Fire SF0 is BIOS-only",
+    "menu": "GRUB2 Spit Fire menu config hands off to /boot/gates/gates-menu.cfg; Gates hands off to /boot/jasper/live-image.cfg for Linux Live ISOs or /boot/jasper/jasper.cfg for native Koronos ISOs"
+  },
+  "runtime_candidates": {
+    "installer": "Separate BusyBox/Linux initramfs and installation payload prototype; bootable_by_koronos=false",
+    "recovery": "Separate BusyBox/Linux recovery initramfs prototype; bootable_by_koronos=false",
+    "activation": "No native handoff until acceptance-generated READY sentinels, dedicated native init, filesystem/process services, CPL3/PID readiness and target cold-boot verification all pass"
+  },
+  "video_policy": "GRUB menus can stage/announce Init.mp4 but cannot decode it; Linux-backed targets play it after Openbox is ready. No native Koronos video playback is claimed."
 }

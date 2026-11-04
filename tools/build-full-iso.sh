@@ -88,6 +88,11 @@ python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
 if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" "$DISK_MANAGER"; fi
 
 KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
+# Build the native Spit Fire BIOS stages for the full ISO as well as the Live ISO.
+SPITFIRE_OUT="$BUILD/spitfire"
+mkdir -p "$SPITFIRE_OUT"
+[[ -n "$KERNEL" && -s "$KERNEL" ]] || { echo "ERROR: Koronos ELF is required for Spit Fire artifact build." >&2; exit 2; }
+bash "$ROOT/boot/spitfire/build-spitfire.sh" "$SPITFIRE_OUT" "$KERNEL"
 SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
 if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
 
@@ -111,13 +116,50 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
-[[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
+if [[ -n "$KERNEL" && -f "$KERNEL" ]]; then install -D -m 0644 "$KERNEL" "$STAGE/boot/koronos/koronos.elf"; fi
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
+mkdir -p "$STAGE/boot/gates"
+cp -a "$ROOT/boot/gates/." "$STAGE/boot/gates/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
+for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o BUILD-MANIFEST.txt SHA256SUMS; do
+  test -s "$SPITFIRE_OUT/$artifact" || { echo "ERROR: missing Spit Fire artifact $artifact" >&2; exit 2; }
+  install -m 0644 "$SPITFIRE_OUT/$artifact" "$STAGE/boot/spitfire/$artifact"
+done
+install -D -m 0644 "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
+# Move BusyBox/Linux recovery initramfs prototypes out of the active Koronos path.
+mkdir -p "$STAGE/boot/candidates/recovery"
+for artifact in chimera-recovery-initramfs.img chimera-recovery-initramfs.img.sha256 recovery-manifest.json; do
+  if [[ -s "$STAGE/boot/recovery/$artifact" ]]; then
+    cp -f "$STAGE/boot/recovery/$artifact" "$STAGE/boot/candidates/recovery/$artifact"
+    rm -f "$STAGE/boot/recovery/$artifact"
+  fi
+done
+# Build installer media prototypes separately; do not populate active /install/installer.
+INSTALLER_STAGE="$BUILD/installer-prototype"
+rm -rf "$INSTALLER_STAGE"
+mkdir -p "$INSTALLER_STAGE" "$STAGE/boot/candidates/installer"
+bash "$ROOT/tools/chimera-stage-installer-media.sh" "$INSTALLER_STAGE"
+cp -a "$INSTALLER_STAGE/install/installer/." "$STAGE/boot/candidates/installer/"
+rm -rf "$INSTALLER_STAGE"
+python3 - "$STAGE/boot/candidates" <<'PY'
+import hashlib, json, pathlib, sys
+root=pathlib.Path(sys.argv[1])
+def entries(p):
+    return [{"path":x.name,"size":x.stat().st_size,"sha256":hashlib.sha256(x.read_bytes()).hexdigest()}
+            for x in sorted(p.iterdir()) if x.is_file()]
+m={
+ "schema":"koronos-native-runtime-candidates-v1",
+ "installer":{"artifacts":entries(root/"installer"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "recovery":{"artifacts":entries(root/"recovery"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "activation_policy":"Candidate archives remain outside active native boot paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot acceptance pass.",
+ "status":"prototype-built-not-native-koronos-runtime"
+}
+(root/"native-runtime-candidates.json").write_text(json.dumps(m,indent=2)+"\n")
+PY
 cp -a "$ROOT/boot/diagnostics/." "$STAGE/boot/diagnostics/"
 cp -a "$ROOT/boot/boot-menu-contract.json" "$STAGE/boot/"
 
@@ -130,6 +172,9 @@ done
 for art in aurora-desktop.svg aurora-installer.svg aurora-library.svg aurora-wayland-glass.svg aurora-wayland-glass.png chimera-infinite-research-horizon.svg chimera-artwork-manifest.json; do
   [[ -s "$ROOT/desktop/aurora/assets/$art" ]] && cp -f "$ROOT/desktop/aurora/assets/$art" "$STAGE/desktop/aurora/assets/$art"
 done
+if [[ -s "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" ]]; then
+  base64 -d "$ROOT/boot/visual/aurora-wayland-glass.jpg.b64" > "$STAGE/boot/grub/background.jpg"
+fi
 for art in aurora-wayland-glass.jpg.b64; do
   if [[ -s "$ROOT/boot/visual/$art" ]]; then
     base64 -d "$ROOT/boot/visual/$art" > "$STAGE/boot/visual/aurora-wayland-glass.jpg"

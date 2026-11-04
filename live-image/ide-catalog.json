@@ -1,0 +1,163 @@
+{
+  "schema": "aurora-ide-bundle-v1",
+  "title": "Open-source IDE and developer tool bundle",
+  "source": "Debian Trixie main repository",
+  "policy": "Installed packages are built from Debian's signed repositories. Package presence is not a claim that every project language or target SDK is preconfigured.",
+  "packages": [
+    {
+      "id": "geany",
+      "name": "Geany",
+      "package": "geany",
+      "license": "GPL-2.0-or-later",
+      "category": "IDE"
+    },
+    {
+      "id": "geany-plugins",
+      "name": "Geany Plugins",
+      "package": "geany-plugins",
+      "license": "GPL-2.0-or-later",
+      "category": "IDE extensions"
+    },
+    {
+      "id": "gnome-builder",
+      "name": "GNOME Builder",
+      "package": "gnome-builder",
+      "license": "GPL-3.0-or-later",
+      "category": "IDE"
+    },
+    {
+      "id": "kdevelop",
+      "name": "KDevelop",
+      "package": "kdevelop",
+      "license": "GPL-2.0-or-later",
+      "category": "IDE"
+    },
+    {
+      "id": "thonny",
+      "name": "Thonny",
+      "package": "thonny",
+      "license": "MIT",
+      "category": "Python IDE"
+    },
+    {
+      "id": "idle",
+      "name": "IDLE",
+      "package": "idle",
+      "license": "PSF",
+      "category": "Python IDE"
+    },
+    {
+      "id": "lazarus",
+      "name": "Lazarus IDE",
+      "package": "lazarus",
+      "license": "GPL-2.0-or-later with component licenses",
+      "category": "Pascal IDE"
+    },
+    {
+      "id": "emacs",
+      "name": "GNU Emacs",
+      "package": "emacs-gtk",
+      "license": "GPL-3.0-or-later",
+      "category": "Extensible IDE"
+    },
+    {
+      "id": "vim",
+      "name": "Vim GTK",
+      "package": "vim-gtk3",
+      "license": "Vim license",
+      "category": "Extensible IDE"
+    },
+    {
+      "id": "scite",
+      "name": "SciTE",
+      "package": "scite",
+      "license": "HPND",
+      "category": "Programmer editor"
+    },
+    {
+      "id": "bluefish",
+      "name": "Bluefish",
+      "package": "bluefish",
+      "license": "GPL-3.0-or-later",
+      "category": "Web development IDE"
+    },
+    {
+      "id": "codeblocks",
+      "name": "Code::Blocks",
+      "package": "codeblocks",
+      "license": "GPL-3.0-or-later",
+      "category": "C/C++ IDE"
+    },
+    {
+      "id": "codeblocks-contrib",
+      "name": "Code::Blocks Plugins",
+      "package": "codeblocks-contrib",
+      "license": "GPL-compatible",
+      "category": "IDE extensions"
+    },
+    {
+      "id": "qtcreator",
+      "name": "Qt Creator",
+      "package": "qtcreator",
+      "license": "GPL-3.0",
+      "category": "C++/Qt IDE"
+    },
+    {
+      "id": "arduino",
+      "name": "Arduino IDE",
+      "package": "arduino",
+      "license": "GPL-2.0-or-later",
+      "category": "Embedded IDE"
+    },
+    {
+      "id": "fp-ide",
+      "name": "Free Pascal IDE",
+      "package": "fp-ide",
+      "license": "GPL-2.0-or-later",
+      "category": "Pascal IDE"
+    }
+  ],
+  "toolchain": [
+    "build-essential",
+    "cmake",
+    "ninja-build",
+    "git",
+    "gdb",
+    "clang",
+    "lld",
+    "pkg-config",
+    "nasm",
+    "binutils"
+  ],
+  "note": "The base IDE bundle is installed from Debian signed packages. Optional IDEs are feature-detected against the configured Debian Trixie repository. Each image records exact installed package versions in /opt/aurora/ide-packages-installed.tsv; catalog entries are not proof of installation.",
+  "optional_packages": [
+    {
+      "id": "eclipse-platform",
+      "name": "Eclipse Platform",
+      "package": "eclipse-platform",
+      "category": "Extensible IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    },
+    {
+      "id": "eric",
+      "name": "eric",
+      "package": "eric",
+      "category": "Python IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    },
+    {
+      "id": "spyder",
+      "name": "Spyder",
+      "package": "spyder",
+      "category": "Scientific Python IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    },
+    {
+      "id": "gambas3-ide",
+      "name": "Gambas",
+      "package": "gambas3-ide",
+      "category": "Basic IDE",
+      "install_policy": "installed only if available in signed Debian Trixie repositories"
+    }
+  ]
+}

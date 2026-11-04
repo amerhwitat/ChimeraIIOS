@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora Media Deck
+Comment=Play local audio and video; browse the saved Suno collection
+Exec=xdg-open file:///opt/aurora/apps/media/media-deck.html
+Icon=multimedia-player
+Terminal=false
+Categories=AudioVideo;Player;
+StartupNotify=true

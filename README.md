@@ -21,6 +21,9 @@ wallpapers. The image runs the Debian Linux kernel plus this repository's Aurora
 userspace payload — see the release notes for exactly what it does and does not prove about
 the native Koronos kernel.
 
+
+The Jasper / GRUB 2 menu exposes **Live desktop**, **Installer**, **Koronos native kernel**, and **Recovery** targets. Verbose kernel and systemd output is enabled by default. GRUB prefers 1920x1080 and preserves its framebuffer with `gfxpayload=keep`, falling back through supported high-resolution/SVGA modes. The Installer target fails closed unless OS-specific Calamares settings and install modules are present; the ISO builder compiles and embeds the repository's validated Multiboot2 x86-64 Koronos ELF (an external artifact can override it with `KORONOS_ELF=/path/to/koronos.elf`). Recovery is read-only by default and requires explicit confirmation before filesystem repair. See [boot target and acceptance details](docs/BOOT_TARGETS.md).
+
 > **Verification policy:** documented, cataloged, compiled, booted, userspace-ready, conformance-tested, and SMP-verified are distinct evidence levels. See [the verification evidence contract](docs/VERIFICATION_EVIDENCE_CONTRACT.md); do not infer a higher level from a lower one.
 
 Chimera II OS is a cross-language research operating-system and application platform centered on the Koronos microkernel, wide-register C8192/R8192 research ISA, multidimensional cognition, portable tooling, trusted peer networking and separate hosted/bare-metal computer and mobile editions.

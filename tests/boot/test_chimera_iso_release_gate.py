@@ -5,17 +5,20 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github/workflows/chimera-full-iso.yml"
 
+
 class ChimeraIsoReleaseGateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.text = WORKFLOW.read_text(encoding="utf-8")
 
-    def test_all_three_targets_use_real_trace_verifier(self):
+    def test_live_target_uses_real_trace_verifier_and_native_targets_stay_blocked(self):
         self.assertIn("id: userspace_gate", self.text)
-        for target in ("live", "installer", "recovery"):
-            self.assertIn(f'for target in live installer recovery', self.text)
-            self.assertIn(f'python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"', self.text)
-        self.assertIn("verify-userspace-handoff.py", self.text)
+        self.assertIn('verify-userspace-handoff.py live "$trace"', self.text)
+        self.assertIn("native-installer-runtime.ready", self.text)
+        self.assertIn("native-recovery-runtime.ready", self.text)
+        self.assertIn("Native Installer: BLOCKED", self.text)
+        self.assertIn("Native Koronos Recovery: BLOCKED", self.text)
+        self.assertIn("prototype-built-not-native-koronos-runtime", self.text)
 
     def test_release_requires_runtime_gate_and_explicit_approval(self):
         release = self.text.split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[1]
@@ -27,6 +30,7 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
         self.assertIn("no release will be published", self.text)
         self.assertIn("name: Upload target-specific userspace acceptance traces", self.text)
+
 
 if __name__ == "__main__":
     unittest.main()

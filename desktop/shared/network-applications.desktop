@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Network Applications
+Comment=Browse networking, communications, remote access and diagnostics tools
+Exec=xdg-open /opt/aurora/desktop/shared/network-applications.html
+Icon=network-workgroup
+Terminal=false
+Categories=Network;Utility;

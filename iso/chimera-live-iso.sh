@@ -78,6 +78,8 @@ cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
+mkdir -p "$STAGE/boot/gates"
+cp -a "$ROOT/boot/gates/." "$STAGE/boot/gates/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"
@@ -106,6 +108,10 @@ install_iso_dependencies() {
   command -v xorriso >/dev/null 2>&1 || missing+=(xorriso)
   command -v busybox >/dev/null 2>&1 || missing+=(busybox)
   command -v cpio >/dev/null 2>&1 || missing+=(cpio)
+  command -v nasm >/dev/null 2>&1 || missing+=(nasm)
+  command -v g++ >/dev/null 2>&1 || missing+=(g++)
+  command -v ld >/dev/null 2>&1 || missing+=(binutils)
+  command -v nm >/dev/null 2>&1 || missing+=(binutils)
 
   if ((${#missing[@]} == 0)); then
     return 0
@@ -118,7 +124,7 @@ install_iso_dependencies() {
   fi
 
   if command -v apt-get >/dev/null 2>&1; then
-    local packages=(busybox cpio mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
+    local packages=(busybox cpio nasm g++ binutils mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
     if command -v sudo >/dev/null 2>&1; then
       sudo apt-get update
       sudo apt-get install -y "${packages[@]}"
@@ -164,21 +170,60 @@ mkdir -p "$STAGE/boot/live" "$STAGE/boot/koronos"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
+# Build and stage Spit Fire BIOS stages for this ISO mastering path.
+SPITFIRE_OUT="$ROOT/build/spitfire"
+mkdir -p "$SPITFIRE_OUT" "$STAGE/boot/spitfire" "$STAGE/boot/jasper"
+bash "$ROOT/boot/spitfire/build-spitfire.sh" "$SPITFIRE_OUT" "$LIVE_BOOT/boot/koronos/koronos.elf"
+for artifact in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o BUILD-MANIFEST.txt SHA256SUMS; do
+  test -s "$SPITFIRE_OUT/$artifact" || { echo "ERROR: missing Spit Fire artifact $artifact" >&2; exit 2; }
+  install -m 0644 "$SPITFIRE_OUT/$artifact" "$STAGE/boot/spitfire/$artifact"
+done
+# Move Linux BusyBox recovery prototypes to candidate storage; never enable them as Koronos Recovery.
+mkdir -p "$STAGE/boot/candidates/recovery"
+if [[ -s "$STAGE/boot/recovery/recovery-manifest.json" ]]; then cp -f "$STAGE/boot/recovery/recovery-manifest.json" "$STAGE/boot/candidates/recovery/"; rm -f "$STAGE/boot/recovery/recovery-manifest.json"; fi
+for artifact in chimera-recovery-initramfs.img chimera-recovery-initramfs.img.sha256 recovery-manifest.json; do
+  if [[ -s "$LIVE_BOOT/boot/recovery/$artifact" ]]; then
+    cp -f "$LIVE_BOOT/boot/recovery/$artifact" "$STAGE/boot/candidates/recovery/$artifact"
+    rm -f "$STAGE/boot/recovery/$artifact"
+  fi
+done
+
 
 install_iso_dependencies
 if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
   echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2
   exit 2
 fi
-bash "$ROOT/tools/chimera-stage-installer-media.sh" "$STAGE"
+INSTALLER_STAGE="$ISO_TMP/installer-prototype"
+rm -rf "$INSTALLER_STAGE"
+mkdir -p "$INSTALLER_STAGE" "$STAGE/boot/candidates/installer"
+bash "$ROOT/tools/chimera-stage-installer-media.sh" "$INSTALLER_STAGE"
+cp -a "$INSTALLER_STAGE/install/installer/." "$STAGE/boot/candidates/installer/"
+rm -rf "$INSTALLER_STAGE"
 for required in \
-  "$STAGE/install/installer/installation.img" \
-  "$STAGE/install/installer/installation-manifest.json" \
-  "$STAGE/install/installer/installer-contract.json" \
-  "$STAGE/install/installer/installation_phases.json" \
-  "$STAGE/install/installer/installer_profiles.json"; do
-  [[ -s "$required" ]] || { echo "ERROR: missing installer media artifact: $required" >&2; exit 2; }
+  "$STAGE/boot/candidates/installer/installation.img" \
+  "$STAGE/boot/candidates/installer/installer-initrd.img" \
+  "$STAGE/boot/candidates/installer/installation-manifest.json" \
+  "$STAGE/boot/candidates/installer/installer-contract.json" \
+  "$STAGE/boot/candidates/installer/installation_phases.json" \
+  "$STAGE/boot/candidates/installer/installer_profiles.json"; do
+  [[ -s "$required" ]] || { echo "ERROR: missing installer prototype artifact: $required" >&2; exit 2; }
 done
+python3 - "$STAGE/boot/candidates" <<'PY'
+import hashlib, json, pathlib, sys
+root=pathlib.Path(sys.argv[1])
+def entries(p):
+    return [{"path":x.name,"size":x.stat().st_size,"sha256":hashlib.sha256(x.read_bytes()).hexdigest()}
+            for x in sorted(p.iterdir()) if x.is_file()]
+m={
+ "schema":"koronos-native-runtime-candidates-v1",
+ "installer":{"artifacts":entries(root/"installer"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "recovery":{"artifacts":entries(root/"recovery"),"runtime_type":"BusyBox/Linux initramfs prototype","bootable_by_koronos":False},
+ "activation_policy":"Candidate archives remain outside active native boot paths. Native Installer/Recovery remain blocked until native init, filesystem syscall routing, process scheduling, CPL3/PID readiness and target-specific cold-boot acceptance pass.",
+ "status":"prototype-built-not-native-koronos-runtime"
+}
+(root/"native-runtime-candidates.json").write_text(json.dumps(m,indent=2)+"\n")
+PY
 
 # Verify mformat can create a FAT image in the native temporary filesystem before
 # invoking GRUB. This turns a vague grub-mkrescue failure into a useful error.

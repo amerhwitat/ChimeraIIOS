@@ -13,6 +13,7 @@ Options:
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
+  --skip-sdk-builds            Skip repository-wide SDK discovery and compilation.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
 Notes:
@@ -231,6 +232,7 @@ while [[ $# -gt 0 ]]; do
     --push) export CHIMERA_PUSH=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
+    --skip-sdk-builds) export CHIMERA_BUILD_REPO_SDKS=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
@@ -389,6 +391,7 @@ preflight(){
       export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
   fi
+
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
   # Network research is opt-in; failures do not silently promote support claims.
   if [[ "${CHIMERA_ARCH_DISCOVERY:-1}" == 1 && -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
@@ -1114,6 +1117,26 @@ stage_package_managers(){
   cp -f "$catalog" "$ISO_DIR/system/appcenter/catalog/package-managers.json"
   chmod +x "$ROOTFS_DIR/usr/bin/chimera-pkg"
   bash -n "$ROOTFS_DIR/usr/bin/chimera-pkg"
+  # Install the shared professional desktop experience and Network Applications panel.
+  local shared="$SCRIPT_DIR/desktop/shared"
+  for f in desktop-experience.js network-applications.html network-applications.json network-applications.desktop linux-workspace.desktop voiceconnect-project.desktop voiceconnect-launcher.sh; do
+    [[ -s "$shared/$f" ]] || { log_error "Desktop experience payload missing: $shared/$f"; return 1; }
+  done
+  mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/shared" "$ROOTFS_DIR/opt/aurora/desktop/shared" "$ROOTFS_DIR/usr/local/bin" "$ROOTFS_DIR/usr/share/applications" "$ISO_DIR/desktop/shared"
+  cp -a "$shared/." "$ROOTFS_DIR/usr/share/chimera/desktop/shared/"
+  cp -a "$shared/." "$ROOTFS_DIR/opt/aurora/desktop/shared/"
+  cp -a "$shared/." "$ISO_DIR/desktop/shared/"
+  mkdir -p "$ROOTFS_DIR/opt/aurora/desktop/plasma" "$ISO_DIR/desktop/plasma"
+  cp -a "$SCRIPT_DIR/desktop/plasma/." "$ROOTFS_DIR/opt/aurora/desktop/plasma/"
+  cp -a "$SCRIPT_DIR/desktop/plasma/." "$ISO_DIR/desktop/plasma/"
+  install -m 0644 "$shared/network-applications.desktop" "$ROOTFS_DIR/usr/share/applications/aurora-network-applications.desktop"
+  install -m 0644 "$shared/linux-workspace.desktop" "$ROOTFS_DIR/usr/share/applications/nebula-linux-workspace.desktop"
+  install -m 0644 "$shared/voiceconnect-project.desktop" "$ROOTFS_DIR/usr/share/applications/voiceconnect-project.desktop"
+  install -m 0755 "$shared/voiceconnect-launcher.sh" "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
+  bash -n "$ROOTFS_DIR/usr/local/bin/voiceconnect-launcher"
+  if command -v node >/dev/null 2>&1; then node --check "$shared/desktop-experience.js"; else log_warning "Node.js unavailable on host; desktop JS syntax is checked by CI."; fi
+  python3 -m json.tool "$shared/network-applications.json" >/dev/null
+  log_info "Professional desktop interaction layer, Network Applications and VoiceConnect project launcher staged."
   python3 -m py_compile "$ROOTFS_DIR/usr/share/chimera/aurora/package_manager_panel.py"
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json" >/dev/null
   python3 -m json.tool "$ROOTFS_DIR/usr/share/chimera/database/databases.json" >/dev/null
@@ -1514,6 +1537,21 @@ main(){
   preflight
   check_deps
   CURRENT_STAGE=""
+  # Discover and compile first-party SDK projects before ISO composition. The
+  # helper excludes vendored/dependency/build trees and records every PASS/FAIL/SKIP.
+  # Best-effort is the default so an optional SDK does not mask a later ISO failure;
+  # set CHIMERA_SDK_BUILD_STRICT=1 to make any discovered SDK failure fatal.
+  if [[ "${CHIMERA_BUILD_REPO_SDKS:-1}" == "1" ]]; then
+    export CHIMERA_SDK_BUILD_DIR="$BUILD_DIR/sdk-build"
+    log_both "Building repository SDKs (CMake, Cargo, Go, Maven, npm and Gradle)"
+    if ! bash "$SCRIPT_DIR/tools/build-repository-sdks.sh" >>"$LOG_DIR/sdk-build.log" 2>&1; then
+      log_error "Repository SDK build runner failed; see $LOG_DIR/sdk-build.log"
+      [[ "${CHIMERA_SDK_BUILD_STRICT:-0}" != "1" ]] || exit 1
+    fi
+  else
+    log_both "Repository SDK build discovery disabled by CHIMERA_BUILD_REPO_SDKS=0"
+  fi
+  
   local completed="$(state_get)"
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi

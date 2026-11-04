@@ -5,6 +5,15 @@ on:
     branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
     paths:
       - 'live-image/**'
+      - 'tools/polyglot_apps.py'
+      - 'tools/build-repository-sdks.sh'
+      - 'build-chimera-iso.sh'
+      - 'build-chimera-iso.sh'
+      - 'boot/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'install/installation-manifest.json'
+      - 'docs/BOOT_TARGETS.md'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -16,6 +25,12 @@ on:
   pull_request:
     paths:
       - 'live-image/**'
+      - 'tools/polyglot_apps.py'
+      - 'boot/**'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'install/installation-manifest.json'
+      - 'docs/BOOT_TARGETS.md'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -31,34 +46,74 @@ on:
         required: true
         type: boolean
         default: false
-
 permissions:
   contents: write
 
 concurrency:
-  group: live-image-chimera-${{ github.ref }}
+  group: live-image-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
+  windows-apps:
+    name: Build Windows Python applications with PyInstaller
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyInstaller
+        run: python -m pip install --upgrade pip pyinstaller
+      - name: Build Windows Apps Panel and Python entrypoints
+        run: |
+          python tools/polyglot_apps.py --root . --output build/polyglot-windows --platform windows --build
+          if (!(Test-Path build/polyglot-windows/dist/PolyglotAppsPanel.exe)) { throw "Missing Windows Apps Panel executable" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: polyglot-windows-apps
+          path: build/polyglot-windows/dist/
+          if-no-files-found: error
+
   build:
+    needs: [windows-apps]
     name: Build Chimera II OS live ISO
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: polyglot-windows-apps
+          path: ${{ runner.temp }}/polyglot-windows
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+      - name: Export Node.js 24 runtime for the ISO bundle
+        run: |
+          echo "NODE_BINARY=$(command -v node)" >> "$GITHUB_ENV"
+          echo "NPM_BINARY=$(command -v npm)" >> "$GITHUB_ENV"
 
       - name: Install host ISO and graphical smoke-test dependencies
         run: |
           sudo apt-get update
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
-            mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+            mtools dosfstools imagemagick busybox-static cpio python3 python3-venv default-jdk-headless maven python3-gi gir1.2-gtk-3.0 \
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 g++ nasm binutils cmake cargo rustc golang-go gradle ffmpeg
 
       - name: Validate desktop source and application catalogs
         run: |
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
+          node --check web/language-runtime.js
+          node --check desktop/shared/desktop-experience.js
+          python3 -m json.tool desktop/shared/network-applications.json >/dev/null
+          bash -n tools/build-repository-sdks.sh desktop/shared/voiceconnect-launcher.sh
+          python3 -m unittest discover -s tests/live-image -p 'test_desktop_*.py'
+          bash -n build-chimera-iso.sh live-image/build.sh boot/spitfire/build-spitfire.sh tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh
+          bash -n live-image/lib/chimera-boot-mode.sh live-image/lib/chimera-recovery.sh desktop/aurora/aurora-init-splash.sh tests/live-image/test-grub-targets.sh tests/live-image/test-qemu-live-boot.sh
+          python3 -m json.tool install/installation-manifest.json >/dev/null
+          python3 -m json.tool boot/boot-menu-contract.json >/dev/null
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
           if [[ "chimera" == "chimera" ]]; then
             python3 -m json.tool applications/catalog.json >/dev/null
@@ -83,6 +138,8 @@ jobs:
         env:
           BUILD_ROOT: ${{ runner.temp }}/aurora-live-build
           OUT_DIR: ${{ runner.temp }}/aurora-live-output
+          WINDOWS_APP_BUNDLE_DIR: ${{ runner.temp }}/polyglot-windows
+          BUILD_PYINSTALLER: '1'
         run: |
           set -euo pipefail
           sudo -E bash live-image/build.sh chimera
@@ -100,14 +157,104 @@ jobs:
           iso="$OUT_DIR/$ISO_NAME"
           (cd "$OUT_DIR" && sha256sum --check "$ISO_NAME.sha256")
           xorriso -indev "$iso" -report_el_torito plain -report_system_area plain -print '' | tee "$OUT_DIR/ISO-BOOT-REPORT.txt"
+          xorriso -osirrox on -indev "$iso" -extract /boot/koronos.elf "$OUT_DIR/koronos.elf" >/dev/null
+          python3 - "$OUT_DIR/koronos.elf" <<'PY'
+          import pathlib, struct, sys
+          data = pathlib.Path(sys.argv[1]).read_bytes()
+          assert data[:4] == b"\x7fELF" and data[4] == 2 and data[5] == 1, "Koronos must be ELF64 little-endian"
+          assert struct.unpack_from("<H", data, 18)[0] == 62, "Koronos must target x86-64"
+          magic = 0xE85250D6
+          found = False
+          for off in range(0, min(len(data), 32768) - 16, 8):
+              if struct.unpack_from("<I", data, off)[0] == magic:
+                  arch, size, checksum = struct.unpack_from("<III", data, off + 4)
+                  if arch == 0 and size >= 16 and off + size <= len(data) and ((magic + arch + size + checksum) & 0xffffffff) == 0:
+                      found = True
+                      break
+          assert found, "Koronos Multiboot2 header missing or invalid"
+          print("Embedded Koronos ELF64 Multiboot2 header: PASS")
+          PY
+          xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$OUT_DIR/grub.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-menu.cfg "$OUT_DIR/spitfire-menu.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/gates/gates-menu.cfg "$OUT_DIR/gates-menu.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/jasper/live-image.cfg "$OUT_DIR/jasper-live.cfg" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/spitfire-sf0-mbr.bin "$OUT_DIR/spitfire-sf0-mbr.bin" >/dev/null
+          test "$(stat -c%s "$OUT_DIR/spitfire-sf0-mbr.bin")" -eq 512
+          xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$OUT_DIR/native-runtime-candidates.json" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/boot-menu-contract.json "$OUT_DIR/boot-menu-contract.json" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/spitfire/Init.mp4 "$OUT_DIR/boot-Init.mp4" >/dev/null
+          test -s "$OUT_DIR/boot-Init.mp4"
+          chmod +x tests/live-image/test-grub-targets.sh
+          tests/live-image/test-grub-targets.sh "$OUT_DIR/grub.cfg" "$OUT_DIR/spitfire-menu.cfg" "$OUT_DIR/gates-menu.cfg" "$OUT_DIR/jasper-live.cfg" "$OUT_DIR/native-runtime-candidates.json" "$OUT_DIR/boot-menu-contract.json"
+          for artifact in \
+            /boot/candidates/installer/installer-initrd.img \
+            /boot/candidates/installer/installation.img \
+            /boot/candidates/installer/installation-manifest.json \
+            /boot/candidates/installer/installer-contract.json \
+            /boot/candidates/installer/installation_phases.json \
+            /boot/candidates/installer/installer_profiles.json \
+            /boot/candidates/recovery/chimera-recovery-initramfs.img \
+            /boot/candidates/recovery/recovery-manifest.json; do
+            name="$(basename "$artifact")"
+            xorriso -osirrox on -indev "$iso" -extract "$artifact" "$OUT_DIR/$name" >/dev/null
+            test -s "$OUT_DIR/$name"
+          done
+          ! cmp -s "$OUT_DIR/installer-initrd.img" "$OUT_DIR/installation.img"
+          python3 - "$OUT_DIR/installation-manifest.json" "$OUT_DIR/recovery-manifest.json" <<'PY'
+          import json, pathlib, sys
+          installer = json.loads(pathlib.Path(sys.argv[1]).read_text())
+          recovery = json.loads(pathlib.Path(sys.argv[2]).read_text())
+          assert installer["bootable"] is False
+          assert recovery["bootable"] is False
+          PY
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
           unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
+          test -s "$root/opt/aurora/apps/polyglot/polyglot-apps.json"
+          test -s "$root/opt/aurora/apps/polyglot/polyglot_apps.py"
+          test -s "$root/usr/share/applications/aurora-polyglot-apps.desktop"
+          test -x "$root/opt/aurora/apps/polyglot/linux/PolyglotAppsPanel"
+          test -s "$root/opt/aurora/apps/polyglot/windows/PolyglotAppsPanel.exe"
+          python3 - "$root/opt/aurora/apps/polyglot" <<'PY_POLYGLOT_VERIFY'
+          import json,pathlib,sys
+          root=pathlib.Path(sys.argv[1]);data=json.loads((root/"polyglot-apps.json").read_text())
+          paths=[x["source"] for x in data.get("python",[])]
+          paths+=data.get("java_sources",[])+data.get("web_sources",[])
+          missing=[p for p in paths if not (root/"source-tree"/p).is_file()]
+          assert not missing, "missing staged sources: "+", ".join(missing[:20])
+          print("ISO polyglot payload verified:",len(paths),"source files")
+          PY_POLYGLOT_VERIFY
           test -x "$root/usr/bin/openbox"
           test -x "$root/usr/bin/xprop"
           test -x "$root/usr/local/bin/aurora-session"
+          test -x "$root/usr/local/bin/chimera-boot-mode"
+          test -x "$root/usr/local/sbin/chimera-recovery"
+          test -x "$root/usr/local/bin/aurora-init-splash.sh"
+          test -s "$root/usr/share/chimera/aurora/assets/Init.mp4"
+          cmp -s "$OUT_DIR/boot-Init.mp4" "$root/usr/share/chimera/aurora/assets/Init.mp4"
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json "$root/usr/share/chimera/aurora/assets/Init.mp4" > "$OUT_DIR/init-video.json"
+          python3 - "$OUT_DIR/init-video.json" <<'PY'
+          import json, sys
+          streams = json.load(open(sys.argv[1]))["streams"]
+          assert len(streams) == 1, "Init.mp4 must contain exactly one video stream"
+          assert streams[0]["width"] == 1920 and streams[0]["height"] == 1080, streams[0]
+          print("Init.mp4 video stream: PASS (1920x1080)")
+          PY
+          grep -Fq 'aurora-init-splash.sh' "$root/usr/local/bin/aurora-session"
+          test -s "$root/opt/aurora/app-catalogs/ide-catalog.json"
+          test -s "$root/usr/share/backgrounds/aurora-default.jpg"
+          test -s "$root/etc/xdg/openbox/menu.xml"
+          for package in geany geany-plugins gnome-builder kdevelop thonny idle lazarus emacs-gtk vim-gtk3 scite bluefish codeblocks codeblocks-contrib qtcreator arduino fp-ide; do
+            grep -Fq "Package: $package" "$root/var/lib/dpkg/status" || { echo "IDE package missing from live root: $package" >&2; exit 1; }
+          done
+          python3 - "$root/usr/local/bin/aurora-session" <<'PY'
+          import pathlib, sys
+          s=pathlib.Path(sys.argv[1]).read_text()
+          assert s.index("AURORA_DESKTOP_URI=") < s.index("exec /usr/local/bin/chimera-boot-mode")
+          assert "aurora-init-splash.sh" in s and "CHIMERA_INIT_VIDEO=" in s
+          PY
           test -s "$root/opt/aurora/application-bundle.json"
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
@@ -125,6 +272,17 @@ jobs:
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
           PY
+          # Export the complete boot tree separately so Spit Fire binaries,
+          # Jasper/Gates menus, candidate runtimes and checksums are individually
+          # available alongside the ISO.
+          mkdir -p "$OUT_DIR/boot-artifacts/live"
+          xorriso -osirrox on -indev "$iso" -extract /boot "$OUT_DIR/boot-artifacts/boot" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /live/vmlinuz "$OUT_DIR/boot-artifacts/live/vmlinuz" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /live/initrd.img "$OUT_DIR/boot-artifacts/live/initrd.img" >/dev/null
+          test ! -e "$OUT_DIR/boot-artifacts/boot/candidates/installer/native-installer-runtime.ready"
+          test ! -e "$OUT_DIR/boot-artifacts/boot/candidates/recovery/native-recovery-runtime.ready"
+          tar -C "$OUT_DIR/boot-artifacts" -czf "$OUT_DIR/chimera-boot-artifacts.tar.gz" .
+          sha256sum "$OUT_DIR/chimera-boot-artifacts.tar.gz" > "$OUT_DIR/chimera-boot-artifacts.tar.gz.sha256"
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
 
@@ -136,12 +294,44 @@ jobs:
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
             ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT.txt
+            ${{ runner.temp }}/aurora-live-output/chimera-boot-artifacts.tar.gz
+            ${{ runner.temp }}/aurora-live-output/chimera-boot-artifacts.tar.gz.sha256
           if-no-files-found: error
           retention-days: 30
 
+  qemu-boot:
+    name: QEMU boot all Jasper targets
+    needs: [build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the exact ISO built by this workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: chimera-ii-os-live-desktop-fixed
+          path: candidate
+      - name: Install QEMU and screenshot inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes qemu-system-x86 socat imagemagick tesseract-ocr
+      - name: Boot Live, Installer, Koronos and Recovery targets
+        run: |
+          set -euo pipefail
+          chmod +x tests/live-image/test-qemu-live-boot.sh
+          for target in live linux-rescue installer native-recovery koronos; do
+            tests/live-image/test-qemu-live-boot.sh "candidate/chimera-ii-os-live-amd64.iso" "${{ runner.temp }}/qemu-evidence/$target" "$target"
+          done
+      - name: Upload QEMU boot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-jasper-qemu-boot-evidence
+          path: ${{ runner.temp }}/qemu-evidence
+          if-no-files-found: error
+          retention-days: 30
   publish:
     name: Publish verified Chimera II OS live ISO
-    needs: [build]
+    needs: [build, qemu-boot]
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
     runs-on: ubuntu-latest
     steps:
@@ -157,11 +347,14 @@ jobs:
           iso="$(find release-assets -maxdepth 1 -type f -name '*.iso' ! -name '*.sha256' -print -quit)"
           checksum="$(find release-assets -maxdepth 1 -type f -name '*.iso.sha256' -print -quit)"
           report="$(find release-assets -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
-          test -s "$iso" && test -s "$checksum" && test -s "$report"
+          boot_assets="$(find release-assets -maxdepth 1 -type f -name 'chimera-boot-artifacts.tar.gz' -print -quit)"
+          boot_assets_sha="$(find release-assets -maxdepth 1 -type f -name 'chimera-boot-artifacts.tar.gz.sha256' -print -quit)"
+          test -s "$iso" && test -s "$checksum" && test -s "$report" && test -s "$boot_assets" && test -s "$boot_assets_sha"
+          (cd "$(dirname "$boot_assets")" && sha256sum --check "$(basename "$boot_assets_sha")")
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
           tag="chimera-ii-os-live-${version}-desktop-${short}"
-          gh release create "$tag" "$iso" "$checksum" "$report" \
+          gh release create "$tag" "$iso" "$checksum" "$report" "$boot_assets" "$boot_assets_sha" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Chimera II OS ${version} — fullscreen desktop fix" \
-            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
+            --title "Chimera II OS ${version} — Jasper multi-target boot and verbose SVGA desktop" \
+            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. GRUB routes through Spit Fire, Gates and Jasper; the boot-artifacts archive contains Spit Fire SF0/SF1/SF2 binaries, menus, native Installer/Recovery candidate images and checksums. The Linux Live ISO prefers 5120x2880 with supported SVGA fallbacks, preserves the framebuffer, and enables verbose kernel/systemd diagnostics. The ISO embeds a validated native Koronos Multiboot2 ELF; QEMU verifies its early entry/idle-loop markers, not CPL3 userspace readiness or production-kernel acceptance. Native Installer and native Koronos Recovery candidates remain fail-closed until their acceptance-generated READY sentinels exist; the separate Linux Rescue path is read-only-first. The default Live edition uses the Debian Linux kernel. Physical-machine boot is not certified by this workflow. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source; catalog-only entries are not represented as installed applications."

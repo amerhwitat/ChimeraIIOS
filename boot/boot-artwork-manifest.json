@@ -6,6 +6,7 @@
   "embedded_source_dimensions": "480x268",
   "source_image": "Aurora-Wayland-Glass-Desktop.png.jpg",
   "sources": [
+    "boot/gates/gates-menu.cfg",
     "boot/visual/aurora-wayland-glass.jpg",
     "boot/splash/aurora_boot_splash.svg",
     "boot/splash/jasper_background.svg",
@@ -34,7 +35,9 @@
     "spitfire_init_video": "/boot/spitfire/Init.mp4",
     "jasper_init_video": "/boot/jasper/Init.mp4",
     "grub_init_video": "/boot/grub/Init.mp4",
-    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4"
+    "aurora_init_video": "/usr/share/chimera/aurora/assets/Init.mp4",
+    "gates": "/boot/gates/aurora-wayland-glass.jpg",
+    "gates_background": "/boot/visual/aurora-wayland-glass.jpg"
   },
   "raster_policy": "The user-supplied artwork is embedded in the repository as base64 and materialized as a JPEG during ISO/install construction.",
   "fallback": "desktop/aurora/assets/aurora-desktop.svg",
@@ -46,34 +49,44 @@
     "grub_support": false
   },
   "boot_chain": {
-    "spitfire": {
-      "artwork": "/boot/visual/spitfire_background.svg",
-      "progress": "0-25%",
-      "video": "/boot/visual/Init.mp4"
-    },
-    "jasper": {
-      "artwork": "/boot/visual/jasper_background.svg",
-      "progress": "25-40%",
+    "firmware": {
+      "artwork": "/boot/visual/aurora_boot_splash.svg",
+      "event": "Firmware selects the BIOS or UEFI GRUB2 entry; no kernel readiness is implied",
       "video": "/boot/visual/Init.mp4"
     },
     "grub": {
       "artwork": "/boot/visual/aurora-wayland-glass.jpg",
-      "progress": "40-60%",
+      "event": "GRUB2 loader initializes the framebuffer and loads the Spit Fire menu configuration; GRUB does not decode MP4",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "spitfire": {
+      "artwork": "/boot/visual/spitfire_background.svg",
+      "event": "Spit Fire menu configuration is loaded and hands off to the Gates policy menu; BIOS stage artifacts are packaged but not the ISO's executable loader",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "gates": {
+      "artwork": "/boot/visual/aurora-wayland-glass.jpg",
+      "event": "Gates policy menu is loaded and selects the Jasper target manager or returns to Spit Fire; no kernel readiness is implied",
+      "video": "/boot/visual/Init.mp4"
+    },
+    "jasper": {
+      "artwork": "/boot/visual/jasper_background.svg",
+      "event": "Jasper target manager loads and displays explicit Linux and native Koronos boot choices; native Installer/Recovery remain acceptance-gated",
       "video": "/boot/visual/Init.mp4"
     },
     "menus": {
       "artwork": "/boot/visual/aurora-wayland-glass.jpg",
-      "progress": "menu-dependent",
+      "event": "User-selected target is dispatched; menu presence does not imply kernel or userspace readiness",
       "video": "/boot/visual/Init.mp4"
     },
     "koronos": {
       "artwork": "/boot/visual/aurora_boot_splash.svg",
-      "progress": "60-90%",
+      "event": "Only kernel-emitted KORONOS READY and verified CPL3/PID markers establish runtime readiness",
       "video": "/boot/visual/Init.mp4"
     },
     "aurora": {
       "artwork": "/usr/share/chimera/aurora/desktop-background.png",
-      "progress": "90-100%",
+      "event": "Linux Live starts MPV splash playback after Openbox and before the Aurora/Marine kiosk; native Koronos media playback is not claimed",
       "video": "/usr/share/chimera/aurora/assets/Init.mp4"
     }
   }

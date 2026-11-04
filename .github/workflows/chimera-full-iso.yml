@@ -93,63 +93,103 @@ jobs:
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
-          extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
-          extract /boot/recovery/recovery-manifest.json "$tmp/recovery-manifest.json"
-          extract /install/installer/installation.img "$tmp/installation.img"
-          extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
-          extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          extract /boot/candidates/recovery/chimera-recovery-initramfs.img "$tmp/recovery-prototype.img"
+          extract /boot/candidates/recovery/recovery-manifest.json "$tmp/recovery-prototype-manifest.json"
+          extract /boot/candidates/installer/installation.img "$tmp/installer-prototype.img"
+          extract /boot/candidates/installer/installer-initrd.img "$tmp/installer-prototype-initrd.img"
+          extract /boot/candidates/installer/installation-manifest.json "$tmp/installation-manifest.json"
+          extract /boot/candidates/installer/installer-contract.json "$tmp/installer-contract.json"
+          extract /boot/candidates/native-runtime-candidates.json "$tmp/native-runtime-candidates.json"
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
+          extract /boot/spitfire/spitfire-menu.cfg "$tmp/spitfire-menu.cfg"
+          extract /boot/spitfire/spitfire-sf0-mbr.bin "$tmp/spitfire-sf0-mbr.bin"
+          extract /boot/spitfire/spitfire-stage2.bin "$tmp/spitfire-stage2.bin"
+          extract /boot/gates/gates-menu.cfg "$tmp/gates-menu.cfg"
+          extract /boot/jasper/live-image.cfg "$tmp/jasper-live-image.cfg"
+          extract /boot/jasper/install.cfg "$tmp/install.cfg"
+          extract /boot/jasper/recovery.cfg "$tmp/recovery.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
-          # Inspect the initramfs actually embedded in the ISO. This is a
-          # payload-content check, not a substitute for target-specific QEMU.
-          mkdir -p "$tmp/live-root" "$tmp/recovery-root"
+          test "$(stat -c%s "$tmp/spitfire-sf0-mbr.bin")" -eq 512
+          mkdir -p "$tmp/live-root" "$tmp/recovery-root" "$tmp/installer-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
-          (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
+          (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-prototype.img" | cpio -id --quiet)
+          (cd "$tmp/installer-root" && gzip -dc "$tmp/installer-prototype-initrd.img" | cpio -id --quiet)
           grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
-          grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
           grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
+          grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
+          grep -Fq 'USERSPACE READY: target=installer' "$tmp/installer-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
-          for name in ("live-manifest.json", "recovery-manifest.json",
+          for name in ("live-manifest.json", "recovery-prototype-manifest.json",
                        "installation-manifest.json", "installer-contract.json",
-                       "chimera-artwork-manifest.json"):
+                       "native-runtime-candidates.json", "chimera-artwork-manifest.json"):
               json.loads((root / name).read_text())
+          candidates=json.loads((root / "native-runtime-candidates.json").read_text())
+          assert candidates["status"] == "prototype-built-not-native-koronos-runtime"
+          assert candidates["installer"]["bootable_by_koronos"] is False
+          assert candidates["recovery"]["bootable_by_koronos"] is False
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
           if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
-          grub = (root / "grub.cfg").read_text()
-          for target in ("aurora-live", "install", "recovery"):
-              if f"--id {target}" not in grub:
-                  raise SystemExit(f"GRUB config missing required target: {target}")
-          print("ISO payload check passed: Koronos, Live, Recovery, Installer and offline Aurora artwork are embedded.")
+          grub=(root / "grub.cfg").read_text()
+          spit=(root / "spitfire-menu.cfg").read_text()
+          gates=(root / "gates-menu.cfg").read_text()
+          jasper=(root / "jasper-live-image.cfg").read_text()
+          installer=(root / "install.cfg").read_text()
+          recovery=(root / "recovery.cfg").read_text()
+          assert "configfile /boot/spitfire/spitfire-menu.cfg" in grub
+          assert "configfile /boot/gates/gates-menu.cfg" in spit
+          assert "configfile /boot/jasper/live-image.cfg" in gates
+          assert "Live — Aurora Desktop" in jasper
+          assert "Linux Rescue Shell" in jasper
+          assert "native-installer-runtime.ready" in installer
+          assert "native-recovery-runtime.ready" in recovery
+          assert "Native Koronos Installer" in installer
+          assert "Native Koronos Recovery" in recovery
+          print("ISO payload check passed: GRUB2 -> Spit Fire -> Gates -> Jasper, Spit Fire BIOS artifacts, and fail-closed runtime prototypes are embedded.")
           PY
 
-      - name: QEMU headless Koronos boot smoke test
+      - name: QEMU headless Koronos kernel-entry smoke test
         run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          mkdir -p "$tmp/boot/koronos" "$tmp/boot/grub"
+          xorriso -osirrox on -indev build/iso/chimera-ii-os.iso -extract /boot/koronos/koronos.elf "$tmp/boot/koronos/koronos.elf" >/dev/null 2>&1
+          cat > "$tmp/boot/grub/grub.cfg" <<'GRUB'
+          set timeout=0
+          set default=0
+          terminal_output console
+          menuentry "Koronos native kernel entry smoke" {
+            multiboot2 /boot/koronos/koronos.elf chm.mode=diagnostics chm.log=verbose
+            boot
+          }
+          GRUB
+          grub-mkrescue -o "$tmp/koronos-smoke.iso" "$tmp" >/dev/null 2>&1
           set +e
-          timeout 20s qemu-system-x86_64 \
+          timeout 45s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
             -display none -serial none -monitor none \
-            -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
-            -debugcon file:/tmp/chimera-qemu-debugcon.log \
-            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+            -no-reboot -no-shutdown -cdrom "$tmp/koronos-smoke.iso" \
+            -debugcon "file:$tmp/debugcon.log" \
+            -global isa-debugcon.iobase=0xe9 >"$tmp/qemu.log" 2>&1
           qemu_rc=$?
           set -e
-          cat /tmp/chimera-qemu.log
-          if [ -f /tmp/chimera-qemu-debugcon.log ]; then
-            python3 - <<'PY'
+          cat "$tmp/qemu.log"
+          if [ -f "$tmp/debugcon.log" ]; then
+            python3 - "$tmp/debugcon.log" <<'PY'
           from pathlib import Path
-          data = Path("/tmp/chimera-qemu-debugcon.log").read_bytes().decode("latin1")
-          markers = "ELBC"
+          import sys
+          data = Path(sys.argv[1]).read_bytes().decode("latin1")
           cursor = 0
-          for marker in markers:
+          for marker in "ELBC":
               found = data.find(marker, cursor)
               if found < 0:
                   raise SystemExit(f"QEMU did not reach Koronos marker {marker!r}; debugcon={data!r}")
@@ -160,8 +200,7 @@ jobs:
             echo "QEMU produced no debugcon output (exit $qemu_rc)" >&2
             exit 1
           fi
-
-      - name: Verify actual Live, Installer, and Recovery userspace handoff
+      - name: Verify native Live userspace and fail-closed Installer/Recovery gates
         id: userspace_gate
         shell: bash
         run: |
@@ -170,84 +209,66 @@ jobs:
           base=/tmp/chimera-userspace-traces
           mkdir -p "$base"
           accepted=true
-          for target in live installer recovery; do
-            tree="$base/$target/tree"
-            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
-            xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
-            if [[ "$target" == "live" ]]; then
-              xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
-              xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
-            elif [[ "$target" == "recovery" ]]; then
-              xorriso -osirrox on -indev "$iso" -extract /boot/recovery/chimera-recovery-initramfs.img "$tree/boot/recovery/chimera-recovery-initramfs.img" >/dev/null 2>&1 || accepted=false
-              xorriso -osirrox on -indev "$iso" -extract /boot/recovery/recovery-manifest.json "$tree/boot/recovery/recovery-manifest.json" >/dev/null 2>&1 || accepted=false
-            else
-              for f in installation.img installation-manifest.json installer-contract.json installation_phases.json installer_profiles.json; do
-                xorriso -osirrox on -indev "$iso" -extract "/install/installer/$f" "$tree/install/installer/$f" >/dev/null 2>&1 || accepted=false
-              done
-            fi
-            cat > "$tree/boot/grub/grub.cfg" <<GRUB
+          tree="$base/live/tree"
+          mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live"
+          xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
+          xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
+          xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
+          cat > "$tree/boot/grub/grub.cfg" <<'GRUB'
           set timeout=0
           set default=0
           terminal_output console
-          menuentry "Chimera target $target handoff acceptance" {
-            multiboot2 /boot/koronos/koronos.elf
-          GRUB
-            if [[ "$target" == "live" ]]; then
-              cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
+          menuentry "Koronos native Live userspace acceptance" {
+            multiboot2 /boot/koronos/koronos.elf chm.mode=live chm.log=verbose chm.progress=events
             module2 /boot/live/chimera-live-initramfs.img chimera-live-initramfs
             module2 /boot/live/live-manifest.json chimera-live-manifest
-          GRUB
-            elif [[ "$target" == "recovery" ]]; then
-              cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
-            module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
-            module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
-          GRUB
-            else
-              cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
-            module2 /install/installer/installation.img chimera-installation-image
-            module2 /install/installer/installation-manifest.json chimera-installation-manifest
-            module2 /install/installer/installer-contract.json chimera-installer-contract
-            module2 /install/installer/installation_phases.json chimera-install-phases
-            module2 /install/installer/installer_profiles.json chimera-installer-profiles
-          GRUB
-            fi
-            cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
             boot
           }
           GRUB
-            test_iso="$base/$target.iso"
-            trace="$base/$target-debugcon.log"
-            if ! grub-mkrescue -o "$test_iso" "$tree" >/dev/null 2>&1; then
-              echo "::warning::Could not create $target target smoke ISO"
-              accepted=false
-              continue
-            fi
+          test_iso="$base/live.iso"
+          trace="$base/live-debugcon.log"
+          if ! grub-mkrescue -o "$test_iso" "$tree" >/dev/null 2>&1; then
+            echo "::warning::Could not create native Live target smoke ISO"
+            accepted=false
+          else
             set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            timeout 20s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             qemu_rc=$?
             set -e
             if [[ ! -s "$trace" ]]; then
-              echo "::warning::$target QEMU emitted no debugcon trace (exit $qemu_rc)"
+              echo "::warning::Native Live QEMU emitted no debugcon trace (exit $qemu_rc)"
               accepted=false
-              continue
-            fi
-            if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
-              echo "::warning::$target target did not reach Koronos readiness"
+            elif ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
+              echo "::warning::Native Live target did not reach Koronos kernel readiness"
               accepted=false
-              continue
-            fi
-            if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
-              echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
+            elif ! python3 tests/boot/verify-userspace-handoff.py live "$trace"; then
+              echo "::warning::Native Live CPL3 init syscall/PID readiness is not verified"
               accepted=false
             fi
-          done
-          echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
-          if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
-          else
-            echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
 
+          # Installer and Recovery prototypes are BusyBox/Linux images. They are
+          # intentionally not passed to the Koronos kernel and do not count as
+          # native targets. Verify the menus require explicit, absent readiness markers.
+          xorriso -osirrox on -indev "$iso" -extract /boot/candidates/native-runtime-candidates.json "$base/native-runtime-candidates.json" >/dev/null 2>&1 || accepted=false
+          xorriso -osirrox on -indev "$iso" -extract /boot/jasper/install.cfg "$base/install.cfg" >/dev/null 2>&1 || accepted=false
+          xorriso -osirrox on -indev "$iso" -extract /boot/jasper/recovery.cfg "$base/recovery.cfg" >/dev/null 2>&1 || accepted=false
+          python3 - "$base" <<'PY'
+          import json, pathlib, sys
+          root=pathlib.Path(sys.argv[1])
+          m=json.loads((root/"native-runtime-candidates.json").read_text())
+          assert m["status"] == "prototype-built-not-native-koronos-runtime"
+          assert m["installer"]["bootable_by_koronos"] is False
+          assert m["recovery"]["bootable_by_koronos"] is False
+          assert "native-installer-runtime.ready" in (root/"install.cfg").read_text()
+          assert "native-recovery-runtime.ready" in (root/"recovery.cfg").read_text()
+          assert not any(x["path"].endswith(".ready") for x in m["installer"]["artifacts"]+m["recovery"]["artifacts"])
+          PY
+          accepted=false
+          printf '%s\n' "Native Installer: BLOCKED (prototype is BusyBox/Linux; no native ready marker)" > "$base/installer-BLOCKED.txt"
+          printf '%s\n' "Native Koronos Recovery: BLOCKED (prototype is BusyBox/Linux; no native ready marker)" > "$base/recovery-BLOCKED.txt"
+          echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
+          echo "Release acceptance is NOT VERIFIED: native CPL3/PID Live readiness is pending, and Installer/Recovery are correctly blocked until native runtime images pass their own cold-boot gates."
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4

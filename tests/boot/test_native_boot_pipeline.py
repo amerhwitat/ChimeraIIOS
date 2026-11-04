@@ -7,5 +7,5 @@ class BootPipelineContractTest(unittest.TestCase):
   self.assertEqual(r.returncode,0,r.stdout+r.stderr)
  def test_stage_order_contract(self):
   m=json.loads((ROOT/"boot/boot-artwork-manifest.json").read_text())
-  self.assertEqual(list(m["boot_chain"]),["spitfire","jasper","grub","menus","koronos","aurora"])
+  self.assertEqual(list(m["boot_chain"]),["firmware","grub","spitfire","gates","jasper","menus","koronos","aurora"])
 if __name__=="__main__":unittest.main()
