@@ -97,8 +97,11 @@ RUN set -eux; \
     install -D -m 0755 /app/tools/storage/chimera-media-mount.sh /usr/local/sbin/chimera-media-mount.sh; \
     install -D -m 0755 /app/tools/storage/chimera-init-layout.sh /usr/local/sbin/chimera-init-layout.sh; \
     install -D -m 0644 /app/services/network/chimera-wsdd.service /usr/lib/systemd/system/chimera-wsdd.service; \
+    install -D -m 0644 /app/services/storage/chimera-fhs-layout.service /usr/lib/systemd/system/chimera-fhs-layout.service; \
     install -D -m 0644 /app/services/network/avahi-smb.service /etc/avahi/services/chimera-smb.service; \
-    install -D -m 0644 /app/services/network/smb.conf.example /usr/share/chimera/examples/smb.conf.example
+    install -D -m 0644 /app/services/network/smb.conf.example /usr/share/chimera/examples/smb.conf.example; \
+    install -d -m 0755 /etc/systemd/system/multi-user.target.wants; \
+    ln -sfn /usr/lib/systemd/system/chimera-fhs-layout.service /etc/systemd/system/multi-user.target.wants/chimera-fhs-layout.service
 
 # Final runtime safety pass for scripts copied from the source tree.
 RUN set -eux; \
