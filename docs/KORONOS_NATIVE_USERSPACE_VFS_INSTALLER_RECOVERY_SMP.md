@@ -65,3 +65,13 @@ The current branch contains a single-process CPL3 entry/return foundation, ELF s
 - Linux kernel x86 boot protocol — https://www.kernel.org/doc/html/latest/arch/x86/boot.html
 
 These references describe Linux's implementation. Koronos must implement and test its own ABI, data structures, drivers and lifecycle.
+
+## 11. Current implementation update (2026-11-04)
+
+The kernel now contains a bounded in-memory root namespace with a read-only `/etc/os-release` entry and a separately enabled `/tmp` tmpfs area. The native user syscall path has been extended with OPEN (17), READ (8), WRITE (9), SEEK (19), and CLOSE (18). File descriptors are currently a bounded table scoped to the single active bootstrap init process; they are reset before target entry and closed on process exit. User path and buffer ranges are checked against the active address space before kernel access. The three target init payloads now require a CPL3 round-trip test: open/read/close `/etc/os-release`, create/write/seek/read/close `/tmp/koronos-acceptance`, compare the returned bytes, and only then emit their readiness line.
+
+This is an initial native syscall/VFS integration, not a production general-purpose filesystem. The current root is an in-memory bootstrap filesystem, not a CPIO-newc initramfs extraction or persistent block-backed root; directory/inode/mount namespaces, independent per-process descriptor tables, descriptor inheritance, concurrency, permissions and robust error handling still require implementation and tests. A successful host VFS test is not CPL3 guest evidence; only the target QEMU traces can establish that.
+
+The VFS host regression is included in `kernel/build-koronos.sh`. OctavianOS vendors the matching VFS source/header, syscall dispatch, target init payloads, host test and build hook. Current CI is required to compile and execute these changes before any implementation status is promoted.
+
+No AP trampoline, MADT/LAPIC startup, per-CPU TSS/GS initialization, IPI rescheduling or measured concurrent execution has been added. `chimera_sched_run_parallel()` remains fail-closed. No graphical Aurora/Marine processes are launched by the native Live init. Installer remains a dry-run payload with no block-device write backend or cold reboot. Recovery remains diagnostic and performs no repair transaction. These are intentionally still blocked, not inferred from the desktop shell or host tools.
