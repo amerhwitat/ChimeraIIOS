@@ -107,7 +107,7 @@ jobs:
           for target in live installer recovery; do
             readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
             readelf -lW "$tmp/target-init-$target.elf" | grep -Eq 'LOAD.*R E'
-            grep -Fq "module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target" "$tmp/grub.cfg"
+            grep -Fq "module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target firmware=$grub_platform" "$tmp/grub.cfg"
           done
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
@@ -202,7 +202,7 @@ jobs:
           terminal_output console
           menuentry "Chimera target $target handoff acceptance" {
             multiboot2 /boot/koronos/koronos.elf
-            module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target
+            module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target firmware=$grub_platform
           GRUB
             if [[ "$target" == "live" ]]; then
               cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
