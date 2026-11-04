@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Aurora Microsoft Network browser: DNS-SD discovery and SMB share navigation."""
-import json,re,shutil,subprocess,tkinter as tk
+import json,os,re,shutil,subprocess,tkinter as tk
 from tkinter import ttk,messagebox
-HELPER="/usr/lib/chimera/network/chimera-smb-browse.py"
+HELPER=os.environ.get("CHIMERA_SMB_BROWSER") or next((p for p in ("/usr/lib/chimera/network/chimera-smb-browse.py","/usr/lib64/chimera/network/chimera-smb-browse.py") if os.path.isfile(p)), "/usr/lib/chimera/network/chimera-smb-browse.py")
 HOST_RE=re.compile(r"^[A-Za-z0-9][A-Za-z0-9.:-]{0,252}$")
 class Browser:
  def __init__(self,root):
