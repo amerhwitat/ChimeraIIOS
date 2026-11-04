@@ -28,6 +28,7 @@ typedef struct koronos_user_syscall_frame {
 } koronos_user_syscall_frame;
 
 uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame);
+uint64_t koronos_syscall_int80_dispatch(const koronos_user_syscall_frame *frame, uint64_t user_rip, uint64_t user_cs);
 extern volatile uint64_t koronos_user_exit_code;
 
 #ifdef __cplusplus
