@@ -53,7 +53,7 @@ The ISO packages the integration and runtime probes, not proprietary model weigh
 
 ## Curated hardware and systems knowledge database
 
-The ISO now stages `/usr/share/chimera/ai/hardware-systems-knowledge.json`, its JSON Schema, an append/validate/search utility, and an advisory character-RNN checkpoint trained from the database during the ISO build. The initial database combines the repository's 104 architecture descriptors with curated, source-attributed entries covering processor architectures, ABI and interrupt models, compilers, assemblers, linkers, programming languages, firmware, bus and device drivers, DMA/IOMMU, storage, networking, graphics, kernel engineering, and ML deployment.
+The ISO now stages `/usr/share/chimera/ai/hardware-systems-knowledge.json`, its JSON Schema, an append/validate/search utility, and an advisory character-RNN checkpoint trained from the database during the ISO build. The initial database combines the repository's 104 architecture descriptors plus 47 curated, source-attributed entries covering processor architectures, ABI and interrupt models, compilers, assemblers, linkers, programming languages, firmware, bus and device drivers (audio, input/HID, serial, sensors, thermal, power, storage, networking and graphics), DMA/IOMMU, firmware, kernel engineering, and ML deployment.
 
 Local RAG chat retrieves matching records and includes their primary-documentation URLs in the evidence context. Retrieved content is data, not instructions; it cannot authorize privileged actions, execute code, or promote an inventory row to a supported hardware target.
 
