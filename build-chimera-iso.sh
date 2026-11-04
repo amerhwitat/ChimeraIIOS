@@ -265,7 +265,11 @@ process_snapshot(){
     echo "-- host processes --"
     ps -eo pid,ppid,stat,%cpu,%mem,etime,comm --sort=-%cpu 2>/dev/null || true
     echo "-- process tree --"
+<<<<<<< HEAD
     pstree -p "$" 2>/dev/null | head -n 80 || true
+=======
+    pstree -p $ 2>/dev/null | head -n 80 || true
+>>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
     echo "-- docker containers --"
     docker ps -a --no-trunc --format '{{.ID}} {{.Image}} {{.Status}} {{.Names}}' 2>/dev/null || true
     echo "-- docker disk usage --"
@@ -2203,14 +2207,19 @@ main(){
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 =======
 =======
 >>>>>>> 345d7690d (fix(build): preserve shell PID in verbose diagnostics)
+=======
+>>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
 <<<<<<< HEAD
 =======
 =======
 >>>>>>> c80de39aa (fix(build): preserve shell PID in verbose diagnostics)
+=======
+>>>>>>> 7152a3376 (build: redact process arguments from failure diagnostics)
 
 stage_sdks(){
   header 'STEP: COMPILE ALL REPOSITORY SDKS'
@@ -2238,5 +2247,11 @@ trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped 
 =======
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 >>>>>>> 840eb899f (fix(build): preserve shell PID in verbose diagnostics)
+<<<<<<< HEAD
 >>>>>>> 345d7690d (fix(build): preserve shell PID in verbose diagnostics)
+=======
+=======
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+>>>>>>> e2189180d (build: redact process arguments from failure diagnostics)
+>>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
 main "$@"
