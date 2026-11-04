@@ -102,11 +102,18 @@ static void identify_x86() {
     if(cpu.max_basic_leaf>=0x1fu) topo_leaf=0x1fu;
     else if(cpu.max_basic_leaf>=0x0bu) topo_leaf=0x0bu;
     if(topo_leaf) {
-        const cpuid_regs topo=cpuid(topo_leaf,0);
-        if(topo.b) {
-            cpu.logical_cpus=topo.b&0xffffu;
-            cpu.processor_id=topo.d;
+        uint32_t maximum_logical=0;
+        uint32_t topology_id=cpu.processor_id;
+        for(uint32_t subleaf=0;subleaf<8u;++subleaf) {
+            const cpuid_regs topo=cpuid(topo_leaf,subleaf);
+            const uint32_t level_type=(topo.c>>8)&0xffu;
+            const uint32_t level_count=topo.b&0xffffu;
+            if(level_count==0u || level_type==0u) break;
+            if(level_count>maximum_logical) maximum_logical=level_count;
+            topology_id=topo.d;
         }
+        if(maximum_logical) cpu.logical_cpus=maximum_logical;
+        cpu.processor_id=topology_id;
     }
     cpu.architecture=sizeof(void*)==8 ? KORONOS_ARCH_X86_64 : KORONOS_ARCH_X86;
 }
