@@ -137,7 +137,6 @@ BUILD_DOCKER=1
 BUILD_ISO=1
 RELEASE_BUILD=0
 RUN_NATIVE_SIX_CASE_DIAGNOSTICS=1
-NATIVE_AUDIT_ONLY=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -240,7 +239,6 @@ while [[ $# -gt 0 ]]; do
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
     --install-macos-sdk) bash "$SCRIPT_DIR/tools/macos-compat/install-sdk.sh" install; exit $?;;
     --release) RELEASE_BUILD=1; shift;;
-    --native-audit-only) NATIVE_AUDIT_ONLY=1; shift;;
     --skip-native-six-case-diagnostics) RUN_NATIVE_SIX_CASE_DIAGNOSTICS=0; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
@@ -702,7 +700,7 @@ def read_tree(paths):
                 except OSError: pass
     return "\n".join(chunks)
 installer_text=read_tree(["tools/chimera-installer-runtime.sh","installer","install"])
-recovery_text=read_tree(["tools","boot/recovery","recovery"])
+recovery_text=read_tree(["tools/chimera-recovery-runtime.sh","boot/recovery","recovery","tools/recovery"])
 parallel_stub=False
 for k,v in texts.items():
     m=re.search(r"chimera_sched_run_parallel\s*\([^)]*\)\s*\{([^}]+)\}",v,re.S)
