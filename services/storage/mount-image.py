@@ -7,7 +7,7 @@ import re
 import subprocess
 import sys
 
-LOOP = re.compile(r"(/dev/loop[0-9]+)")
+LOOP = re.compile(r"(/dev/loop[0-9]+)")\nOPTICAL = re.compile(r"^/dev/sr[0-9]+$")
 
 def run(argv, timeout=45):
     return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
@@ -39,7 +39,7 @@ def validate_image(path):
             raise ValueError("ISO-9660/UDF volume descriptor not found")
     return image
 
-def main():
+def valid_optical_device(device):\n    return bool(OPTICAL.fullmatch(device))\n\ndef main():
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("mount")
@@ -59,24 +59,24 @@ def main():
             if not match:
                 raise RuntimeError("udisks2 did not return a loop device")
             device = match.group(1)
-            mounted = run(["udisksctl", "mount", "--block-device", device])
+            mounted = run(["udisksctl", "mount", "--options", "ro,nodev,nosuid", "--block-device", device])
             if mounted.returncode:
                 run(["udisksctl", "loop-delete", "--block-device", device])
                 raise RuntimeError(mounted.stderr.strip() or "mount failed")
             print(json.dumps({"device": device, "read_only": True,
                               "mount": mounted.stdout.strip()}))
         elif a.cmd == "mount-device":
-            if not re.fullmatch(r"/dev/sr[0-9]+", a.device):
+            if not valid_optical_device(a.device):
                 raise ValueError("only optical /dev/srN devices are accepted")
             probe = run(["blkid", "-p", "-s", "TYPE", "-o", "value", a.device], timeout=10)
             if probe.returncode or probe.stdout.strip().lower() not in ("iso9660", "udf"):
                 raise ValueError("device does not contain a recognized optical filesystem")
-            mounted = run(["udisksctl", "mount", "--options", "ro", "--block-device", a.device])
+            mounted = run(["udisksctl", "mount", "--options", "ro,nodev,nosuid", "--block-device", a.device])
             if mounted.returncode:
                 raise RuntimeError(mounted.stderr.strip() or "optical mount failed")
             print(json.dumps({"device": a.device, "read_only": True, "mount": mounted.stdout.strip()}))
         else:
-            if not (LOOP.fullmatch(a.device) or re.fullmatch(r"/dev/sr[0-9]+", a.device)):
+            if not (LOOP.fullmatch(a.device) or valid_optical_device(a.device)):
                 raise ValueError("invalid loop or optical device")
             result = run(["udisksctl", "unmount", "--block-device", a.device])
             if result.returncode:
