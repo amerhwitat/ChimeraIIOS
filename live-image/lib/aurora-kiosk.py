@@ -147,7 +147,7 @@ def dispatch(service, method, args, parent):
                 raise RuntimeError(result.stderr[-2000:] or "GVFS could not open SMB share")
             return {"opened": uri}
         if method == "joinDomain":
-            argv = [sys.executable, DIRECTORY_TOOL, "join", args.get("domain", "")]
+            argv = [sys.executable, DIRECTORY_TOOL, "join", args.get("domain", ""), "--elevate"]
             if args.get("user"):
                 argv += ["--user", args["user"]]
             return command_json(argv, timeout=180)
