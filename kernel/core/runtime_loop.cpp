@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include "../include/chimera/scheduler.h"
 #include "../include/chimera/multiboot_modules.h"
+extern "C" uint32_t koronos_monitor_task_id;
+
 namespace {
 static void vga_text(uint32_t row,uint32_t col,const char*text){volatile uint16_t*v=(volatile uint16_t*)0xB8000;for(uint32_t i=0;text[i]&&col+i<80;++i)v[row*80+col+i]=(uint16_t)(0x0F00u|(uint8_t)text[i]);}
 static void vga_hex(uint32_t row,uint32_t col,uint32_t value){static const char h[]="0123456789ABCDEF";volatile uint16_t*v=(volatile uint16_t*)0xB8000;for(uint32_t i=0;i<8&&col+i<80;++i)v[row*80+col+i]=(uint16_t)(0x0F00u|(uint8_t)h[(value>>(28-4*i))&15u]);}
@@ -12,6 +14,12 @@ extern "C" void koronos_idle_loop(void){
     for(;;){
         const uint32_t dispatched=chimera_sched_run_once(0);
         ++spin;
+        /* Idle keep-alive: when every service is blocked there is no runnable
+           work, so wake the monitor task on a fixed spin cadence. It prints one
+           snapshot and blocks again, which makes runtime liveness observable
+           instead of looking like a stalled kernel. */
+        if(dispatched==0 && koronos_monitor_task_id!=0 && (spin&0x00FFFFFFu)==0)
+            chimera_sched_wake(koronos_monitor_task_id);
         if((spin&0x0000FFFFu)==0)vga_heartbeat(spin,dispatched,chimera_sched_runnable_count());
 #if defined(__x86_64__)||defined(__i386__)
         __asm__ volatile("pause" ::: "memory");

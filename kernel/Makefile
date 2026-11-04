@@ -22,6 +22,14 @@ ARCH ?= x86_64
 BUILD ?= $(ROOT)/build/koronos/$(ARCH)
 CONFIG_FILE := $(ROOT)/kernel/.config
 OBJ_MK := $(BUILD)/kor-obj.mk
+
+# The configuration and object manifest are regenerated makefiles: `make` treats
+# a file created by a recipe with no explicit prerequisites as intermediate and
+# deletes it at the end of the run, which restarted defconfig/autoconf forever
+# ("Deleting file .../.config"). Keep them, and keep config generation serial so
+# a parallel build cannot race two kconfig runs against the same file.
+.PRECIOUS: $(CONFIG_FILE) $(OBJ_MK)
+.NOTPARALLEL:
 KCONFIG := $(ROOT)/kernel/Kconfig
 PYTHON ?= python3
 CXX ?= g++
