@@ -76,7 +76,8 @@ ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash ca-certificates python3 pciutils usbutils dmidecode iproute2 procps \
-    systemd systemd-sysv dosbox \
+    systemd systemd-sysv dosbox samba smbclient samba-common-bin avahi-daemon avahi-utils \
+    realmd sssd-ad sssd-tools adcli krb5-user ldap-utils dnsutils udisks2 libnss-mdns gvfs-backends gvfs-fuse \
     && if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
@@ -91,7 +92,8 @@ RUN set -eux; \
       xargs -0 -r sed -i 's/\r$//'; \
     sed -i '1s/\r$//' /app/docker/entrypoint.sh; \
     chmod +x /app/docker/entrypoint.sh /app/hardware/host_scanner.py /app/desktop/aurora/gui_server.py; \
-    useradd -m -u 10001 appuser; \
+    getent group chimera-admin >/dev/null || groupadd --system chimera-admin; \
+    useradd -m -u 10001 -G chimera-admin appuser; \
     chown -R appuser:appuser /app; \
     chown root:root /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
     chmod 0755 /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \

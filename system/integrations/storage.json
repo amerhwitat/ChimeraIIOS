@@ -1,0 +1,10 @@
+{
+  "schema": "CHM-OPTICAL-MEDIA-1",
+  "image_backend": "udisks2 loop devices",
+  "physical_device_pattern": "^/dev/sr[0-9]+$",
+  "recognized_filesystems": ["iso9660", "udf"],
+  "image_validation": ["ISO-9660 PVD at sector 16", "UDF VRS BEA01/NSR02|NSR03"],
+  "mount_options": ["ro", "nosuid", "nodev", "noexec"],
+  "unmount": "udisks2; loop devices deleted after unmount",
+  "writable_mounts": false
+}

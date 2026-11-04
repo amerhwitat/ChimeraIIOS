@@ -1,0 +1,12 @@
+#!/bin/sh
+# Persist the desktop profile selected by a systemd target (jasper/gates/aurora/marine).
+set -eu
+profile="${1:-}"
+case "$profile" in
+  jasper|gates|aurora|marine) ;;
+  *) echo "usage: $0 <jasper|gates|aurora|marine>" >&2; exit 2 ;;
+esac
+mkdir -p /run/aurora /etc/aurora
+printf '%s\n' "$profile" > /run/aurora/profile
+printf '%s\n' "$profile" > /etc/aurora/profile
+echo "aurora profile: $profile"

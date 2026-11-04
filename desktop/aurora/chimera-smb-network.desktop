@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Microsoft Network Discovery
+Comment=Discover SMB2/3 servers on the local network
+Exec=python3 /usr/lib/chimera/network/smb-browse.py --network
+Terminal=true
+Categories=Network;System;

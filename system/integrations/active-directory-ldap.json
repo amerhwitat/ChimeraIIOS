@@ -1,0 +1,55 @@
+{
+  "schema": "CHM-INTEGRATION-1",
+  "id": "directory-services",
+  "purpose": "Active Directory domain membership, Kerberos identity and LDAP directory search",
+  "packages": {
+    "debian": [
+      "realmd",
+      "adcli",
+      "sssd",
+      "sssd-ad",
+      "sssd-ldap",
+      "sssd-tools",
+      "libnss-sss",
+      "libpam-sss",
+      "krb5-user",
+      "ldap-utils",
+      "libsasl2-modules-gssapi-mit",
+      "oddjob",
+      "oddjob-mkhomedir",
+      "dnsutils",
+      "pkexec",
+      "polkitd",
+      "mate-polkit",
+      "sssd-kcm"
+    ]
+  },
+  "commands": {
+    "join": "realm join --no-password --membership-software=adcli --client-software=sssd DOMAIN",
+    "status": "realm list",
+    "ldap": "ldapsearch -Y GSSAPI -ZZ -H ldap://HOST -b BASE_DN FILTER"
+  },
+  "security": {
+    "join_requires_admin": true,
+    "password_storage": "never store passwords in Chimera config or command arguments",
+    "ldap_transport": [
+      "LDAPS with certificate validation",
+      "StartTLS with certificate validation"
+    ],
+    "ldap_auth": [
+      "Kerberos GSSAPI"
+    ],
+    "anonymous_bind": "disabled by default",
+    "credential_source": "Kerberos credential cache / system keytab"
+  },
+  "services": [
+    "sssd",
+    "sssd-kcm",
+    "oddjobd"
+  ],
+  "notes": [
+    "Domain join must be an explicit administrator action.",
+    "Use SSSD/adcli/realmd and MIT Kerberos; no custom AD or LDAP protocol implementation.",
+    "Obtain a ticket first with kinit; the desktop bridge never collects or stores the domain password."
+  ]
+}

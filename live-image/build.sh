@@ -38,7 +38,7 @@ case "$ED" in
     TITLE="Chimera II OS"
     SHORT="chimera-ii"
     VOLID="CHIMERA_II_OS"
-    ENTRY="desktop/index.html"
+    ENTRY="desktop/aurora-shell/index.html"
     DESKTOP_COPY="web"
     ISO_NAME="chimera-ii-os-live-amd64.iso"
     ;;
@@ -86,8 +86,9 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
-  log "installing shared package set (one-off)"
+PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v5"
+if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 2>/dev/null || true)" != "$PACKAGE_SET_VERSION" ]; then
+  log "installing/updating shared package set: $PACKAGE_SET_VERSION"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
@@ -99,18 +100,21 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       xserver-xorg-core xserver-xorg-legacy xserver-xorg-input-libinput \
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
-      python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
+      python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 gvfs-backends gvfs-fuse \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
-      e2fsprogs dosfstools parted gdisk alsa-utils kmod
+      e2fsprogs dosfstools parted gdisk alsa-utils kmod \
+      samba smbclient cifs-utils wsdd avahi-daemon avahi-utils \
+      realmd adcli sssd-ad sssd-ldap sssd-kcm sssd-tools libnss-sss libpam-sss \
+      krb5-user ldap-utils dnsutils libsasl2-modules-gssapi-mit pkexec polkitd mate-polkit udisks2 oddjob oddjob-mkhomedir
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  printf "%s\n" "$PACKAGE_SET_VERSION" > "$BASE/.packages-installed"
 fi
 
 # ------------------------------------------------------------- rootfs copy
@@ -119,6 +123,7 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 tar -C "$BASE" -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . \
   2>/dev/null | tar -C "$WORK" -xf - 2>/dev/null
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
+python3 "$REPO_DIR/tools/filesystem/create-fhs-tree.py" --root "$WORK"
 
 # ------------------------------------------------------------- payload
 log "staging payload"
@@ -126,6 +131,47 @@ PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
+
+# Aurora desktop shell (multi-profile window manager) is staged for every edition.
+if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
+  mkdir -p "$PAY/desktop"
+  cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+fi
+
+# Install registry, SMB/AD/LDAP and optical-media user-space integrations.
+install -D -m 0755 "$REPO_DIR/services/registry/registryd.py" "$WORK/usr/lib/chimera/registry/registryd.py"
+install -D -m 0755 "$REPO_DIR/services/registry/sync-admin-group.py" "$WORK/usr/lib/chimera/registry/sync-admin-group.py"
+install -D -m 0644 "$REPO_DIR/tools/registry/registry_hive.py" "$WORK/usr/lib/chimera/registry/registry_hive.py"
+install -D -m 0644 "$REPO_DIR/services/registry/registry_client.py" "$WORK/usr/lib/chimera/registry/registry_client.py"
+install -D -m 0755 "$REPO_DIR/services/registry/registry-editor-api.py" "$WORK/usr/lib/chimera/registry/registry-editor-api.py"
+install -D -m 0755 "$REPO_DIR/services/registry/registry-editor-launcher.py" "$WORK/usr/lib/chimera/registry/registry-editor-launcher.py"
+install -D -m 0644 "$REPO_DIR/desktop/aurora/registry-editor.html" "$WORK/usr/share/chimera/aurora/registry-editor.html"
+install -D -m 0644 "$REPO_DIR/desktop/aurora/chimera-registry-editor.desktop" "$WORK/usr/share/applications/chimera-registry-editor.desktop"
+install -D -m 0755 "$REPO_DIR/services/network/smb-browse.py" "$WORK/usr/lib/chimera/network/smb-browse.py"
+install -D -m 0755 "$REPO_DIR/services/network/directoryctl.py" "$WORK/usr/lib/chimera/network/directoryctl.py"
+install -D -m 0755 "$REPO_DIR/services/network/directory-discovery.py" "$WORK/usr/lib/chimera/network/directory-discovery.py"
+install -D -m 0755 "$REPO_DIR/services/storage/mount-image.py" "$WORK/usr/lib/chimera/storage/mount-image.py"
+install -d "$WORK/etc/chimera/registry" "$WORK/usr/share/chimera/integrations"
+for hive in machine environment kernel; do
+  install -m 0644 "$REPO_DIR/system/registry/$hive.defaults.json" "$WORK/etc/chimera/registry/$hive.json"
+  python3 "$WORK/usr/lib/chimera/registry/registry_hive.py" build --input "$WORK/etc/chimera/registry/$hive.json" --output "$WORK/etc/chimera/registry/$hive.hive"
+  python3 "$WORK/usr/lib/chimera/registry/registry_hive.py" verify "$WORK/etc/chimera/registry/$hive.hive"
+done
+cp -a "$REPO_DIR/system/integrations/." "$WORK/usr/share/chimera/integrations/"
+install -D -m 0644 "$REPO_DIR/services/registry/registryd.service.json" "$WORK/usr/share/chimera/integrations/registryd.service.json"
+install -D -m 0644 "$REPO_DIR/services/registry/admin-group-sync.service.json" "$WORK/usr/share/chimera/integrations/admin-group-sync.service.json"
+install -D -m 0644 "$REPO_DIR/services/network/smbd.service.json" "$WORK/usr/share/chimera/integrations/smbd.service.json"
+install -D -m 0644 "$REPO_DIR/services/service_registry.json" "$WORK/usr/share/chimera/services/service_registry.json"
+chroot "$WORK" groupadd --force chimera-admin
+if chroot "$WORK" getent passwd user >/dev/null 2>&1; then chroot "$WORK" usermod -aG chimera-admin user; fi
+install -d "$WORK/etc/systemd/system/multi-user.target.wants"
+install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-admin-group-sync.service" "$WORK/usr/lib/systemd/system/chimera-admin-group-sync.service"
+install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-registryd.service" "$WORK/usr/lib/systemd/system/chimera-registryd.service"
+install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-smbd.service" "$WORK/usr/lib/systemd/system/chimera-smbd.service"
+systemctl --root="$WORK" enable chimera-admin-group-sync.service chimera-registryd.service >/dev/null
+systemctl --root="$WORK" enable avahi-daemon.service >/dev/null 2>&1 || true
+for unit in smbd.service nmbd.service wsdd.service sssd.service; do systemctl --root="$WORK" disable "$unit" >/dev/null 2>&1 || true; done
+install -D -m 0644 "$REPO_DIR/system/integrations/smb.conf" "$WORK/etc/samba/smb.conf"
 
 python3 - "$ART" "$PAY" <<'PY'
 import json, os, subprocess, sys
@@ -202,7 +248,9 @@ manifest = {
 print("application catalogs:", len(files), "first-party source:", manifest["native_app_source"])
 PY
 
-python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
+if [ "${ENTRY#desktop/aurora-shell/}" = "$ENTRY" ]; then
+  python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
+fi
 
 cat > "$PAY/PROJECT.md" <<EOF
 # $TITLE live image payload
@@ -240,56 +288,14 @@ EOF
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 
-cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
-#!/bin/bash
-# Session entry point started from the tty1 autologin.
-export LIBGL_ALWAYS_SOFTWARE=1
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
-export GDK_BACKEND=x11
-export XDG_RUNTIME_DIR=/tmp/runtime-live
-mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR"
-xsetroot -solid "#071a2b" 2>/dev/null || true
-xset -dpms 2>/dev/null || true
-xset s off 2>/dev/null || true
-if grep -q "session=classic" /proc/cmdline 2>/dev/null; then
-  for w in /usr/share/backgrounds/*/wp01.jpg; do [ -f "$w" ] && feh --bg-fill "$w"; done
-  exec openbox
+# Linux-style userspace: systemd units, sysusers/tmpfiles, D-Bus policy, helpers.
+if [ -d "$REPO_DIR/userspace" ]; then
+  make -C "$REPO_DIR/userspace" install DESTDIR="$WORK" >/dev/null
+  echo "  userspace units installed (aurora-shell.target, jasper/gates/aurora targets)"
 fi
-
-# GTK's fullscreen request is an EWMH message. Without a window manager the
-# request is ignored and the undecorated WebView remains at GTK's small default
-# size in the upper-left corner in the live session.
-if ! command -v openbox >/dev/null 2>&1 || ! command -v xprop >/dev/null 2>&1; then
-  echo "[Aurora][FATAL] Openbox and xprop are required for fullscreen desktop mode." >&2
-  exit 1
-fi
-openbox --sm-disable >/tmp/aurora-openbox.log 2>&1 &
-wm_pid=$!
-wm_ready=0
-for attempt in $(seq 1 50); do
-  if xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null | grep -Eq 'window id # 0x[[:xdigit:]]+'; then
-    wm_ready=1
-    break
-  fi
-  if ! kill -0 "$wm_pid" 2>/dev/null; then
-    cat /tmp/aurora-openbox.log >&2 || true
-    echo "[Aurora][FATAL] Openbox exited before registering as the window manager." >&2
-    exit 1
-  fi
-  sleep 0.1
-done
-if [ "$wm_ready" -ne 1 ]; then
-  cat /tmp/aurora-openbox.log >&2 || true
-  echo "[Aurora][FATAL] Openbox did not become ready; refusing to start a windowed desktop." >&2
-  kill "$wm_pid" 2>/dev/null || true
-  exit 1
-fi
-echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
-exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
-EOF
-echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
-chmod 755 "$WORK/usr/local/bin/aurora-session"
+install -d "$WORK/etc/aurora"
+printf 'AURORA_DESKTOP_URI=file:///opt/aurora/%s\n' "$ENTRY" > "$WORK/etc/aurora/session.conf"
+printf '%s\n' "${PROFILE:-aurora}" > "$WORK/etc/aurora/profile"
 
 printf '#!/bin/sh\nexec /usr/local/bin/aurora-session\n' > "$WORK/etc/xinitrc"
 chmod 755 "$WORK/etc/xinitrc"
@@ -352,6 +358,14 @@ chroot "$WORK" /bin/bash -c "update-initramfs -u -k all" >/dev/null
 umount_chroot "$WORK"
 
 # ------------------------------------------------------------- shrink
+# Compile every SDK/toolchain project we can and ship the honest report.
+if [ -x "$REPO_DIR/tools/build-sdks.sh" ]; then
+  log "sdk build"
+  mkdir -p "$PAY/reports"
+  bash "$REPO_DIR/tools/build-sdks.sh" --out "$PAY/reports/sdk-build-report.json" \
+    --max 12 --timeout 180 || true
+fi
+
 log "trimming"
 rm -rf "$WORK"/usr/share/doc/* "$WORK"/usr/share/man/* "$WORK"/usr/share/info/* 2>/dev/null || true
 rm -rf "$WORK"/usr/share/fonts/truetype/noto "$WORK"/usr/share/fonts/opentype/noto* 2>/dev/null || true
@@ -388,6 +402,18 @@ if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background
 
 menuentry "$TITLE $VERSION — Live desktop" {
   linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Jasper desktop (Windows 12 style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=jasper console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Gates desktop (macOS style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=gates console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Aurora desktop (Linux 7.x style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=aurora console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Classic X session (openbox)" {

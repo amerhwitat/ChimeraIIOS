@@ -1,0 +1,90 @@
+#!/bin/bash
+# Aurora session entry point (systemd ExecStart / tty1 autologin).
+# Linux session model: the desktop profile is data resolved from /run, /etc or the
+# kernel command line, then handed to the shell as a plain URL parameter.
+set -u
+
+PROFILE_FILE="${AURORA_PROFILE_FILE:-/etc/aurora/profile}"
+RUNTIME_FILE=/run/aurora/profile
+SESSION_CONF="${AURORA_SESSION_CONF:-/etc/aurora/session.conf}"
+
+profile=""
+for candidate in "$RUNTIME_FILE" "$PROFILE_FILE"; do
+  if [ -s "$candidate" ]; then
+    profile="$(head -n1 "$candidate" | tr -d '[:space:]')"
+    [ -n "$profile" ] && break
+  fi
+done
+if [ -z "$profile" ]; then
+  profile="$(sed -n 's/.*aurora\.profile=\([a-zA-Z0-9_-]*\).*/\1/p' /proc/cmdline 2>/dev/null | head -n1)"
+fi
+case "${profile:-}" in
+  jasper|gates|aurora|marine) ;;
+  *) profile="aurora" ;;
+esac
+mkdir -p /run/aurora 2>/dev/null || true
+printf '%s\n' "$profile" > /run/aurora/profile 2>/dev/null || true
+
+uri="file:///opt/aurora/desktop/aurora-shell/index.html"
+# shellcheck disable=SC1091
+[ -r "$SESSION_CONF" ] && . "$SESSION_CONF"
+uri="${AURORA_DESKTOP_URI:-$uri}"
+case "$uri" in *\?*) sep='&' ;; *) sep='?' ;; esac
+uri="${uri}${sep}profile=${profile}"
+
+export LIBGL_ALWAYS_SOFTWARE=1
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+export GDK_BACKEND=x11
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-live}"
+mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+xsetroot -solid '#071a2b' 2>/dev/null || true
+xset -dpms 2>/dev/null || true
+xset s off 2>/dev/null || true
+
+if grep -q "session=classic" /proc/cmdline 2>/dev/null; then
+  for w in /usr/share/backgrounds/*/wp01.jpg; do [ -f "$w" ] && feh --bg-fill "$w"; done
+  exec openbox
+fi
+
+# GTK's fullscreen request is an EWMH message. Without a window manager the request
+# is ignored and the undecorated WebView stays at GTK's small default size, so a WM
+# must be running (and registered) before the kiosk starts.
+if ! command -v openbox >/dev/null 2>&1 || ! command -v xprop >/dev/null 2>&1; then
+  echo "[Aurora][FATAL] Openbox and xprop are required for fullscreen desktop mode." >&2
+  exit 1
+fi
+openbox --sm-disable >/tmp/aurora-openbox.log 2>&1 &
+wm_pid=$!
+wm_ready=0
+for _ in $(seq 1 50); do
+  if xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null | grep -Eq 'window id # 0x[[:xdigit:]]+'; then
+    wm_ready=1
+    break
+  fi
+  if ! kill -0 "$wm_pid" 2>/dev/null; then
+    cat /tmp/aurora-openbox.log >&2 || true
+    echo "[Aurora][FATAL] Openbox exited before registering as the window manager." >&2
+    exit 1
+  fi
+  sleep 0.1
+done
+if [ "$wm_ready" -ne 1 ]; then
+  cat /tmp/aurora-openbox.log >&2 || true
+  echo "[Aurora][FATAL] Openbox did not become ready; refusing to start a windowed desktop." >&2
+  kill "$wm_pid" 2>/dev/null || true
+  exit 1
+fi
+# The PolicyKit agent must share this session D-Bus address so pkexec can
+# present an administrator authentication prompt for explicit AD enrollment.
+POLKIT_AGENT=/usr/libexec/polkit-mate-authentication-agent-1
+if [ -x "$POLKIT_AGENT" ]; then
+  "$POLKIT_AGENT" >/tmp/aurora-polkit-agent.log 2>&1 &
+  echo "$!" > /run/aurora/polkit-agent.pid
+else
+  echo "[Aurora][WARN] PolicyKit agent missing; AD enrollment needs an administrator terminal." >&2
+fi
+
+echo "[Aurora] Openbox ready; starting fullscreen desktop (profile: $profile)."
+exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py "$uri"

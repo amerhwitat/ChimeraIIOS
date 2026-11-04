@@ -1,0 +1,96 @@
+name: Registry, SMB, Directory and Optical Integration
+on:
+  pull_request:
+    paths:
+      - "services/registry/**"
+      - "services/network/**"
+      - "services/storage/**"
+      - "system/integrations/**"
+      - "system/registry/**"
+      - "system/filesystem/**"
+      - "desktop/aurora-shell/**"
+      - "desktop/aurora/**"
+      - "live-image/**"
+      - "tools/filesystem/**"
+      - "tools/registry/**"
+      - "tests/integrations/**"
+      - "tests/services/**"
+      - "tests/system/**"
+      - "userspace/systemd/**"
+      - "platform/systemd/**"
+      - ".github/workflows/integrations-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "services/registry/**"
+      - "services/network/**"
+      - "services/storage/**"
+      - "system/integrations/**"
+      - "system/registry/**"
+      - "system/filesystem/**"
+      - "desktop/aurora-shell/**"
+      - "desktop/aurora/**"
+      - "live-image/**"
+      - "tools/filesystem/**"
+      - "tools/registry/**"
+      - "tests/integrations/**"
+      - "tests/services/**"
+      - "tests/system/**"
+      - "userspace/systemd/**"
+      - "platform/systemd/**"
+      - ".github/workflows/integrations-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Python syntax (all integration entry points)
+        run: |
+          find services tools live-image -type f -name '*.py' -print0 |
+            xargs -0 -r python -m py_compile
+      - name: Integration regression tests
+        run: python -m unittest discover -s tests/integrations -v
+      - name: Registry, directory, optical and FHS service tests
+        run: bash tests/services/run-service-tests.sh
+      - name: Aurora JavaScript syntax
+        run: |
+          node --check desktop/aurora-shell/assets/apps-registry.js
+          node --check desktop/aurora-shell/assets/apps-windows-network.js
+          node --check desktop/aurora-shell/assets/apps-optical-media.js
+          node --check web/system-services.js
+      - name: Validate JSON contracts and staged paths
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          for path in pathlib.Path("system/integrations").glob("*.json"):
+              json.loads(path.read_text())
+          services = json.loads(pathlib.Path("services/service_registry.json").read_text())
+          ids = {x["id"] for x in services["services"]}
+          required = {"registry", "smb-server", "smb-discovery", "directory-services", "optical-media"}
+          assert required <= ids, required - ids
+          index = pathlib.Path("desktop/aurora-shell/index.html").read_text()
+          for name in ("apps-registry.js", "apps-windows-network.js", "apps-optical-media.js"):
+              assert name in index, name
+          build = pathlib.Path("live-image/build.sh").read_text()
+          for name in ("registryd.py", "registry-editor-api.py", "registry-editor-launcher.py",
+                       "registry-editor.html", "smb-browse.py", "directoryctl.py",
+                       "directory-discovery.py", "mount-image.py"):
+              assert name in build, name
+          web = pathlib.Path("web/index.html").read_text()
+          assert "system-services.js" in web and 'id="view-system"' in web
+          print("integration contracts: OK")
+          PY
+      - name: Shell syntax
+        run: |
+          bash -n live-image/build.sh
+          bash -n tests/services/run-service-tests.sh
+          make -C userspace check

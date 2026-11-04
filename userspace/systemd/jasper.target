@@ -1,0 +1,9 @@
+[Unit]
+Description=Aurora -- Jasper desktop profile (Windows-style shell)
+Requires=aurora-profile@jasper.service
+Wants=aurora-shell.target
+After=aurora-profile@jasper.service
+AllowIsolate=yes
+
+[Install]
+WantedBy=graphical.target

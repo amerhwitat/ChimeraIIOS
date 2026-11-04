@@ -1,9 +1,30 @@
 {
-  "schema": "CHM-KORONOS-TARGETS-1",
+  "schema": "CHM-KORONOS-TARGETS-2",
   "native_boot_targets": [
-    {"id":"x86_64","status":"implemented","boot":"Multiboot2","vm":"VMware/QEMU","isa":"x86-64"},
-    {"id":"aarch64","status":"port-layer","boot":"UEFI/U-Boot","isa":"AArch64"},
-    {"id":"riscv64","status":"port-layer","boot":"OpenSBI/UEFI","isa":"RISC-V RV64"}
+    {"id":"x86_64","family":"CISC","status":"partial","boot":"Multiboot2","vm":"QEMU/TCG; QEMU/KVM; VMware","cpu_detection":"CPUID vendor/family/model/stepping, feature leaves, topology, address widths and XCR0","interrupt_backend":"IDT + legacy PIC/PIT currently; APIC discovery/dispatch requires separate acceptance","syscall_backend":"DPL3 INT 0x80 acknowledgement and native SYSCALL candidate path; full VFS/process lifecycle remains gated"},
+    {"id":"aarch64","family":"RISC","status":"port-skeleton","boot":"UEFI/U-Boot","vm":"QEMU virt","cpu_detection":"MIDR_EL1, MPIDR_EL1, ID_AA64PFR0_EL1, ID_AA64MMFR0_EL1, ID_AA64ISAR0_EL1","interrupt_backend":"EL vector table and GICv2/v3 integration not complete","syscall_backend":"SVC/EL0-to-EL1 path not implemented"},
+    {"id":"riscv64","family":"RISC","status":"port-skeleton","boot":"OpenSBI/UEFI","vm":"QEMU virt","cpu_detection":"XLEN compile-time; FDT/ACPI and SBI discovery required; no unsafe M-mode CSR reads from S-mode","interrupt_backend":"stvec/S-mode trap and PLIC/APLIC+IMSIC integration not complete","syscall_backend":"ECALL/SRET path not implemented"}
+  ],
+  "reference_only_targets": [
+    {"id":"i386","family":"CISC","cpu_detection":"CPUID when supported; EFLAGS.ID legacy probe","interrupt":"IDT; PIC/APIC","syscall":"int 0x80 or SYSENTER","status":"reference-only"},
+    {"id":"m68k","family":"CISC","cpu_detection":"processor identification and platform data","interrupt":"vector table/autovectors","syscall":"trap #0","status":"reference-only"},
+    {"id":"s390x","family":"CISC","cpu_detection":"STIDP/facility list","interrupt":"lowcore program/SVC/external/I/O","syscall":"SVC","status":"reference-only"},
+    {"id":"alpha","family":"CISC","cpu_detection":"PALcode/processor identification","interrupt":"PALcode exception vectors","syscall":"callsys","status":"reference-only"},
+    {"id":"arm","family":"RISC","cpu_detection":"MIDR/CPUID or firmware description","interrupt":"vector table; IRQ/FIQ; GIC/SoC","syscall":"SVC","status":"reference-only"},
+    {"id":"riscv32","family":"RISC","cpu_detection":"FDT/ACPI and SBI; XLEN","interrupt":"stvec; PLIC/APLIC+IMSIC","syscall":"ECALL","status":"reference-only"},
+    {"id":"powerpc64","family":"RISC","cpu_detection":"PVR and firmware CPU nodes","interrupt":"exception vectors; XICS/XIVE/MPIC","syscall":"sc","status":"reference-only"},
+    {"id":"mips","family":"RISC","cpu_detection":"PRId and Config registers","interrupt":"CP0 exception vectors","syscall":"syscall","status":"reference-only"},
+    {"id":"sparc64","family":"RISC","cpu_detection":"processor identification registers","interrupt":"trap table","syscall":"ta","status":"reference-only"},
+    {"id":"loongarch64","family":"RISC","cpu_detection":"CPUCFG","interrupt":"EENTRY/ESTAT","syscall":"SYSCALL","status":"reference-only"},
+    {"id":"arc","family":"RISC","cpu_detection":"ARC auxiliary ID registers","interrupt":"exception vectors/IRQ controller","syscall":"ARC trap","status":"reference-only"},
+    {"id":"openrisc","family":"RISC","cpu_detection":"SPR identification","interrupt":"exception vectors/PIC","syscall":"architecture trap","status":"reference-only"},
+    {"id":"parisc","family":"RISC","cpu_detection":"processor identification registers","interrupt":"processor interruption vectors","syscall":"gateway","status":"reference-only"},
+    {"id":"nios2","family":"RISC","cpu_detection":"system ID/CPU configuration","interrupt":"exception vector/interrupt controller","syscall":"architecture trap","status":"reference-only"},
+    {"id":"microblaze","family":"RISC","cpu_detection":"platform/CPU configuration","interrupt":"exception vector/interrupt controller","syscall":"architecture trap","status":"reference-only"},
+    {"id":"xtensa","family":"RISC","cpu_detection":"configured processor identity/options","interrupt":"configurable exception/interrupt levels","syscall":"architecture trap","status":"reference-only"},
+    {"id":"sh","family":"RISC","cpu_detection":"processor identification","interrupt":"exception vectors/priority levels","syscall":"TRAPA","status":"reference-only"},
+    {"id":"csky","family":"RISC","cpu_detection":"C-SKY identification registers","interrupt":"exception vectors/controller","syscall":"architecture trap","status":"reference-only"},
+    {"id":"hexagon","family":"RISC","cpu_detection":"processor/platform identity","interrupt":"vectored exceptions/interrupts","syscall":"architecture trap","status":"reference-only"}
   ],
   "virtual_targets": [
     {"id":"chimera-r8192","status":"emulator","isa":"R8192"},
@@ -13,7 +34,11 @@
     {"id":"cortex-m","status":"boot-port","isa":"ARM Cortex-M"}
   ],
   "cpu_policy": {
-    "x86_64": ["CPUID","APIC/x2APIC detection","SSE2 detection","NX detection","VMX detection","hypervisor detection","logical CPU detection"],
+    "selection_order": ["normalized-architecture", "vendor-or-implementer", "family-model-part-revision", "verified-feature-bitmap", "firmware-and-interrupt-controller"],
+    "x86_64": ["CPUID guarded leaf discovery","decoded family/model/stepping","APIC and x2APIC feature detection","SSE2/NX/VMX/SVM/XSAVE/AVX/AVX2 feature discovery","XCR0 OS-state validation","physical/virtual address width","topology and initial APIC ID","brand string"],
+    "aarch64": ["MIDR_EL1","MPIDR_EL1","ID_AA64PFR0_EL1","ID_AA64MMFR0_EL1","ID_AA64ISAR0_EL1","GIC/ACPI/DT discovery still required"],
+    "riscv64": ["XLEN compile-time","FDT/ACPI CPU node","SBI BASE and extension probing","avoid M-mode-only CSR reads in S-mode"],
+    "unknown_cpu": "Unknown or unavailable identification values remain zero/unknown; never guess from marketing name.",
     "wide_isa": "lazy per-thread RegisterN context ownership; do not force wide-register state into ordinary x86 context switches"
   }
 }

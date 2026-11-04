@@ -1,0 +1,20 @@
+#!/bin/bash
+# Block until a default route (or the timeout) is reached, then publish readiness.
+set -u
+timeout=20
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --timeout) timeout="${2:-20}"; shift 2 ;;
+    *) shift ;;
+  esac
+done
+mkdir -p /run/aurora
+for _ in $(seq 1 "$timeout"); do
+  if ip route show default 2>/dev/null | grep -q default; then
+    echo online > /run/aurora/network.state
+    exit 0
+  fi
+  sleep 1
+done
+echo "offline" > /run/aurora/network.state
+exit 0

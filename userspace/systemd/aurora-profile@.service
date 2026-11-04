@@ -1,0 +1,11 @@
+[Unit]
+Description=Aurora desktop profile selector (%i)
+Before=aurora-session.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/aurora-profile-set %i
+
+[Install]
+WantedBy=multi-user.target

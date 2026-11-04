@@ -1,0 +1,19 @@
+[Unit]
+Description=Synchronize Chimera registry administrators from the local sudo group
+After=local-fs.target
+Before=display-manager.service chimera-registryd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/sync-admin-group.py
+RemainAfterExit=yes
+User=root
+Group=root
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=yes
+ReadWritePaths=/etc
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

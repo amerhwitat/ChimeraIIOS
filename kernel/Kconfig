@@ -1,0 +1,87 @@
+# Koronos kernel configuration
+#
+# Linux-style Kconfig for the Koronos microkernel. Build with:
+#   make -C kernel defconfig && make -C kernel -j"$(nproc)"
+
+mainmenu "Koronos kernel configuration"
+
+config ARCH_X86_64
+	bool "x86_64 architecture"
+	default y
+	help
+	  Build the Koronos kernel and boot stubs for x86_64.
+
+config ARCH_AARCH64
+	bool "aarch64 architecture"
+	default n
+	help
+	  Experimental aarch64 entry stubs. Userspace acceptance is not claimed.
+
+config ARCH_RISCV64
+	bool "riscv64 architecture"
+	default n
+	help
+	  Experimental riscv64 entry stubs. Userspace acceptance is not claimed.
+
+config KORONOS_NBIT_WIDTH
+	int "Native N-bit register width"
+	range 8 8192
+	default 64
+	help
+	  Width of the software-defined native register substrate emitted into the
+	  boot image note. This is a software model, not a physical CPU width.
+
+config KORONOS_LOCALVERSION
+	string "Local version suffix"
+	default "-koronos"
+
+config KORONOS_DEBUG
+	bool "Kernel debug output"
+	default y
+	help
+	  Emit verbose serial diagnostics from the kernel bootstrap path.
+
+config KORONOS_SMP
+	bool "Symmetric multi-processing"
+	default y
+	help
+	  Compile the parallel scheduler and AP bring-up paths.
+
+config KORONOS_DRIVERS_PCI
+	bool "PCI bus support"
+	default y
+
+config KORONOS_DRIVERS_VIRTIO
+	bool "Virtio block and network drivers"
+	depends on KORONOS_DRIVERS_PCI
+	default y
+
+config KORONOS_DRIVERS_DISPLAY
+	bool "PC display driver"
+	depends on KORONOS_DRIVERS_PCI
+	default y
+
+config KORONOS_COMPAT_ABI
+	bool "Linux/Windows compatibility ABI registry"
+	default y
+	help
+	  Register syscall and interrupt compatibility tables used by the hosted bridge.
+
+config KORONOS_AI_MODEL
+	bool "On-kernel AI event model"
+	default y
+
+config KORONOS_INSTALLER
+	bool "Installer runtime bootstrap"
+	default y
+
+config KORONOS_MODULES
+	bool "Enable loadable module support"
+	default y
+	select KORONOS_TEST_MODULES
+
+config KORONOS_TEST_MODULES
+	bool "Build Koronos test modules"
+	default y
+	help
+	  Build kernel/modules/*.asm as loadable modules with .modinfo metadata.

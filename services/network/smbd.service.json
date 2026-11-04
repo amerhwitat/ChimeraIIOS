@@ -1,0 +1,24 @@
+{
+  "name": "chimera-smb-server",
+  "description": "Opt-in Samba SMB2/3 server with administrator-managed interfaces and shares",
+  "exec": "/usr/sbin/smbd --foreground --no-process-group",
+  "start_after": [
+    "network-online",
+    "aegis-policy"
+  ],
+  "enabled_by_default": false,
+  "restart": "on-failure",
+  "sandbox": true,
+  "network": "admin-configured",
+  "config": "/etc/samba/smb.conf",
+  "default_shares": [],
+  "default_interfaces": [
+    "lo"
+  ],
+  "security": {
+    "minimum_protocol": "SMB2_10",
+    "signing": "mandatory",
+    "guest": "disabled",
+    "netbios": "disabled"
+  }
+}

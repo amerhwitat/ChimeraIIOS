@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "hive": "machine",
+  "generation": 1,
+  "entries": [
+    {
+      "path": "machine.identity.profile",
+      "type": "string",
+      "value": "auto"
+    },
+    {
+      "path": "cpu.selection.policy",
+      "type": "string",
+      "value": "architecture-vendor-family-model-revision-features"
+    },
+    {
+      "path": "cpu.detection.log_level",
+      "type": "u32",
+      "value": 2
+    },
+    {
+      "path": "cpu.feature_override.enabled",
+      "type": "bool",
+      "value": false
+    },
+    {
+      "path": "security.registry.require_crc",
+      "type": "bool",
+      "value": true
+    },
+    {
+      "path": "security.registry.allow_unknown_keys",
+      "type": "bool",
+      "value": false
+    },
+    {
+      "path": "machine.network.smb.minimum_protocol",
+      "type": "string",
+      "value": "SMB2_10"
+    }
+  ]
+}

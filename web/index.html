@@ -5,7 +5,7 @@
 <meta name="description" content="Chimera II OS Aurora Control Center — MAME, Amiga local core, Games, BizX and BizXtreme">
 <meta name="theme-color" content="#07111f"><title>Chimera II OS — Aurora Control Center</title>
 <link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="aurora_shell.css">
-<link rel="stylesheet" href="chimera-hub.css"><script src="mame-web-runtime.js" defer></script><script src="chimera-hub.js" defer></script>
+<link rel="stylesheet" href="chimera-hub.css"><link rel="stylesheet" href="system-services.css"><script src="mame-web-runtime.js" defer></script><script src="chimera-hub.js" defer></script><script src="system-services.js" defer></script>
 </head>
 <body>
 <header class="hub-header">
@@ -14,7 +14,7 @@
 </header>
 <nav class="hub-nav" aria-label="Control Center">
  <button data-view="overview" class="active">Aurora</button><a class="network-nav-link" href="aurora_webgl_desktops.html">WebGL Desktops</a><a class="network-nav-link" href="desktop-showcase/index.html">Named Desktop Showcase</a><a class="network-nav-link" href="retro_emulators.html">Retro Emulators</a><a class="network-nav-link" href="playstation_emulators.html">PlayStation</a><a class="network-nav-link" href="network.html">Network Hub</a>
-<a class="network-nav-link" href="portfolio.html">Portfolio Apps</a><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="pdf">PDF Reader</button><button data-view="ocr">Ancient OCR</button><button data-view="thamudic">Thamudic NLP</button>
+<a class="network-nav-link" href="portfolio.html">Portfolio Apps</a><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="system">System Services</button><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="pdf">PDF Reader</button><button data-view="ocr">Ancient OCR</button><button data-view="thamudic">Thamudic NLP</button>
 </nav>
 <main class="hub-main">
 <section id="view-overview" class="view active">
@@ -111,6 +111,31 @@
 <section id="view-database" class="view">
  <div class="section-head"><div><span class="eyebrow">LOCAL DATABASE</span><h2>Chimera runtime data</h2></div><div class="toolbar"><button id="exportDb">Export JSON</button><button id="importDb">Import JSON</button><input id="dbFile" type="file" accept=".json" hidden></div></div>
  <div class="panel"><div id="dbSummary"></div><pre id="dbLog"></pre></div>
+</section>
+
+<section id="view-system" class="view">
+ <div class="hero-card"><div><span class="eyebrow">SYSTEM MANAGEMENT</span><h2>Registry, Windows Network and Optical Media</h2><p>Local privileged operations are available only in the packaged Aurora kiosk. The public website remains a read-only preview.</p></div><div class="art-badge">SYSTEM</div></div>
+ <div class="system-grid">
+  <article class="panel system-panel"><h3>CHMRG01 Registry Editor</h3>
+   <div class="system-form"><select id="systemHive"><option value="machine">Machine hive</option><option value="environment">Environment hive</option><option value="kernel">Kernel hive</option></select><input id="systemRegistrySearch" placeholder="Filter keys…"><button id="systemRegistryReload">Reload hive</button></div>
+   <p id="systemRegistryStatus" class="status">Connecting to local registry service…</p>
+   <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Value</th><th>Actions</th></tr></thead><tbody id="systemRegistryRows"></tbody></table></div>
+   <h4>Add / update entry</h4><div class="system-form"><input id="systemRegistryPath" placeholder="environment.locale"><select id="systemRegistryType"><option>string</option><option>bool</option><option>u32</option><option>u64</option><option>bytes</option></select><input id="systemRegistryValue" class="wide" placeholder="Value"><button id="systemRegistryAdd" class="wide">Save entry</button></div>
+   <p class="status">Hardware identity, CPU capability, memory safety, privilege and boot-critical keys remain protected.</p>
+  </article>
+  <article class="panel system-panel"><h3>Microsoft Network · SMB2/3</h3>
+   <button id="systemSmbDiscover">Discover Windows hosts</button><p id="systemSmbStatus" class="status">WS-Discovery and DNS-SD local-link discovery.</p>
+   <input id="systemSmbHost" placeholder="files.example.org or IPv4 address"><button id="systemSmbBrowse">List shares</button><div id="systemSmbResults" class="scroll"></div>
+   <h3>Active Directory</h3><input id="systemRealmDomain" placeholder="example.org"><input id="systemRealmUser" placeholder="Administrator account (optional)">
+   <button id="systemRealmStatus">Check domain membership</button><button id="systemRealmJoin">Join with current Kerberos ticket</button><p id="systemRealmStatusText" class="status">Run kinit first; no password is stored.</p>
+   <h3>LDAP</h3><input id="systemLdapUri" placeholder="ldaps://dc.example.org"><input id="systemLdapBase" placeholder="dc=example,dc=org"><input id="systemLdapFilter" placeholder="(objectClass=computer)"><button id="systemLdapSearch">Search with GSSAPI</button><p id="systemLdapStatus" class="status">TLS certificate validation is mandatory.</p><pre id="systemLdapResults"></pre>
+  </article>
+  <article class="panel system-panel"><h3>Optical Media</h3><p>Mount ISO-9660/UDF images or physical CD/DVD drives read-only.</p><button id="systemIsoMount">Choose and mount ISO</button>
+   <div class="system-form"><input id="systemOpticalDevice" value="/dev/sr0"><button id="systemOpticalDeviceMount">Mount CD/DVD drive</button></div>
+   <button id="systemOpticalUnmount">Unmount selected media</button><p id="systemOpticalStatus" class="status">No optical media mounted.</p>
+  </article>
+  <article class="panel system-panel"><h3>Service security</h3><p>SMB server is installed but disabled by default. It starts loopback-only with no shares; an administrator must configure share ACLs, interfaces and firewall policy before enabling smbd.</p><p>Active Directory enrollment uses realmd/adcli/SSSD and a Kerberos ticket. LDAP uses GSSAPI over StartTLS or LDAPS. No plaintext credentials are written to the registry.</p><p>These controls are Linux live-edition integrations. Native Koronos VFS and network protocol drivers remain separate work.</p></article>
+ </div>
 </section>
 </main>
 <footer class="hub-footer"><span>ChimeraIIOS · Aurora Control Center</span><span>Local runtime boundary: emulator binaries and firmware remain outside Pages.</span></footer>

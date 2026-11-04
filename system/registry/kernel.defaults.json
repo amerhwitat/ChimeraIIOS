@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "hive": "kernel",
+  "generation": 1,
+  "entries": [
+    {
+      "path": "kernel.debug.serial_console",
+      "type": "bool",
+      "value": true
+    },
+    {
+      "path": "kernel.debug.log_level",
+      "type": "u32",
+      "value": 4
+    },
+    {
+      "path": "kernel.scheduler.quantum_us",
+      "type": "u32",
+      "value": 10000
+    },
+    {
+      "path": "kernel.smp.requested",
+      "type": "bool",
+      "value": true
+    },
+    {
+      "path": "kernel.architecture.preferred",
+      "type": "string",
+      "value": "auto"
+    },
+    {
+      "path": "kernel.memory.physical_limit_override",
+      "type": "u64",
+      "value": 0
+    }
+  ]
+}

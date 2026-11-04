@@ -1,0 +1,15 @@
+{
+  "name": "chimera-smb-discovery",
+  "description": "One-shot local-link SMB discovery using DNS-SD and WS-Discovery; share listing requires explicit target and Kerberos",
+  "exec": "python3 /usr/lib/chimera/network/smb-browse.py --network",
+  "start_after": [
+    "network-online"
+  ],
+  "restart": "manual",
+  "sandbox": true,
+  "network": "local-link-multicast",
+  "requires": [
+    "avahi-utils"
+  ],
+  "enabled_by_default": false
+}

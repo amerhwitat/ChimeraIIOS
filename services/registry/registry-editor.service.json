@@ -1,0 +1,18 @@
+{
+  "name": "chimera-registry-editor",
+  "description": "Loopback-only Aurora registry editor; authorization delegated to registryd Unix peer credentials",
+  "exec": "python3 /usr/lib/chimera/registry/registry-editor-api.py",
+  "start_after": [
+    "chimera-registryd",
+    "user-session"
+  ],
+  "restart": "on-failure",
+  "sandbox": true,
+  "user": "current-user",
+  "network": "127.0.0.1:8765",
+  "requires": [
+    "python3",
+    "chimera-registryd"
+  ],
+  "writable": []
+}

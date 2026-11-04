@@ -1,0 +1,31 @@
+{
+  "schema": "CHM-INTEGRATION-1",
+  "id": "optical-media",
+  "formats": [
+    "ISO-9660",
+    "Rock Ridge",
+    "Joliet",
+    "UDF"
+  ],
+  "packages": {
+    "debian": [
+      "udisks2"
+    ]
+  },
+  "mount": {
+    "backend": "udisks2 loop devices",
+    "read_only": true,
+    "default_mount_root": "/media",
+    "command": "/usr/lib/chimera/storage/mount-image.py"
+  },
+  "security": {
+    "loop_setup": "udisks2 authorization",
+    "no_direct_shell": true,
+    "write_access": false,
+    "unmount_before_loop_delete": true
+  },
+  "notes": [
+    "The current helper validates the ISO-9660 primary volume descriptor and mounts read-only.",
+    "Native Koronos ISO9660/UDF VFS drivers and optical block-device drivers are separate unfinished work."
+  ]
+}

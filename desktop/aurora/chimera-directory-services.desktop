@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Active Directory and LDAP
+Comment=Discover and administer Microsoft Active Directory and LDAP connections
+Exec=python3 /usr/lib/chimera/network/directoryctl.py status
+Terminal=true
+Categories=Network;System;Settings;

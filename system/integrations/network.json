@@ -1,0 +1,40 @@
+{
+  "schema": "CHM-NETWORK-INTEGRATION-1",
+  "smb_client": {
+    "implementation": "Samba smbclient",
+    "minimum_protocol": "SMB2",
+    "authentication": "Kerberos credential cache",
+    "anonymous": false,
+    "password_fallback": false,
+    "share_open": "GVFS gio open; desktop credential prompt"
+  },
+  "discovery": [
+    "DNS-SD _smb._tcp via Avahi",
+    "WS-Discovery multicast Probe"
+  ],
+  "active_directory": {
+    "implementation": "realmd + adcli + SSSD",
+    "join": "existing Kerberos ticket; no password argument",
+    "dns_and_time_required": true
+  },
+  "ldap": {
+    "implementation": "OpenLDAP ldapsearch",
+    "authentication": "GSSAPI",
+    "starttls": true,
+    "ldaps": true,
+    "certificate_validation": "required"
+  },
+  "smb_server": {
+    "implementation": "Samba smbd",
+    "enabled_by_default": false,
+    "default_bind_interfaces": [
+      "lo"
+    ],
+    "shares": [],
+    "minimum_protocol": "SMB2_10",
+    "signing": "mandatory",
+    "guest": false,
+    "netbios": false,
+    "service_unit": "chimera-smbd.service"
+  }
+}

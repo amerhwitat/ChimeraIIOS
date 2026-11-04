@@ -1,0 +1,36 @@
+{
+  "schema": "CHM-NETWORK-PACKAGES-1",
+  "optional_profiles": {
+    "smb_client": [
+      "samba-client",
+      "smbclient",
+      "cifs-utils",
+      "avahi",
+      "gvfs-backends",
+      "python3-tk"
+    ],
+    "smb_server": [
+      "samba",
+      "smbd"
+    ],
+    "active_directory": [
+      "realmd",
+      "adcli",
+      "sssd",
+      "krb5",
+      "openldap-clients",
+      "python3-ldap",
+      "dnsutils",
+      "pkexec",
+      "polkitd",
+      "mate-polkit",
+      "sssd-kcm"
+    ],
+    "optical_media": [
+      "util-linux",
+      "udftools",
+      "iso9660-tools"
+    ]
+  },
+  "policy": "optional-install-only; no domain join, SMB listener, firewall opening or share export during package installation"
+}

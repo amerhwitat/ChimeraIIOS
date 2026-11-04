@@ -1,0 +1,129 @@
+{
+  "schema": "CHM-NETWORK-INTEROP-1",
+  "components": {
+    "smb_client": {
+      "upstream": "Samba smbclient",
+      "packages": {
+        "debian": [
+          "smbclient",
+          "samba-common-bin",
+          "krb5-user",
+          "gvfs-backends",
+          "gvfs-fuse"
+        ],
+        "fedora": [
+          "samba-client",
+          "krb5-workstation"
+        ],
+        "arch": [
+          "smbclient",
+          "krb5"
+        ]
+      },
+      "protocols": [
+        "SMB2",
+        "SMB3"
+      ],
+      "minimum": "SMB2_10"
+    },
+    "smb_server": {
+      "upstream": "Samba smbd",
+      "packages": {
+        "debian": [
+          "samba",
+          "samba-common-bin"
+        ],
+        "fedora": [
+          "samba"
+        ],
+        "arch": [
+          "samba"
+        ]
+      },
+      "enabled_by_default": false,
+      "guest": false,
+      "signing": "mandatory"
+    },
+    "network_discovery": {
+      "packages": {
+        "debian": [
+          "avahi-daemon",
+          "avahi-utils",
+          "dnsutils"
+        ],
+        "fedora": [
+          "avahi",
+          "avahi-tools",
+          "bind-utils"
+        ],
+        "arch": [
+          "avahi",
+          "bind"
+        ]
+      },
+      "methods": [
+        "DNS-SD _smb._tcp",
+        "WS-Discovery"
+      ],
+      "scope": "local-link-or-explicit-private-network",
+      "optional_advertiser": "wsdd"
+    },
+    "active_directory": {
+      "packages": {
+        "debian": [
+          "realmd",
+          "sssd-ad",
+          "sssd-tools",
+          "adcli",
+          "krb5-user",
+          "samba-common-bin"
+        ],
+        "fedora": [
+          "realmd",
+          "sssd-ad",
+          "adcli",
+          "krb5-workstation",
+          "samba-common-tools"
+        ],
+        "arch": [
+          "realmd",
+          "sssd",
+          "adcli",
+          "krb5",
+          "samba"
+        ]
+      },
+      "join": "realm join via adcli; SSSD identity and Kerberos",
+      "credentials": "interactive Kerberos/administrator authentication; never store passwords in registry"
+    },
+    "ldap": {
+      "packages": {
+        "debian": [
+          "ldap-utils",
+          "libldap2"
+        ],
+        "fedora": [
+          "openldap-clients",
+          "openldap"
+        ],
+        "arch": [
+          "openldap"
+        ]
+      },
+      "authentication": "GSSAPI/Kerberos",
+      "transport": [
+        "LDAPS",
+        "StartTLS"
+      ],
+      "certificate_validation": "required"
+    }
+  },
+  "security": {
+    "smb1": false,
+    "netbios": false,
+    "guest": false,
+    "password_in_argv": false,
+    "network_range_scanning": false,
+    "credential_storage": "Kerberos credential cache or OS keyring"
+  }
+}

@@ -1,0 +1,1 @@
+{"schema":"CHM-SMB-SERVER-1","enabled":false,"backend":"Samba smbd","protocol":{"minimum":"SMB2_10","smb1":false,"signing":"mandatory"},"authentication":"local-user-or-configured-directory-provider","guest_access":false,"default_shares":[],"service":"chimera-smbd.service","enablement":"explicit-administrator-opt-in","firewall":{"tcp":[445],"udp":[],"netbios_legacy":false}}

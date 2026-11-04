@@ -26,17 +26,15 @@ struct koronos_elf64_shdr {
  uint64_t sh_size; uint32_t sh_link; uint32_t sh_info; uint64_t sh_addralign; uint64_t sh_entsize;
 };
 struct koronos_elf64_rela { uint64_t r_offset; uint64_t r_info; int64_t r_addend; };
-static inline int koronos_elf64_valid(const struct koronos_elf64_ehdr *h) {
- return h && h->e_ident[0]==KORONOS_ELF_MAG0 && h->e_ident[1]==KORONOS_ELF_MAG1 &&
- h->e_ident[2]==KORONOS_ELF_MAG2 && h->e_ident[3]==KORONOS_ELF_MAG3 &&
- h->e_ident[4]==KORONOS_ELFCLASS64 && h->e_ident[5]==KORONOS_ELFDATA2LSB &&
- h->e_ident[6]==1;
-}
-/* Validates the ELF64 header and program-header table before callers index it. */
 #ifdef __cplusplus
 extern "C" {
 #endif
-int koronos_elf64_validate(const void *image, uint64_t size, uint16_t expected_machine);
+int koronos_elf64_validate(const void *image, uint64_t size, uint16_t machine);
 #ifdef __cplusplus
 }
 #endif
+static inline int koronos_elf64_valid(const struct koronos_elf64_ehdr *h) {
+ return h && h->e_ident[0]==KORONOS_ELF_MAG0 && h->e_ident[1]==KORONOS_ELF_MAG1 &&
+ h->e_ident[2]==KORONOS_ELF_MAG2 && h->e_ident[3]==KORONOS_ELF_MAG3 &&
+ h->e_ident[4]==KORONOS_ELFCLASS64 && h->e_ident[5]==KORONOS_ELFDATA2LSB;
+}

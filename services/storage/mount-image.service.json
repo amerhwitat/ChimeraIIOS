@@ -1,0 +1,31 @@
+{
+  "name": "chimera-optical-image-mount",
+  "description": "On-demand read-only ISO-9660/UDF image and CD/DVD mount helper",
+  "exec": "python3 /usr/lib/chimera/storage/mount-image.py",
+  "start_after": [
+    "local-fs",
+    "udisks2"
+  ],
+  "restart": "manual",
+  "sandbox": true,
+  "privilege": "polkit-authorized-udisks2",
+  "protocols": [
+    "ISO-9660",
+    "UDF"
+  ],
+  "mount_options": [
+    "ro",
+    "nodev",
+    "nosuid"
+  ],
+  "requires": [
+    "udisks2",
+    "util-linux",
+    "blkid"
+  ],
+  "arguments": {
+    "mount_image": "mount <image.iso>",
+    "mount_optical_device": "mount-device /dev/srN",
+    "unmount": "unmount /dev/loopN or /dev/srN"
+  }
+}

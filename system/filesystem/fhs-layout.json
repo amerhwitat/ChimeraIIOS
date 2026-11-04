@@ -1,0 +1,60 @@
+{
+  "schema": "CHM-FHS-LAYOUT-1",
+  "profile": "FHS 3.0 compatible merged-/usr",
+  "directories": {
+    "/bin": "symlink to /usr/bin when merged-/usr is enabled",
+    "/sbin": "symlink to /usr/sbin when merged-/usr is enabled",
+    "/lib": "architecture-specific symlink to /usr/lib",
+    "/lib64": "architecture-specific compatibility symlink when required",
+    "/boot": "bootloader, kernels and initramfs",
+    "/dev": "devtmpfs mount point",
+    "/etc": "host configuration",
+    "/home": "user home directories",
+    "/media": "removable media mount points",
+    "/mnt": "administrator temporary mounts",
+    "/opt": "add-on software",
+    "/proc": "procfs mount point",
+    "/root": "root administrator home, mode 0700",
+    "/run": "volatile runtime state, tmpfs",
+    "/srv": "site-specific service data",
+    "/sys": "sysfs mount point",
+    "/tmp": "temporary files, mode 01777, tmpfs",
+    "/usr/bin": "user commands",
+    "/usr/lib": "libraries and private program data",
+    "/usr/local": "locally installed software",
+    "/usr/sbin": "system administration commands",
+    "/usr/share": "architecture-independent data",
+    "/var/cache": "re-creatable cache",
+    "/var/lib": "persistent service state",
+    "/var/log": "system and service logs",
+    "/var/spool": "queued work",
+    "/var/tmp": "persistent temporary files, mode 01777"
+  },
+  "mounts": [
+    {
+      "path": "/proc",
+      "type": "proc"
+    },
+    {
+      "path": "/sys",
+      "type": "sysfs"
+    },
+    {
+      "path": "/dev",
+      "type": "devtmpfs"
+    },
+    {
+      "path": "/run",
+      "type": "tmpfs"
+    },
+    {
+      "path": "/tmp",
+      "type": "tmpfs"
+    }
+  ],
+  "policy": {
+    "never_follow_symlinks_outside_target_root": true,
+    "do_not_replace_existing_nonempty_directories": true,
+    "preserve_user_data": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "CHM-REGISTRY-SERVICE-1",
+  "hives": ["machine", "environment", "kernel"],
+  "source_root": "/etc/chimera/registry",
+  "runtime_socket": "/run/chimera/registry.sock",
+  "transport": "AF_UNIX",
+  "peer_authentication": "SO_PEERCRED",
+  "read_policy": "local-user",
+  "write_policy": "chimera-admin-group-or-root",
+  "generation_compare_and_swap": true,
+  "transaction": "write-ahead-json-journal-with-atomic-source-and-binary-replay",
+  "protected_prefixes": ["cpu.", "machine.identity.", "security.", "kernel.smp.", "kernel.memory.", "kernel.architecture."],
+  "secret_values": false
+}

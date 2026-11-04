@@ -1,0 +1,20 @@
+{
+  "name": "chimera-directory-discovery",
+  "description": "Discover Active Directory domain controllers using DNS SRV records",
+  "exec": "python3 /usr/lib/chimera/network/directory-discovery.py",
+  "start_after": [
+    "network-online"
+  ],
+  "restart": "manual",
+  "sandbox": true,
+  "network": "dns-only",
+  "enabled_by_default": false,
+  "requires": [
+    "python3",
+    "dnsutils"
+  ],
+  "arguments": [
+    "dns-domain"
+  ],
+  "invocation": "systemctl start chimera-directory-discovery@corp.example.service"
+}

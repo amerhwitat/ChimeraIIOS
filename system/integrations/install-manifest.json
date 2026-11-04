@@ -1,0 +1,138 @@
+{
+  "schema": "CHM-INSTALL-MANIFEST-1",
+  "scope": "Linux live edition user-space integration; not native Koronos driver support",
+  "packages": [
+    "samba",
+    "smbclient",
+    "cifs-utils",
+    "wsdd",
+    "avahi-daemon",
+    "realmd",
+    "adcli",
+    "sssd-ad",
+    "sssd-ldap",
+    "sssd-tools",
+    "libnss-sss",
+    "libpam-sss",
+    "krb5-user",
+    "ldap-utils",
+    "libsasl2-modules-gssapi-mit",
+    "udisks2",
+    "oddjob",
+    "oddjob-mkhomedir",
+    "avahi-utils",
+    "dnsutils",
+    "pkexec",
+    "polkitd",
+    "mate-polkit",
+    "sssd-kcm"
+  ],
+  "files": [
+    {
+      "source": "services/registry/registryd.py",
+      "target": "/usr/lib/chimera/registry/registryd.py",
+      "mode": "0755"
+    },
+    {
+      "source": "tools/registry/registry_hive.py",
+      "target": "/usr/lib/chimera/registry/registry_hive.py",
+      "mode": "0644"
+    },
+    {
+      "source": "services/network/smb-browse.py",
+      "target": "/usr/lib/chimera/network/smb-browse.py",
+      "mode": "0755"
+    },
+    {
+      "source": "services/network/directoryctl.py",
+      "target": "/usr/lib/chimera/network/directoryctl.py",
+      "mode": "0755"
+    },
+    {
+      "source": "services/storage/mount-image.py",
+      "target": "/usr/lib/chimera/storage/mount-image.py",
+      "mode": "0755"
+    },
+    {
+      "source": "system/registry/machine.defaults.json",
+      "target": "/etc/chimera/registry/machine.json",
+      "mode": "0644"
+    },
+    {
+      "source": "system/registry/environment.defaults.json",
+      "target": "/etc/chimera/registry/environment.json",
+      "mode": "0644"
+    },
+    {
+      "source": "system/registry/kernel.defaults.json",
+      "target": "/etc/chimera/registry/kernel.json",
+      "mode": "0644"
+    },
+    {
+      "source": "services/registry/sync-admin-group.py",
+      "target": "/usr/lib/chimera/registry/sync-admin-group.py",
+      "mode": "0755"
+    },
+    {
+      "source": "services/registry/registryd.service.json",
+      "target": "/usr/share/chimera/integrations/registryd.service.json",
+      "mode": "0644"
+    },
+    {
+      "source": "services/registry/admin-group-sync.service.json",
+      "target": "/usr/share/chimera/integrations/admin-group-sync.service.json",
+      "mode": "0644"
+    },
+    {
+      "source": "system/integrations/smb.conf",
+      "target": "/etc/samba/smb.conf",
+      "mode": "0644"
+    },
+    {
+      "source": "services/network/smbd.service.json",
+      "target": "/usr/share/chimera/integrations/smbd.service.json",
+      "mode": "0644"
+    },
+    {
+      "source": "services/service_registry.json",
+      "target": "/usr/share/chimera/services/service_registry.json",
+      "mode": "0644"
+    },
+    {
+      "source": "services/registry/registry-editor-api.py",
+      "target": "/usr/lib/chimera/registry/registry-editor-api.py",
+      "mode": "0755"
+    },
+    {
+      "source": "services/registry/registry-editor-launcher.py",
+      "target": "/usr/lib/chimera/registry/registry-editor-launcher.py",
+      "mode": "0755"
+    },
+    {
+      "source": "desktop/aurora/registry-editor.html",
+      "target": "/usr/share/chimera/aurora/registry-editor.html",
+      "mode": "0644"
+    },
+    {
+      "source": "desktop/aurora/chimera-registry-editor.desktop",
+      "target": "/usr/share/applications/chimera-registry-editor.desktop",
+      "mode": "0644"
+    },
+    {
+      "source": "services/network/directory-discovery.py",
+      "target": "/usr/lib/chimera/network/directory-discovery.py",
+      "mode": "0755"
+    }
+  ],
+  "groups": [
+    "chimera-admin"
+  ],
+  "services": {
+    "registryd": "enabled",
+    "smbd": "disabled-by-default",
+    "wsdd": "disabled-by-default",
+    "sssd": "enabled-after-explicit-domain-join",
+    "admin_group_sync": "enabled-before-desktop",
+    "registry_editor": "per-user-on-demand"
+  }
+}

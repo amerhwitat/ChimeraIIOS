@@ -1,0 +1,6 @@
+# Example only; installer must populate UUIDs from detected filesystems.
+# UUID=<root-uuid> / ext4 defaults,noatime 0 1
+# UUID=<efi-uuid> /boot/efi vfat umask=0077 0 2
+# tmpfs /run tmpfs nosuid,nodev,mode=0755 0 0
+# tmpfs /tmp tmpfs nosuid,nodev,mode=1777 0 0
+# Optical media are mounted on demand, read-only, under /media/<label>.

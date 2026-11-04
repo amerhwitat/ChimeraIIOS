@@ -1,0 +1,13 @@
+{
+  "name": "chimera-registry-admin-group-sync",
+  "description": "Grant CHMRG01 write access to existing sudo administrators",
+  "exec": "python3 /usr/lib/chimera/registry/sync-admin-group.py",
+  "start_after": ["local-fs"],
+  "start_before": ["display-manager"],
+  "restart": "never",
+  "sandbox": true,
+  "network": "none",
+  "user": "root",
+  "group": "root",
+  "writable": ["/etc/group", "/etc/gshadow"]
+}

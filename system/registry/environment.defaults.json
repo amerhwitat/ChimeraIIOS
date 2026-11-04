@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "hive": "environment",
+  "generation": 1,
+  "entries": [
+    {
+      "path": "environment.locale",
+      "type": "string",
+      "value": "en_US.UTF-8"
+    },
+    {
+      "path": "environment.timezone",
+      "type": "string",
+      "value": "UTC"
+    },
+    {
+      "path": "environment.path",
+      "type": "string",
+      "value": "/bin:/sbin:/usr/bin:/usr/sbin"
+    },
+    {
+      "path": "environment.shell",
+      "type": "string",
+      "value": "/bin/sh"
+    },
+    {
+      "path": "environment.terminal",
+      "type": "string",
+      "value": "/dev/console"
+    },
+    {
+      "path": "environment.network.workgroup",
+      "type": "string",
+      "value": "WORKGROUP"
+    },
+    {
+      "path": "environment.directory.preferred_domain",
+      "type": "string",
+      "value": ""
+    }
+  ]
+}

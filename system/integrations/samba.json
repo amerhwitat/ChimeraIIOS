@@ -1,0 +1,74 @@
+{
+  "schema": "CHM-INTEGRATION-1",
+  "id": "samba-smb",
+  "purpose": "SMB2/SMB3 file server and authenticated SMB share browsing",
+  "packages": {
+    "debian": [
+      "samba",
+      "smbclient",
+      "cifs-utils",
+      "wsdd",
+      "avahi-daemon",
+      "avahi-utils"
+    ],
+    "runtime": [
+      "smbd",
+      "smbclient",
+      "smbtree",
+      "mount.cifs",
+      "wsdd"
+    ]
+  },
+  "services": [
+    {
+      "id": "smb-server",
+      "exec": "/usr/sbin/smbd --foreground --no-process-group",
+      "enabled_by_default": false,
+      "protocols": [
+        "SMB2",
+        "SMB3"
+      ],
+      "network_scope": "admin-configured interfaces only"
+    },
+    {
+      "id": "wsdd",
+      "exec": "/usr/sbin/wsdd",
+      "enabled_by_default": false,
+      "purpose": "WS-Discovery announcements"
+    },
+    {
+      "id": "smb-browse",
+      "exec": "python3 /usr/lib/chimera/network/smb-browse.py",
+      "enabled_by_default": false,
+      "purpose": "Explicit-target share enumeration"
+    }
+  ],
+  "security": {
+    "smb1": false,
+    "guest_fallback": false,
+    "minimum_protocol": "SMB2",
+    "authentication": [
+      "Kerberos ticket cache"
+    ],
+    "signing": "required when negotiated by policy",
+    "share_defaults": "no shares exported by default",
+    "server_default_interfaces": [
+      "lo"
+    ],
+    "server_default_enabled": false
+  },
+  "notes": [
+    "Use Samba's maintained SMB implementation; this project does not reimplement SMB wire protocol.",
+    "Browsing requires an explicit target or trusted directory/discovery source; no subnet-wide scanning."
+  ],
+  "discovery": {
+    "primary": [
+      "WS-Discovery Probe",
+      "DNS-SD _smb._tcp"
+    ],
+    "supplementary": [
+      "Avahi/mDNS"
+    ],
+    "scope": "local-link multicast only; no IP-range scanning"
+  }
+}

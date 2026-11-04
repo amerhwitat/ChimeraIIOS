@@ -83,6 +83,25 @@ cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/rec
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
 cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 
+# Stage the production Live/Installer/Recovery ring-3 payloads. Koronos only
+# enters user mode when the selected GRUB entry passes exactly one
+# CHIMERA_MODULE_USER_INIT_ELF module with a matching target= cmdline; staging
+# the ELFs here keeps the ISO and the menu contract in sync.
+printf '%s\n' '[3b/7] Stage ring-3 target inits (live, installer, recovery)'
+TARGETS_OUT="$DIST/iso/boot/targets"
+mkdir -p "$TARGETS_OUT"
+for target in live installer recovery; do
+  target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  test -s "$target_elf" || { echo "ERROR: production target init missing: $target_elf (run kernel/build-koronos.sh)" >&2; exit 2; }
+  grub-file --is-x86-multiboot2 "$target_elf" >/dev/null 2>&1 && true
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target_elf is not ET_EXEC" >&2; exit 2; }
+  cp -f "$target_elf" "$TARGETS_OUT/"
+done
+for target in live installer recovery; do
+  grep -q "target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_ROOT/grub.cfg" || {
+    echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
+done
+
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"

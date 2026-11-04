@@ -136,6 +136,26 @@ add_executable(aurora_settings desktop/aurora/apps/aurora_settings.cpp)
 chimera_warnings(aurora_settings)
 install(TARGETS aurora_settings RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES desktop/aurora/aurora_settings_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/settings)
+
+# CHMRG01 registry service and maintained Linux network/storage adapters.
+install(PROGRAMS tools/registry/registry_hive.py services/registry/registryd.py
+  services/registry/sync-admin-group.py DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/registry)
+install(PROGRAMS services/network/smb-browse.py services/network/directoryctl.py
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/network)
+install(PROGRAMS services/storage/mount-image.py DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/storage)
+install(PROGRAMS tools/storage/create-fhs-layout.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES system/integrations/registry.json system/integrations/network.json
+  system/integrations/storage.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/integrations)
+install(FILES system/integrations/smb.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/samba)
+install(FILES services/registry/registryd.service.json services/registry/admin-group-sync.service.json
+  services/network/smbd.service.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/services)
+install(FILES platform/systemd/chimera-admin-group-sync.service platform/systemd/chimera-registryd.service platform/systemd/chimera-smbd.service
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+install(DIRECTORY desktop/aurora-shell/ DESTINATION /opt/aurora/desktop/aurora-shell)
+install(FILES system/registry/machine.defaults.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/chimera/registry RENAME machine.json)
+install(FILES system/registry/environment.defaults.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/chimera/registry RENAME environment.json)
+install(FILES system/registry/kernel.defaults.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/chimera/registry RENAME kernel.json)
+
 install(FILES desktop/aurora/aurora_media_ecosystem.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/media)
 add_executable(aurora_media_player desktop/aurora/apps/aurora_media.cpp)
 add_executable(aurora_video_player desktop/aurora/apps/aurora_video.cpp)
@@ -200,6 +220,21 @@ if(CHIMERA_ENABLE_CVEL)
   add_test(NAME chimera_cvel COMMAND chimera_cvel_test)
 endif()
 if(Python3_Interpreter_FOUND)
+  if(UNIX)
+    add_test(NAME chimera_registry_host
+      COMMAND bash ${CMAKE_SOURCE_DIR}/tests/kernel/run-registry-host-tests.sh)
+    add_test(NAME chimera_registry_network_storage_integrations
+      COMMAND ${Python3_EXECUTABLE} -m unittest discover -s ${CMAKE_SOURCE_DIR}/tests/integrations -v)
+    add_test(NAME chimera_fhs_layout_shell_syntax
+      COMMAND bash -n ${CMAKE_SOURCE_DIR}/tools/storage/create-fhs-layout.sh)
+  endif()
+  add_test(NAME chimera_network_storage_python_syntax
+    COMMAND ${Python3_EXECUTABLE} -m py_compile
+      ${CMAKE_SOURCE_DIR}/services/registry/registryd.py
+      ${CMAKE_SOURCE_DIR}/services/network/smb-browse.py
+      ${CMAKE_SOURCE_DIR}/services/network/directoryctl.py
+      ${CMAKE_SOURCE_DIR}/services/storage/mount-image.py
+      ${CMAKE_SOURCE_DIR}/live-image/lib/aurora-kiosk.py)
   # Regenerate metadata whenever the generator target is requested so stale
   # build-tree ISA JSON cannot shadow the canonical CSV/CPP metadata.
   add_custom_target(chimera_generate_isa_bitfields

@@ -408,7 +408,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -564,6 +564,8 @@ export_rootfs(){
   }
   mkdir -p "$ROOTFS_DIR"/{run,tmp,var/log,var/cache,var/tmp,var/spool}
   chmod 1777 "$ROOTFS_DIR/tmp" "$ROOTFS_DIR/var/tmp" 2>/dev/null || true
+  python3 "$SCRIPT_DIR/tools/filesystem/stage-integrations.py" --source "$SCRIPT_DIR" --root "$ROOTFS_DIR" | tee -a "$LOG_DIR/integration-staging.log"
+  bash "$SCRIPT_DIR/tests/services/run-service-tests.sh" 2>&1 | tee -a "$LOG_DIR/service-regressions.log"
   rm -rf -- "$ROOTFS_DIR/var/lib/apt/lists/"* "$ROOTFS_DIR/root/.cache" 2>/dev/null || true
   [[ -d "$ROOTFS_DIR/bin" || -d "$ROOTFS_DIR/usr/bin" ]] || {
     log_error 'Rootfs export is incomplete'
@@ -1016,6 +1018,11 @@ prepare_apache_ecosystem(){
 }
 prepare_apache(){ prepare_apache_ecosystem; }
 stage_features(){
+  # Prepare the Linux-compatible target-root directory layout only.
+  # Native Koronos VFS and service readiness are not implied by this host-side staging.
+  if [[ -x "$SCRIPT_DIR/tools/storage/create-fhs-layout.sh" ]]; then
+    bash "$SCRIPT_DIR/tools/storage/create-fhs-layout.sh" "$ROOTFS_DIR"
+  fi
   # Install the bounded discovery worker and its data/configuration into the
   # rootfs so Aurora can run it from a user-level systemd timer at runtime.
   if [[ -f "$SCRIPT_DIR/tools/architecture_discovery/chimera_discovery.py" ]]; then
@@ -1515,7 +1522,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1536,10 +1543,27 @@ main(){
       verify) run_stage verify verify_iso;;
       native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
+      sdk) run_stage sdk stage_sdks;;
     esac
     completed="$stage"
   done
   cleanup_final_success_artifacts
+}
+
+stage_sdks(){
+  header 'STEP: COMPILE ALL REPOSITORY SDKS'
+  # Compiles every build definition the host toolchains support (CMake, Cargo,
+  # Swift, Dart, Maven, Gradle, dotnet, npm, Go, Python) and writes an honest
+  # report into the ISO. Missing toolchains are reported as skipped, not passed.
+  local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
+  mkdir -p "$(dirname "$report")"
+  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+    log_info "SDK report staged at $report"
+  else
+    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+  fi
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
