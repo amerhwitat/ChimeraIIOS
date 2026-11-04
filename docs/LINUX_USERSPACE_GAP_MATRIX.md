@@ -32,7 +32,7 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 3. Real scheduler-owned PID/exit/wait semantics and validated fd/VFS syscall path.
 4. Runnable init/service manager and health-checked Live/Installer/Recovery targets.
 5. procfs/task telemetry and shell utilities backed by kernel data.
-6. ACPI MADT/CPUID topology discovery, AP INIT/SIPI startup, per-CPU state, interrupt-driven rescheduling and measured overlapping execution before claiming SMP.
+6. CPUID leaf 0x1F/0x0B topology discovery and BSP APIC-ID reporting now exist; ACPI MADT enumeration, AP INIT/SIPI startup, per-CPU state, interrupt-driven rescheduling and measured overlapping execution remain before claiming SMP.
 7. Aurora/Marine, installer persistence and recovery postcondition tests.
 
 ## Release evidence
@@ -54,4 +54,4 @@ Linux x86-64 brings CPUs online through architecture-specific SMP boot code afte
 5. Use scheduler-owned saved register frames and address-space/TSS handoff; do not dispatch a task concurrently on two CPUs.
 6. Measure two independent CPU workers with a monotonic clock/TSC interval and per-CPU start/end records. Acceptance requires overlapping intervals from distinct hardware APIC IDs, not a run_parallel() return value.
 
-**Current Koronos status:** the callback scheduler has CPU slots and affinity metadata, but chimera_sched_run_parallel() intentionally returns zero. AP discovery/startup, per-CPU execution contexts, IPI rescheduling and measured overlap are not implemented. No SMP claim is made.
+**Current Koronos status:** CPUID topology now reports package logical processors, physical cores, SMT width and the BSP APIC ID; the scheduler deliberately exposes only the BSP as online. ACPI MADT enumeration, AP discovery/startup, per-CPU execution contexts, IPI rescheduling and measured overlap are not implemented. chimera_sched_run_parallel() intentionally returns zero. No SMP claim is made.
