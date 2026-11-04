@@ -101,6 +101,7 @@ class OpticalImageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = pathlib.Path(tmp) / "valid.iso"
             data = bytearray(17 * 2048)
+            data[16 * 2048] = 1
             data[16 * 2048 + 1:16 * 2048 + 6] = b"CD001"
             path.write_bytes(data)
             self.assertEqual(storage.validate_image(path), path.resolve())
