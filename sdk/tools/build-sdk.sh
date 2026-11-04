@@ -134,7 +134,7 @@ for line in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
         key,value=line.split("=",1)
         state=value.split(" ",1)[0]
         rows[key]={"status":state,"detail":value.strip()}
-Path(sys.argv[2]).write_text(json.dumps({"schema":"CHM-SDK-STATUS-1","results":rows},indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+Path(sys.argv[2]).write_text(json.dumps({"schema":"CHM-SDK-STATUS-1","results":rows},indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PYSDKSTATUS
 if [[ -n "$DESTDIR" ]]; then
   install -D -m 0644 "$BUILD/sdk-build-status.json" "$DESTDIR$PREFIX/share/chimera/sdk-build-status.json"
