@@ -1,82 +1,61 @@
-# Koronos vs. Linux 7.x — subsystem comparison and reference alignment
+# Koronos vs. Linux 7.x — subsystem comparison and reference workflow
 
-Status: living document, 2026-11-04. Scope: the Koronos microkernel shipped in
-`kernel/` (Chimera II OS) and `vendor/chimera-ii-os/source/kernel/` (OctavianOS),
-the ring-3 target payloads in `kernel/targets/`, and the ISO/userspace build.
+Status: 2026-11-04. Linux is an engineering reference, not copied code or a claim of Linux ABI compatibility. This document describes the current source boundary; only exact-head CI and genuine runtime evidence can promote a capability to accepted.
 
-This document exists because the project is deliberately built *with Linux as the
-reference model* — the same boot contract, the same build ergonomics, the same
-"init is a userspace program" boundary — without claiming Linux compatibility.
+## 1. Workflow comparison
 
-## 1. Subsystem map
+| Linux workflow | Koronos counterpart | Current boundary |
+|---|---|---|
+| Firmware and architecture setup: EFI stub/boot protocol, early CPU state, memory map | Jasper/GRUB Multiboot2 handoff, BSP setup, physmap and frame allocator | GRUB owns BIOS/UEFI firmware transition. BSP is initialized; APs are not online. |
+| initramfs unpacked into rootfs; PID 1 starts | CPIO-newc payload modules and target-specific ring-3 ELF | Init ELF is launched; production CPIO extraction/rootfs handoff is not yet wired. VFS currently supplies a bounded kernel root and tmpfs. |
+| `task_struct`, `mm_struct`, `copy_process`, exec/wait/reap | process admission records, per-process CR3 loader and PID-keyed FD table | Process records still describe an ELF load plan. No scheduler-owned saved trap-frame task lifecycle, parent/child wait, or real exec yet. |
+| `copy_from_user` / `copy_to_user` with fault-aware access | current-CR3 page-table range validation and bounded copy helpers | Covered pages are checked before copy, but pages are not pinned and kernel page-fault fixup/recovery is not yet guaranteed. |
+| VFS `open/read/write/lseek/close`, file objects and per-task descriptors | bounded root VFS, tmpfs, PID-keyed descriptor table, CPL3 syscall dispatch | OPEN/READ/WRITE/SEEK/CLOSE are routed for the active native init process. The VFS is initialized at target launch; runtime round-trip tests are present in the explicit test ELF. Production acceptance still requires exact-head successful QEMU traces. |
+| systemd/PID 1 service supervision and dependency graph | Kore service orchestration and target init | One target init is launched and reaped synchronously. General child supervision and service lifecycle are incomplete. |
+| x86 topology discovery + ACPI MADT + AP INIT/SIPI + per-CPU runqueues/IPIs | CPUID topology, MADT entry parser, APIC and scheduler foundations | CPUID topology is implemented. MADT entry parsing is implemented and host-tested in CI; ACPI table discovery/runtime parser wiring, AP INIT/SIPI, per-CPU interrupt state/IPIs and online acknowledgements remain outstanding. Scheduler remains BSP-only. |
+| `blk-mq`, partition/filesystem drivers, installer writes | Koronos block layer and Installer transaction | Installer remains a storage-plan dry run. No durable disk writes or cold-boot persistence are claimed. |
+| fsck/repair and verified root postconditions | Koronos Recovery transaction | Recovery remains diagnostics-only; no repair postcondition is claimed. |
+| Wayland compositor and user sessions | Aurora Wayland Glass / Marine session processes | Native target init is a text console. Actual Aurora and Marine guest sessions are not yet proven by native Koronos traces. |
 
-| Concern | Linux 7.x reference | Koronos today | Gap / decision |
-| --- | --- | --- | --- |
-| Boot protocol | 32/64-bit boot protocol, EFI stub, `boot_params` | Multiboot2 via GRUB 2.12 (`multiboot2 /boot/koronos/koronos.elf`) | No EFI stub: firmware support is delegated to GRUB, not to Koronos. Keeping GRUB keeps BIOS+UEFI parity in one image. |
-| Early memory map | E820 / EFI memory map → memblock | Multiboot2 memory map → `physmap`, `frame_allocator` | **Aligned in shape**: a physical allocator over a described map, 4 KiB frames, above-4-GiB ranges rejected at bootstrap (documented contract, host-tested). |
-| Kernel address space | `swapper_pg_dir`, direct map, KASLR | `koronos_bootstrap_pml4`, higher-half kernel, per-process PML4 (`address_space`) | No KASLR, no direct map aliasing beyond the physmap contract. |
-| Process model | `task_struct`, `mm_struct`, `copy_process` | `process.cpp` records + `address_space.cpp` (per-process CR3) | No fork/exec: exactly one admitted init per boot. Deliberate: the acceptance contract asks for one real init. |
-| User entry | `iretq` to `start_thread`, TSS `RSP0` | `user_entry.asm`: GDT user descriptors, 64-bit TSS, `ltr`, `RSP0`, `iretq` trampoline | **Implemented and evidenced** (see §3). |
-| Syscall entry | `MSR_LSTAR`/`syscall`, `swapgs` | `syscall` with STAR/LSTAR set up in `user_entry.asm`; `syscall.cpp` dispatcher; `INT 0x80` DPL3 gate for the CPL-3 proof | Linux uses `syscall` as the fast path and `int3`/`int 0x80` only for compat. Koronos keeps `INT 0x80` as the *audit* gate so the kernel can prove `CS.RPL == 3` before it acknowledges anything. |
-| PID namespace | `struct pid`, `task_pid_nr` | kernel-owned per-process id, returned by `CHM_SYS_GETPID` | Payloads never embed PID 1; the verifier requires the PID the kernel assigned. |
-| Signals / waits | `signal_struct`, wait queues | APC/DPC queues, `chimera_wait_one` | Not POSIX. |
-| Scheduler | CFS/EEVDF, per-CPU runqueues | priority queues, `chimera_sched_run_parallel`, per-CPU snapshots | SMP is scheduled but AP bring-up is not proven; `-smp 2` alone is not evidence. |
-| Block layer | `bio`, request queues, `blk-mq` | none exposed to ring 3 | **Installer payload must stay a dry-run report** until a block backend exists. Do not advertise installation. |
-| VFS | `struct super_block`, `dentry` | none (filesystem code exists in `filesystems/` for research, not wired to syscalls) | No `open/read/write` on files; `write` targets fd 1 only. |
-| Console | `tty`, `printk` → serial/VT | `console_write` → debugcon/serial, `pc-display` driver | Userspace writes go through `CHM_SYS_WRITE` to the same console. |
-| Build system | Kbuild/Kconfig, `make defconfig`, `-j`, modules | `kernel/Kbuild` + `Kconfig` + `scripts/kconfig`, `make -C kernel defconfig && make -C kernel -j`, `make modules`, `make install` | **Aligned**: Linux-style targets and per-directory `Kbuild` fragments; the legacy `build-koronos.sh` recipe is retained as `make legacy`. |
-| Module model | `insmod`, ELF relocations, vermagic | Multiboot2 modules (`module2`), typed by name (`chimera-live-initramfs`, `chimera-installer-contract`, `chimera-user-init-elf`, …) | Modules are staged by the ISO, not loaded at runtime. |
-| Init contract | `/sbin/init`, PID 1, `execve` | one `chimera-user-init-elf` per boot with `target=live|installer|recovery` | **Aligned in spirit**: init is a userspace ELF at a high address that emits its own readiness. |
-| Initramfs | cpio + gzip/zstd, unpacked by the kernel | cpio+gzip image staged as a Multiboot2 module, surfaced to the target | The initramfs is *payload data* today, not an unpacked rootfs. |
-| Verification | boot selftests, `kselftest`, CI | fail-closed trace verifier (`tests/*/verify-userspace-handoff.py`), QEMU BIOS+UEFI matrix | Kept intentionally stricter than the kernel it validates: marker must come from user code after a CPL-3 syscall. |
+## 2. Linux-inspired implementation sequence
 
-## 2. What "use Linux as the reference" changed in this tree
+1. **Build/boot:** Kbuild/Kconfig-style object graph, architecture entry, firmware handoff and physical memory map.
+2. **Early userspace:** validate and unpack CPIO-newc; construct rootfs; mount /dev, /proc, /sys and writable /tmp; launch PID 1.
+3. **Process/syscall boundary:** task-owned address spaces, guarded kernel stacks and saved trap frames; validated user copies; per-process descriptor tables; syscall VFS routing.
+4. **Lifecycle/supervision:** scheduler-owned context switches, process exit, wait, reap and descriptor/address-space cleanup; service dependency supervision.
+5. **SMP:** CPUID + ACPI topology discovery; BSP/AP per-CPU setup; INIT/SIPI and AP acknowledgements; IPIs/TLB shootdown; per-CPU runqueues; concurrent work measurement.
+6. **Targets:** real Live session, transactional Installer with cold reboot, Recovery repair with independently checked postcondition.
+7. **Acceptance:** six Live/Installer/Recovery × BIOS/UEFI boots of one immutable ISO SHA-256 with the same genuine target-specific CPL3/PID/VFS chain and all target-specific postconditions.
 
-1. **Kbuild/Kconfig front end** (`scripts/kconfig/kconfig.py`, `scripts/kbuild/obj2mk.py`,
-   per-directory `Kbuild`): `make -C kernel defconfig`, `make -C kernel -jN`,
-   `make -C kernel modules|modules_install|install|check`, `make legacy` for the old
-   monolithic recipe. The `MAKEFLAGS += --no-print-directory`, `.PRECIOUS` config
-   handling and `.NOTPARALLEL` config rule are direct answers to Kbuild's
-   "regenerated makefile is intermediate" behaviour.
-2. **Userspace boundary**: init is a normal ELF (`ET_EXEC`, one `LOAD` segment with
-   `R E`, entry at `0x1_0000_0000`) built freestanding with the same flags Linux uses
-   for early userspace (`-ffreestanding -fno-stack-protector -mcmodel=large -mno-red-zone`).
-3. **Target selection** mirrors Linux's "one init, selected by the bootloader":
-   GRUB passes exactly one `chimera-user-init-elf` module and its `target=` cmdline.
-   Installer and Recovery are *not* fallbacks for Live; ambiguous selection is rejected.
-4. **`/proc`-style introspection**: `chm.log=`/`chm.progress=` cmdline switches and the
-   `[KRN ]/[RUN ]/[SCH ]/[MM  ]` tag prefixes give the same "read the boot log" workflow
-   `dmesg` gives on Linux.
+## 3. CPU discovery versus CPU availability
 
-## 3. Evidence produced by this build
+| Evidence | What it proves | What it does not prove |
+|---|---|---|
+| CPUID leaf 0x1F/0x0B or AMD 0x8000001E | Package logical count, core/SMT topology and BSP APIC identity | APs are initialized, online or schedulable |
+| ACPI MADT type 0/type 9 parser | Bounded decoding of Local APIC/x2APIC processor entries, duplicate/bounds checks, BSP membership | ACPI root-table discovery, AP startup or online acknowledgements |
+| Scheduler CPU count = 1 | Only BSP is scheduler-online | SMP capability |
+| Serial callback stepping / affinity metadata | Deterministic scheduler tests and policy metadata | Simultaneous execution |
+| Overlapping monotonic intervals tagged with distinct online APIC IDs | Measured concurrent work on at least two CPUs | Installer/recovery or six-case acceptance |
 
-| Case | Result |
-| --- | --- |
-| Live / BIOS | PASS — `USER INIT SYSCALL: target=live init_pid=1`, then `USERSPACE READY: target=live init_pid=1` |
-| Live / UEFI | PASS |
-| Installer / BIOS | PASS |
-| Installer / UEFI | PASS |
-| Recovery / BIOS | PASS |
-| Recovery / UEFI | PASS |
+The new `kernel/core/apic_topology.cpp` parser is compiled into Koronos and exercised by `tests/kernel/run-apic-topology-host-tests.sh`. Its output must not be used to increase the scheduler's online CPU count before actual AP startup and acknowledgement.
 
-Verifier: `tests/migration/verify-userspace-handoff.py` (OctavianOS) and
-`tests/boot/verify-userspace-handoff.py` (Chimera II OS), unchanged, fail-closed.
-Traces: `docs/releases/<tag>/traces/*.log`.
+## 4. Build workflow and parallelism
 
-## 4. Deliberate non-goals
+Koronos follows the useful Kbuild model: per-directory source ownership, generated object rules, explicit configuration, dependency-aware parallel compilation, separate host tests, and a legacy build entry point. The builder's host-test stage is sequential today; object compilation can be parallelized only after dependency generation and deterministic output paths are correct.
 
-- No Linux ABI compatibility: no `open/read/mmap/fork/execve`, no VFS, no `io_uring`.
-- No claim of production readiness for the native desktop: Aurora is an HTML/JS
-  desktop that runs in the Linux live session; the native targets are text-mode
-  userspace payloads.
-- No installer disk writes: without a block backend the installer target reports a
-  plan and exits. The installer text says so explicitly.
+Linux `make -jN` is safe because Kbuild tracks generated dependencies and target ownership. Koronos should not equate `-j` with runtime SMP. Build parallelism and kernel runtime parallelism are separate acceptance dimensions:
+- build jobs may run concurrently on host cores;
+- runtime APs need real startup, per-CPU stacks/GDT/TSS/GS, scheduler contexts, locking, IPIs and measured overlap;
+- CPU topology discovered by CPUID/MADT is inventory, not online state.
 
-## 5. Next alignment steps (ordered)
+## 5. Evidence and release boundary
 
-1. Block-device syscall surface (read/write sectors on the boot medium) so the
-   installer target can move from dry-run to a real, verified partition write.
-2. Initramfs unpacking in-kernel (cpio reader → tmpfs-like ramfs) so Live can own a
-   real root instead of relying on payload modules.
-3. Per-CPU AP bring-up with per-CPU evidence, then scheduler claims.
-4. `MSR_LSTAR`-only syscall path with `swapgs`, keeping `INT 0x80` as the audit gate.
+The required chain remains:
+
+`kernel-ready` → genuine CPL3 syscall acknowledgement → `NATIVE INIT PID: target=... pid=...` → userspace-authored `USERSPACE READY: target=... init_pid=...`.
+
+All six target/firmware traces must refer to the same immutable ISO SHA-256. They must also prove root `/etc/os-release` OPEN/READ/CLOSE, writable `/tmp`, target-specific health, installer persistence after a separate cold boot, Recovery repair postcondition, and measured overlap on at least two CPUs.
+
+The explicit test ELF's VFS exercise is a test probe, not production readiness evidence. Kernel-only QEMU smoke, host tests, topology counts, serial stepping, Linux live editions, screenshots, build success and documentation do not substitute for these gates.
+
+Native-init exit 78 remains a hard failure. Do not promote test ELFs, synthesize readiness, weaken the verifier, merge the draft PRs, or publish a release until all required evidence passes.
