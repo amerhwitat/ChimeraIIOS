@@ -1,0 +1,14 @@
+[Unit]
+Description=VoiceConnect call and messaging broker
+After=aurora-network.service
+PartOf=aurora-shell.target
+
+[Service]
+Type=simple
+User=live
+ExecStart=/usr/local/bin/voiceconnect-broker
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=aurora-shell.target

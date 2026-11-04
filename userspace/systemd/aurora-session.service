@@ -1,0 +1,23 @@
+[Unit]
+Description=Aurora desktop session (kiosk shell)
+Documentation=file:///usr/share/doc/aurora/README.md
+Requires=aurora-shell.target
+After=aurora-shell.target systemd-user-sessions.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=live
+Environment=AURORA_PROFILE_FILE=/run/aurora/profile
+Environment=LIBGL_ALWAYS_SOFTWARE=1
+Environment=WEBKIT_DISABLE_COMPOSITING_MODE=1
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStartPre=/usr/local/bin/aurora-profile-apply
+ExecStart=/usr/local/bin/aurora-session
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=aurora-shell.target

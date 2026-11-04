@@ -1,0 +1,10 @@
+[Unit]
+Description=Aurora graphical shell target
+Documentation=file:///usr/share/doc/aurora/README.md
+Requires=aurora-network.service
+Wants=aurora-session.service
+After=network-online.target local-fs.target
+AllowIsolate=yes
+
+[Install]
+WantedBy=graphical.target

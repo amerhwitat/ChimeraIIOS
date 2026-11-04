@@ -1,0 +1,9 @@
+[Unit]
+Description=Aurora -- Aurora desktop profile (Linux 7.x-style shell)
+Requires=aurora-profile@aurora.service
+Wants=aurora-shell.target
+After=aurora-profile@aurora.service
+AllowIsolate=yes
+
+[Install]
+WantedBy=graphical.target
