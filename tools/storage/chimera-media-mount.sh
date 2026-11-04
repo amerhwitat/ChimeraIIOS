@@ -19,16 +19,16 @@ safe_target(){
   [[ "$1" == /mnt/chimera/media/* ]] || die "Mountpoint must be below /mnt/chimera/media."
   [[ "$1" != *"/../"* && "$1" != */.. ]] || die "Path traversal rejected."
 }
-default_target(){ local n="$1"; n="\${n##*/}"; n="\${n//[^A-Za-z0-9._-]/_}"; printf '/mnt/chimera/media/%s' "$n"; }
+default_target(){ local n="$1"; n="${n##*/}"; n="${n//[^A-Za-z0-9._-]/_}"; printf '/mnt/chimera/media/%s' "$n"; }
 list_media(){
   command -v lsblk >/dev/null 2>&1 && lsblk -o NAME,TYPE,FSTYPE,LABEL,SIZE,RO,MOUNTPOINTS || true
   command -v findmnt >/dev/null 2>&1 && { echo "== Chimera media mounts =="; findmnt -rn -o SOURCE,TARGET,FSTYPE,OPTIONS | awk '$2 ~ /^\\/mnt\\/chimera\\/media\\//'; } || true
 }
 mount_iso(){
   root; need mount; need file
-  local image="$1" target="\${2:-}"
+  local image="$1" target="${2:-}"
   [[ -f "$image" && -r "$image" ]] || die "Unreadable ISO file: $image"
-  [[ -n "$target" ]] || target="$(default_target "$image")"; safe_target "$target"
+  [[ -n "$target" ]] || target="$(default_target "$image")"; target="$(safe_target "$target")"
   mkdir -p "$target"; mountpoint -q "$target" && die "Already mounted: $target"
   local kind; kind="$(file -b "$image")"
   [[ "$kind" == *"ISO 9660"* || "$kind" == *"UDF"* || "$kind" == *"DVD"* || "$kind" == *"CD-ROM"* ]] || die "Not recognized as ISO-9660/UDF media: $kind"
@@ -37,17 +37,17 @@ mount_iso(){
 }
 mount_optical(){
   root; need mount; need blkid
-  local dev="\${1:-/dev/sr0}" target="\${2:-}"
+  local dev="${1:-/dev/sr0}" target="${2:-}"
   [[ -b "$dev" ]] || die "Optical device not found: $dev"
-  [[ -n "$target" ]] || target="$(default_target "$dev")"; safe_target "$target"
+  [[ -n "$target" ]] || target="$(default_target "$dev")"; target="$(safe_target "$target")"
   local fs; fs="$(blkid -o value -s TYPE "$dev" 2>/dev/null || true)"
-  [[ "$fs" == iso9660 || "$fs" == udf ]] || die "Unsupported/unreadable optical filesystem: \${fs:-unknown}"
+  [[ "$fs" == iso9660 || "$fs" == udf ]] || die "Unsupported/unreadable optical filesystem: ${fs:-unknown}"
   mkdir -p "$target"; mountpoint -q "$target" && die "Already mounted: $target"
   mount -t "$fs" -o ro,nodev,nosuid,noexec "$dev" "$target"
   echo "[SUCCESS] Mounted $dev -> $target ($fs)"
 }
-unmount_media(){ root; need umount; safe_target "$1"; mountpoint -q "$1" || die "Not mounted: $1"; umount -- "$1"; rmdir "$1" 2>/dev/null || true; }
-eject_media(){ root; need eject; local dev="\${1:-/dev/sr0}"; [[ -b "$dev" ]] || die "Device not found: $dev"; eject "$dev"; }
+unmount_media(){ root; need umount; local target; target="$(safe_target "$1")"; mountpoint -q "$target" || die "Not mounted: $target"; umount -- "$target"; rmdir "$target" 2>/dev/null || true; }
+eject_media(){ root; need eject; local dev="${1:-/dev/sr0}"; [[ -b "$dev" ]] || die "Device not found: $dev"; eject "$dev"; }
 main(){
  (($#)) || { usage; return 0; }; local cmd="$1"; shift
  case "$cmd" in
