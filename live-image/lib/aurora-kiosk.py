@@ -45,11 +45,13 @@ BRIDGE_JS = r"""
     browseSmb: host => call("network", "browseSmb", {host}),
     discoverSmb: () => call("network", "discoverSmb"),
     joinDomain: (domain, user) => call("network", "joinDomain", {domain, user}),
+    realmStatus: () => call("network", "realmStatus"),
     ldapSearch: (uri, base, filter) => call("network", "ldapSearch", {uri, base, filter})
   };
   window.chimeraStorage = {
     selectIso: () => call("storage", "selectIso"),
     mountIso: path => call("storage", "mountIso", {path}),
+    mountOpticalDrive: device => call("storage", "mountOpticalDrive", {device}),
     unmountIso: device => call("storage", "unmountIso", {device})
   };
 })();
@@ -127,6 +129,8 @@ def dispatch(service, method, args, parent):
             if args.get("user"):
                 argv += ["--user", args["user"]]
             return command_json(argv, timeout=180)
+        if method == "realmStatus":
+            return command_json([sys.executable, DIRECTORY_TOOL, "status"], timeout=20)
         if method == "ldapSearch":
             return command_json([sys.executable, DIRECTORY_TOOL, "ldap-search",
                                  args.get("uri", ""), args.get("base", ""),
@@ -136,6 +140,8 @@ def dispatch(service, method, args, parent):
             return choose_iso(parent)
         if method == "mountIso":
             return command_json([sys.executable, IMAGE_TOOL, "mount", args.get("path", "")], timeout=90)
+        if method == "mountOpticalDrive":
+            return command_json([sys.executable, IMAGE_TOOL, "mount-device", args.get("device", "/dev/sr0")], timeout=90)
         if method == "unmountIso":
             return command_json([sys.executable, IMAGE_TOOL, "unmount", args.get("device", "")], timeout=60)
     raise ValueError("unsupported native bridge operation")
