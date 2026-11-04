@@ -12,6 +12,29 @@ LOOP = re.compile(r"(/dev/loop[0-9]+)")
 def run(argv, timeout=45):
     return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
 
+def validate_image(path):
+    image = pathlib.Path(path).resolve(strict=True)
+    if not image.is_file() or image.stat().st_size < 17 * 2048:
+        raise ValueError("image is not a plausible optical-disc image")
+    with image.open("rb") as stream:
+        stream.seek(16 * 2048 + 1)
+        signature = stream.read(5)
+        if signature == b"BEA01":
+            found_udf = False
+            for sector in range(17, 33):
+                stream.seek(sector * 2048 + 1)
+                descriptor = stream.read(5)
+                if descriptor in (b"NSR02", b"NSR03"):
+                    found_udf = True
+                    break
+                if descriptor == b"TEA01":
+                    break
+            if not found_udf:
+                raise ValueError("UDF recognition sequence is incomplete")
+        elif signature != b"CD001":
+            raise ValueError("ISO-9660/UDF volume descriptor not found")
+    return image
+
 def main():
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -24,26 +47,7 @@ def main():
     a = p.parse_args()
     try:
         if a.cmd == "mount":
-            image = a.image.resolve(strict=True)
-            if not image.is_file() or image.stat().st_size < 17 * 2048:
-                raise ValueError("image is not a plausible optical-disc image")
-            with image.open("rb") as stream:
-                stream.seek(16 * 2048 + 1)
-                signature = stream.read(5)
-                if signature == b"BEA01":
-                    found_udf = False
-                    for sector in range(17, 33):
-                        stream.seek(sector * 2048 + 1)
-                        descriptor = stream.read(5)
-                        if descriptor in (b"NSR02", b"NSR03"):
-                            found_udf = True
-                            break
-                        if descriptor == b"TEA01":
-                            break
-                    if not found_udf:
-                        raise ValueError("UDF recognition sequence is incomplete")
-                elif signature != b"CD001":
-                    raise ValueError("ISO-9660/UDF volume descriptor not found")
+            image = validate_image(a.image)
             setup = run(["udisksctl", "loop-setup", "--file", str(image), "--read-only"])
             if setup.returncode:
                 raise RuntimeError(setup.stderr.strip() or "loop setup failed")
