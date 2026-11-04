@@ -4,9 +4,9 @@ import argparse,json,os,pathlib,struct,sys,zlib
 MAGIC=b"CHMRG01\0"; H=struct.Struct("<8sHHIIIQII"); R=struct.Struct("<HBBI")
 T={"u32":1,"u64":2,"bool":3,"string":4,"bytes":5}
 def valid_path(p):
- if not isinstance(p,str) or not p or p.lower()!=p or p.startswith("/") or p.endswith("/") or "\\0" in p: return False
+ if not isinstance(p,str) or not p or p.startswith("/") or p.endswith("/") or "\\0" in p: return False
  parts=p.split("/")
- return all(x and x!="." and x!=".." and all(c.islower() or c.isdigit() or c in "._-" for c in x) for x in parts)
+ return all(x and x!="." and x!=".." and all(("a"<=c<="z") or ("0"<=c<="9") or c in "._-" for c in x) for x in parts)
 def encode(s):
  if s.get("schema_version")!=1: raise ValueError("unsupported schema version")
  es=s.get("entries")
@@ -14,7 +14,7 @@ def encode(s):
  seen=set(); payload=[]
  for e in es:
   p=e["path"]; t=e["type"]; v=e["value"]
-  if not isinstance(p,str) or not p or p.lower()!=p or p.startswith("/") or ".." in p.split("/") or "\0" in p: raise ValueError("invalid canonical path")
+  if not valid_path(p): raise ValueError("invalid canonical path")
   pb=p.encode("utf-8")
   if len(pb)>255 or p in seen: raise ValueError("duplicate or oversized path")
   seen.add(p)
@@ -57,7 +57,8 @@ def main():
  try:
   if x.cmd=="build":
    d=encode(json.loads(pathlib.Path(x.input).read_text())); o=pathlib.Path(x.output); o.parent.mkdir(parents=True,exist_ok=True)
-   t=o.with_suffix(o.suffix+".tmp"); with t.open("wb") as f:
+   t=o.with_suffix(o.suffix+".tmp")
+   with t.open("wb") as f:
     f.write(d); f.flush(); os.fsync(f.fileno())
    t.replace(o)
    dfd=os.open(str(o.parent),os.O_RDONLY)
