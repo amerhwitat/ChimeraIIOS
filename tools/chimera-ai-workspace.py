@@ -173,12 +173,24 @@ def chat(args) -> int:
             executable = shutil.which("ollama")
             if not executable:
                 raise SystemExit("Ollama backend selected but 'ollama' is not installed")
+            try:
+                installed = subprocess.run([executable, "list"], text=True, capture_output=True,
+                                           timeout=15, check=False)
+            except subprocess.TimeoutExpired:
+                raise SystemExit("Ollama model inventory timed out")
+            if installed.returncode != 0:
+                raise SystemExit("Could not inspect the local Ollama model inventory")
+            names = {line.split()[0] for line in installed.stdout.splitlines()[1:] if line.split()}
+            if str(model) not in names:
+                raise SystemExit(f"Model {model!r} is not installed locally in Ollama; install it explicitly before chatting")
             command = [executable, "run", str(model), prompt]
         else:
             executable = shutil.which("llama-cli")
             if not executable:
                 raise SystemExit("llama.cpp backend selected but 'llama-cli' is not installed")
-            command = [executable, "-m", str(model), "-p", prompt, "-n", str(args.max_tokens)]
+            if not Path(model).expanduser().is_file():
+                raise SystemExit(f"llama.cpp model file does not exist: {model}")
+            command = [executable, "-m", str(Path(model).expanduser()), "-p", prompt, "-n", str(args.max_tokens)]
         try:
             result = subprocess.run(command, text=True, capture_output=True, timeout=args.timeout, check=False)
         except subprocess.TimeoutExpired:
