@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CHMRG01 source",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "hive",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "hive": {
+      "type": "string"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "type": {
+            "enum": [
+              "u32",
+              "u64",
+              "bool",
+              "string",
+              "bytes"
+            ]
+          },
+          "value": {}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
