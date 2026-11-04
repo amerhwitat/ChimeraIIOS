@@ -1,4 +1,4 @@
-[global]
+# CHIMERA-SECURE-SMB-CONFIG\n[global]
    workgroup = WORKGROUP
    server role = standalone server
    server min protocol = SMB2_10
