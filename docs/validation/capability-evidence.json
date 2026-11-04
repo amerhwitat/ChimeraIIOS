@@ -76,6 +76,45 @@
       ]
     },
     {
+      "id": "native-koronos-ring3-init",
+      "label": "Native Koronos single-init CPL3 entry and syscall audit",
+      "status": "partial",
+      "scope": "x86-64 native kernel",
+      "evidence": [
+        {
+          "kind": "source",
+          "ref": "kernel/core/target_launch.cpp",
+          "claim": "Maps a selected init ELF into an owned address space, enters CPL3, validates active CR3/RIP and checks the DPL3 INT 0x80 saved CS.RPL."
+        },
+        {
+          "kind": "test",
+          "ref": ".github/workflows/koronos-elf-loader-tests.yml",
+          "claim": "ELF admission and loader unit tests; not a six-case boot trace."
+        }
+      ],
+      "limits": [
+        "No current exact-head six-case raw traces; the latest full-ISO build failed before producing its canonical ISO.",
+        "Single synchronous init launch is not a general scheduler-owned process/task lifecycle.",
+        "Live payload is text-only; Installer is dry-run; Recovery is diagnostics-only."
+      ]
+    },
+    {
+      "id": "native-process-lifecycle",
+      "label": "General native process and service lifecycle",
+      "status": "partial",
+      "scope": "native kernel",
+      "evidence": [
+        {
+          "kind": "source",
+          "ref": "kernel/core/process.cpp",
+          "claim": "Bounded ELF admission, kernel-assigned PID record, state transition and terminal reap for the selected init."
+        }
+      ],
+      "limits": [
+        "No scheduler-owned process contexts, parent/child creation, wait queues, signal semantics, general task switching or service supervision."
+      ]
+    },
+    {
       "id": "native-vfs-syscalls",
       "label": "Native VFS-backed syscall layer and user-memory validation",
       "status": "partial",
@@ -88,7 +127,9 @@
         }
       ],
       "limits": [
-        "hosted POSIX-shaped adapters are not native VFS syscalls"
+        "No native kernel VFS mount layer or process-owned descriptor table is wired to the syscall path.",
+        "Native WRITE is a bounded console operation; OPEN/READ/CLOSE/SEEK and /tmp tmpfs acceptance are not implemented.",
+        "Host-side filesystem libraries and initramfs packaging do not prove a kernel VFS root mount."
       ]
     },
     {
@@ -162,7 +203,9 @@
       "scope": "kernel scheduler and CPU bring-up",
       "evidence": [],
       "limits": [
-        "sequential simulation, multiple virtual CPU labels or scheduler unit tests do not establish SMP; require parallel execution on two or more CPUs, AP bring-up evidence, synchronization tests and stress/conformance results"
+        "No AP startup implementation or independently running AP workers in the native kernel.",
+        "chimera_sched_run_parallel() deliberately returns zero; serial CPU-slot stepping is not SMP.",
+        "Require AP online records, IPI/synchronization and overlapping execution measured on two CPUs."
       ]
     },
     {
