@@ -149,6 +149,7 @@ install(FILES system/registry/machine.defaults.json system/registry/environment.
 # SMB2/3 client discovery, optional Samba server, AD enrollment and optical media.
 install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py tools/network/chimera-ldap-browse.py tools/network/install-interoperability-packages.sh
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/chimera/network)
+install(PROGRAMS tools/network/chimera-smb-browse.py tools/network/chimera-domain-join.py tools/network/chimera-ldap-browse.py DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(PROGRAMS tools/network/chimera-iso-mount tools/storage/create-fhs-layout.sh DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES system/services/chimera-smbd.service system/services/chimera-smb-discovery.service
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
