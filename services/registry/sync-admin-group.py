@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
-"""Grant the local registry-admin group only to existing sudo administrators."""
+"""Grant CHMRG01 write access only to local sudo administrators."""
 import grp
+import pwd
 import subprocess
 import sys
 
 def main():
     try:
-        members = sorted(set(grp.getgrnam("sudo").gr_mem))
+        sudo = grp.getgrnam("sudo")
     except KeyError:
-        members = []
-    for account in members:
+        return 0
+    members = set(sudo.gr_mem)
+    members.update(entry.pw_name for entry in pwd.getpwall()
+                   if entry.pw_gid == sudo.gr_gid and entry.pw_uid >= 1000)
+    for account in sorted(members):
         if not account or account.startswith("-"):
             continue
         result = subprocess.run(["usermod", "-aG", "chimera-admin", account],
