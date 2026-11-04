@@ -176,16 +176,23 @@ extern "C" int koronos_registry_find(const koronos_registry_view *view,
                                       const char *path, uint8_t expected_type,
                                       const uint8_t **value,
                                       uint32_t *value_size) {
-    if (!view || !view->data || !path || !value || !value_size) {
+    if (!view || !view->data || !path || !value || !value_size ||
+        view->size < 40) {
         return 0;
     }
 
     uint32_t offset = 40;
     for (uint32_t i = 0; i < view->entry_count; ++i) {
+        if (offset > view->size || view->size - offset < 8) {
+            return 0;
+        }
         const uint16_t path_length = read_u16(view->data + offset);
         const uint8_t type = view->data[offset + 2];
         const uint32_t length = read_u32(view->data + offset + 4);
         offset += 8;
+        if (static_cast<uint64_t>(offset) + path_length + length > view->size) {
+            return 0;
+        }
 
         if (path_equals(view->data + offset, path_length, path) &&
             (expected_type == 0 || expected_type == type)) {
@@ -197,7 +204,6 @@ extern "C" int koronos_registry_find(const koronos_registry_view *view,
     }
     return 0;
 }
-
 extern "C" int koronos_registry_read_u64(const koronos_registry_view *view,
                                           const char *path, uint64_t *out) {
     const uint8_t *value = nullptr;
