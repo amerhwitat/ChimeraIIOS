@@ -260,7 +260,7 @@ jobs:
           report=build/six-case-evidence/report.json
           mkdir -p "$evidence"
           set +e
-          python3 tests/boot/verify-six-case-matrix.py --iso "$iso" --evidence-dir "$evidence" --report "$report"
+          python3 tools/boot/verify-six-case-matrix.py --iso "$iso" --evidence-dir "$evidence" --report "$report"
           rc=$?
           set -e
           accepted=false
