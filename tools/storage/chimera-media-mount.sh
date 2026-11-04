@@ -16,8 +16,10 @@ die(){ echo "[ERROR] $*" >&2; exit 2; }
 root(){ (( EUID==0 )) || die "Requires root; use sudo."; }
 need(){ command -v "$1" >/dev/null 2>&1 || die "Missing command: $1"; }
 safe_target(){
-  [[ "$1" == /mnt/chimera/media/* ]] || die "Mountpoint must be below /mnt/chimera/media."
-  [[ "$1" != *"/../"* && "$1" != */.. ]] || die "Path traversal rejected."
+  local resolved
+  resolved="$(realpath -m -- "$1")"
+  [[ "$resolved" == /mnt/chimera/media/* ]] || die "Mountpoint must resolve below /mnt/chimera/media."
+  printf "%s" "$resolved"
 }
 default_target(){ local n="$1"; n="${n##*/}"; n="${n//[^A-Za-z0-9._-]/_}"; printf '/mnt/chimera/media/%s' "$n"; }
 list_media(){
