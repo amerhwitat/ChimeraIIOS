@@ -11,3 +11,5 @@ This is a local-first integration point for CNN, RNN and LLM workflows.
 - Nothing is uploaded. The tool does not train models or alter model weights.
 
 CNN/RNN training needs a real dataset and a supported framework; LLM inference needs compatible model weights and a backend such as llama.cpp or Ollama. The ISO packages the integration and probes, not unlicensed model weights or claims that unavailable frameworks are installed.
+
+The AI Workspace launcher is available from both Aurora and Marine desktop application menus.
