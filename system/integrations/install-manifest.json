@@ -19,7 +19,8 @@
     "libsasl2-modules-gssapi-mit",
     "udisks2",
     "oddjob",
-    "oddjob-mkhomedir"
+    "oddjob-mkhomedir",
+    "avahi-utils"
   ],
   "files": [
     {
