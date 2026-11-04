@@ -8,6 +8,7 @@ __attribute__((noreturn, used)) void _start(void) {
     const long pid = init_getpid();
     if (pid <= 0) init_exit(1);
 
+    if (!init_vfs_acceptance()) init_exit(2);
     init_emit_readiness(pid);
 
     init_writestr("LIVE: native console session banner\n");
