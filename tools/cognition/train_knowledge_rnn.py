@@ -5,7 +5,15 @@ import argparse, hashlib, json, math, random, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
-from tools.cognition.trainable_rnn_lm import CharRNN
+try:
+    from tools.cognition.trainable_rnn_lm import CharRNN
+except ModuleNotFoundError:
+    import importlib.util
+    module_path=Path(__file__).with_name("trainable_rnn_lm.py")
+    spec=importlib.util.spec_from_file_location("chimera_trainable_rnn_lm",module_path)
+    if spec is None or spec.loader is None: raise
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    CharRNN=module.CharRNN
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
