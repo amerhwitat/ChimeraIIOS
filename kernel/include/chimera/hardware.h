@@ -5,14 +5,17 @@
 extern "C" {
 #endif
 
-#define CHIMERA_HW_PROFILE_VERSION 1u
+#define CHIMERA_HW_PROFILE_VERSION 2u
 #define CHIMERA_NBIT_MODE_COUNT 11u
 
 typedef enum chimera_architecture {
     CHIMERA_ARCH_UNKNOWN = 0,
     CHIMERA_ARCH_X86_64 = 1,
     CHIMERA_ARCH_AARCH64 = 2,
-    CHIMERA_ARCH_RISCV64 = 3
+    CHIMERA_ARCH_RISCV64 = 3,
+    CHIMERA_ARCH_X86_32 = 4,
+    CHIMERA_ARCH_RISCV32 = 5,
+    CHIMERA_ARCH_ARM32 = 6
 } chimera_architecture;
 
 typedef enum chimera_nbit_mode {
@@ -39,13 +42,20 @@ enum {
     CHIMERA_HW_VMX = 1u << 6,
     CHIMERA_HW_SVM = 1u << 7,
     CHIMERA_HW_NEON = 1u << 8,
-    CHIMERA_HW_SVE = 1u << 9
+    CHIMERA_HW_SVE = 1u << 9,
+    CHIMERA_HW_APIC = 1u << 10,
+    CHIMERA_HW_X2APIC = 1u << 11
 };
 
 typedef struct chimera_hardware_profile {
     uint32_t version;
     chimera_architecture architecture;
     uint32_t logical_cpus;
+    uint32_t physical_cores;
+    uint32_t threads_per_core;
+    uint32_t current_apic_id;
+    uint32_t topology_leaf;
+    uint32_t topology_valid;
     uint32_t physical_address_bits;
     uint32_t virtual_address_bits;
     uint32_t native_pointer_bits;

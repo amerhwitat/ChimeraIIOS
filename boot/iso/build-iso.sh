@@ -83,6 +83,25 @@ cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/rec
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
 cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 
+# Stage the production Live/Installer/Recovery ring-3 payloads. Koronos only
+# enters user mode when the selected GRUB entry passes exactly one
+# CHIMERA_MODULE_USER_INIT_ELF module with a matching target= cmdline; staging
+# the ELFs here keeps the ISO and the menu contract in sync.
+printf '%s\n' '[3b/7] Stage ring-3 target inits (live, installer, recovery)'
+TARGETS_OUT="$DIST/iso/boot/targets"
+mkdir -p "$TARGETS_OUT"
+for target in live installer recovery; do
+  target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  test -s "$target_elf" || { echo "ERROR: production target init missing: $target_elf (run kernel/build-koronos.sh)" >&2; exit 2; }
+  grub-file --is-x86-multiboot2 "$target_elf" >/dev/null 2>&1 && true
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target_elf is not ET_EXEC" >&2; exit 2; }
+  cp -f "$target_elf" "$TARGETS_OUT/"
+done
+for target in live installer recovery; do
+  grep -q "target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_ROOT/grub.cfg" || {
+    echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
+done
+
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
@@ -144,6 +163,45 @@ for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/boot-artwork-manifest.json" || { echo "ERROR: artwork manifest missing from $stage stage." >&2; exit 2; }
 done
 
+# Stage the source-attributed AI knowledge corpus and build-time RNN checkpoint.
+printf '%s\n' '[4b/7] Stage AI hardware knowledge database and advisory RNN'
+AI_DIR="$DIST/iso/system/ai"
+mkdir -p "$AI_DIR"
+python3 "$ROOT/tools/cognition/knowledge_database.py" validate --database "$ROOT/data/ai/hardware_systems_knowledge.json"
+python3 "$ROOT/tools/cognition/train_knowledge_rnn.py" --database "$ROOT/data/ai/hardware_systems_knowledge.json" \
+  --output "$AI_DIR/trained-hardware-systems-rnn.json" --epochs "${CHIMERA_AI_RNN_EPOCHS:-2}" --hidden 8
+cp -f "$ROOT/data/ai/hardware_systems_knowledge.json" "$AI_DIR/hardware-systems-knowledge.json"
+cp -f "$ROOT/data/ai/hardware_systems_knowledge.schema.json" "$AI_DIR/hardware-systems-knowledge.schema.json"
+cp -f "$ROOT/system/ai/chimera-ai-workspace.json" "$AI_DIR/"
+cp -f "$ROOT/system/ai/README.md" "$AI_DIR/"
+cp -f "$ROOT/tools/chimera-ai-workspace.py" "$AI_DIR/"
+cp -f "$ROOT/tools/cognition/knowledge_database.py" "$AI_DIR/"
+cp -f "$ROOT/tools/cognition/train_knowledge_rnn.py" "$AI_DIR/"
+cp -f "$ROOT/tools/cognition/trainable_rnn_lm.py" "$AI_DIR/"
+python3 -m py_compile "$AI_DIR/chimera-ai-workspace.py" "$AI_DIR/knowledge_database.py" "$AI_DIR/train_knowledge_rnn.py" "$AI_DIR/trainable_rnn_lm.py"
+python3 -m json.tool "$AI_DIR/hardware-systems-knowledge.json" >/dev/null
+python3 -m json.tool "$AI_DIR/hardware-systems-knowledge.schema.json" >/dev/null
+python3 -m json.tool "$AI_DIR/trained-hardware-systems-rnn.json" >/dev/null
+python3 - "$AI_DIR" <<'PYAI'
+import hashlib, json, pathlib, sys
+root=pathlib.Path(sys.argv[1])
+db=json.loads((root/"hardware-systems-knowledge.json").read_text(encoding="utf-8"))
+model=json.loads((root/"trained-hardware-systems-rnn.json").read_text(encoding="utf-8"))
+manifest={"schema":"CHIMERA-AI-PAYLOAD-1","knowledge_entries":db["entry_count"],
+ "knowledge_sources":db["source_count"],
+ "knowledge_sha256":hashlib.sha256((root/"hardware-systems-knowledge.json").read_bytes()).hexdigest(),
+ "rnn_model":"system/ai/trained-hardware-systems-rnn.json",
+ "rnn_corpus_sha256":model.get("metadata",{}).get("corpus_sha256"),
+ "rnn_train_sequences":model.get("metadata",{}).get("train_sequences"),
+ "rnn_heldout_sequences":model.get("metadata",{}).get("heldout_sequences"),
+ "rnn_scope":"small advisory character-level RNN; not an LLM",
+ "cnn_status":"not trained; no labelled licensed dataset supplied",
+ "llm_status":"external local inference; knowledge RAG does not fine-tune weights"}
+(root/"ai-payload-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
+print(json.dumps({"status":"AI payload staged","entries":db["entry_count"],"sources":db["source_count"]}))
+PYAI
+python3 -m json.tool "$AI_DIR/ai-payload-manifest.json" >/dev/null
+
 # Stage a real installer initramfs and the canonical installer JSON contracts.
 bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
 
@@ -184,6 +242,13 @@ command -v xorriso >/dev/null || { echo "xorriso is required." >&2; exit 2; }
 grub-mkrescue -o "$DIST/output.iso" "$DIST/iso"
 test -s "$DIST/output.iso"
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
+AI_VERIFY="$WORK/ai-payload-verify"
+mkdir -p "$AI_VERIFY"
+for item in hardware-systems-knowledge.json hardware-systems-knowledge.schema.json trained-hardware-systems-rnn.json ai-payload-manifest.json; do
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "/system/ai/$item" "$AI_VERIFY/$item" >/dev/null
+  test -s "$AI_VERIFY/$item" || { echo "ERROR: AI payload missing from mastered ISO: $item" >&2; exit 2; }
+done
+python3 -m json.tool "$AI_VERIFY/ai-payload-manifest.json" >/dev/null
 
 printf '%s\n' '[7/7] Inspect El Torito boot records'
 xorriso -indev "$DIST/output.iso" -report_el_torito plain -report_system_area plain | tee "$DIST/ISO-BOOT-REPORT.txt"

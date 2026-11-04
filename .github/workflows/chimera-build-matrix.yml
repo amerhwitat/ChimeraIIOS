@@ -2,6 +2,16 @@ name: Chimera II cross-platform build artifacts
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'kernel/**'
+      - '.github/workflows/chimera-build-matrix.yml'
 
 jobs:
   linux:
@@ -23,6 +33,28 @@ jobs:
         with:
           name: chimera-ii-linux-build
           path: chimera-ii-linux-build.tar.gz
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Configure
+        run: cmake -S . -B build -DCHIMERA_ENABLE_X86_ASM=OFF -DCHIMERA_BUILD_POSIX_SECURITY_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release
+      - name: Report platform-specific security-tool exclusion
+        run: echo "macOS host matrix excludes POSIX crypt-backed account utilities; Linux production builds keep this option enabled."
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Package build tree
+        run: tar -czf chimera-ii-macos-build.tar.gz build tools docs include src tests CMakeLists.txt README.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-ii-macos-build
+          path: chimera-ii-macos-build.tar.gz
 
   windows:
     runs-on: windows-latest

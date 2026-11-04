@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Chimera AI Workspace
+Comment=Local resource index and CNN/RNN/LLM runtime status
+Exec=/usr/local/bin/chimera-ai-workspace-launcher
+Terminal=false
+Categories=Development;Education;Science;

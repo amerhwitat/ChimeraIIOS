@@ -21,12 +21,20 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+"$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
+bash "$ROOT/tests/kernel/run-vfs-host-tests.sh"
+bash "$ROOT/tests/kernel/run-process-fd-host-tests.sh"
+bash "$ROOT/tests/kernel/run-hardware-topology-host-tests.sh"
+bash "$ROOT/tests/kernel/run-apic-topology-host-tests.sh"
+bash "$ROOT/tests/kernel/run-cpu-arch-registry-host-tests.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
+python3 "$ROOT/tools/isa/generate_cpu_arch_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
-CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
+CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include" -I"$ROOT/kernel/generated")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
-sources=(koronos elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model)
+# Native CPL3 syscall boundary: process-owned VFS descriptors and validated user-copy helpers are linked below.
+sources=(koronos vfs process_fd apic_topology cpu_arch_registry elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator physmap address_space target_launch)
 for src in "${sources[@]}"; do
   "$CXX" "${CXXFLAGS[@]}" -c "$ROOT/kernel/core/$src.cpp" -o "$BUILD/$src.o"
 done
@@ -38,9 +46,10 @@ done
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/io.asm" -o "$BUILD/io.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/mode_switch.asm" -o "$BUILD/mode_switch.o"
 "$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/interrupts.asm" -o "$BUILD/interrupts.o"
+"$NASM" -f elf64 "$ROOT/kernel/arch/x86_64/user_entry.asm" -o "$BUILD/user-entry.o"
 "$NASM" -f elf64 "$ROOT/kernel/modules/koronos_test_module.asm" -o "$BUILD/module-test.o"
 
-link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o")
+link_objects=("$BUILD/entry.o" "$BUILD/io.o" "$BUILD/mode_switch.o" "$BUILD/interrupts.o" "$BUILD/user-entry.o")
 for src in "${sources[@]}"; do link_objects+=("$BUILD/$src.o"); done
 link_objects+=("$BUILD/virtio-driver.o" "$BUILD/display-driver.o" "$BUILD/pci-generic-driver.o" "$BUILD/module-test.o")
 for obj in "${link_objects[@]}"; do
@@ -58,7 +67,7 @@ if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not ELF64" >&2; exit 1; }
 fi
 if command -v nm >/dev/null 2>&1; then
-  required_symbols=(koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove)
+  required_symbols=(koronos_cpu_arch_find koronos_cpu_arch_current koronos_cpu_arch_count koronos_apic_topology_parse_madt koronos_copy_from_user koronos_copy_to_user koronos_syscall_int80_dispatch koronos_process_fd_init koronos_process_fd_open koronos_process_fd_read koronos_process_fd_write koronos_process_fd_seek koronos_process_fd_close koronos_process_fd_close_all koronos_process_fd_count koronos_vfs_init koronos_vfs_mount_tmpfs koronos_vfs_open koronos_vfs_read koronos_vfs_write koronos_vfs_seek koronos_vfs_close koronos_vfs_get_snapshot koronos_idle_loop chimera_multiboot_scan chimera_thread_create chimera_wait_one chimera_timer_tick chimera_apc_deliver chimera_dpc_run chimera_hardware_probe chimera_nbit_init chimera_firmware_probe chimera_hardware_enumerate_devices chimera_driver_probe_all chimera_mk_init chimera_mk_syscall chimera_process_init chimera_process_admit_elf chimera_process_reap chimera_service_validate chimera_service_resolve chimera_service_set_state chimera_platform_probe chimera_platform_get_snapshot chimera_object_model_version chimera_object_model_refcount_enabled chimera_sched_run_parallel chimera_compat_init chimera_compat_probe chimera_compat_recognize_syscall chimera_compat_recognize_interrupt chimera_interrupt_init chimera_interrupt_dispatch chimera_syscall_init chimera_syscall_dispatch chimera_isa_init chimera_isa_count chimera_isa_find chimera_isa_find_opcode chimera_ai_model_init chimera_ai_event_count chimera_ai_record_event chimera_ai_provider memset memcpy memmove koronos_frame_allocator_init koronos_frame_alloc koronos_frame_alloc_contiguous koronos_frame_free koronos_frame_free_contiguous koronos_frame_free_count koronos_frame_managed_limit koronos_physmap_init koronos_physmap_validate_range koronos_phys_to_virt koronos_physmap_ready koronos_address_space_init koronos_address_space_ready koronos_address_space_self_test koronos_address_space_loader_ops koronos_address_space_root koronos_address_space_validate_user_range koronos_address_space_count koronos_user_entry_init koronos_arch_enter_user koronos_syscall_entry koronos_syscall_user_dispatch koronos_console_write_user koronos_launch_selected_userspace koronos_target_note_user_write koronos_target_userspace_ready koronos_target_note_user_syscall koronos_target_validate_syscall_context koronos_target_active_pid koronos_target_log)
   for symbol in "${required_symbols[@]}"; do
     nm -a --defined-only "$BUILD/koronos.elf" | awk -v sym="$symbol" '$NF == sym { found=1 } END { exit !found }' || {
       echo "ERROR: $symbol is not linked" >&2; nm -a "$BUILD/koronos.elf" 2>/dev/null | awk -v sym="$symbol" '$NF == sym || index($0,sym)' >&2 || true; exit 1;
@@ -72,7 +81,7 @@ grep -aF '[KORE] Service orchestration online' "$BUILD/koronos.elf" >/dev/null |
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
 auto_banner=''
-printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
+printf '%s\n' 'Protected-process admission/load-plan boundary + process-owned VFS descriptors + native OOP model + multi-CPU scheduler metadata linked; AP startup and parallel execution remain blocked.'
 cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
 mkdir -p "$BUILD/nbit"
 for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
@@ -80,5 +89,65 @@ for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" "$BUILD/nbit-note-$bits.o" -o "$BUILD/nbit/koronos-nbit-$bits.elf"
 done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
-printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
+printf 'Koronos + native Kore + OOP object model + multi-CPU scheduler metadata + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked; AP startup/parallel execution not yet implemented.\n'
+
+# Build target-specific, high-address ring-3 acceptance probes. These are test
+# payloads, not production shells or installer implementations.
+USER_CC="${CC:-gcc}"
+for target in live installer recovery; do
+  "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+    -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
+    -fno-asynchronous-unwind-tables -fno-unwind-tables \
+    -D"CHIMERA_TARGET_${target^^}"=1 \
+    -c "$ROOT/kernel/tests/user_init_smoke.c" -o "$BUILD/user-init-${target}.o"
+  "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+    -T "$ROOT/kernel/tests/user_init_smoke.ld" \
+    "$BUILD/user-init-${target}.o" -o "$BUILD/user-init-${target}.elf"
+  readelf -h "$BUILD/user-init-${target}.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: user-init-${target}.elf is not ET_EXEC" >&2; exit 1;
+  }
+  readelf -lW "$BUILD/user-init-${target}.elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: user-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
+  }
+done
+
+# A deliberately non-cooperative user process validates that the hardware
+# timer IRQ returns to the kernel without requiring a syscall or voluntary exit.
+"$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+  -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
+  -fno-asynchronous-unwind-tables -fno-unwind-tables \
+  -DCHIMERA_TARGET_LIVE=1 -DCHIMERA_TEST_HANG=1 \
+  -c "$ROOT/kernel/tests/user_init_smoke.c" -o "$BUILD/user-init-timeout.o"
+"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+  -T "$ROOT/kernel/tests/user_init_smoke.ld" \
+  "$BUILD/user-init-timeout.o" -o "$BUILD/user-init-timeout.elf"
+readelf -lW "$BUILD/user-init-timeout.elf" | grep -Eq 'LOAD.*R E' || {
+  echo "ERROR: user-init-timeout.elf has no read/execute PT_LOAD" >&2; exit 1;
+}
+printf 'Built non-cooperative userspace timeout probe: %s/user-init-timeout.elf\n' "$BUILD"
+
+# Build the production Live/Installer/Recovery ring-3 payloads that the ISO
+# stages as CHIMERA_MODULE_USER_INIT_ELF modules. Unlike the smoke probes above
+# these are the payloads shipped on the media; each emits its own readiness
+# handshake from CPL 3.
+if [[ -d "$ROOT/kernel/targets" ]]; then
+  for target in live installer recovery; do
+    "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+      -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
+      -fno-asynchronous-unwind-tables -fno-unwind-tables \
+      -D"CHIMERA_TARGET_NAME=\"${target}\"" \
+      -c "$ROOT/kernel/targets/${target}_init.c" -o "$BUILD/target-init-${target}.o"
+    "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+      -T "$ROOT/kernel/targets/target_init.ld" \
+      "$BUILD/target-init-${target}.o" -o "$BUILD/target-init-${target}.elf"
+    readelf -h "$BUILD/target-init-${target}.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+      echo "ERROR: target-init-${target}.elf is not ET_EXEC" >&2; exit 1;
+    }
+    readelf -lW "$BUILD/target-init-${target}.elf" | grep -Eq 'LOAD.*R E' || {
+      echo "ERROR: target-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
+    }
+  done
+  printf 'Built production target inits: %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
+fi
+
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"

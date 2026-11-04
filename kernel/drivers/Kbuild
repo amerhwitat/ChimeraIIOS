@@ -1,0 +1,4 @@
+# Builtin drivers selected by Kconfig
+obj-$(CONFIG_KORONOS_DRIVERS_VIRTIO) += builtin/virtio.cpp
+obj-$(CONFIG_KORONOS_DRIVERS_DISPLAY) += builtin/pc-display.cpp
+obj-$(CONFIG_KORONOS_DRIVERS_PCI) += builtin/pci-generic.cpp

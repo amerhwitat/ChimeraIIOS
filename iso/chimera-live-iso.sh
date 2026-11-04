@@ -165,6 +165,28 @@ cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
+# Stage the real native ring-3 init payloads as Multiboot2 USER_INIT_ELF
+# modules. The kernel deliberately refuses to infer userspace from initramfs
+# scripts; each boot target must supply exactly one target-specific ELF.
+TARGET_BUILD="$ROOT/build/koronos/x86_64"
+mkdir -p "$STAGE/boot/targets"
+for target in live installer recovery; do
+  artifact="$TARGET_BUILD/target-init-$target.elf"
+  [[ -s "$artifact" ]] || {
+    echo "ERROR: missing native $target init ELF: $artifact" >&2
+    exit 2
+  }
+  readelf -h "$artifact" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: native $target init is not ET_EXEC: $artifact" >&2
+    exit 2
+  }
+  readelf -lW "$artifact" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: native $target init has no executable PT_LOAD: $artifact" >&2
+    exit 2
+  }
+  install -m 0644 "$artifact" "$STAGE/boot/targets/target-init-$target.elf"
+done
+
 install_iso_dependencies
 if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
   echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2

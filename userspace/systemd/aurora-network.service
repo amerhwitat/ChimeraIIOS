@@ -1,0 +1,13 @@
+[Unit]
+Description=Aurora network readiness (DHCP via systemd-networkd)
+After=systemd-networkd.service
+Wants=systemd-networkd.service
+Before=aurora-shell.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/aurora-network-wait --timeout 20
+
+[Install]
+WantedBy=multi-user.target

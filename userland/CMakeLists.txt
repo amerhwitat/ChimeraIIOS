@@ -36,7 +36,7 @@ add_executable(chm-resource-manager ../system/resource/chimera_resource_manager.
 # (crypt.h, sys/file.h, sys/random.h, unistd.h, flock/chown/geteuid).
 # Keep the native Unix implementation intact while allowing the MSVC
 # compatibility build to compile the rest of ChimeraIIOS.
-if(NOT WIN32)
+if(NOT WIN32 AND CHIMERA_BUILD_POSIX_SECURITY_TOOLS)
   # crypt.h and libcrypt are provided by libxcrypt/libcrypt development packages.
   # Fail during configuration with an actionable message instead of later
   # failing to compile multiple security targets with "crypt.h: No such file".
@@ -67,11 +67,13 @@ if(NOT WIN32)
       chm-perms chm-usermod chm-groupmod chm-security-selftest)
     target_link_libraries(${chm_security_target} PRIVATE chimera_crypt_dependency)
   endforeach()
+elseif(NOT CHIMERA_BUILD_POSIX_SECURITY_TOOLS)
+  message(STATUS "POSIX crypt-backed security utilities disabled for this host build; production Linux builds keep them enabled by default.")
 endif()
 add_executable(aurora-utf-selftest ../desktop/aurora/i18n/aurora_utf_selftest.cpp)
 add_executable(aurora-settings ../desktop/aurora/apps/aurora_settings.cpp)
 set(CHIMERA_COMMON_TARGETS chmctl chm-diagnostics chmhelp chm-utf8 chm-knowledge-daemon chm-patch chm-reboot chm-resource-manager aurora-settings aurora-utf-selftest)
-if(NOT WIN32)
+if(NOT WIN32 AND CHIMERA_BUILD_POSIX_SECURITY_TOOLS)
   list(APPEND CHIMERA_COMMON_TARGETS chm-user-setup chm-ad chm-passwd chm-groupadd chm-perms chm-usermod chm-groupmod chm-security-selftest)
 endif()
 foreach(chm_target IN LISTS CHIMERA_COMMON_TARGETS)

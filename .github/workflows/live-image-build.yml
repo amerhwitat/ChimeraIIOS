@@ -105,18 +105,49 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
           unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
-          test -x "$root/usr/bin/openbox"
-          test -x "$root/usr/bin/xprop"
-          test -x "$root/usr/local/bin/aurora-session"
-          test -s "$root/opt/aurora/application-bundle.json"
-          test -d "$root/opt/aurora/app-catalogs"
-          test -d "$root/opt/aurora/apps/native/aurora"
-          grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
+          require_executable() {
+            local path="$1"
+            if [[ ! -x "$path" ]]; then
+              echo "::error::Required executable missing or not executable in extracted ISO: $path"
+              ls -ld "$(dirname "$path")" 2>/dev/null || true
+              return 1
+            fi
+          }
+          require_file() {
+            local path="$1"
+            if [[ ! -s "$path" ]]; then
+              echo "::error::Required non-empty file missing from extracted ISO: $path"
+              return 1
+            fi
+          }
+          require_directory() {
+            local path="$1"
+            if [[ ! -d "$path" ]]; then
+              echo "::error::Required directory missing from extracted ISO: $path"
+              return 1
+            fi
+          }
+          require_executable "$root/usr/bin/openbox"
+          require_executable "$root/usr/bin/xprop"
+          require_executable "$root/usr/local/bin/aurora-session"
+          require_file "$root/opt/aurora/application-bundle.json"
+          require_file "$root/opt/aurora/boot-platform.json"
+          require_directory "$root/opt/aurora/app-catalogs"
+          require_directory "$root/opt/aurora/apps/native/aurora"
+          if ! grep -Fq '[Aurora] Openbox ready; starting fullscreen desktop' "$root/usr/local/bin/aurora-session"; then
+            echo "::error::Aurora session launcher does not contain the required Openbox readiness marker"
+            exit 1
+          fi
           python3 - "$root/opt/aurora" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
           manifest = json.loads((root / "application-bundle.json").read_text())
           assert manifest["schema"] == "aurora-offline-application-bundle-v1"
+          platform = json.loads((root / "boot-platform.json").read_text())
+          assert platform["schema"] == "chimera-live-platform-v1"
+          assert platform["kernel_family"] == "linux" and platform["native_koronos"] is False
+          assert platform["image_role"] == "live-desktop"
+          assert platform["installer_target"] is False and platform["recovery_target"] is False
           for relative in manifest["catalog_files"]:
               path = root / "app-catalogs" / relative
               assert path.is_file(), f"missing catalog: {relative}"

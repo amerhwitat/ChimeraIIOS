@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0
+# Koronos top-level Kbuild. Sub-directories carry their own Kbuild fragments.
+obj-y += core/
+obj-y += arch/x86_64/
+obj-y += drivers/
+obj-m += modules/

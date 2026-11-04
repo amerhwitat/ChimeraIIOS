@@ -26,7 +26,10 @@ enum chimera_native_syscall {
     CHM_SYS_NANOSLEEP = 13,
     CHM_SYS_WAIT = 14,
     CHM_SYS_ARCH_PRCTL = 15,
-    CHM_SYS_EXIT_GROUP = 16
+    CHM_SYS_EXIT_GROUP = 16,
+    CHM_SYS_OPEN = 17,
+    CHM_SYS_CLOSE = 18,
+    CHM_SYS_SEEK = 19
 };
 
 typedef struct chimera_syscall_frame {

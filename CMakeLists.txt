@@ -1,6 +1,11 @@
 # Chimera II OS modular build entry point.
 cmake_minimum_required(VERSION 3.16)
 project(ChimeraIIOS VERSION 2.8.0 LANGUAGES C CXX ASM)
+
+# POSIX account/security utilities require crypt.h + libcrypt. Keep them
+# enabled by default on production Linux builds; portable host builds may
+# explicitly disable this platform-specific target group.
+option(CHIMERA_BUILD_POSIX_SECURITY_TOOLS "Build POSIX crypt-backed account/security utilities" ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

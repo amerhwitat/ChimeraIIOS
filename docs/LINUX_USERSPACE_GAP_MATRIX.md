@@ -12,12 +12,12 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 |---|---|---|---|
 | Boot payload | Kernel consumes initramfs and executes its /init as PID 1 | Multiboot2 module scanner classifies init ELF and Live/Recovery payloads; classification alone is not extraction or execution | Verify target-specific module identity/hash; bounded CPIO-newc extraction; reject traversal, duplicate paths, malformed headers and truncated archives |
 | Root filesystem/VFS | Initramfs entries are published as a root mount; mount namespace and VFS mediate path lookup | Existing build/initramfs code does not prove a production root was published through a kernel VFS | Implement archive-to-VFS publication using the real mount ABI; verify /, /init, /dev, /proc, /tmp; fail closed on partial mount |
-| ELF/process | execve maps PT_LOAD, BSS, stack/auxv, permissions, then enters user mode | ELF admission and callback-based load planning exist; they are not equivalent to scheduled ring-3 execution | Connect address-space mapper, context/trampoline, TSS/RSP0, per-process CR3, guarded user stack, scheduler and cleanup |
-| Syscalls | Syscalls operate on the calling task and validate user pointers | Compatibility semantic dispatcher had fabricated PID 1 and acknowledged exit without teardown; this commit changes those cases to ENOSYS | Route native syscall entry to active process context; validate user memory; implement real PID, read/write, mmap/munmap, wait, exit/exit_group |
-| Process lifecycle | fork/clone, exec, wait/reap, signals and exit status have defined semantics | Process records exist, but process records alone do not provide runnable contexts or parent/child lifecycle | Add context-owned task/process association, child creation, exit/reap, wait queues, signals and fault cleanup; test races and stale PID/handle reuse |
+| ELF/process | execve maps PT_LOAD, BSS, stack/auxv, permissions, then enters user mode | A selected single init ELF is mapped into an owned address space and entered through the x86-64 ring-3 trampoline; the kernel validates its CR3/RIP and the DPL3 INT 0x80 acknowledgement. This is a single synchronous init launch, not a general scheduled process model. | Move ownership into scheduler-managed task contexts; implement guarded stacks, per-process kernel stacks/TSS.RSP0, safe CR3 context switching, fault isolation and concurrent task teardown |
+| Syscalls | Syscalls operate on the calling task and validate user pointers | The single-init path has kernel-owned PID lookup, CPL3 INT 0x80 audit acknowledgement, bounded console WRITE and synchronous EXIT/teardown. The general compatibility dispatcher still fails closed. READ/OPEN/CLOSE/SEEK and VFS-backed descriptors are not implemented. | Add a task-owned syscall context, full user-copy/pointer validation, VFS-backed OPEN/READ/WRITE/CLOSE/SEEK, wait/exit semantics, mmap/munmap and negative tests |
+| Process lifecycle | fork/clone, exec, wait/reap, signals and exit status have defined semantics | The selected init is synchronously entered and reaped after exit/timeout. The process record is not a scheduler-owned task; no general parent/child, wait, signal or multi-process lifecycle exists. | Add scheduler-owned task/process association, child creation, wait queues, signals, reference-counted resources and race-safe deferred reaping |
 | Scheduling | Preemptive task scheduling, block/wake, timers and SMP coordination | Cooperative callback scheduler exists; parallel dispatch deliberately returns zero until real AP workers exist | Architecture context switch, timer preemption, blocking syscalls, wake queues, per-CPU current task and independently running AP workers |
-| File descriptors | Per-process fd table, open/read/write/close/dup/pipe, permissions and error semantics | No demonstrated process-owned descriptor table backed by production VFS | Implement fd lifetime/reference counts, VFS operations, permission checks, pipe/IPC and negative tests |
-| Device and pseudo filesystems | devtmpfs/devices, procfs, sysfs, tmpfs and block-backed filesystems | Service bootstrap explicitly leaves device/storage services declared, not running | Register real device backends; mount proc/sys/dev/tmp; prove writable tmpfs and read-only boot media; then persistent storage |
+| File descriptors | Per-process fd table, open/read/write/close/dup/pipe, permissions and error semantics | A bounded PID-keyed descriptor table wraps VFS handles and process reaping closes its descriptors. Native SYSCALL and CPL3 INT 0x80 dispatch now route OPEN/READ/WRITE/SEEK/CLOSE through that table; bounded current-CR3 copy_from_user/copy_to_user helpers validate all covered pages before copying. Runtime target-path proof, fault-fixup recovery, dup/pipe and reference-counted shared descriptions remain outstanding. | Bind descriptor ownership to the scheduler-owned current task; add fault-safe user-copy/pinning, dup/pipe and shared-description references; verify CPL3 filesystem syscalls and /tmp round trips in the real target init |
+| Device and pseudo filesystems | devtmpfs/devices, procfs, sysfs, tmpfs and block-backed filesystems | No native VFS mount layer or APIC-backed block-device filesystem path is present in the native kernel tree. | Implement initramfs CPIO extraction and VFS root mount; mount proc/sys/dev/tmp; prove writable tmpfs and read-only boot media; then persistent storage |
 | Service supervision | PID 1 starts dependencies, tracks exits, restarts configured services and exposes status/logs | Dependency ordering and service state registry exist, but registry/bootstrap do not launch or health-check services | A real init/service manager with start/stop/restart, dependency failure propagation, logs, health checks and target completion |
 | Runtime/toolchain | ELF interpreter, libc, shell, core utilities, package/runtime metadata | BusyBox-based initramfs exists as diagnostic environment; native ABI completeness is not established | Define native libc/sysroot and syscall ABI; package production shell/utilities; test real applications without host fallbacks |
 | Observability | procfs task/memory stats, logs, tracing, resource accounting | Scheduler snapshots and host-side tools exist; no proven kernel-backed procfs/task telemetry | Publish kernel-owned process/memory/cpu data; make ps/top/TaskMon consume that API, not fabricated/static data |
@@ -29,10 +29,10 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 
 1. Rootfs archive extraction and actual VFS root publication.
 2. Kernel-owned process context connected to ELF loader, ring-3 entry and syscall entry.
-3. Real PID/exit/wait semantics and fd/VFS syscall path.
+3. Real scheduler-owned PID/exit/wait semantics and validated fd/VFS syscall path.
 4. Runnable init/service manager and health-checked Live/Installer/Recovery targets.
 5. procfs/task telemetry and shell utilities backed by kernel data.
-6. Real AP startup/context switching before claiming SMP.
+6. CPUID leaf 0x1F/0x0B topology discovery and BSP APIC-ID reporting now exist; ACPI MADT enumeration, AP INIT/SIPI startup, per-CPU state, interrupt-driven rescheduling and measured overlapping execution remain before claiming SMP.
 7. Aurora/Marine, installer persistence and recovery postcondition tests.
 
 ## Release evidence
@@ -42,3 +42,16 @@ The production gate remains fail-closed. Required evidence is a native build and
 ## Linux source mapping
 
 Use Linux as a behavioral reference, not as code to copy wholesale: initramfs and rootfs handling (init/initramfs.c, fs/), process creation and exit (kernel/fork.c, kernel/exit.c), syscall entry and dispatch (arch/x86/entry/, kernel/sys.c), scheduler (kernel/sched/), and procfs (fs/proc/). Exact Linux APIs and source paths vary by kernel release and architecture.
+
+## Multi-core execution parity (Linux reference)
+
+Linux x86-64 brings CPUs online through architecture-specific SMP boot code after firmware topology discovery. Koronos should follow the same staged separation rather than treating a configured CPU count or serial callback slots as parallelism:
+
+1. Discover architectural features and APIC mode with CPUID; parse ACPI MADT processor/APIC entries and reject duplicate or disabled IDs.
+2. Keep the BSP online first; allocate each AP a private stack, GDT/TSS, GS/per-CPU anchor and startup record.
+3. Start APs with the local-APIC INIT/SIPI sequence and a low-memory trampoline; require an APIC-ID-matched online acknowledgement with a bounded timeout.
+4. Publish per-CPU run queues/current-task state only after AP initialization; use IPIs for reschedule, TLB shootdown and stop requests.
+5. Use scheduler-owned saved register frames and address-space/TSS handoff; do not dispatch a task concurrently on two CPUs.
+6. Measure two independent CPU workers with a monotonic clock/TSC interval and per-CPU start/end records. Acceptance requires overlapping intervals from distinct hardware APIC IDs, not a run_parallel() return value.
+
+**Current Koronos status:** CPUID topology now reports package logical processors, physical cores, SMT width and the BSP APIC ID; the scheduler deliberately exposes only the BSP as online. ACPI MADT enumeration, AP discovery/startup, per-CPU execution contexts, IPI rescheduling and measured overlap are not implemented. chimera_sched_run_parallel() intentionally returns zero. No SMP claim is made.

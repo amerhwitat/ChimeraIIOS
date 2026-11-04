@@ -1,0 +1,9 @@
+[Unit]
+Description=Aurora -- Gates desktop profile (macOS-style shell)
+Requires=aurora-profile@gates.service
+Wants=aurora-shell.target
+After=aurora-profile@gates.service
+AllowIsolate=yes
+
+[Install]
+WantedBy=graphical.target

@@ -51,9 +51,20 @@ _start:
     lea eax, [pdpt_table]
     or eax, 0x003
     mov [pml4_table], eax
+    ; One PDPT entry addresses one 512-entry page directory. Link all four
+    ; contiguous directory pages so the 2048 large leaves really cover 4 GiB.
     lea eax, [pd_table]
     or eax, 0x003
-    mov [pdpt_table], eax
+    mov [pdpt_table + 0], eax
+    lea eax, [pd_table + 4096]
+    or eax, 0x003
+    mov [pdpt_table + 8], eax
+    lea eax, [pd_table + 8192]
+    or eax, 0x003
+    mov [pdpt_table + 16], eax
+    lea eax, [pd_table + 12288]
+    or eax, 0x003
+    mov [pdpt_table + 24], eax
     ; Populate 2048 2 MiB PDEs at runtime.  The page-table storage is BSS,
     ; so it must not contain assembler-time initializers.
     lea edi, [pd_table]
@@ -146,7 +157,9 @@ gdt64_end:
 section .bss
 alignb 4096
 page_table_base:
-pml4_table: resb 4096
+global koronos_bootstrap_pml4
+pml4_table:
+koronos_bootstrap_pml4: resb 4096
 pdpt_table: resb 4096
 pd_table: resb 16384
 alignb 16

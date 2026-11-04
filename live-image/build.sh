@@ -38,7 +38,7 @@ case "$ED" in
     TITLE="Chimera II OS"
     SHORT="chimera-ii"
     VOLID="CHIMERA_II_OS"
-    ENTRY="desktop/index.html"
+    ENTRY="desktop/aurora-shell/index.html"
     DESKTOP_COPY="web"
     ISO_NAME="chimera-ii-os-live-amd64.iso"
     ;;
@@ -124,8 +124,30 @@ mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mn
 log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
+python3 - "$PAY/boot-platform.json" "$ED" <<'PYPLATFORM'
+import json, pathlib, sys
+path, edition = pathlib.Path(sys.argv[1]), sys.argv[2]
+manifest = {
+    "schema": "chimera-live-platform-v1",
+    "edition": edition,
+    "kernel_family": "linux",
+    "image_role": "live-desktop",
+    "native_koronos": False,
+    "installer_target": False,
+    "recovery_target": False,
+    "acceptance_track": "linux-live-image",
+    "note": "This Linux live desktop edition is separate from the canonical native Koronos ISO."
+}
+path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+PYPLATFORM
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
+
+# Aurora desktop shell (multi-profile window manager) is staged for every edition.
+if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
+  mkdir -p "$PAY/desktop"
+  cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+fi
 
 python3 - "$ART" "$PAY" <<'PY'
 import json, os, subprocess, sys
@@ -202,7 +224,9 @@ manifest = {
 print("application catalogs:", len(files), "first-party source:", manifest["native_app_source"])
 PY
 
-python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
+if [ "${ENTRY#desktop/aurora-shell/}" = "$ENTRY" ]; then
+  python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
+fi
 
 cat > "$PAY/PROJECT.md" <<EOF
 # $TITLE live image payload
@@ -212,6 +236,7 @@ cat > "$PAY/PROJECT.md" <<EOF
 - Commit: $COMMIT
 - Build date: $VERSION (UTC)
 - Volume label: $VOLID
+- Platform contract: boot-platform.json (Linux live desktop; not native Koronos)
 
 \`desktop/\` is the project's own HTML desktop, rendered fullscreen by the Aurora kiosk
 shell (WebKit2GTK). \`wallpapers/\` holds the artwork shipped with this build, wired into
@@ -240,56 +265,14 @@ EOF
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 
-cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
-#!/bin/bash
-# Session entry point started from the tty1 autologin.
-export LIBGL_ALWAYS_SOFTWARE=1
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
-export GDK_BACKEND=x11
-export XDG_RUNTIME_DIR=/tmp/runtime-live
-mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR"
-xsetroot -solid "#071a2b" 2>/dev/null || true
-xset -dpms 2>/dev/null || true
-xset s off 2>/dev/null || true
-if grep -q "session=classic" /proc/cmdline 2>/dev/null; then
-  for w in /usr/share/backgrounds/*/wp01.jpg; do [ -f "$w" ] && feh --bg-fill "$w"; done
-  exec openbox
+# Linux-style userspace: systemd units, sysusers/tmpfiles, D-Bus policy, helpers.
+if [ -d "$REPO_DIR/userspace" ]; then
+  make -C "$REPO_DIR/userspace" install DESTDIR="$WORK" >/dev/null
+  echo "  userspace units installed (aurora-shell.target, jasper/gates/aurora targets)"
 fi
-
-# GTK's fullscreen request is an EWMH message. Without a window manager the
-# request is ignored and the undecorated WebView remains at GTK's small default
-# size in the upper-left corner in the live session.
-if ! command -v openbox >/dev/null 2>&1 || ! command -v xprop >/dev/null 2>&1; then
-  echo "[Aurora][FATAL] Openbox and xprop are required for fullscreen desktop mode." >&2
-  exit 1
-fi
-openbox --sm-disable >/tmp/aurora-openbox.log 2>&1 &
-wm_pid=$!
-wm_ready=0
-for attempt in $(seq 1 50); do
-  if xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null | grep -Eq 'window id # 0x[[:xdigit:]]+'; then
-    wm_ready=1
-    break
-  fi
-  if ! kill -0 "$wm_pid" 2>/dev/null; then
-    cat /tmp/aurora-openbox.log >&2 || true
-    echo "[Aurora][FATAL] Openbox exited before registering as the window manager." >&2
-    exit 1
-  fi
-  sleep 0.1
-done
-if [ "$wm_ready" -ne 1 ]; then
-  cat /tmp/aurora-openbox.log >&2 || true
-  echo "[Aurora][FATAL] Openbox did not become ready; refusing to start a windowed desktop." >&2
-  kill "$wm_pid" 2>/dev/null || true
-  exit 1
-fi
-echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
-exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
-EOF
-echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
-chmod 755 "$WORK/usr/local/bin/aurora-session"
+install -d "$WORK/etc/aurora"
+printf 'AURORA_DESKTOP_URI=file:///opt/aurora/%s\n' "$ENTRY" > "$WORK/etc/aurora/session.conf"
+printf '%s\n' "${PROFILE:-aurora}" > "$WORK/etc/aurora/profile"
 
 printf '#!/bin/sh\nexec /usr/local/bin/aurora-session\n' > "$WORK/etc/xinitrc"
 chmod 755 "$WORK/etc/xinitrc"
@@ -352,6 +335,14 @@ chroot "$WORK" /bin/bash -c "update-initramfs -u -k all" >/dev/null
 umount_chroot "$WORK"
 
 # ------------------------------------------------------------- shrink
+# Compile every SDK/toolchain project we can and ship the honest report.
+if [ -x "$REPO_DIR/tools/build-sdks.sh" ]; then
+  log "sdk build"
+  mkdir -p "$PAY/reports"
+  bash "$REPO_DIR/tools/build-sdks.sh" --out "$PAY/reports/sdk-build-report.json" \
+    --max 12 --timeout 180 || true
+fi
+
 log "trimming"
 rm -rf "$WORK"/usr/share/doc/* "$WORK"/usr/share/man/* "$WORK"/usr/share/info/* 2>/dev/null || true
 rm -rf "$WORK"/usr/share/fonts/truetype/noto "$WORK"/usr/share/fonts/opentype/noto* 2>/dev/null || true
@@ -388,6 +379,18 @@ if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background
 
 menuentry "$TITLE $VERSION — Live desktop" {
   linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Jasper desktop (Windows 12 style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=jasper console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Gates desktop (macOS style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=gates console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Aurora desktop (Linux 7.x style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=aurora console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
 }
 menuentry "$TITLE $VERSION — Classic X session (openbox)" {

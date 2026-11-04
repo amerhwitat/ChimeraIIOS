@@ -1,0 +1,21 @@
+#include "chimera/vfs.h"
+namespace {
+constexpr uint32_t HMAX=64,SET=0,CUR=1,END=2;
+struct File{char path[KORONOS_VFS_PATH_MAX];uint8_t data[KORONOS_VFS_FILE_BYTES];uint32_t size;bool used,writable;};
+struct Handle{uint32_t file,flags,offset;bool used;};
+File fs[KORONOS_VFS_FILE_MAX];Handle hs[HMAX];volatile uint32_t lk=0;uint32_t init=0,root=0,tmp=0;
+void lock(){while(__sync_lock_test_and_set(&lk,1u)){} } void unlock(){__sync_lock_release(&lk);}
+bool eq(const char*a,const char*b){if(!a||!b)return false;while(*a&&*a==*b){++a;++b;}return *a==*b;}
+bool pathok(const char*p){if(!p||*p!='/')return false;uint32_t n=0;while(p[n]){if(++n>=KORONOS_VFS_PATH_MAX||p[n-1]=='\\'||p[n-1]<0x20)return false;}if(n>1&&p[n-1]=='/')return false;for(uint32_t i=0;i+1<n;i++)if(p[i]=='.'&&p[i+1]=='.'&&(i==0||p[i-1]=='/')&&(i+2==n||p[i+2]=='/'))return false;return n>0;}
+bool istmp(const char*p){return p && p[0]=='/' && p[1]=='t' && p[2]=='m' && p[3]=='p' && p[4]=='/' && p[5]!=0;}
+int find(const char*p){for(uint32_t i=0;i<KORONOS_VFS_FILE_MAX;i++)if(fs[i].used&&eq(fs[i].path,p))return (int)i;return -1;}
+int make(const char*p){uint32_t n=0;while(p[n]&&n<KORONOS_VFS_PATH_MAX)n++;if(!n||n>=KORONOS_VFS_PATH_MAX)return -1;for(uint32_t i=0;i<KORONOS_VFS_FILE_MAX;i++)if(!fs[i].used){fs[i]={};fs[i].used=true;fs[i].writable=true;for(uint32_t j=0;j<=n;j++)fs[i].path[j]=p[j];return (int)i;}return -1;}
+}
+extern "C" int koronos_vfs_init(){lock();for(uint32_t i=0;i<KORONOS_VFS_FILE_MAX;i++)fs[i]={};for(uint32_t i=0;i<HMAX;i++)hs[i]={};init=root=1;tmp=0;int f=make("/etc/os-release");if(f<0){init=root=0;unlock();return -1;}static const char s[]="NAME=Koronos\nID=koronos\nPRETTY_NAME=Koronos Native OS\n";for(uint32_t i=0;i<sizeof(s)-1;i++)fs[f].data[i]=(uint8_t)s[i];fs[f].size=sizeof(s)-1;fs[f].writable=false;unlock();return 0;}
+extern "C" int koronos_vfs_mount_tmpfs(){lock();if(!init||!root){unlock();return -1;}tmp=1;unlock();return 0;}
+extern "C" int koronos_vfs_open(const char*p,uint32_t flags){if(!pathok(p)||(flags&~(3u|KORONOS_VFS_O_CREAT|KORONOS_VFS_O_TRUNC))||(flags&3u)==3u)return -1;lock();if(!init||!root){unlock();return -2;}bool wr=(flags&3u)!=0;if(istmp(p)&&!tmp){unlock();return -3;}int f=find(p);if(f<0&&wr&&(flags&KORONOS_VFS_O_CREAT)&&istmp(p))f=make(p);if(f<0||(wr&&!fs[f].writable)){unlock();return -4;}if((flags&KORONOS_VFS_O_TRUNC)&&wr)fs[f].size=0;for(uint32_t i=0;i<HMAX;i++)if(!hs[i].used){hs[i]={static_cast<uint32_t>(f),flags,0,true};unlock();return (int)i;}unlock();return -5;}
+extern "C" int64_t koronos_vfs_read(int h,void*b,uint64_t n){if(h<0||h>=(int)HMAX||(!b&&n))return -1;lock();Handle&x=hs[h];if(!x.used||(x.flags&3u)==KORONOS_VFS_O_WRONLY){unlock();return -2;}File&f=fs[x.file];uint32_t remain=x.offset<f.size?f.size-x.offset:0;uint32_t k=n<remain?(uint32_t)n:remain;for(uint32_t i=0;i<k;i++)((uint8_t*)b)[i]=f.data[x.offset+i];x.offset+=k;unlock();return k;}
+extern "C" int64_t koronos_vfs_write(int h,const void*b,uint64_t n){if(h<0||h>=(int)HMAX||(!b&&n)||n>KORONOS_VFS_FILE_BYTES)return -1;lock();Handle&x=hs[h];if(!x.used||(x.flags&3u)==KORONOS_VFS_O_RDONLY){unlock();return -2;}File&f=fs[x.file];if(!f.writable||x.offset>KORONOS_VFS_FILE_BYTES||n>KORONOS_VFS_FILE_BYTES-x.offset){unlock();return -3;}for(uint32_t i=0;i<n;i++)f.data[x.offset+i]=((const uint8_t*)b)[i];x.offset+=(uint32_t)n;if(x.offset>f.size)f.size=x.offset;unlock();return (int64_t)n;}
+extern "C" int64_t koronos_vfs_seek(int h,int64_t off,uint32_t w){if(h<0||h>=(int)HMAX)return -1;lock();Handle&x=hs[h];if(!x.used){unlock();return -2;}int64_t base=w==SET?0:(w==CUR?(int64_t)x.offset:(w==END?(int64_t)fs[x.file].size:-1));if(base<0||off < -base||off>(int64_t)KORONOS_VFS_FILE_BYTES-base){unlock();return -3;}x.offset=(uint32_t)(base+off);int64_t r=x.offset;unlock();return r;}
+extern "C" int koronos_vfs_close(int h){if(h<0||h>=(int)HMAX)return -1;lock();if(!hs[h].used){unlock();return -2;}hs[h]={};unlock();return 0;}
+extern "C" int koronos_vfs_get_snapshot(koronos_vfs_snapshot*out){if(!out)return -1;lock();out->abi=KORONOS_VFS_ABI;out->initialized=init;out->root_mounted=root;out->tmp_mounted=tmp;out->files=out->open_handles=0;for(uint32_t i=0;i<KORONOS_VFS_FILE_MAX;i++)if(fs[i].used)out->files++;for(uint32_t i=0;i<HMAX;i++)if(hs[i].used)out->open_handles++;unlock();return 0;}

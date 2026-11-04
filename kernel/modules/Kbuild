@@ -1,0 +1,2 @@
+# Loadable modules (obj-m). Built by `make modules`.
+obj-m += koronos_test_module.asm
