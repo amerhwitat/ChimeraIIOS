@@ -20,7 +20,7 @@ def run(argv, timeout=25):
 
 def browse(host, kerberos=True):
     if not HOST.fullmatch(host):
-        raise ValueError("host must be a DNS name or IPv4/IPv6 literal without URL syntax")
+        raise ValueError("host must be a DNS name or IPv4 address without URL syntax")
     argv = ["smbclient", "-g", "-L", "//" + host, "--option=client min protocol=SMB2"]
     if kerberos:
         argv.append("-k")
@@ -32,7 +32,7 @@ def browse(host, kerberos=True):
         fields = line.split("|")
         if len(fields) >= 2 and fields[0].upper() == "DISK":
             shares.append({"name": fields[1], "comment": "|".join(fields[2:])})
-    return {"host": host, "authenticated": True, "mechanism": "Kerberos credential cache",
+    return {"host": host, "authenticated": code == 0, "mechanism": "Kerberos credential cache",
             "returncode": code, "shares": shares,
             "error": err[-2000:] if code else None}
 
@@ -76,7 +76,10 @@ def ws_discover(timeout=3.0):
 
 def browse_network():
     """Discover SMB services announced on the local link via DNS-SD/mDNS."""
-    code, out, err = run(["avahi-browse", "-rt", "_smb._tcp"], timeout=35)
+    try:
+        code, out, err = run(["avahi-browse", "-rt", "_smb._tcp"], timeout=35)
+    except OSError as exc:
+        code, out, err = 1, "", str(exc)
     servers = []
     for line in out.splitlines():
         if not line.startswith("="):
