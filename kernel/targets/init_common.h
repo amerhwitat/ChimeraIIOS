@@ -2,7 +2,7 @@
 /* Freestanding ring-3 init payload helpers for native Koronos targets.
  *
  * These payloads run at CPL 3 and may only use the stable Chimera syscall ABI:
- *   EXIT=1, GETPID=2, YIELD=3, TIME_TICKS=4, WRITE=9 (to fd=1).
+ *   EXIT=1, GETPID=2, YIELD=3, TIME_TICKS=4, READ=8, WRITE=9, OPEN=17, CLOSE=18, SEEK=19.
  * No libc, no builtins, no stack protector, no CRT shim.
  *
  * The DPL3 INT 0x80 gate is entered first so the kernel can prove the call
@@ -18,7 +18,14 @@
 #define CHM_SYS_GETPID 2
 #define CHM_SYS_YIELD 3
 #define CHM_SYS_TIME_TICKS 4
+#define CHM_SYS_READ 8
 #define CHM_SYS_WRITE 9
+#define CHM_SYS_OPEN 17
+#define CHM_SYS_CLOSE 18
+#define CHM_SYS_SEEK 19
+#define CHM_O_RDWR 2
+#define CHM_O_CREAT 0x100
+#define CHM_SEEK_SET 0
 
 static void init_int80(void) {
     __asm__ volatile("int $0x80" ::: "memory");
@@ -70,6 +77,31 @@ static void init_writestr(const char *s) {
     (void)init_write(1, s, init_strlen(s));
 }
 
+static long init_syscall_arg1(long number,long arg1) {
+    register long rax __asm__("rax") = number;
+    register long rdi __asm__("rdi") = arg1;
+    __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi) : "rcx", "r11", "memory");
+    return rax;
+}
+static long init_read(long fd,void *buffer,long length) { return init_syscall3(CHM_SYS_READ,fd,(long)buffer,length); }
+static long init_open(const char *path,long flags) { return init_syscall3(CHM_SYS_OPEN,(long)path,flags,0); }
+static long init_close(long fd) { return init_syscall_arg1(CHM_SYS_CLOSE,fd); }
+static long init_seek(long fd,long offset,long whence) { return init_syscall3(CHM_SYS_SEEK,fd,offset,whence); }
+static int init_vfs_acceptance(void) {
+    static const char payload[]="koronos-vfs-tmpfs-ok";
+    char buffer[sizeof(payload)];
+    const long etc=init_open("/etc/os-release",0); if(etc<3) return 0;
+    char release[8]; const long got=init_read(etc,release,sizeof(release));
+    const long etc_closed=init_close(etc); if(got<=0 || etc_closed!=0) return 0;
+    const long fd=init_open("/tmp/koronos-acceptance",CHM_O_RDWR|CHM_O_CREAT); if(fd<3) return 0;
+    const long wrote=init_write(fd,payload,(long)sizeof(payload)-1);
+    const long seeked=init_seek(fd,0,CHM_SEEK_SET);
+    const long readn=init_read(fd,buffer,(long)sizeof(payload)-1);
+    const long closed=init_close(fd);
+    if(wrote!=(long)sizeof(payload)-1 || seeked!=0 || readn!=(long)sizeof(payload)-1 || closed!=0) return 0;
+    for(long i=0;i<(long)sizeof(payload)-1;i++) if(buffer[i]!=payload[i]) return 0;
+    return 1;
+}
 static void init_emit_readiness(long pid) {
     char message[96];
     long used = 0;
