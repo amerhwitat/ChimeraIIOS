@@ -11,13 +11,15 @@ def stage(source,root):
  (["services/network/smb-browse.py","services/network/directoryctl.py","services/network/directory-discovery.py","services/network/network-discoveryd.py"],"usr/lib/chimera/network",493),
  (["services/storage/mount-image.py"],"usr/lib/chimera/storage",493),
  (["desktop/aurora/registry-editor.html"],"usr/share/chimera/aurora",420),
- (["desktop/aurora/chimera-registry-editor.desktop"],"usr/share/applications",420),
+ (["desktop/aurora/chimera-registry-editor.desktop","desktop/aurora/chimera-mount-image.desktop","desktop/aurora/chimera-smb-network.desktop","desktop/aurora/chimera-directory-services.desktop"],"usr/share/applications",420),
  (["system/registry/machine.defaults.json","system/registry/environment.defaults.json","system/registry/kernel.defaults.json","system/registry/registry-editor-policy.json"],"etc/chimera/registry",420),
  (["services/registry/registryd.service.json","services/registry/registry-editor.service.json","services/network/smbd.service.json","services/network/smb-browse.service.json","services/network/directory-discovery.service.json","services/storage/mount-image.service.json"],"usr/lib/chimera/services",420),
- (["services/network/network-stack.json"],"usr/share/chimera/network",420),
+ (["services/network/network-stack.json","services/network/smb.conf.default"],"usr/share/chimera/network",420),
  (["system/filesystem/fhs-layout.json"],"usr/share/chimera/filesystem",420),
  (["services/systemd/chimera-registryd.service"],"usr/lib/systemd/system",420),
- (["services/systemd/chimera-registry-editor.service"],"usr/lib/systemd/user",420)
+ (["services/systemd/chimera-registry-editor.service"],"usr/lib/systemd/user",420),
+ (["services/systemd/chimera-smb-browse.service"],"usr/lib/systemd/system",420),
+ (["services/systemd/chimera-directory-discovery@.service"],"usr/lib/systemd/system",420)
  ]
  copied=[]
  for names,dest,mode in groups:
