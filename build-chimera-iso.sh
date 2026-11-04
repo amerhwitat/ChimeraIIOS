@@ -1580,7 +1580,7 @@ from pathlib import Path
 data={"schema":"CHM-APPLICATION-BUILD-STATUS-1","overall":"BLOCKED","reason":"desktop binary builder missing","results":{}}
 for p in sys.argv[1:]:
     Path(p).parent.mkdir(parents=True,exist_ok=True)
-    Path(p).write_text(json.dumps(data,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+    Path(p).write_text(json.dumps(data,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 PYAPPBLOCKED
   fi
   if [[ -s "$SCRIPT_DIR/desktop/optional_apps_catalog.json" ]]; then
