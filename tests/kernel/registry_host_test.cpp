@@ -11,6 +11,6 @@ int main(){uint8_t h[85]={};std::memcpy(h,"CHMRG01",7);p16(h+8,1);p32(h+12,40);p
  p16(h+o,12);h[o+2]=1;p32(h+o+4,4);o+=8;std::memcpy(h+o,"cpu.loglevel",12);o+=12;p32(h+o,4);o+=4;assert(o==sizeof(h));
  p32(h+32,koronos_registry_crc32(h+40,sizeof(h)-40));p32(h+36,koronos_registry_crc32(h,36));koronos_registry_view v{};
  assert(koronos_registry_validate(h,sizeof(h),&v));uint8_t b=0;uint64_t n=0;assert(v.generation==9&&v.entry_count==2);
- assert(koronos_registry_read_bool(&v,"kernel.debug",&b)&&b==1);assert(koronos_registry_read_u64(&v,"cpu.loglevel",&n)&&n==4);
+ assert(koronos_registry_read_bool(&v,"kernel.debug",&b)&&b==1);assert(koronos_registry_read_u64(&v,"cpu.loglevel",&n)&&n==4);assert(!koronos_registry_read_u64(&v,"kernel.debug",&n));
  h[sizeof(h)-1]^=1;assert(!koronos_registry_validate(h,sizeof(h),&v));std::puts("[registry-host] PASS");
 }
