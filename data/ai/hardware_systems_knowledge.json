@@ -6776,19 +6776,30 @@
   ],
   "training": {
     "rnn": {
-      "planned": "trainable character-level RNN from entry title/summary/tags",
-      "role": "advisory sequence model only; never semantic authority",
-      "training_claim": "must include corpus hash, train/validation split, loss history and round-trip test"
+      "status": "implemented-and-trained-during-ISO-build",
+      "model": "small vanilla character-level RNN",
+      "training_data": "entry domain, title, summary and tags from this versioned knowledge database",
+      "evaluation": "deterministic held-out split; finite loss/score checks; checkpoint round-trip",
+      "required_metadata": [
+        "database_version",
+        "database_entries",
+        "corpus_sha256",
+        "train_sequences",
+        "heldout_sequences",
+        "loss_history",
+        "heldout_mean_log_probability"
+      ],
+      "role": "advisory sequence/text-pattern model only; never semantic authority"
     },
     "cnn": {
-      "status": "not trained",
-      "reason": "No labeled hardware/driver image dataset supplied or bundled",
-      "role": "optional future image classification; requires user-selected licensed dataset and held-out evaluation"
+      "status": "not-trained",
+      "reason": "No separately labelled, licensed CNN task dataset supplied or bundled",
+      "role": "optional future image/sensor classification; requires explicit task definition and held-out evaluation"
     },
     "llm": {
-      "status": "external local model only",
+      "status": "not-fine-tuned",
       "reason": "No LLM weights bundled and no LLM fine-tuning run performed",
-      "role": "local RAG over this database using Ollama or llama.cpp"
+      "role": "local retrieval-augmented inference using Ollama or llama.cpp; retrieved corpus records are untrusted evidence"
     }
   }
 }
