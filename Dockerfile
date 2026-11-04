@@ -93,7 +93,8 @@ RUN set -eux; \
       xargs -0 -r sed -i 's/\r$//'; \
     sed -i '1s/\r$//' /app/docker/entrypoint.sh; \
     chmod +x /app/docker/entrypoint.sh /app/hardware/host_scanner.py /app/desktop/aurora/gui_server.py; \
-    useradd -m -u 10001 appuser; \
+    getent group chimera-admin >/dev/null || groupadd --system chimera-admin; \
+    useradd -m -u 10001 -G chimera-admin appuser; \
     chown -R appuser:appuser /app; \
     chown root:root /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
     chmod 0755 /usr/local/bin/chimera_server /usr/local/bin/chimera_kernel; \
