@@ -32,13 +32,35 @@ def browse(host, kerberos=True):
             "returncode": code, "shares": shares,
             "error": err[-2000:] if code else None}
 
+def browse_network():
+    """Discover SMB services announced on the local link via DNS-SD/mDNS."""
+    code, out, err = run(["avahi-browse", "-rt", "_smb._tcp"], timeout=35)
+    servers = []
+    for line in out.splitlines():
+        if not line.startswith("="):
+            continue
+        fields = line.split(";")
+        if len(fields) >= 9:
+            servers.append({"interface": fields[1], "protocol": fields[2],
+                            "name": fields[3], "domain": fields[5],
+                            "host": fields[6], "address": fields[7],
+                            "port": int(fields[8]) if fields[8].isdigit() else None})
+    return {"discovery": "DNS-SD _smb._tcp", "returncode": code,
+            "servers": servers, "error": err[-2000:] if code else None}
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("host", help="explicit SMB server DNS name or IP")
+    p.add_argument("host", nargs="?", help="explicit SMB server DNS name or IP")
+    p.add_argument("--network", action="store_true", help="discover SMB services on the local link")
     p.add_argument("--no-kerberos", action="store_true", help=argparse.SUPPRESS)
     a = p.parse_args()
     try:
-        print(json.dumps(browse(a.host, kerberos=not a.no_kerberos), indent=2))
+        if a.network:
+            print(json.dumps(browse_network(), indent=2))
+        elif a.host:
+            print(json.dumps(browse(a.host, kerberos=not a.no_kerberos), indent=2))
+        else:
+            p.error("supply HOST or --network")
     except (ValueError, OSError, subprocess.TimeoutExpired) as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
         return 1
