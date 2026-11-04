@@ -14,11 +14,11 @@ def fsync_dir(p):
  fd=os.open(str(p),os.O_RDONLY)
  try: os.fsync(fd)
  finally: os.close(fd)
-def atomic_write(p,data):
+def atomic_write(p,data,mode=0o600):
  p.parent.mkdir(parents=True,exist_ok=True)
  fd,tmp=tempfile.mkstemp(prefix=".registry-",dir=str(p.parent))
  try:
-  os.fchmod(fd,0o600)
+  os.fchmod(fd,mode)
   with os.fdopen(fd,"wb") as f: f.write(data); f.flush(); os.fsync(f.fileno())
   os.replace(tmp,p); fsync_dir(p.parent)
  except Exception:
@@ -35,8 +35,8 @@ def recover_locked(root):
  for x in tx["hives"]:
   if x["name"] not in HIVES: raise RuntimeError("unknown hive in journal")
   if root_for(x["name"]) != root: raise RuntimeError("cross-scope transaction journal rejected")
-  atomic_write(source_path(root,x["name"]),base64.b64decode(x["source"],validate=True))
-  atomic_write(hive_path(root,x["name"]),base64.b64decode(x["binary"],validate=True))
+  atomic_write(source_path(root,x["name"]),base64.b64decode(x["source"],validate=True),0o644 if root==GLOBAL_ROOT else 0o600)
+  atomic_write(hive_path(root,x["name"]),base64.b64decode(x["binary"],validate=True),0o644 if root==GLOBAL_ROOT else 0o600)
  j.unlink(); fsync_dir(root)
 def load_hive(h):
  if h not in HIVES: raise ValueError("unknown hive")
@@ -47,7 +47,7 @@ def load_hive(h):
   if not p.exists():
    d=DEFAULTS/(h+".defaults.json")
    if not d.is_file(): raise FileNotFoundError("defaults not installed: "+str(d))
-   atomic_write(p,d.read_bytes())
+   atomic_write(p,d.read_bytes(),0o644 if root==GLOBAL_ROOT else 0o600)
   obj=json.loads(p.read_text()); registry_hive.encode(obj); return obj
 def commit(objects):
  if not objects: return
