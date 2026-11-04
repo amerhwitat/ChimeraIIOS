@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -uo pipefail
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="\${1:-$ROOT/build/macos-sdk-report.json}"
-SDK_ROOT="\${MACOS_SDKROOT:-$ROOT/third_party/macos-extracted}"
-mkdir -p "$(dirname "$OUT")" "$ROOT/build/macos-cross"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OUT="${1:-$ROOT/build/macos-sdk-report.json}"
+SDK_ROOT="${MACOS_SDKROOT:-$ROOT/third_party/macos-extracted}"
+mkdir -p "$(dirname "$OUT")"
 python3 - "$SDK_ROOT" "$OUT" <<'PY'
 import json, pathlib, shutil, sys
 sdk, out = map(pathlib.Path, sys.argv[1:])
@@ -35,6 +35,6 @@ find_program(OSXCROSS_CLANGXX NAMES o64-clang++ oa64-clang++)
 if(NOT OSXCROSS_CLANG OR NOT OSXCROSS_CLANGXX)
   message(FATAL_ERROR "Install osxcross and configure Darwin compiler wrappers.")
 endif()
-set(CMAKE_C_COMPILER "\${OSXCROSS_CLANG}")
-set(CMAKE_CXX_COMPILER "\${OSXCROSS_CLANGXX}")
+set(CMAKE_C_COMPILER "${OSXCROSS_CLANG}")
+set(CMAKE_CXX_COMPILER "${OSXCROSS_CLANGXX}")
 EOF
