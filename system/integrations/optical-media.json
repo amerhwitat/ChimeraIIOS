@@ -9,11 +9,7 @@
   ],
   "packages": {
     "debian": [
-      "udisks2",
-      "libblockdev-crypto3",
-      "cdrdao",
-      "xorriso",
-      "genisoimage"
+      "udisks2"
     ]
   },
   "mount": {
