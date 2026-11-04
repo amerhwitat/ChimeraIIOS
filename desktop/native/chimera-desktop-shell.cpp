@@ -17,6 +17,8 @@ guint pending_open_source = 0;
 
 void card_pressed(GtkGestureClick*, int, double, double, gpointer);
 
+void set_status(const std::string& text);
+
 struct RenameData { GtkWidget* label; GtkWidget* entry; };
 
 void rename_response(GtkDialog* dialog, int response, gpointer user_data) {
