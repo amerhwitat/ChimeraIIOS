@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Mount Disc Image
+Comment=Mount an ISO-9660 or UDF image read-only
+Exec=python3 /usr/lib/chimera/storage/mount-image.py mount %f
+Terminal=false
+NoDisplay=true
+MimeType=application/x-iso9660-image;application/x-cd-image;application/x-udf;
+Categories=System;Utility;
