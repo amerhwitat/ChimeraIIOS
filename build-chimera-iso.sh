@@ -1617,6 +1617,16 @@ stage_sdks(){
   if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
     bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
       --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+    python3 - "$PAY/reports/sdk-build-report.json" <<'PYSDK'
+    import json, pathlib, sys
+    report = pathlib.Path(sys.argv[1])
+    if not report.is_file():
+        raise SystemExit("SDK build report missing")
+    summary = json.loads(report.read_text(encoding="utf-8")).get("summary", {})
+    failed = int(summary.get("failed", 0)) + int(summary.get("timeout", 0))
+    if failed:
+        raise SystemExit(f"SDK build gate failed: {summary}")
+    PYSDK
     log_info "SDK report staged at $report"
     mkdir -p "$ROOTFS_DIR/usr/share/chimera/reports" "$ROOTFS_DIR/usr/share/chimera/sdk" \
       "$ROOTFS_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/sdk"
