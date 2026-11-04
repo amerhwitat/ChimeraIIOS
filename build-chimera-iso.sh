@@ -1515,7 +1515,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk knowledge squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1537,6 +1537,7 @@ main(){
       native-iso) run_stage native-iso build_native_iso_pipeline;;
       report) run_stage report report_build;;
       sdk) run_stage sdk stage_sdks;;
+      knowledge) run_stage knowledge stage_knowledge;;
     esac
     completed="$stage"
   done
@@ -1554,9 +1555,69 @@ stage_sdks(){
     bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
       --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
     log_info "SDK report staged at $report"
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/reports" "$ROOTFS_DIR/usr/share/chimera/sdk" \
+      "$ROOTFS_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/sdk"
+    cp -f "$report" "$ROOTFS_DIR/usr/share/chimera/reports/sdk-build-report.json"
+    for manifest in sdk/third-party-sdk-manifest.json sdk/manifest.json; do
+      if [[ -s "$SCRIPT_DIR/$manifest" ]]; then
+        cp -f "$SCRIPT_DIR/$manifest" "$ROOTFS_DIR/usr/share/chimera/sdk/"
+        cp -f "$SCRIPT_DIR/$manifest" "$ISO_DIR/opt/chimera/sdk/"
+      fi
+    done
+    # Ship only executable build products from known SDK/application output roots.
+    # Build caches, logs and source trees are not copied as runnable applications.
+    local source bin rel dest
+    for source in "$BUILD_DIR/sdk" "$BUILD_DIR/apps/bin" "$SCRIPT_DIR/apps/bin" "$SCRIPT_DIR/desktop/aurora/apps"; do
+      [[ -d "$source" ]] || continue
+      while IFS= read -r -d '' bin; do
+        case "$bin" in *.log|*.tmp|*/CMakeFiles/*) continue;; esac
+        rel="${bin#"$source"/}"
+        dest="$ROOTFS_DIR/opt/chimera/apps/bin/$(basename "$source")/$rel"
+        install -D -m 0755 "$bin" "$dest"
+        install -D -m 0755 "$bin" "$ISO_DIR/opt/chimera/apps/bin/$(basename "$source")/$rel"
+      done < <(find "$source" -type f -perm /111 -print0 2>/dev/null)
+    done
+    install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ROOTFS_DIR/usr/lib/chimera/tools/build-sdks.sh"
+    install -D -m 0755 "$SCRIPT_DIR/tools/build-sdks.sh" "$ISO_DIR/opt/chimera/sdk/build-sdks.sh"
   else
     log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
   fi
+}
+
+stage_knowledge(){
+  header 'STEP: BUILD LOCAL KNOWLEDGE JSON DATABASE'
+  local indexer="$SCRIPT_DIR/tools/knowledge/build-json-index.py"
+  local root_index="$ROOTFS_DIR/var/lib/chimera/knowledge/knowledge-index.json"
+  local iso_index="$ISO_DIR/opt/chimera/knowledge/knowledge-index.json"
+  [[ -s "$indexer" ]] || { log_error "Knowledge indexer is missing: $indexer"; return 1; }
+  mkdir -p "$(dirname "$root_index")" "$(dirname "$iso_index")" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$ISO_DIR/opt/chimera/knowledge"
+  python3 "$indexer" --out "$root_index"
+  cp -f "$root_index" "$iso_index"
+  install -m 0755 "$indexer" "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge/build-json-index.py"
+  cp -f "$indexer" "$ISO_DIR/opt/chimera/knowledge/"
+  cat > "$ROOTFS_DIR/usr/share/chimera/knowledge-runtime.json" <<'EOF'
+{
+  "schema": "chimera-local-ai-runtime-contract-v1",
+  "knowledge_database": "/var/lib/chimera/knowledge/knowledge-index.json",
+  "mode": "local-retrieval-index",
+  "cnn_inference": "requires separately installed model and runtime",
+  "rnn_inference": "requires separately installed model and runtime",
+  "llm_inference": "requires separately installed model and runtime",
+  "training": false,
+  "privacy": "repository-local allowlisted text only; no arbitrary host ingestion"
+}
+EOF
+  mkdir -p "$ROOTFS_DIR/usr/share/applications"
+  cat > "$ROOTFS_DIR/usr/share/applications/chimera-knowledge-index.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Knowledge Index
+Comment=Refresh the local, provenance-tracked knowledge database
+Exec=x-terminal-emulator -e python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json
+Terminal=false
+Categories=Utility;Education;
+EOF
+  log_info "Local JSON retrieval database staged; no model inference or training is claimed."
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
