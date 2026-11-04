@@ -43,6 +43,7 @@ BRIDGE_JS = r"""
   };
   window.chimeraNetwork = {
     browseSmb: host => call("network", "browseSmb", {host}),
+    discoverSmb: () => call("network", "discoverSmb"),
     joinDomain: (domain, user) => call("network", "joinDomain", {domain, user}),
     ldapSearch: (uri, base, filter) => call("network", "ldapSearch", {uri, base, filter})
   };
@@ -119,6 +120,8 @@ def dispatch(service, method, args, parent):
         if method == "browseSmb":
             host = args.get("host", "")
             return command_json([sys.executable, SMB_TOOL, host], timeout=30)
+        if method == "discoverSmb":
+            return command_json([sys.executable, SMB_TOOL, "--network"], timeout=40)
         if method == "joinDomain":
             argv = [sys.executable, DIRECTORY_TOOL, "join", args.get("domain", "")]
             if args.get("user"):
