@@ -491,8 +491,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_hex32(f->hypervisor);
 
     console_write("[SCH ] Initializing scheduler...");
-    chimera_sched_init(f->logical_cpus);
-    chimera_learning_init(f->logical_cpus);
+    /* Only the BSP is online today. CPUID/ACPI discovery is not AP startup;
+       never expose discovered-but-unstarted CPUs as scheduler workers. */
+    chimera_sched_init(1u);
+    chimera_learning_init(1u);
     console_progress(35, "Scheduler and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
@@ -504,6 +506,15 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     chimera_hardware_profile hw{};
     if (chimera_hardware_probe(&hw) == 0) {
         console_write("[HW  ] Architecture profile ready");
+        console_write("[CPU ] CPUID logical processors discovered: ");
+        console_u32(hw.logical_cpus);
+        console_write("[CPU ] Physical cores discovered: ");
+        console_u32(hw.physical_cores);
+        console_write("[CPU ] Threads per core: ");
+        console_u32(hw.threads_per_core);
+        console_write("[CPU ] BSP APIC ID: ");
+        console_hex32(hw.current_apic_id);
+        console_write("[SMP ] BSP only is scheduler-online; AP startup/acknowledgement is still blocked");
         console_write("[HW  ] Native N-bit mode: ");
         console_u32(hw.native_nbit_mode);
         console_write("[HW  ] Best N-bit mode: ");
