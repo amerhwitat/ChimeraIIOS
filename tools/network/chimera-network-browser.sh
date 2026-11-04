@@ -43,31 +43,37 @@ browse(){
 }
 mount_share(){
   (( EUID == 0 )) || die "SMB mounting requires root; use sudo."
-  local host="$1" share="$2" target="$3" user="${4:-}" cred
+  local host="$1" share="$2" target="$3" user="${4:-}" cred password rc
   valid_host "$host"
   [[ "$share" =~ ^[A-Za-z0-9._$ -]+$ ]] || die "Invalid share name."
   target="$(realpath -m -- "$target")"
   [[ "$target" == /mnt/chimera/network/* ]] || die "Mountpoint must resolve below /mnt/chimera/network."
   need mount.cifs
   if [[ -z "$user" ]]; then read -r -p "SMB username: " user; fi
-  [[ -n "$user" && "$user" != *
-  local password
-  read -r -s -p "SMB password: " password; printf '\\n'
+  [[ -n "$user" && "$user" != *'='* ]] || die "Invalid SMB username."
+  read -r -s -p "SMB password: " password; printf '\n'
   install -d -m 0755 /run/chimera
   cred="$(mktemp /run/chimera/smb-credentials.XXXXXX)"
   chmod 0600 "$cred"
-  trap 'rm -f -- "$cred"' RETURN
-  printf 'username=%s\\npassword=%s\\n' "$user" "$password" > "$cred"
+  printf 'username=%s\npassword=%s\n' "$user" "$password" > "$cred"
   unset password
   install -d -m 0755 "$target"
-  mount -t cifs "//$host/$share" "$target" -o "credentials=$cred,vers=3.1.1,sec=ntlmssp,iocharset=utf8,nosuid,nodev,noexec,file_mode=0640,dir_mode=0750"
-  echo "[SUCCESS] Mounted //$host/$share at $target using SMB 3.1.1."
+  if mount -t cifs "//$host/$share" "$target" -o "credentials=$cred,vers=3.1.1,sec=ntlmssp,iocharset=utf8,nosuid,nodev,noexec,file_mode=0640,dir_mode=0750"; then
+    rm -f -- "$cred"
+    echo "[SUCCESS] Mounted //$host/$share at $target using SMB 3.1.1."
+  else
+    rc=$?
+    rm -f -- "$cred"
+    return "$rc"
+  fi
 }
 unmount_share(){
   (( EUID == 0 )) || die "SMB unmount requires root."
-  [[ "$1" == /mnt/chimera/network/* && "$1" != *"/../"* ]] || die "Mountpoint must be below /mnt/chimera/network."
-  mountpoint -q "$1" || die "Not mounted: $1"
-  umount -- "$1"
+  local target
+  target="$(realpath -m -- "$1")"
+  [[ "$target" == /mnt/chimera/network/* ]] || die "Mountpoint must resolve below /mnt/chimera/network."
+  mountpoint -q "$target" || die "Not mounted: $target"
+  umount -- "$target"
 }
 domain_discover(){ [[ "$1" =~ ^[A-Za-z0-9.-]+$ ]] || die "Invalid DNS domain."; need realm; realm discover --verbose "$1"; }
 domain_join(){
