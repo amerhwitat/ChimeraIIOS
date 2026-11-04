@@ -158,55 +158,9 @@ install -D -m 0644 "$REPO_DIR/services/service_registry.json" "$WORK/usr/share/c
 chroot "$WORK" groupadd --force chimera-admin
 if chroot "$WORK" getent passwd user >/dev/null 2>&1; then chroot "$WORK" usermod -aG chimera-admin user; fi
 install -d "$WORK/etc/systemd/system/multi-user.target.wants"
-cat > "$WORK/etc/systemd/system/chimera-admin-group-sync.service" <<'UNIT'
-[Unit]
-Description=Synchronize Chimera registry administrators from sudo group
-After=local-fs.target
-Before=display-manager.service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/sync-admin-group.py
-RemainAfterExit=yes
-NoNewPrivileges=yes
-ProtectSystem=strict
-ProtectHome=yes
-ReadWritePaths=/etc
-RestrictAddressFamilies=AF_UNIX
-
-[Install]
-WantedBy=multi-user.target
-UNIT
-ln -sfn ../chimera-admin-group-sync.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-admin-group-sync.service"
-cat > "$WORK/etc/systemd/system/chimera-registryd.service" <<'UNIT'
-[Unit]
-Description=Chimera CHMRG01 Registry Service
-After=local-fs.target chimera-admin-group-sync.service
-Before=display-manager.service
-
-[Service]
-Type=simple
-User=root
-Group=chimera-admin
-UMask=0007
-RuntimeDirectory=chimera
-RuntimeDirectoryMode=0750
-Environment=CHIMERA_REGISTRY_TOOL=/usr/lib/chimera/registry/registry_hive.py
-ExecStart=/usr/bin/python3 /usr/lib/chimera/registry/registryd.py
-Restart=on-failure
-RestartSec=2
-NoNewPrivileges=yes
-PrivateTmp=yes
-ProtectSystem=strict
-ProtectHome=read-only
-ReadWritePaths=/etc/chimera/registry /run/chimera
-RestrictAddressFamilies=AF_UNIX
-LockPersonality=yes
-
-[Install]
-WantedBy=multi-user.target
-UNIT
-ln -sfn ../chimera-registryd.service "$WORK/etc/systemd/system/multi-user.target.wants/chimera-registryd.service"
+install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-admin-group-sync.service" "$WORK/usr/lib/systemd/system/chimera-admin-group-sync.service"
+install -D -m 0644 "$REPO_DIR/platform/systemd/chimera-registryd.service" "$WORK/usr/lib/systemd/system/chimera-registryd.service"
+systemctl --root="$WORK" enable chimera-admin-group-sync.service chimera-registryd.service >/dev/null
 systemctl --root="$WORK" enable avahi-daemon.service >/dev/null 2>&1 || true
 for unit in smbd.service nmbd.service wsdd.service sssd.service; do systemctl --root="$WORK" disable "$unit" >/dev/null 2>&1 || true; done
 install -D -m 0644 "$REPO_DIR/system/integrations/smb.conf" "$WORK/etc/samba/smb.conf"
