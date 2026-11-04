@@ -13,7 +13,7 @@ Environment=LIBGL_ALWAYS_SOFTWARE=1
 Environment=WEBKIT_DISABLE_COMPOSITING_MODE=1
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 ExecStartPre=/usr/local/bin/aurora-profile-apply
-ExecStart=/usr/local/bin/aurora-session
+ExecStart=/usr/bin/dbus-run-session -- /usr/local/bin/aurora-session
 Restart=on-failure
 RestartSec=3
 StandardOutput=journal
