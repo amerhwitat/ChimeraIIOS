@@ -51,6 +51,7 @@ jobs:
           python tools/cognition/train_knowledge_rnn.py --database data/ai/hardware_systems_knowledge.json --output build/trained-hardware-systems-rnn.json --epochs 2 --hidden 8
           python -m json.tool build/trained-hardware-systems-rnn.json >/dev/null
           test -s build/trained-hardware-systems-rnn.json
+          python tools/chimera-ai-workspace.py rnn-score --model build/trained-hardware-systems-rnn.json --runtime-module tools/cognition/trainable_rnn_lm.py --text "hardware architecture compiler driver"
       - uses: actions/upload-artifact@v4
         with:
           name: chimera-hardware-systems-rnn
