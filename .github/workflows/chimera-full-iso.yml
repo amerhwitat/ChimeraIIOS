@@ -257,6 +257,12 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Mark incomplete userspace acceptance as a failed gate
+        if: always() && steps.userspace_gate.outputs.accepted != 'true'
+        run: |
+          echo "::error::Live, Installer and Recovery have not all proved CPL3 syscall acknowledgement and matching nonzero init PID readiness."
+          exit 1
+
       - name: Compress ISO for GitHub release asset size limit
         run: |
           set -euo pipefail
