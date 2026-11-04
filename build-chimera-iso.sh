@@ -1188,8 +1188,8 @@ build_native_iso_pipeline(){
     if [[ -f "$six_case_runner" && -f "$six_case_verifier" ]] && command -v qemu-system-x86_64 >/dev/null 2>&1; then
       for ovmf_dir in /usr/share/OVMF /usr/share/ovmf /usr/share/qemu /usr/share/edk2/x64; do
         [[ -d "$ovmf_dir" ]] || continue
-        [[ -n "$ovmf_code" ]] || ovmf_code="$(find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_CODE_4M.fd' -print -quit 2>/dev/null || find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_CODE.fd' -print -quit 2>/dev/null || true)"
-        [[ -n "$ovmf_vars" ]] || ovmf_vars="$(find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_VARS_4M.fd' -print -quit 2>/dev/null || find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_VARS.fd' -print -quit 2>/dev/null || true)"
+        [[ -n "$ovmf_code" ]] || ovmf_code="$(find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_CODE*.fd' -print -quit 2>/dev/null || true)"
+        [[ -n "$ovmf_vars" ]] || ovmf_vars="$(find "$ovmf_dir" -maxdepth 1 -type f -name 'OVMF_VARS*.fd' -print -quit 2>/dev/null || true)"
       done
       if [[ -n "$ovmf_code" && -n "$ovmf_vars" ]]; then
         local six_case_evidence="$BUILD_DIR/native-six-case-evidence"
