@@ -1,0 +1,1 @@
+[Desktop Entry]\nType=Application\nName=Registry Editor\nComment=View and edit machine, environment and kernel settings\nExec=xdg-open http://127.0.0.1:8765/\nIcon=preferences-system\nTerminal=false\nCategories=Settings;System;\n
