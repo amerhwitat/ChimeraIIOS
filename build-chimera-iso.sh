@@ -1620,6 +1620,11 @@ stage_sdks(){
     log_info "SDK report staged at $report"
     mkdir -p "$ROOTFS_DIR/usr/share/chimera/reports" "$ROOTFS_DIR/usr/share/chimera/sdk" \
       "$ROOTFS_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/apps/bin" "$ISO_DIR/opt/chimera/sdk"
+    if [[ -d "$SCRIPT_DIR/build/sdk/javac-out" ]]; then
+      mkdir -p "$ROOTFS_DIR/opt/chimera/sdk/java-classes" "$ISO_DIR/opt/chimera/sdk/java-classes"
+      cp -a "$SCRIPT_DIR/build/sdk/javac-out/." "$ROOTFS_DIR/opt/chimera/sdk/java-classes/"
+      cp -a "$SCRIPT_DIR/build/sdk/javac-out/." "$ISO_DIR/opt/chimera/sdk/java-classes/"
+    fi
     cp -f "$report" "$ROOTFS_DIR/usr/share/chimera/reports/sdk-build-report.json"
     for manifest in sdk/third-party-sdk-manifest.json sdk/manifest.json; do
       if [[ -s "$SCRIPT_DIR/$manifest" ]]; then
