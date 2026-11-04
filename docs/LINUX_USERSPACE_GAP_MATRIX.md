@@ -16,7 +16,7 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 | Syscalls | Syscalls operate on the calling task and validate user pointers | The single-init path has kernel-owned PID lookup, CPL3 INT 0x80 audit acknowledgement, bounded console WRITE and synchronous EXIT/teardown. The general compatibility dispatcher still fails closed. READ/OPEN/CLOSE/SEEK and VFS-backed descriptors are not implemented. | Add a task-owned syscall context, full user-copy/pointer validation, VFS-backed OPEN/READ/WRITE/CLOSE/SEEK, wait/exit semantics, mmap/munmap and negative tests |
 | Process lifecycle | fork/clone, exec, wait/reap, signals and exit status have defined semantics | The selected init is synchronously entered and reaped after exit/timeout. The process record is not a scheduler-owned task; no general parent/child, wait, signal or multi-process lifecycle exists. | Add scheduler-owned task/process association, child creation, wait queues, signals, reference-counted resources and race-safe deferred reaping |
 | Scheduling | Preemptive task scheduling, block/wake, timers and SMP coordination | Cooperative callback scheduler exists; parallel dispatch deliberately returns zero until real AP workers exist | Architecture context switch, timer preemption, blocking syscalls, wake queues, per-CPU current task and independently running AP workers |
-| File descriptors | Per-process fd table, open/read/write/close/dup/pipe, permissions and error semantics | No process-owned descriptor table or kernel VFS is wired to the native syscall path; WRITE is a bounded console operation only. | Implement fd tables, reference counts, path lookup, OPEN/READ/WRITE/CLOSE/SEEK, permissions, pipe/IPC and negative tests |
+| File descriptors | Per-process fd table, open/read/write/close/dup/pipe, permissions and error semantics | A bounded PID-keyed descriptor table now wraps VFS handles; process reaping closes its descriptors. The API accepts kernel buffers only and is not yet called by CPL3 syscalls; no user-copy validation, dup/pipe or reference-counted shared descriptions. | Add validated copy_from_user/copy_to_user, bind descriptors to the scheduler-owned current task, route CPL3 OPEN/READ/WRITE/CLOSE/SEEK, and test cross-process isolation and teardown |
 | Device and pseudo filesystems | devtmpfs/devices, procfs, sysfs, tmpfs and block-backed filesystems | No native VFS mount layer or APIC-backed block-device filesystem path is present in the native kernel tree. | Implement initramfs CPIO extraction and VFS root mount; mount proc/sys/dev/tmp; prove writable tmpfs and read-only boot media; then persistent storage |
 | Service supervision | PID 1 starts dependencies, tracks exits, restarts configured services and exposes status/logs | Dependency ordering and service state registry exist, but registry/bootstrap do not launch or health-check services | A real init/service manager with start/stop/restart, dependency failure propagation, logs, health checks and target completion |
 | Runtime/toolchain | ELF interpreter, libc, shell, core utilities, package/runtime metadata | BusyBox-based initramfs exists as diagnostic environment; native ABI completeness is not established | Define native libc/sysroot and syscall ABI; package production shell/utilities; test real applications without host fallbacks |
@@ -29,10 +29,10 @@ A Linux boot does not stop at loading an ELF. The kernel establishes memory/addr
 
 1. Rootfs archive extraction and actual VFS root publication.
 2. Kernel-owned process context connected to ELF loader, ring-3 entry and syscall entry.
-3. Real PID/exit/wait semantics and fd/VFS syscall path.
+3. Real scheduler-owned PID/exit/wait semantics and validated fd/VFS syscall path.
 4. Runnable init/service manager and health-checked Live/Installer/Recovery targets.
 5. procfs/task telemetry and shell utilities backed by kernel data.
-6. Real AP startup/context switching before claiming SMP.
+6. ACPI MADT/CPUID topology discovery, AP INIT/SIPI startup, per-CPU state, interrupt-driven rescheduling and measured overlapping execution before claiming SMP.
 7. Aurora/Marine, installer persistence and recovery postcondition tests.
 
 ## Release evidence
@@ -42,3 +42,16 @@ The production gate remains fail-closed. Required evidence is a native build and
 ## Linux source mapping
 
 Use Linux as a behavioral reference, not as code to copy wholesale: initramfs and rootfs handling (init/initramfs.c, fs/), process creation and exit (kernel/fork.c, kernel/exit.c), syscall entry and dispatch (arch/x86/entry/, kernel/sys.c), scheduler (kernel/sched/), and procfs (fs/proc/). Exact Linux APIs and source paths vary by kernel release and architecture.
+
+## Multi-core execution parity (Linux reference)
+
+Linux x86-64 brings CPUs online through architecture-specific SMP boot code after firmware topology discovery. Koronos should follow the same staged separation rather than treating a configured CPU count or serial callback slots as parallelism:
+
+1. Discover architectural features and APIC mode with CPUID; parse ACPI MADT processor/APIC entries and reject duplicate or disabled IDs.
+2. Keep the BSP online first; allocate each AP a private stack, GDT/TSS, GS/per-CPU anchor and startup record.
+3. Start APs with the local-APIC INIT/SIPI sequence and a low-memory trampoline; require an APIC-ID-matched online acknowledgement with a bounded timeout.
+4. Publish per-CPU run queues/current-task state only after AP initialization; use IPIs for reschedule, TLB shootdown and stop requests.
+5. Use scheduler-owned saved register frames and address-space/TSS handoff; do not dispatch a task concurrently on two CPUs.
+6. Measure two independent CPU workers with a monotonic clock/TSC interval and per-CPU start/end records. Acceptance requires overlapping intervals from distinct hardware APIC IDs, not a run_parallel() return value.
+
+**Current Koronos status:** the callback scheduler has CPU slots and affinity metadata, but chimera_sched_run_parallel() intentionally returns zero. AP discovery/startup, per-CPU execution contexts, IPI rescheduling and measured overlap are not implemented. No SMP claim is made.
