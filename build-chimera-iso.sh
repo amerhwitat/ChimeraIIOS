@@ -1161,6 +1161,10 @@ build_native_iso_pipeline(){
     mkdir -p "$native_tree/opt/chimera/runtime/usr/lib/chimera/tools"
     cp -a "$ROOTFS_DIR/usr/lib/chimera/tools/knowledge" "$native_tree/opt/chimera/runtime/usr/lib/chimera/tools/"
   fi
+  if [[ -d "$ROOTFS_DIR/etc/xdg/autostart" ]]; then
+    mkdir -p "$native_tree/opt/chimera/runtime/etc/xdg"
+    cp -a "$ROOTFS_DIR/etc/xdg/autostart" "$native_tree/opt/chimera/runtime/etc/xdg/"
+  fi
   for bin in "$ROOTFS_DIR"/usr/bin/chimera-*; do
     [[ -f "$bin" && -x "$bin" ]] || continue
     cp -f "$bin" "$native_tree/opt/chimera/runtime/usr/bin/"
@@ -1721,6 +1725,17 @@ Comment=Search the local knowledge database with source citations
 Exec=xterm -e python3 /usr/lib/chimera/tools/knowledge/knowledge-chat.py --index /var/lib/chimera/knowledge/knowledge-index.json
 Terminal=true
 Categories=Utility;Education;
+EOF
+  mkdir -p "$ROOTFS_DIR/etc/xdg/autostart"
+  cat > "$ROOTFS_DIR/etc/xdg/autostart/chimera-knowledge-refresh.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Chimera Knowledge Refresh
+Comment=Refresh the bounded local resource index at desktop login
+Exec=/usr/bin/python3 /usr/lib/chimera/tools/knowledge/build-json-index.py --out /var/lib/chimera/knowledge/knowledge-index.json --root / --source usr/share/chimera --source opt/chimera --source usr/share/applications --source usr/local/share
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
 EOF
   log_info "Local JSON retrieval database staged; no model inference or training is claimed."
 }
