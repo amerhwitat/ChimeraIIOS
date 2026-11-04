@@ -124,6 +124,22 @@ mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mn
 log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
+python3 - "$PAY/boot-platform.json" "$ED" <<'PYPLATFORM'
+import json, pathlib, sys
+path, edition = pathlib.Path(sys.argv[1]), sys.argv[2]
+manifest = {
+    "schema": "chimera-live-platform-v1",
+    "edition": edition,
+    "kernel_family": "linux",
+    "image_role": "live-desktop",
+    "native_koronos": False,
+    "installer_target": False,
+    "recovery_target": False,
+    "acceptance_track": "linux-live-image",
+    "note": "This Linux live desktop edition is separate from the canonical native Koronos ISO."
+}
+path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+PYPLATFORM
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
@@ -220,6 +236,7 @@ cat > "$PAY/PROJECT.md" <<EOF
 - Commit: $COMMIT
 - Build date: $VERSION (UTC)
 - Volume label: $VOLID
+- Platform contract: boot-platform.json (Linux live desktop; not native Koronos)
 
 \`desktop/\` is the project's own HTML desktop, rendered fullscreen by the Aurora kiosk
 shell (WebKit2GTK). \`wallpapers/\` holds the artwork shipped with this build, wired into
