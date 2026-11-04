@@ -7,7 +7,7 @@ File fs[KORONOS_VFS_FILE_MAX];Handle hs[HMAX];volatile uint32_t lk=0;uint32_t in
 void lock(){while(__sync_lock_test_and_set(&lk,1u)){} } void unlock(){__sync_lock_release(&lk);}
 bool eq(const char*a,const char*b){if(!a||!b)return false;while(*a&&*a==*b){++a;++b;}return *a==*b;}
 bool pathok(const char*p){if(!p||*p!='/')return false;uint32_t n=0;while(p[n]){if(++n>=KORONOS_VFS_PATH_MAX||p[n-1]=='\\'||p[n-1]<0x20)return false;}if(n>1&&p[n-1]=='/')return false;for(uint32_t i=0;i+1<n;i++)if(p[i]=='.'&&p[i+1]=='.'&&(i==0||p[i-1]=='/')&&(i+2==n||p[i+2]=='/'))return false;return n>0;}
-bool istmp(const char*p){return p && p[0]=='/' && p[1]=='t' && p[2]=='m' && p[3]=='p' && p[4]=='/';}
+bool istmp(const char*p){return p && p[0]=='/' && p[1]=='t' && p[2]=='m' && p[3]=='p' && p[4]=='/' && p[5]!=0;}
 int find(const char*p){for(uint32_t i=0;i<KORONOS_VFS_FILE_MAX;i++)if(fs[i].used&&eq(fs[i].path,p))return (int)i;return -1;}
 int make(const char*p){uint32_t n=0;while(p[n]&&n<KORONOS_VFS_PATH_MAX)n++;if(!n||n>=KORONOS_VFS_PATH_MAX)return -1;for(uint32_t i=0;i<KORONOS_VFS_FILE_MAX;i++)if(!fs[i].used){fs[i]={};fs[i].used=true;fs[i].writable=true;for(uint32_t j=0;j<=n;j++)fs[i].path[j]=p[j];return (int)i;}return -1;}
 }
