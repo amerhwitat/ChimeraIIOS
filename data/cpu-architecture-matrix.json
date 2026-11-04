@@ -430,7 +430,8 @@
         "A2",
         "A3",
         "A4",
-        "A5"
+        "A5",
+        "A6"
       ],
       "linux_syscall_return": "A0"
     },
@@ -478,7 +479,19 @@
       "runtime_limitations": [
         "catalogue only; no Koronos native backend or runtime detection acceptance"
       ],
-      "linux_syscall_abi_status": "needs-primary-source-verification"
+      "linux_syscall_abi_status": "verified-from-Linux-entry-assembly",
+      "linux_syscall_instruction": "l.sys exception entry",
+      "linux_syscall_number": "R11",
+      "linux_syscall_args": [
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "linux_syscall_return": "R11",
+      "linux_syscall_abi_source": "https://github.com/torvalds/linux/blob/master/arch/openrisc/kernel/entry.S"
     },
     {
       "id": "parisc",
@@ -617,7 +630,8 @@
         "R6",
         "R7",
         "R0",
-        "R1"
+        "R1",
+        "R2"
       ],
       "linux_syscall_return": "R0",
       "linux_syscall_secondary_return": "R1"
@@ -638,7 +652,18 @@
       "runtime_limitations": [
         "catalogue only; no Koronos native backend or runtime detection acceptance"
       ],
-      "linux_syscall_abi_status": "needs-primary-source-verification"
+      "linux_syscall_abi_status": "verified-from-Linux-entry-assembly; ABI-version-specific",
+      "linux_syscall_instruction": "C-SKY TRAP0 syscall entry",
+      "linux_syscall_number": "syscallid special register",
+      "linux_syscall_args": [
+        "A0",
+        "A1",
+        "A2",
+        "A3",
+        "ABI v1: R6,R7; ABI v2: R4,R5"
+      ],
+      "linux_syscall_return": "A0",
+      "linux_syscall_abi_source": "https://github.com/torvalds/linux/blob/master/arch/csky/kernel/entry.S"
     },
     {
       "id": "hexagon",
@@ -656,7 +681,19 @@
       "runtime_limitations": [
         "catalogue only; no Koronos native backend or runtime detection acceptance"
       ],
-      "linux_syscall_abi_status": "needs-primary-source-verification"
+      "linux_syscall_abi_status": "verified-from-Linux-trap-handler",
+      "linux_syscall_instruction": "trap0 #1",
+      "linux_syscall_number": "R6",
+      "linux_syscall_args": [
+        "R0",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5"
+      ],
+      "linux_syscall_return": "R0",
+      "linux_syscall_abi_source": "https://github.com/torvalds/linux/blob/master/arch/hexagon/kernel/traps.c"
     }
   ],
   "non_goals": [
