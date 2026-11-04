@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-for lib in /usr/lib /usr/lib64 /usr/local/lib; do
-  script="$lib/chimera/registry/registry_admin.py"
-  if [[ -f "$script" ]]; then exec python3 "$script" "$@"; fi
-done
-echo "Chimera registry editor backend is not installed." >&2
-exit 127
