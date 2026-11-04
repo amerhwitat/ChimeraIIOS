@@ -1627,6 +1627,21 @@ stage_sdks(){
       cp -a "$SCRIPT_DIR/build/sdk/javac-out/." "$ISO_DIR/opt/chimera/sdk/java-classes/"
     fi
     cp -f "$report" "$ROOTFS_DIR/usr/share/chimera/reports/sdk-build-report.json"
+    # macOS cross-development support: ship only first-party templates and an honest probe report.
+    # Apple SDK frameworks/headers/runtimes are intentionally never copied into the ISO.
+    local macos_report="$BUILD_DIR/sdk/macos-sdk-report.json"
+    if [[ -x "$SCRIPT_DIR/tools/build-macos-sdk.sh" ]]; then
+      bash "$SCRIPT_DIR/tools/build-macos-sdk.sh" "$macos_report" || log_warning "macOS SDK probe failed"
+      install -D -m 0644 "$macos_report" "$ROOTFS_DIR/usr/share/chimera/reports/macos-sdk-report.json"
+      install -D -m 0644 "$macos_report" "$ISO_DIR/opt/chimera/sdk/macos-sdk-report.json"
+      install -D -m 0755 "$SCRIPT_DIR/tools/build-macos-sdk.sh" "$ROOTFS_DIR/usr/lib/chimera/tools/build-macos-sdk.sh"
+      install -D -m 0755 "$SCRIPT_DIR/tools/build-macos-sdk.sh" "$ISO_DIR/opt/chimera/sdk/build-macos-sdk.sh"
+      if [[ -d "$SCRIPT_DIR/sdk/macos" ]]; then
+        mkdir -p "$ROOTFS_DIR/opt/chimera-sdk/macos" "$ISO_DIR/opt/chimera/sdk/macos"
+        cp -a "$SCRIPT_DIR/sdk/macos/." "$ROOTFS_DIR/opt/chimera-sdk/macos/"
+        cp -a "$SCRIPT_DIR/sdk/macos/." "$ISO_DIR/opt/chimera/sdk/macos/"
+      fi
+    fi
     for manifest in sdk/third-party-sdk-manifest.json sdk/manifest.json; do
       if [[ -s "$SCRIPT_DIR/$manifest" ]]; then
         cp -f "$SCRIPT_DIR/$manifest" "$ROOTFS_DIR/usr/share/chimera/sdk/"
