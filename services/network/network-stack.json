@@ -7,7 +7,9 @@
         "debian": [
           "smbclient",
           "samba-common-bin",
-          "krb5-user"
+          "krb5-user",
+          "gvfs-backends",
+          "gvfs-fuse"
         ],
         "fedora": [
           "samba-client",
@@ -121,4 +123,4 @@
     "network_range_scanning": false,
     "credential_storage": "Kerberos credential cache or OS keyring"
   }
-}\n
+}
