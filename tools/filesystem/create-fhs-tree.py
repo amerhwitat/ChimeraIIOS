@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse,json,os
 from pathlib import Path
-DIRS={"boot":493,"dev":493,"etc":493,"home":493,"media":493,"mnt":493,"opt":493,"proc":493,"root":448,"run":493,"srv":493,"sys":493,"tmp":1023,"usr":493,"usr/bin":493,"usr/lib":493,"usr/libexec":493,"usr/local":493,"usr/local/bin":493,"usr/local/lib":493,"usr/local/sbin":493,"usr/local/share":493,"usr/sbin":493,"usr/share":493,"usr/src":493,"var":493,"var/cache":493,"var/lib":493,"var/local":493,"var/lock":493,"var/log":493,"var/opt":493,"var/run":493,"var/spool":493,"var/tmp":1023}
-LINKS={"bin":"usr/bin","sbin":"usr/sbin","lib":"usr/lib"}
+DIRS={"boot":493,"dev":493,"etc":493,"home":493,"media":493,"mnt":493,"opt":493,"proc":493,"root":448,"run":493,"srv":493,"sys":493,"tmp":1023,"usr":493,"usr/bin":493,"usr/lib":493,"usr/libexec":493,"usr/local":493,"usr/local/bin":493,"usr/local/lib":493,"usr/local/sbin":493,"usr/local/share":493,"usr/sbin":493,"usr/share":493,"usr/src":493,"var":493,"var/cache":493,"var/lib":493,"var/local":493,"var/log":493,"var/opt":493,"run/lock":493,"var/spool":493,"var/tmp":1023}
+LINKS={"bin":("usr/bin",),"sbin":("usr/sbin",),"lib":("usr/lib",),"var/run":("../run","/run"),"var/lock":("../run/lock","/run/lock")}
 def create(root):
  root=Path(root).resolve();root.mkdir(parents=True,exist_ok=True);made=[]
  for rel,mode in DIRS.items():
