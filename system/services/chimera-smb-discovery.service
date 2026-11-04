@@ -1,0 +1,12 @@
+[Unit]
+Description=Chimera SMB network discovery helper (on demand)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/chimera/network/chimera-smb-browse.py --discover
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
