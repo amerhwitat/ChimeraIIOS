@@ -170,9 +170,15 @@ def chat(args) -> int:
             + "\n\nUSER QUESTION:\n" + query
         )
         if backend == "ollama":
-            command = [shutil.which("ollama"), "run", str(model), prompt]
+            executable = shutil.which("ollama")
+            if not executable:
+                raise SystemExit("Ollama backend selected but 'ollama' is not installed")
+            command = [executable, "run", str(model), prompt]
         else:
-            command = [shutil.which("llama-cli"), "-m", str(model), "-p", prompt, "-n", str(args.max_tokens)]
+            executable = shutil.which("llama-cli")
+            if not executable:
+                raise SystemExit("llama.cpp backend selected but 'llama-cli' is not installed")
+            command = [executable, "-m", str(model), "-p", prompt, "-n", str(args.max_tokens)]
         try:
             result = subprocess.run(command, text=True, capture_output=True, timeout=args.timeout, check=False)
         except subprocess.TimeoutExpired:
