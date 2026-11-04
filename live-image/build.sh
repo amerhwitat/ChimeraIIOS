@@ -86,7 +86,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v2"
+PACKAGE_SET_VERSION="chimera-live-packages-2026-11-integrations-v3"
 if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 2>/dev/null || true)" != "$PACKAGE_SET_VERSION" ]; then
   log "installing/updating shared package set: $PACKAGE_SET_VERSION"
   mount_chroot "$BASE"
@@ -100,7 +100,7 @@ if [ ! -f "$BASE/.packages-installed" ] || [ "$(cat "$BASE/.packages-installed" 
       xserver-xorg-core xserver-xorg-legacy xserver-xorg-input-libinput \
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
-      python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
+      python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 gvfs-backends gvfs-fuse \
       libgl1 libglx-mesa0 libegl1 libgles2 \
       openbox xterm feh \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
