@@ -8,7 +8,6 @@ int main(){
     assert(p.physical_cores>=1u);
     assert(p.threads_per_core>=1u);
     assert(p.physical_cores<=p.logical_cpus);
-    assert(p.current_apic_id<=0xFFFFFFFFu);
     if(p.topology_valid){
         assert(p.topology_leaf==0x0Bu||p.topology_leaf==0x1Fu||p.topology_leaf==0x8000001Eu);
         assert(p.logical_cpus>=p.physical_cores*p.threads_per_core);
