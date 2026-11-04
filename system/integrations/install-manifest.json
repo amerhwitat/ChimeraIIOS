@@ -81,6 +81,16 @@
       "source": "system/integrations/smb.conf",
       "target": "/etc/samba/smb.conf",
       "mode": "0644"
+    },
+    {
+      "source": "services/network/smbd.service.json",
+      "target": "/usr/share/chimera/integrations/smbd.service.json",
+      "mode": "0644"
+    },
+    {
+      "source": "services/service_registry.json",
+      "target": "/usr/share/chimera/services/service_registry.json",
+      "mode": "0644"
     }
   ],
   "groups": [
