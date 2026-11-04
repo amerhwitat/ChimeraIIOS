@@ -22,7 +22,14 @@ discover(){
   echo "== DNS-SD SMB services =="
   command -v avahi-browse >/dev/null 2>&1 && avahi-browse --resolve --terminate _smb._tcp 2>/dev/null || true
   echo "== Windows WS-Discovery =="
-  if command -v wsdd >/dev/null 2>&1; then echo "wsdd installed; check systemctl status chimera-wsdd.service"; else echo "Install wsdd to enable Windows network discovery."; fi
+  if command -v wsdd >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+    echo "Probing local link for Windows-compatible WSD devices (10 seconds)..."
+    local rc=0
+    timeout 10s wsdd --discovery --no-host --shortlog -v || rc=$?
+    [[ "$rc" == 0 || "$rc" == 124 ]] || echo "[WARN] WSD probe exited with status $rc" >&2
+  else
+    echo "Install wsdd to enable Windows network discovery."
+  fi
   echo "Use 'shares HOST' to enumerate a server with interactive authentication."
 }
 shares(){ valid_host "$1"; need smbclient; smbclient -L "//$1" --option='client min protocol=SMB2' --option='client max protocol=SMB3'; }
