@@ -64,6 +64,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
+          python3 -m unittest discover -s tests/boot -p "test_six_case_matrix.py" -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
@@ -248,6 +249,44 @@ jobs:
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
 
+      - name: Verify immutable native Koronos six-case matrix
+        id: six_case_gate
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          iso=build/iso/chimera-ii-os.iso
+          evidence=build/six-case-evidence
+          report=build/six-case-evidence/report.json
+          mkdir -p "$evidence"
+          set +e
+          python3 tests/boot/verify-six-case-matrix.py --iso "$iso" --evidence-dir "$evidence" --report "$report"
+          rc=$?
+          set -e
+          accepted=false
+          if [[ "$rc" -eq 0 ]]; then accepted=true; fi
+          echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Native Koronos six-case acceptance"
+            echo "- Status: **$([[ "$accepted" == true ]] && echo PASS || echo BLOCKED)**"
+            echo "- Canonical ISO: `$iso`"
+            echo "- Evidence directory: `$evidence`"
+            echo "- This gate requires one identical ISO SHA across Live/Installer/Recovery × BIOS/UEFI."
+            echo "- The existing per-target extracted/repacked smoke ISOs are diagnostic probes, not six-case release evidence."
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$accepted" != true ]]; then
+            echo "::warning::Six-case evidence incomplete. Release publication remains blocked."
+          fi
+
+      - name: Upload six-case acceptance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-six-case-acceptance-report
+          path: build/six-case-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4
@@ -290,8 +329,8 @@ jobs:
 
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
-        # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        # Enable the repository variable only after the immutable six-case matrix, installed-disk persistence, recovery postcondition, and real SMP gates pass.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.six_case_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
