@@ -85,7 +85,7 @@ def registry_call(request):
     return response
 
 def command_json(argv, timeout=60):
-    env = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"}
+    env = os.environ.copy()\n    env.update({"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
     result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
                             check=False, env=env)
     try:
@@ -141,7 +141,7 @@ def dispatch(service, method, args, parent):
             uri = "smb://" + host + (("/" + quote(share, safe="")) if share else "/")
             result = subprocess.run(["gio", "open", uri], capture_output=True, text=True,
                                     timeout=30, check=False,
-                                    env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
+                                    env={**os.environ, "PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8"})
             if result.returncode:
                 raise RuntimeError(result.stderr[-2000:] or "GVFS could not open SMB share")
             return {"opened": uri}
