@@ -41,7 +41,7 @@ class AIWorkspaceTests(unittest.TestCase):
                            capture_output=True, text=True)
             payload = json.loads(database.read_text(encoding="utf-8"))
             self.assertEqual(payload["resources"][0]["text"], "retrievable public context")
-        for command in ("chat", "infer"):
+        for command in ("chat", "infer", "rnn-score"):
             result = subprocess.run([sys.executable, str(SCRIPT), command, "--help"],
                                     capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
