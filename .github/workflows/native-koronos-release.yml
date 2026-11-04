@@ -45,7 +45,7 @@ jobs:
             grub-pc-bin grub-efi-amd64-bin xorriso mtools \
             dosfstools qemu-system-x86 ovmf debootstrap \
             squashfs-tools xz-utils zstd git python3 python3-pip \
-            pkg-config libgtk-4-dev xvfb xterm
+            pkg-config libgtk-4-dev xvfb xterm default-jdk-headless
 
       - name: Verify Docker and toolchain
         run: |
@@ -71,7 +71,7 @@ jobs:
             cp -a "$CHIMERA_BUILD_DIR/logs" "${{ runner.temp }}/native-koronos-artifacts/build-logs"
           fi
           if [ -d "${{ runner.temp }}/native-koronos-artifacts" ]; then
-            (cd "${{ runner.temp }}/native-koronos-artifacts" && sha256sum * > SHA256SUMS 2>/dev/null || true)
+            (cd "${{ runner.temp }}/native-koronos-artifacts" && find . -type f ! -name SHA256SUMS -print0 | xargs -0 -r sha256sum > SHA256SUMS)
           fi
 
       - name: Upload ISO and build evidence
