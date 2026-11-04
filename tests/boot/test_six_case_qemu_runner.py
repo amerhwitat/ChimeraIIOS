@@ -22,6 +22,24 @@ class SixCaseQemuRunnerTests(unittest.TestCase):
         self.assertEqual(RUNNER.TARGETS, ("live", "installer", "recovery"))
         self.assertEqual(RUNNER.FIRMWARES, ("bios", "uefi"))
 
+    def test_firmware_identity_is_passed_by_real_grub_handoff(self):
+        root = SCRIPT.parents[2]
+        main_grub = (root / "boot/iso/grub.cfg").read_text(encoding="utf-8")
+        recovery_grub = (root / "boot/jasper/recovery.cfg").read_text(encoding="utf-8")
+        kernel = (root / "kernel/core/target_launch.cpp").read_text(encoding="utf-8")
+        self.assertIn("firmware=$grub_platform", main_grub)
+        self.assertIn("firmware=$grub_platform", recovery_grub)
+        self.assertIn('koronos_target_log("BOOT FIRMWARE: UEFI")', kernel)
+        self.assertIn('koronos_target_log("BOOT FIRMWARE: BIOS")', kernel)
+
+    def test_production_target_modules_are_built_into_canonical_boot_path(self):
+        root = SCRIPT.parents[2]
+        main_grub = (root / "boot/iso/grub.cfg").read_text(encoding="utf-8")
+        for target in ("live", "installer", "recovery"):
+            self.assertIn(f"/boot/targets/target-init-{target}.elf", main_grub)
+        builder = (root / "iso/chimera-live-iso.sh").read_text(encoding="utf-8")
+        self.assertIn("target-init-live.elf", builder)
+
     def test_runner_never_adds_acceptance_markers_to_raw_trace(self):
         source = SCRIPT.read_text(encoding="utf-8")
         for marker in (
