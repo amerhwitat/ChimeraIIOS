@@ -69,6 +69,55 @@ jobs:
           cmake --build build --target chimera_generate_isa_bitfields
       - name: Generate infrastructure plan
         run: python3 tools/cloud/chimera_cloud.py plan kubernetes --output build/chimera-kubernetes-plan.json
+  integration-contracts:
+    name: Registry, SMB, AD/LDAP, optical and FHS contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compile all integration Python entry points
+        run: |
+          find services tools live-image -type f -name '*.py' -print0 |
+            xargs -0 -r python -m py_compile
+      - name: Registry, SMB, AD/LDAP, optical and FHS integration tests
+        run: |
+          python -m unittest discover -s tests/integrations -v
+          bash tests/services/run-service-tests.sh
+      - name: Check Aurora integration JavaScript
+        run: |
+          node --check desktop/aurora-shell/assets/apps-registry.js
+          node --check desktop/aurora-shell/assets/apps-windows-network.js
+          node --check desktop/aurora-shell/assets/apps-optical-media.js
+          node --check web/system-services.js
+      - name: Validate integration manifests and user units
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          for path in pathlib.Path("system/integrations").glob("*.json"):
+              json.loads(path.read_text())
+          services = json.loads(pathlib.Path("services/service_registry.json").read_text())
+          ids = {item["id"] for item in services["services"]}
+          required = {"registry", "smb-server", "smb-discovery", "directory-services", "optical-media"}
+          assert required <= ids, required - ids
+          for required_path in (
+              "services/registry/registry-editor-api.py",
+              "services/registry/registry-editor-launcher.py",
+              "desktop/aurora/registry-editor.html",
+              "userspace/systemd/user/chimera-registry-editor.service",
+              "services/network/directory-discovery.py",
+              "services/storage/mount-image.py",
+          ):
+              assert pathlib.Path(required_path).is_file(), required_path
+          print("registry/network/storage contracts: OK")
+          PY
+          make -C userspace check
+      - name: Shell syntax
+        run: bash -n live-image/build.sh
   package:
     needs: [build-test, validate-infrastructure, code-generation]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
