@@ -10,6 +10,10 @@ import os
 import time
 import uuid
 import xml.etree.ElementTree as ET
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "registry"))
+from registry_client import get_value
 
 HOST = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,252}$")
 
@@ -23,7 +27,15 @@ def run(argv, timeout=25):
 def browse(host, kerberos=True):
     if not HOST.fullmatch(host):
         raise ValueError("host must be a DNS name or IPv4 address without URL syntax")
-    argv = ["smbclient", "-g", "-L", "//" + host, "--option=client min protocol=SMB2"]
+    minimum = get_value("machine", "machine.network.smb.minimum_protocol", "SMB2_10")
+    if minimum not in ("SMB2_10", "SMB3_00", "SMB3_02", "SMB3_11"):
+        raise ValueError("registry SMB minimum protocol is outside the safe SMB2/3 allowlist")
+    workgroup = get_value("environment", "environment.network.workgroup", "WORKGROUP")
+    if not isinstance(workgroup, str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,15}", workgroup):
+        raise ValueError("invalid configured SMB workgroup")
+    argv = ["smbclient", "-g", "-L", "//" + host,
+            "--option=client min protocol=" + minimum, "--option=client signing=mandatory",
+            "-W", workgroup]
     if kerberos:
         argv.append("--use-kerberos=required")
     else:
