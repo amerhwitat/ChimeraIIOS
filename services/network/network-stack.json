@@ -47,23 +47,26 @@
     "network_discovery": {
       "packages": {
         "debian": [
+          "avahi-daemon",
           "avahi-utils",
-          "wsdd"
+          "dnsutils"
         ],
         "fedora": [
+          "avahi",
           "avahi-tools",
-          "wsdd"
+          "bind-utils"
         ],
         "arch": [
           "avahi",
-          "wsdd"
+          "bind"
         ]
       },
       "methods": [
         "DNS-SD _smb._tcp",
         "WS-Discovery"
       ],
-      "scope": "local-link-or-explicit-private-network"
+      "scope": "local-link-or-explicit-private-network",
+      "optional_advertiser": "wsdd"
     },
     "active_directory": {
       "packages": {
