@@ -116,6 +116,7 @@ DOCKER_TAG="${DOCKER_TAG:-latest}"
 ISO_NAME="ChimeraIIOS-comprehensive"
 ISO_VERSION="1.0.0"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$SCRIPT_DIR/build}"
+export CHIMERA_BUILD_DIR="$BUILD_DIR"
 ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
@@ -1174,7 +1175,8 @@ build_native_iso_pipeline(){
   fi
   header 'STEP 11: RUN CANONICAL NATIVE ISO PIPELINE'
   local native_script="$SCRIPT_DIR/boot/iso/build-iso.sh"
-  local native_iso="$SCRIPT_DIR/boot/iso/dist/output.iso"
+  local native_root="$BUILD_DIR/native-iso"
+  local native_iso="$native_root/dist/output.iso"
   [[ -x "$native_script" || -f "$native_script" ]] || { log_error "Native ISO pipeline is missing: $native_script"; return 1; }
   # Forward the target system block size through the canonical native ISO boundary.
   # 4096 bytes (4 KiB) is the default; callers may override it explicitly.
@@ -1184,10 +1186,32 @@ build_native_iso_pipeline(){
   # native ISO builder and its contract verifier must see the same 4 KiB default.
   CHIMERA_SYSTEM_BLOCK_SIZE="$system_block_size" \
     SYSTEM_BLOCK_SIZE="$system_block_size" \
-    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
+    CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_NATIVE_ISO_ROOT="$native_root" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" \
     bash "$native_script" 2>&1 | tee "$LOG_DIR/native-iso-pipeline.log"
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
+  # Embed the canonical native ISO and its complete boot payload in the outer
+  # ISO. The archive preserves every .img, kernel/ELF, EFI loader, Spit Fire
+  # binary, Jasper payload and manifest for offline inspection and recovery.
+  local candidate_dir="$ISO_DIR/boot/candidates"
+  local native_dist="$native_root/dist"
+  mkdir -p "$candidate_dir"
+  cp -f "$native_iso" "$candidate_dir/ChimeraIIOS-native.iso"
+  sha256sum "$candidate_dir/ChimeraIIOS-native.iso" > "$candidate_dir/ChimeraIIOS-native.iso.sha256"
+  [[ -d "$native_dist/iso" && -d "$native_dist/bootloaders" ]] || {
+    log_error "Canonical native ISO payload tree or bootloader directory is missing"
+    return 1
+  }
+  tar -czf "$candidate_dir/native-boot-payload.tar.gz" -C "$native_dist" iso bootloaders
+  [[ -s "$candidate_dir/native-boot-payload.tar.gz" ]] || {
+    log_error "Canonical native boot payload archive is empty"
+    return 1
+  }
+  sha256sum "$candidate_dir/native-boot-payload.tar.gz" > "$candidate_dir/native-boot-payload.tar.gz.sha256"
+  python3 "$SCRIPT_DIR/tools/iso/build_artifact_manifest.py" \
+    --root "$native_dist/iso" \
+    --manifest "$candidate_dir/native-iso-artifact-manifest.json"
+  log_success "Embedded canonical native ISO, boot payload archive and native artifact inventory."
   log_success "Canonical native ISO and checksum verified: $native_iso"
 }
 
@@ -1328,7 +1352,7 @@ build_iso(){
   # ISO staging tree. Never delete EFI/BOOT here: doing so silently discarded
   # BOOTX64.EFI immediately before grub-mkrescue packaged the tree.
   local uefi_loader="$ISO_DIR/EFI/BOOT/BOOTX64.EFI"
-  local generated_uefi_loader="$BUILD_DIR/boot-artifacts/uefi/BOOTX64.EFI"
+  local generated_uefi_loader="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}/uefi/BOOTX64.EFI"
   if [[ ! -s "$uefi_loader" && -s "$generated_uefi_loader" ]]; then
     mkdir -p "$ISO_DIR/EFI/BOOT"
     cp -f "$generated_uefi_loader" "$uefi_loader"
@@ -1359,6 +1383,14 @@ build_iso(){
     log_error "Use --storage /mnt/<larger-drive> or --storage-auto."
     exit 1
   fi
+
+  # Generate the final tree inventory after the native ISO and all boot payloads
+  # have been staged. The manifest excludes itself and SHA256SUMS to avoid
+  # recursive hashing; every other regular file is SHA-256 bound.
+  python3 "$SCRIPT_DIR/tools/iso/build_artifact_manifest.py" \
+    --root "$ISO_DIR" \
+    --manifest "$ISO_DIR/boot/artifact-manifest.json" \
+    --checksums "$ISO_DIR/boot/SHA256SUMS"
 
   grub-mkrescue \
       -o "$iso" \
@@ -1391,6 +1423,7 @@ verify_iso(){
   # Verify the complete graphical boot/installer contract, not only the kernel.
   local required_iso_paths=(
     /boot/grub/grub.cfg
+    /boot/artifact-manifest.json
     /boot/koronos/koronos.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
@@ -1412,6 +1445,15 @@ verify_iso(){
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json
   )
+  if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" != 0 ]]; then
+    required_iso_paths+=(
+      /boot/candidates/ChimeraIIOS-native.iso
+      /boot/candidates/ChimeraIIOS-native.iso.sha256
+      /boot/candidates/native-boot-payload.tar.gz
+      /boot/candidates/native-boot-payload.tar.gz.sha256
+      /boot/candidates/native-iso-artifact-manifest.json
+    )
+  fi
   local required_path
   for required_path in "${required_iso_paths[@]}"; do
     if ! xorriso -indev "$iso" -find "$required_path" -type f | grep -q .; then
@@ -1566,7 +1608,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games native-iso squashfs iso verify report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi

@@ -38,7 +38,8 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-${CHIMERA_BUILD_DIR:-$ROOT/build}/boot-artifacts}"
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+OUT="${CHIMERA_BOOT_ARTIFACT_DIR:-$BUILD_DIR/boot-artifacts}"
 rm -rf "$OUT"
 mkdir -p "$OUT/spitfire" "$OUT/jasper" "$OUT/koronos" "$OUT/grub" "$OUT/uefi" "$OUT/all-elf" "$OUT/all-bin" "$OUT/runtime" "$OUT/manifests"
 
@@ -49,7 +50,7 @@ BOOT_VIDEO=""
 for candidate in \
   "$ROOT/desktop/aurora/assets/Init.mp4" \
   "$ROOT/desktop/aurora/assets/library/Init.mp4" \
-  "$ROOT/build/aurora-media/Init.mp4" \
+  "$BUILD_DIR/aurora-media/Init.mp4" \
   "$ROOT/Init.mp4"; do
   if [[ -s "$candidate" ]]; then BOOT_VIDEO="$candidate"; break; fi
 done
@@ -75,14 +76,14 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/spitfire/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/koronos/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$OUT/grub/"
-KORONOS="$ROOT/build/koronos/x86_64/koronos.elf"
-test -s "$KORONOS" || bash "$ROOT/kernel/build-koronos.sh"
+KORONOS="$BUILD_DIR/koronos/x86_64/koronos.elf"
+test -s "$KORONOS" || CHIMERA_BUILD_DIR="$BUILD_DIR" bash "$ROOT/kernel/build-koronos.sh"
 test -s "$KORONOS"
 bash "$ROOT/boot/spitfire/build-spitfire.sh" "$OUT/spitfire" "$KORONOS"
 command -v nasm >/dev/null || { echo "nasm required" >&2; exit 2; }
 command -v g++ >/dev/null || { echo "g++ required" >&2; exit 2; }
 command -v ld >/dev/null || { echo "ld required" >&2; exit 2; }
-JASPER_BUILD="$ROOT/build/jasper/x86_64"
+JASPER_BUILD="$BUILD_DIR/jasper/x86_64"
 mkdir -p "$JASPER_BUILD"
 g++ -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -I"$ROOT/kernel/include" -c "$ROOT/boot/jasper/jasper_main.cpp" -o "$JASPER_BUILD/jasper_main.o"
 nasm -f elf64 "$ROOT/boot/jasper/jasper_entry.asm" -o "$JASPER_BUILD/jasper_entry.o"
@@ -159,7 +160,7 @@ if command -v grub-mkstandalone >/dev/null 2>&1; then
       exit "$grub_rc"
     fi
     test -s "$OUT/uefi/BOOTX64.EFI"
-    ISO_STAGE="${CHIMERA_BUILD_DIR:-$ROOT/build}/iso"
+    ISO_STAGE="$BUILD_DIR/iso"
     if [[ -d "$ISO_STAGE" ]]; then
       mkdir -p "$ISO_STAGE/EFI/BOOT"
       cp -f "$OUT/uefi/BOOTX64.EFI" "$ISO_STAGE/EFI/BOOT/BOOTX64.EFI"
@@ -177,7 +178,7 @@ else
   exit 2
 fi
 
-find "$ROOT/build" -type f \( -name "*.elf" -o -name "*.bin" -o -name "*.efi" -o -name "*.img" \) -not -path "$ROOT/build/iso/*" -not -path "$ROOT/build/boot-artifacts/*" -print0 2>/dev/null | while IFS= read -r -d "" f; do
+find "$BUILD_DIR" -type f \( -name "*.elf" -o -name "*.bin" -o -name "*.efi" -o -name "*.img" \) -not -path "$BUILD_DIR/iso/*" -not -path "$BUILD_DIR/native-iso/*" -not -path "$BUILD_DIR/boot-artifacts/*" -print0 2>/dev/null | while IFS= read -r -d "" f; do
   base="$(basename "$f")"
   case "$f" in *.elf) cp -f "$f" "$OUT/all-elf/$base";; *) cp -f "$f" "$OUT/all-bin/$base";; esac
 done
@@ -186,12 +187,12 @@ cp -f "$OUT/jasper/jasper.elf" "$OUT/all-elf/"
 cp -f "$OUT/koronos/koronos.elf" "$OUT/all-elf/"
 cp -f "$OUT/uefi/BOOTX64.EFI" "$OUT/all-bin/BOOTX64.EFI"
 [[ -f "$OUT/grub/grub-core.img" ]] && cp -f "$OUT/grub/grub-core.img" "$OUT/all-bin/" || true
-find "$ROOT/build" -type f -not -path "$ROOT/build/iso/*" -not -path "$ROOT/build/boot-artifacts/*" -not -path "$ROOT/build/full/cmake/*" -not -path "$ROOT/build/*/CMakeFiles/*" -print0 2>/dev/null |
+find "$BUILD_DIR" -type f -not -path "$BUILD_DIR/iso/*" -not -path "$BUILD_DIR/native-iso/*" -not -path "$BUILD_DIR/boot-artifacts/*" -not -path "$BUILD_DIR/full/cmake/*" -not -path "$BUILD_DIR/*/CMakeFiles/*" -print0 2>/dev/null |
 while IFS= read -r -d "" f; do
   kind="$(file -b "$f" 2>/dev/null || true)"
   case "$kind" in
     *"ELF"*"executable"*|*"ELF"*"shared object"*)
-      rel="${f#"$ROOT/build/"}"
+      rel="${f#"$BUILD_DIR/"}"
       dest="$OUT/runtime/$rel"
       mkdir -p "$(dirname "$dest")"
       cp -f "$f" "$dest"

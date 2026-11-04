@@ -154,6 +154,17 @@ cp -a "$ROOT/installer" "$STAGE/install/"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
+
+# Build-generated desktop payloads may contain stale copies of source artwork.
+# Reassert the repository's canonical, reviewed assets after the overlay so
+# the manifest and the exact SVG it describes are always shipped together.
+for canonical_art in chimera-infinite-research-horizon.svg chimera-artwork-manifest.json aurora-wayland-glass.svg aurora-wayland-glass.png; do
+  source_art="$ROOT/desktop/aurora/assets/$canonical_art"
+  if [[ -s "$source_art" ]]; then
+    install -D -m 0644 "$source_art" "$STAGE/desktop/aurora/assets/$canonical_art"
+  fi
+done
+install -D -m 0644 "$INIT_VIDEO_SOURCE" "$STAGE/desktop/aurora/assets/Init.mp4"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/system/security" "$STAGE/system/security"
 cp -a "$ROOT/tools/initialize-accounts.sh" "$STAGE/install/initialize-accounts.sh"

@@ -12,6 +12,11 @@
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 
+/* Idle-loop diagnostic wake target; zero means not registered yet. */
+extern "C" {
+uint32_t koronos_monitor_task_id = 0;
+}
+
 namespace {
 volatile uint32_t koronos_state = 0;
 
@@ -339,14 +344,8 @@ static const char *task_state_name(uint32_t state) {
 }
 
 static void task_monitor(void *) {
-    static uint32_t ticks = 0;
-    // The scheduler is a tight cooperative loop; sampling every 10 dispatches
-    // floods VGA/serial output and makes a healthy kernel look hung. Keep the
-    // monitor live, but emit a full snapshot only once per 1000 monitor runs.
-    // This is currently a diagnostic snapshot, not a timer-driven service.
-    // Emit it once; repeated polling here floods VGA/serial and obscures the
-    // actual handoff state. A timer/event source can wake a periodic monitor later.
-    if (++ticks > 1u) { chimera_sched_block(); return; }
+    // One diagnostic snapshot per explicit idle-loop wake. Always block after
+    // printing so the monitor cannot monopolize the cooperative dispatcher.
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
@@ -370,6 +369,7 @@ static void task_monitor(void *) {
         console_u32_raw((uint32_t)info[i].runs);
         console_endline();
     }
+    chimera_sched_block();
 }
 
 static void task_kore(void *) {
@@ -393,6 +393,7 @@ static void koronos_submit_bootstrap_tasks() {
     int recovery = chimera_sched_submit(task_recovery, 0, 80);
     int e = chimera_sched_submit(task_kore, 0, 95);
     int m = chimera_sched_submit(task_monitor, 0, 60);
+    if (m > 0) koronos_monitor_task_id = (uint32_t)m;
     console_write("[SCH ] Bootstrap tasks submitted");
     console_write("[SCH ] console/module/live/installer/recovery/Kore services registered");
     if (a < 0 || b < 0 || c < 0 || d < 0 || recovery < 0 || e < 0 || m < 0)
