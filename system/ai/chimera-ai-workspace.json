@@ -3,6 +3,7 @@
   "runtime": "local-first",
   "desktop_entry": "chimera-ai-workspace.desktop",
   "resource_database": "~/.local/share/chimera-ai/resources.json",
+  "user_config": "~/.config/chimera-ai/config.json",
   "resource_indexer": "/usr/bin/chimera-ai-workspace",
   "index_policy": {
     "explicit_roots_only": true,
@@ -11,11 +12,18 @@
     "exclude_credentials_keys_hidden_profiles_and_caches": true,
     "network_upload": false
   },
-  "model_families": {
-    "llm": {"backends": ["llama.cpp", "Ollama"], "weights_bundled": false},
-    "cnn": {"backends": ["ONNX Runtime", "PyTorch", "TensorFlow"], "weights_bundled": false},
-    "rnn": {"backends": ["ONNX Runtime", "PyTorch", "TensorFlow"], "weights_bundled": false}
+  "llm": {
+    "local_backends": ["Ollama", "llama.cpp"],
+    "retrieval_augmented_chat": true,
+    "weights_bundled": false,
+    "automatic_training": false
   },
-  "training_policy": "No automatic training or weight updates. CNN/RNN training requires a user-selected dataset, architecture, training budget, and output path. LLM inference requires a user-provided compatible model and local backend.",
-  "release_boundary": "Runtime probes and resource indexing do not establish that any model backend or model weights are installed."
+  "cnn_rnn": {
+    "inference_backend": "ONNX Runtime",
+    "requires_numpy": true,
+    "weights_bundled": false,
+    "automatic_training": false
+  },
+  "training_policy": "No automatic training or weight updates. CNN/RNN training requires a user-selected dataset, architecture, training budget, and output path. LLM chat uses local inference with retrieved text excerpts; it does not fine-tune model weights.",
+  "release_boundary": "Runtime probes, indexing and local inference availability do not establish Koronos userspace readiness."
 }
