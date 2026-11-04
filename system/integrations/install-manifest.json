@@ -81,11 +81,6 @@
       "source": "system/integrations/smb.conf",
       "target": "/etc/samba/smb.conf",
       "mode": "0644"
-    },
-    {
-      "source": "services/registry/sync-admin-group.py",
-      "target": "/usr/lib/chimera/registry/sync-admin-group.py",
-      "mode": "0755"
     }
   ],
   "groups": [
