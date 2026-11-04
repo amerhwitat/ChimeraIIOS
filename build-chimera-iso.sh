@@ -1575,7 +1575,6 @@ stage_ai_workspace(){
   log_info 'CNN/RNN training and LLM inference activate only when compatible frameworks, datasets and model weights are supplied.'
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
 
 
@@ -1726,6 +1725,5 @@ main(){
   cleanup_final_success_artifacts
 }
 
-
-stage_sdks(){
-  header 'STAGE COMPILED SDK ARTIFACTS'
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+main "$@"
