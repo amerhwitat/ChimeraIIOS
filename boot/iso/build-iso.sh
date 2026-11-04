@@ -164,11 +164,11 @@ for stage in spitfire jasper grub koronos; do
 done
 
 # Stage the source-attributed AI knowledge corpus and build-time RNN checkpoint.
-printf '%s\\n' '[4b/7] Stage AI hardware knowledge database and advisory RNN'
+printf '%s\n' '[4b/7] Stage AI hardware knowledge database and advisory RNN'
 AI_DIR="$DIST/iso/system/ai"
 mkdir -p "$AI_DIR"
 python3 "$ROOT/tools/cognition/knowledge_database.py" validate --database "$ROOT/data/ai/hardware_systems_knowledge.json"
-python3 "$ROOT/tools/cognition/train_knowledge_rnn.py" --database "$ROOT/data/ai/hardware_systems_knowledge.json" \\
+python3 "$ROOT/tools/cognition/train_knowledge_rnn.py" --database "$ROOT/data/ai/hardware_systems_knowledge.json" \
   --output "$AI_DIR/trained-hardware-systems-rnn.json" --epochs "${CHIMERA_AI_RNN_EPOCHS:-2}" --hidden 8
 cp -f "$ROOT/data/ai/hardware_systems_knowledge.json" "$AI_DIR/hardware-systems-knowledge.json"
 cp -f "$ROOT/data/ai/hardware_systems_knowledge.schema.json" "$AI_DIR/hardware-systems-knowledge.schema.json"
@@ -197,7 +197,7 @@ manifest={"schema":"CHIMERA-AI-PAYLOAD-1","knowledge_entries":db["entry_count"],
  "rnn_scope":"small advisory character-level RNN; not an LLM",
  "cnn_status":"not trained; no labelled licensed dataset supplied",
  "llm_status":"external local inference; knowledge RAG does not fine-tune weights"}
-(root/"ai-payload-manifest.json").write_text(json.dumps(manifest,indent=2)+"\\n",encoding="utf-8")
+(root/"ai-payload-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
 print(json.dumps({"status":"AI payload staged","entries":db["entry_count"],"sources":db["source_count"]}))
 PYAI
 python3 -m json.tool "$AI_DIR/ai-payload-manifest.json" >/dev/null
