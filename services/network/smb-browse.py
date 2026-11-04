@@ -24,15 +24,19 @@ def run(argv, timeout=25):
                        check=False, env=env)
     return p.returncode, p.stdout, p.stderr
 
-def browse(host, kerberos=True):
-    if not HOST.fullmatch(host):
-        raise ValueError("host must be a DNS name or IPv4 address without URL syntax")
+def smb_client_settings():
     minimum = get_value("machine", "machine.network.smb.minimum_protocol", "SMB2_10")
     if minimum not in ("SMB2_10", "SMB3_00", "SMB3_02", "SMB3_11"):
         raise ValueError("registry SMB minimum protocol is outside the safe SMB2/3 allowlist")
     workgroup = get_value("environment", "environment.network.workgroup", "WORKGROUP")
     if not isinstance(workgroup, str) or not re.fullmatch(r"[A-Za-z0-9._-]{1,15}", workgroup):
         raise ValueError("invalid configured SMB workgroup")
+    return minimum, workgroup
+
+def browse(host, kerberos=True):
+    if not HOST.fullmatch(host):
+        raise ValueError("host must be a DNS name or IPv4 address without URL syntax")
+    minimum, workgroup = smb_client_settings()
     argv = ["smbclient", "-g", "-L", "//" + host,
             "--option=client min protocol=" + minimum, "--option=client signing=mandatory",
             "-W", workgroup]
