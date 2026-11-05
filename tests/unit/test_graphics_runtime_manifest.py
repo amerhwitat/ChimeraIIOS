@@ -51,6 +51,19 @@ class GraphicsRuntimeManifestTests(unittest.TestCase):
         self.assertIn("glxinfo -B", builder)
         self.assertIn("if ! compgen -G '/dev/dri/renderD*'", builder)
 
+        # When this test runs in OctavianOS's vendored source tree, also
+        # validate the outer Octavian live-image builder.
+        octavian_builder_path = ROOT.parents[2] / "live-image" / "build.sh"
+        if octavian_builder_path.is_file():
+            octavian_builder = octavian_builder_path.read_text(encoding="utf-8")
+            for package in (
+                "libgl1", "libglx-mesa0", "libegl1", "libgles2", "libgbm1",
+                "libgl1-mesa-dri", "libwayland-egl1", "libdrm2", "mesa-utils",
+                "mesa-vulkan-drivers", "firefox-esr",
+            ):
+                self.assertIn(package, octavian_builder)
+            self.assertIn(".packages-installed-graphics-v2", octavian_builder)
+
     def test_architecture_listing_is_not_support_claim(self):
         arch = self.data["architecture_policy"]
         self.assertIn("x86_64", arch["architectures"])
