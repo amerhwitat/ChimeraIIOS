@@ -248,6 +248,13 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: selected user init has no owned CR3 root");
         return -7;
     }
+    if(chimera_process_bind_address_space(static_cast<uint32_t>(pid),root)!=0) {
+        ops->destroy_address_space(nullptr,loaded.address_space);
+        (void)chimera_process_set_state(static_cast<uint32_t>(pid),CHIMERA_PROCESS_FAULTED);
+        (void)chimera_process_reap(static_cast<uint32_t>(pid),nullptr);
+        koronos_target_log("[RUN ] ERROR: failed to bind address-space root to process record");
+        return -13;
+    }
     active_target=target;
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
