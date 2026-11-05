@@ -110,3 +110,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_qfs_probe_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_qfs_probe COMMAND chimera_qfs_probe_test)
+
+add_executable(chimera_fat_probe_test
+  fat_probe_test.cpp
+  ../../kernel/core/fat_probe.cpp
+  ../../kernel/core/block_device.cpp
+)
+target_include_directories(chimera_fat_probe_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_fat_probe_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_fat_probe_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_fat_probe COMMAND chimera_fat_probe_test)
