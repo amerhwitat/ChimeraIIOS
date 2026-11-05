@@ -93,9 +93,15 @@ COPY --from=builder /build/chimera_kernel /usr/local/bin/chimera_kernel
 # Network browsing, directory integration and optical-media utilities.
 RUN set -eux; \
     install -D -m 0755 /app/tools/network/chimera-network-browser.sh /usr/local/sbin/chimera-network-browser.sh; \
+    install -D -m 0755 /app/tools/service-manager.sh /usr/local/sbin/chimera-services; \
+    install -D -m 0755 /app/tools/hosted/chimera-host-services.py /usr/local/bin/chimera-host-services; \
+    install -D -m 0755 /app/tools/network/chimera_router_cli.py /usr/local/sbin/chimera-router-cli; \
+    install -D -m 0644 /app/network/vendor-cli-compatibility.json /usr/share/chimera/vendor-cli-compatibility.json; \
+    install -D -m 0644 /app/services/linux/service-catalog.json /usr/share/chimera/service-catalog.json; \
     install -D -m 0755 /app/tools/storage/chimera-media-mount.sh /usr/local/sbin/chimera-media-mount.sh; \
     install -D -m 0755 /app/tools/storage/chimera-init-layout.sh /usr/local/sbin/chimera-init-layout.sh; \
     install -D -m 0644 /app/services/network/chimera-wsdd.service /usr/lib/systemd/system/chimera-wsdd.service; \
+    install -D -m 0644 /app/services/network/chimera-network-discovery.target /usr/lib/systemd/system/chimera-network-discovery.target; \
     install -D -m 0644 /app/services/storage/chimera-fhs-layout.service /usr/lib/systemd/system/chimera-fhs-layout.service; \
     install -D -m 0644 /app/services/network/avahi-smb.service /etc/avahi/services/chimera-smb.service; \
     install -D -m 0644 /app/services/network/smb.conf.example /usr/share/chimera/examples/smb.conf.example; \

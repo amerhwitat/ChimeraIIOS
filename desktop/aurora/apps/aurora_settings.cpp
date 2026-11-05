@@ -1,18 +1,17 @@
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <filesystem>
+#include "registry_store.hpp"
+#include "registry_paths.hpp"
 namespace fs=std::filesystem;
 
 struct Setting { std::string key, label, value, description; };
 
-static fs::path config_path() {
-    if (const char* p=std::getenv("CHIMERA_SETTINGS_FILE"); p && *p) return p;
-    if (const char* h=std::getenv("HOME"); h && *h) return fs::path(h)/".config/chimera/settings.conf";
-    return "/etc/chimera/settings.conf";
-}
+static fs::path config_path() { return chimera::hive::paths::settings_file(); }
 static std::vector<Setting> defaults() {
     return {
       {"system.theme","Theme","glass","Aurora visual theme"},
@@ -45,6 +44,7 @@ static std::vector<Setting> defaults() {
       {"security.biometric.liveness","Require liveness","true","Require provider liveness for face/iris/palm/voice/vein"}
     };
 }
+static std::string registry_directory() { return chimera::hive::paths::registry_directory(); }
 static std::vector<Setting> load() {
     auto v=defaults(); std::ifstream f(config_path()); std::string line;
     while(std::getline(f,line)) {
@@ -52,12 +52,20 @@ static std::vector<Setting> load() {
         auto key=line.substr(0,eq), value=line.substr(eq+1);
         for(auto& s:v) if(s.key==key) s.value=value;
     }
+    chimera::hive::RegistryStore registry(registry_directory());
+    if(registry.open()) for(auto& s:v) { std::string value; if(registry.get("settings/"+s.key,value)) s.value=value; }
     return v;
 }
 static bool save(const std::vector<Setting>& v) {
+    chimera::hive::RegistryStore registry(registry_directory());
+    if(!registry.open()) return false;
+    std::vector<std::pair<std::string,std::string>> updates;
+    updates.reserve(v.size());
+    for(const auto& s:v) updates.push_back({"settings/"+s.key,s.value});
+    if(!registry.set_many(updates)) return false;
     std::error_code ec; fs::create_directories(config_path().parent_path(),ec);
-    std::ofstream f(config_path()); if(!f) return false;
-    f<<"# Chimera II OS Aurora settings\n";
+    std::ofstream f(config_path()); if(!f) return true;
+    f<<"# Chimera II OS Aurora settings (legacy compatibility mirror)\n";
     for(const auto& s:v) f<<s.key<<"="<<s.value<<"\n";
     return true;
 }

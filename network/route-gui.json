@@ -1,11 +1,63 @@
 {
-  "schema":"CHM-ROUTE-GUI-1",
-  "id":"route-manager",
-  "name":"Route Manager",
-  "icon":"network-workgroup",
-  "panel":"Aurora Applications",
-  "views":["Interfaces","Routes","Neighbors","Policy Rules","VRF","Routing Protocols","BGP","OSPF","RIP","IS-IS","Babel","Multicast","VPN/Overlay"],
-  "actions":["show","add","replace","delete","flush","export","import","validate"],
-  "confirmation_required":["add","replace","delete","flush","dynamic-protocol-enable"],
-  "backend":["route","ip route","ip rule","ip neigh","Spotnik","FRR adapter"]
+  "schema": "CHM-ROUTE-GUI-1",
+  "id": "route-manager",
+  "name": "Route Manager",
+  "icon": "network-workgroup",
+  "panel": "Aurora Applications",
+  "views": [
+    "Interfaces",
+    "Routes",
+    "Neighbors",
+    "Policy Rules",
+    "VRF",
+    "Routing Protocols",
+    "BGP",
+    "OSPF",
+    "RIP",
+    "IS-IS",
+    "Babel",
+    "Multicast",
+    "VPN/Overlay",
+    "Cisco IOS CLI",
+    "Juniper Junos CLI",
+    "Vendor Command Translation",
+    "FRR Service"
+  ],
+  "actions": [
+    "show",
+    "add",
+    "replace",
+    "delete",
+    "flush",
+    "export",
+    "import",
+    "validate",
+    "translate-ios-command",
+    "translate-junos-command",
+    "plan-route-change",
+    "apply-confirmed-plan"
+  ],
+  "confirmation_required": [
+    "add",
+    "replace",
+    "delete",
+    "flush",
+    "dynamic-protocol-enable"
+  ],
+  "backend": [
+    "route",
+    "ip route",
+    "ip rule",
+    "ip neigh",
+    "Spotnik",
+    "FRR adapter"
+  ],
+  "vendor_adapters": [
+    "network/vendor-cli-compatibility.json"
+  ],
+  "safety": {
+    "mutations": "plan-only by default; explicit confirmation and administrator privileges required",
+    "unknown_commands": "reject",
+    "vendor_binary_compatibility": "not claimed"
+  }
 }

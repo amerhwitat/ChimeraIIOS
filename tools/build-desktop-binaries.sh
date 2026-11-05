@@ -42,7 +42,7 @@ if [[ -f "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/neural/cpp" "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" -o "$OUT/bin/chimera-neural-chat"
 fi
 if [[ -f "$ROOT/desktop/aurora/apps/aurora_settings.cpp" ]]; then
-  "$CXX" -std=c++20 -O2 -Wall -Wextra "$ROOT/desktop/aurora/apps/aurora_settings.cpp" -o "$OUT/bin/aurora-settings"
+  "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/userspace/hive" "$ROOT/desktop/aurora/apps/aurora_settings.cpp" "$ROOT/userspace/hive/registry_store.cpp" -o "$OUT/bin/aurora-settings"
 fi
 if [[ -f "$ROOT/desktop/aurora/apps/aurora_peripherals.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra "$ROOT/desktop/aurora/apps/aurora_peripherals.cpp" -o "$OUT/bin/aurora-peripherals"

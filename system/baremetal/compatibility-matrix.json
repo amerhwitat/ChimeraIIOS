@@ -1,0 +1,26 @@
+{
+  "schema": "CHIMERA-BAREMETAL-COMPATIBILITY-1",
+  "edition": "BareMetal",
+  "kernel": "Koronos",
+  "boot": {"x86_64":{"uefi":"primary-ci-target","bios":"primary-ci-target"},"aarch64":{"uefi":"experimental","bios":"not-targeted"},"riscv64":{"opensbi-or-uefi":"experimental"}},
+  "host_build_environments": {
+    "linux": {"status":"supported","toolchains":["GCC","Clang","NASM","GNU binutils","CMake","Ninja"]},
+    "freebsd": {"status":"supported-when-toolchain-present","toolchains":["Clang","LLVM","NASM","CMake","Ninja"]},
+    "windows": {"status":"supported-through-WSL-or-native-toolchain","toolchains":["MSVC for host tools","LLVM/Clang","NASM","CMake","Ninja"]},
+    "macos": {"status":"supported-when-toolchain-present","toolchains":["Apple Clang","LLVM","NASM","CMake","Ninja"]}
+  },
+  "runtime_policy": {
+    "host_os_required_at_runtime": false,
+    "host_kernel_drivers_reused": false,
+    "foreign_service_managers_reused": false,
+    "driver_requirement": "native Koronos driver or explicitly supported firmware interface",
+    "safe_boot_policy": ["UEFI Secure Boot policy must be explicit","verify boot artifacts before loading","never auto-flash host firmware"]
+  },
+  "production_gates": [
+    "x86-64 IDT and interrupt dispatch correctness",
+    "syscall entry/exit and privilege transitions",
+    "SMP synchronization and inter-processor interrupts",
+    "validated driver coverage for target hardware",
+    "filesystem and network protocol conformance"
+  ]
+}

@@ -132,3 +132,35 @@ if(BUILD_TESTING AND Python3_Interpreter_FOUND)
 endif()
 
 add_subdirectory(tests/kernel)
+
+
+# Cross-platform routing command adapter and protocol capability catalogs.
+install(PROGRAMS tools/network/chimera_router_cli.py DESTINATION bin RENAME chimera-router-cli)
+install(FILES
+  network/vendor-cli-compatibility.json
+  network/routing-protocols.json
+  network/routing_capabilities.json
+  network/protocols/routing_protocols.json
+  network/protocols/edition_network_profiles.json
+  DESTINATION share/chimera/network
+)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_router_vendor_cli
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/network/test_router_cli.py)
+endif()
+
+install(FILES system/platform/compatibility-contract.json system/baremetal/compatibility-matrix.json DESTINATION share/chimera/platform)
+install(FILES docs/PLATFORM_COMPATIBILITY_MATRIX.md docs/CISCO_JUNIPER_ROUTING_CLI.md DESTINATION share/chimera/docs)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_platform_compatibility
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/platform/test_platform_compatibility.py)
+endif()
+
+install(PROGRAMS tools/hosted/chimera-host-services.py DESTINATION bin RENAME chimera-host-services)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_host_service_adapters
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/platform/test_host_services.py)
+endif()
+
+install(FILES services/platform_service_adapters.json DESTINATION share/chimera/services)
+install(FILES platform/linux/README.md platform/freebsd/README.md platform/windows/README.md platform/macos/README.md DESTINATION share/chimera/platform/docs)

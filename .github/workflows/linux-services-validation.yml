@@ -1,0 +1,29 @@
+name: Linux service manager validation
+on:
+  pull_request:
+    paths:
+      - 'services/linux/**'
+      - 'tools/service-manager.sh'
+      - 'tests/services/**'
+      - 'docs/LINUX_SERVICES.md'
+      - '.github/workflows/linux-services-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'services/linux/**'
+      - 'tools/service-manager.sh'
+      - 'tests/services/**'
+      - 'docs/LINUX_SERVICES.md'
+      - '.github/workflows/linux-services-validation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: linux-services-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  service-manager:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate catalog and shell manager
+        run: bash tests/services/test-service-manager.sh

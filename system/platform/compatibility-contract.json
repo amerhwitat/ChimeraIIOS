@@ -1,0 +1,172 @@
+{
+  "schema": "CHIMERA-PLATFORM-COMPATIBILITY-1",
+  "purpose": "One truthful compatibility contract for Hosted and BareMetal editions across Linux, FreeBSD, Windows and macOS hosts.",
+  "editions": {
+    "hosted": {
+      "execution_model": "user-space host bridge; does not replace or emulate the host kernel",
+      "supported_host_families": [
+        "linux",
+        "freebsd",
+        "windows",
+        "macos"
+      ],
+      "architectures": [
+        "x86",
+        "x86_64",
+        "aarch64",
+        "arm32",
+        "riscv32",
+        "riscv64"
+      ],
+      "capabilities": {
+        "process_launch": "host-native only through argument-vector APIs",
+        "filesystem": "host filesystem through explicit path and permission adapters",
+        "network": "host sockets; routing changes require separate privileged adapter",
+        "services": "systemd/OpenRC/runit on Linux, rc.d on FreeBSD, SCM on Windows, launchd on macOS",
+        "desktop": "host-native opener and optional Aurora bridge; no claim of full foreign desktop API emulation",
+        "binary_abi": "inspect ELF, PE and Mach-O; execute only through a matching native host or validated emulator"
+      },
+      "architecture_policy": "32-bit host support is limited to compatible 32-bit user-space tools; macOS remains 64-bit only; no cross-bitness library loading."
+    },
+    "baremetal": {
+      "execution_model": "boots Koronos directly; host OS is build/flash environment only",
+      "host_families_for_build_and_flash": [
+        "linux",
+        "freebsd",
+        "windows",
+        "macos"
+      ],
+      "boot_targets": [
+        {
+          "architecture": "x86_64",
+          "firmware": [
+            "UEFI",
+            "legacy BIOS"
+          ],
+          "status": "primary-ci-target"
+        },
+        {
+          "architecture": "aarch64",
+          "firmware": [
+            "UEFI"
+          ],
+          "status": "experimental-target"
+        },
+        {
+          "architecture": "riscv64",
+          "firmware": [
+            "OpenSBI/UEFI where available"
+          ],
+          "status": "experimental-target"
+        }
+      ],
+      "capabilities": {
+        "host_kernel_dependency": false,
+        "native_kernel": "Koronos",
+        "driver_support": "only hardware with a matched, validated Chimera driver; host driver binaries are not loaded into Koronos",
+        "filesystem": [
+          "FAT32/EFI System Partition",
+          "ISO-9660",
+          "UDF",
+          "ext-family via explicit driver availability"
+        ],
+        "network": "Spotnik stack and supported native drivers; advanced routing requires a validated routing service backend"
+      }
+    }
+  },
+  "host_os_matrix": {
+    "linux": {
+      "hosted": "supported-user-space-bridge",
+      "baremetal_tooling": "supported",
+      "native_services": [
+        "systemd",
+        "OpenRC",
+        "runit",
+        "s6",
+        "SysV"
+      ],
+      "notes": "Package manager and service manager are detected; apt is not assumed.",
+      "service_adapter_status": "systemd and OpenRC lifecycle; apt package installation is provided by the Linux service manager; runit/s6/SysV adapters remain planned"
+    },
+    "freebsd": {
+      "hosted": "posix-adapter-partial",
+      "baremetal_tooling": "supported-when-toolchain-present",
+      "native_services": [
+        "rc.d"
+      ],
+      "notes": "Use kqueue, PF, routing sockets and BSD-specific interfaces through dedicated adapters; Linux netlink and systemd are not assumed.",
+      "service_adapter_status": "FreeBSD rc.d/sysrc lifecycle adapter implemented; OpenBSD/NetBSD are not claimed"
+    },
+    "windows": {
+      "hosted": "supported-user-space-bridge",
+      "baremetal_tooling": "supported-through-WSL-or-native-toolchain",
+      "native_services": [
+        "Windows Service Control Manager",
+        "Task Scheduler"
+      ],
+      "notes": "Use Winsock, Windows service APIs and native filesystem semantics; do not assume POSIX fork, signals or Unix sockets.",
+      "service_adapter_status": "Windows Service Control Manager lifecycle adapter implemented; Task Scheduler is not exposed"
+    },
+    "macos": {
+      "hosted": "supported-user-space-bridge",
+      "baremetal_tooling": "supported-when-toolchain-present",
+      "native_services": [
+        "launchd"
+      ],
+      "notes": "Use Darwin/BSD sockets, launchd, APFS-aware filesystem APIs and hardened-runtime constraints; do not assume Linux syscalls.",
+      "service_adapter_status": "launchd system/gui lifecycle adapter implemented; plist installation is not exposed"
+    }
+  },
+  "cross_platform_contracts": {
+    "process": [
+      "argument-vector launch",
+      "explicit environment",
+      "bounded output",
+      "exit-status normalization",
+      "no implicit shell execution"
+    ],
+    "filesystem": [
+      "UTF-8 API paths",
+      "native path conversion",
+      "symlink policy",
+      "atomic replace where supported",
+      "permission translation"
+    ],
+    "network": [
+      "dual-stack sockets",
+      "interface inventory",
+      "route lookup",
+      "privileged route mutation through capability broker"
+    ],
+    "service": [
+      "discover",
+      "inspect",
+      "install package where applicable",
+      "enable",
+      "disable",
+      "start",
+      "stop",
+      "restart",
+      "report unsupported operation",
+      "host-native service lifecycle adapter: tools/hosted/chimera-host-services.py"
+    ],
+    "security": [
+      "least privilege",
+      "administrator consent for host mutations",
+      "no host driver injection",
+      "no foreign kernel module loading",
+      "audit privileged actions"
+    ]
+  },
+  "compatibility_tiers": {
+    "implemented": "Code and tests exist for the named adapter path.",
+    "partial": "An interface or subset exists; unsupported calls must return an explicit not-supported result.",
+    "planned": "Specification only; do not advertise as operational."
+  },
+  "non_claims": [
+    "This matrix does not claim full Windows NT, FreeBSD, Linux or XNU kernel equivalence.",
+    "It does not claim complete Win32, POSIX, BSD or Darwin syscall coverage.",
+    "It does not imply every listed filesystem, driver, routing protocol or executable ABI is implemented.",
+    "The x86-64 interrupt/syscall/SMP production blockers remain independent."
+  ]
+}

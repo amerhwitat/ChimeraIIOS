@@ -41,3 +41,8 @@ The category model is intentionally broader than a single upstream desktop and m
 User preferences are persisted in `~/.config/chimera/settings.conf`. Changes that require hardware, kernel, service, firmware, security, or system-wide privileges are intended to be mediated by Koronos/Aegis rather than allowing the desktop process to bypass policy.
 
 Windows documents a unified Settings application and page-visibility controls; Aurora follows the same architectural idea while using its own native implementation and configuration model.
+
+
+## Hive registry backend
+
+Aurora Settings reads Hive values under `settings/<setting-key>` after loading the legacy configuration mirror. Changes are written to the transactional Hive store and mirrored to `settings.conf` when possible. The graphical Hive Registry Editor is available as `aurora-registry-editor` when Qt 6 Widgets is present. See `docs/HIVE_REGISTRY_VFS.md` for transaction recovery and optional FUSE mounting.

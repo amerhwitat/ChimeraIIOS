@@ -44,7 +44,10 @@
         "Proxy",
         "DNS",
         "Firewall",
-        "Spotnik"
+        "Spotnik",
+        "Windows Network Browser",
+        "SMB Shares",
+        "Shared Folders"
       ]
     },
     {
@@ -155,7 +158,10 @@
         "Nucleus",
         "Hive",
         "Aegis",
-        "Logs"
+        "Logs",
+        "Linux Services",
+        "Optional Services",
+        "Service Profiles"
       ]
     },
     {
@@ -208,5 +214,19 @@
     "manager": "/usr/bin/chimera-driver-panel.py",
     "manifest": "/usr/share/chimera/drivers/audio-driver-manifest.json",
     "automatic_detection": true
+  },
+  "service_management": {
+    "manager": "/usr/local/sbin/chimera-services",
+    "catalog": "/usr/share/chimera/service-catalog.json",
+    "backend": "systemd",
+    "package_manager": "apt",
+    "pages": [
+      "Linux Services",
+      "Optional Services",
+      "Service Profiles"
+    ],
+    "privileged_operations": "request-Koronos-Aegis-policy",
+    "profile_installation": "install-packages-only",
+    "network_services": "explicit-admin-enable-required"
   }
 }

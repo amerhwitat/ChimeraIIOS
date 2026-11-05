@@ -1,10 +1,71 @@
 {
-  "schema":"CHM-SERVICE-ADAPTERS-2",
-  "platforms":{
-    "linux":{"manager":["systemd","OpenRC","runit","s6","SysV"],"commands":["systemctl","service","rc-service","sv"]},
-    "unix":{"manager":["launchd","rc.d","SMF","systemd"],"commands":["launchctl","service","svcs","systemctl"]},
-    "windows":{"manager":["Windows Service Control Manager","Task Scheduler"],"commands":["sc","schtasks","Get-Service","Start-Service","Stop-Service"]},
-    "macos":{"manager":["launchd"],"commands":["launchctl","launchctl print","launchctl bootstrap","launchctl bootout"]}
+  "schema": "CHM-SERVICE-ADAPTERS-2",
+  "platforms": {
+    "linux": {
+      "manager": [
+        "systemd",
+        "OpenRC"
+      ],
+      "commands": [
+        "systemctl",
+        "rc-status",
+        "rc-service",
+        "rc-update"
+      ],
+      "adapter": "tools/hosted/chimera-host-services.py (systemd/OpenRC lifecycle); tools/service-manager.sh (systemd/apt install/profile)",
+      "planned": [
+        "runit",
+        "s6",
+        "SysV"
+      ]
+    },
+    "freebsd": {
+      "manager": [
+        "rc.d"
+      ],
+      "commands": [
+        "service",
+        "sysrc"
+      ],
+      "adapter": "tools/hosted/chimera-host-services.py (FreeBSD rc.d/sysrc)",
+      "unsupported": [
+        "OpenBSD/NetBSD rc script variants need separate validation"
+      ]
+    },
+    "windows": {
+      "manager": [
+        "Windows Service Control Manager"
+      ],
+      "commands": [
+        "sc.exe"
+      ],
+      "adapter": "tools/hosted/chimera-host-services.py (sc.exe / Windows SCM)",
+      "unsupported": [
+        "Task Scheduler job lifecycle is not exposed"
+      ]
+    },
+    "macos": {
+      "manager": [
+        "launchd"
+      ],
+      "commands": [
+        "launchctl list",
+        "launchctl print",
+        "launchctl kickstart",
+        "launchctl kill",
+        "launchctl enable",
+        "launchctl disable"
+      ],
+      "adapter": "tools/hosted/chimera-host-services.py (launchctl system and gui domains)",
+      "unsupported": [
+        "launchd plist installation and service package installation are not performed"
+      ]
+    }
   },
-  "chimera":{"manager":"Kore","kernel":"Koronos","policy":"foreign service descriptions are translated into Chimera service manifests; foreign kernel services are never loaded into Koronos."}
+  "chimera": {
+    "manager": "Kore",
+    "kernel": "Koronos",
+    "policy": "foreign service descriptions are translated into Chimera service manifests; foreign kernel services are never loaded into Koronos."
+  },
+  "installation_policy": "Package installation is platform-specific and separate from service lifecycle actions; no host service is enabled silently."
 }

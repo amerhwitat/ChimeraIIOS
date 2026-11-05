@@ -1,0 +1,5 @@
+#include "registry_store.hpp"
+#include <iostream>
+#include <string>
+static void usage(){std::cout<<"chm-registry [--db DIR] list|get KEY|set KEY VALUE|delete KEY|compact|check\n";}
+int main(int argc,char**argv){std::string dir="/var/lib/chimera/hive";int i=1;if(i<argc&&std::string(argv[i])=="--db"){if(i+1>=argc){usage();return 2;}dir=argv[i+1];i+=2;}if(i>=argc||std::string(argv[i])=="--help"){usage();return 0;}chimera::hive::RegistryStore db(dir);if(!db.open()){std::cerr<<db.last_error()<<"\n";return 1;}std::string cmd=argv[i++];if(cmd=="list"){for(auto&e:db.entries())std::cout<<e.first<<"="<<e.second<<"\n";return 0;}if(cmd=="get"&&i<argc){std::string v;if(!db.get(argv[i],v))return 1;std::cout<<v<<"\n";return 0;}if(cmd=="set"&&i+1<argc){if(!db.set(argv[i],argv[i+1])){std::cerr<<db.last_error()<<"\n";return 1;}return 0;}if(cmd=="delete"&&i<argc){if(!db.erase(argv[i])){std::cerr<<db.last_error()<<"\n";return 1;}return 0;}if(cmd=="compact"){if(!db.compact()){std::cerr<<db.last_error()<<"\n";return 1;}return 0;}if(cmd=="check"){std::cout<<"registry recovered "<<db.entries().size()<<" entries\n";return 0;}usage();return 2;}

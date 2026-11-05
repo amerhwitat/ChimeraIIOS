@@ -1,0 +1,553 @@
+{
+  "schema": "CHM-LINUX-SERVICE-CATALOG-1",
+  "policy": {
+    "default_install": [
+      "systemd-journald",
+      "systemd-udevd",
+      "dbus",
+      "cron"
+    ],
+    "never_enable_without_admin": [
+      "sshd",
+      "smbd",
+      "nmbd",
+      "wsdd",
+      "avahi-daemon",
+      "nfs-server",
+      "rpcbind",
+      "sssd",
+      "nginx",
+      "apache2",
+      "postgresql",
+      "mariadb",
+      "redis-server",
+      "docker",
+      "containerd"
+    ],
+    "package_manager": "apt"
+  },
+  "profiles": {
+    "base": [
+      "systemd-journald",
+      "systemd-udevd",
+      "dbus",
+      "cron",
+      "systemd-timesyncd",
+      "systemd-logind",
+      "polkit",
+      "rsyslog",
+      "chrony"
+    ],
+    "desktop": [
+      "udisks2",
+      "accounts-daemon",
+      "cups",
+      "avahi-daemon",
+      "bluetooth",
+      "fwupd",
+      "gdm3",
+      "lightdm",
+      "pulseaudio",
+      "thermald",
+      "acpid",
+      "colord",
+      "geoclue-2.0",
+      "power-profiles-daemon"
+    ],
+    "network": [
+      "NetworkManager",
+      "systemd-resolved",
+      "avahi-daemon",
+      "wsdd",
+      "samba",
+      "openssh-server",
+      "ModemManager",
+      "systemd-networkd",
+      "openvpn",
+      "xrdp",
+      "frr"
+    ],
+    "server": [
+      "openssh-server",
+      "nginx",
+      "fail2ban",
+      "logrotate",
+      "unattended-upgrades",
+      "postfix",
+      "dovecot",
+      "bind9",
+      "cockpit",
+      "prometheus-node-exporter",
+      "frr"
+    ],
+    "storage": [
+      "udisks2",
+      "smartmontools",
+      "nfs-kernel-server",
+      "rpcbind",
+      "samba"
+    ],
+    "security": [
+      "apparmor",
+      "auditd",
+      "fail2ban",
+      "ufw",
+      "fwupd"
+    ],
+    "developer": [
+      "docker",
+      "postgresql",
+      "redis-server"
+    ]
+  },
+  "services": [
+    {
+      "id": "systemd-journald",
+      "label": "System Journal",
+      "package": "systemd",
+      "unit": "systemd-journald.service",
+      "class": "core",
+      "default_enabled": true
+    },
+    {
+      "id": "systemd-udevd",
+      "label": "Device Manager",
+      "package": "systemd",
+      "unit": "systemd-udevd.service",
+      "class": "core",
+      "default_enabled": true
+    },
+    {
+      "id": "dbus",
+      "label": "System Message Bus",
+      "package": "dbus",
+      "unit": "dbus.service",
+      "class": "core",
+      "default_enabled": true
+    },
+    {
+      "id": "cron",
+      "label": "Scheduled Jobs",
+      "package": "cron",
+      "unit": "cron.service",
+      "class": "core",
+      "default_enabled": true
+    },
+    {
+      "id": "systemd-timesyncd",
+      "label": "Time Synchronization",
+      "package": "systemd-timesyncd",
+      "unit": "systemd-timesyncd.service",
+      "class": "base",
+      "default_enabled": false
+    },
+    {
+      "id": "NetworkManager",
+      "label": "Network Manager",
+      "package": "network-manager",
+      "unit": "NetworkManager.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "systemd-resolved",
+      "label": "DNS Resolver",
+      "package": "systemd-resolved",
+      "unit": "systemd-resolved.service",
+      "class": "base",
+      "default_enabled": false
+    },
+    {
+      "id": "udisks2",
+      "label": "Removable Storage Manager",
+      "package": "udisks2",
+      "unit": "udisks2.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "accounts-daemon",
+      "label": "User Accounts Service",
+      "package": "accountsservice",
+      "unit": "accounts-daemon.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "cups",
+      "label": "Printing Service",
+      "package": "cups",
+      "unit": "cups.service",
+      "class": "optional",
+      "default_enabled": false
+    },
+    {
+      "id": "avahi-daemon",
+      "label": "Local Network Discovery",
+      "package": "avahi-daemon",
+      "unit": "avahi-daemon.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "bluetooth",
+      "label": "Bluetooth Service",
+      "package": "bluez",
+      "unit": "bluetooth.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "fwupd",
+      "label": "Firmware Update Service",
+      "package": "fwupd",
+      "unit": "fwupd.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "wsdd",
+      "label": "Windows Network Discovery",
+      "package": "wsdd",
+      "unit": "wsdd.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "samba",
+      "label": "SMB File Sharing",
+      "package": "samba",
+      "unit": "smbd.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "openssh-server",
+      "label": "SSH Server",
+      "package": "openssh-server",
+      "unit": "ssh.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "ModemManager",
+      "label": "Mobile Broadband Modem Manager",
+      "package": "modemmanager",
+      "unit": "ModemManager.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "nginx",
+      "label": "Nginx Web Server",
+      "package": "nginx",
+      "unit": "nginx.service",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "fail2ban",
+      "label": "Login Abuse Protection",
+      "package": "fail2ban",
+      "unit": "fail2ban.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "logrotate",
+      "label": "Log Rotation",
+      "package": "logrotate",
+      "unit": "logrotate.timer",
+      "class": "base",
+      "default_enabled": false
+    },
+    {
+      "id": "unattended-upgrades",
+      "label": "Automatic Security Updates",
+      "package": "unattended-upgrades",
+      "unit": "unattended-upgrades.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "smartmontools",
+      "label": "Disk Health Monitoring",
+      "package": "smartmontools",
+      "unit": "smartmontools.service",
+      "class": "storage",
+      "default_enabled": false
+    },
+    {
+      "id": "nfs-kernel-server",
+      "label": "NFS Server",
+      "package": "nfs-kernel-server",
+      "unit": "nfs-server.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "rpcbind",
+      "label": "RPC Port Mapper",
+      "package": "rpcbind",
+      "unit": "rpcbind.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "sssd",
+      "label": "Directory Identity Client",
+      "package": "sssd",
+      "unit": "sssd.service",
+      "class": "identity",
+      "default_enabled": false
+    },
+    {
+      "id": "apache2",
+      "label": "Apache HTTP Server",
+      "package": "apache2",
+      "unit": "apache2.service",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "postgresql",
+      "label": "PostgreSQL Database",
+      "package": "postgresql",
+      "unit": "postgresql.service",
+      "class": "database",
+      "default_enabled": false
+    },
+    {
+      "id": "mariadb",
+      "label": "MariaDB Database",
+      "package": "mariadb-server",
+      "unit": "mariadb.service",
+      "class": "database",
+      "default_enabled": false
+    },
+    {
+      "id": "redis-server",
+      "label": "Redis Cache",
+      "package": "redis-server",
+      "unit": "redis-server.service",
+      "class": "database",
+      "default_enabled": false
+    },
+    {
+      "id": "docker",
+      "label": "Docker Engine",
+      "package": "docker.io",
+      "unit": "docker.service",
+      "class": "developer",
+      "default_enabled": false
+    },
+    {
+      "id": "containerd",
+      "label": "Container Runtime",
+      "package": "containerd",
+      "unit": "containerd.service",
+      "class": "developer",
+      "default_enabled": false
+    },
+    {
+      "id": "apparmor",
+      "label": "AppArmor Mandatory Access Control",
+      "package": "apparmor",
+      "unit": "apparmor.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "auditd",
+      "label": "Security Audit Daemon",
+      "package": "auditd",
+      "unit": "auditd.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "ufw",
+      "label": "Firewall",
+      "package": "ufw",
+      "unit": "ufw.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "pipewire",
+      "label": "PipeWire Audio Session",
+      "package": "pipewire",
+      "unit": "pipewire.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "systemd-logind",
+      "label": "Login Session Manager",
+      "package": "systemd",
+      "unit": "systemd-logind.service",
+      "class": "core",
+      "default_enabled": false
+    },
+    {
+      "id": "polkit",
+      "label": "Privilege Authorization",
+      "package": "polkitd",
+      "unit": "polkit.service",
+      "class": "security",
+      "default_enabled": false
+    },
+    {
+      "id": "systemd-networkd",
+      "label": "Systemd Network Daemon",
+      "package": "systemd-networkd",
+      "unit": "systemd-networkd.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "rsyslog",
+      "label": "Syslog Daemon",
+      "package": "rsyslog",
+      "unit": "rsyslog.service",
+      "class": "base",
+      "default_enabled": false
+    },
+    {
+      "id": "chrony",
+      "label": "NTP Time Service",
+      "package": "chrony",
+      "unit": "chrony.service",
+      "class": "base",
+      "default_enabled": false
+    },
+    {
+      "id": "postfix",
+      "label": "Mail Transfer Agent",
+      "package": "postfix",
+      "unit": "postfix.service",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "dovecot",
+      "label": "IMAP/POP3 Mail Service",
+      "package": "dovecot-core",
+      "unit": "dovecot.service",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "bind9",
+      "label": "DNS Name Server",
+      "package": "bind9",
+      "unit": "named.service",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "openvpn",
+      "label": "OpenVPN Client/Server",
+      "package": "openvpn",
+      "unit": "openvpn.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "gdm3",
+      "label": "GNOME Display Manager",
+      "package": "gdm3",
+      "unit": "gdm3.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "lightdm",
+      "label": "LightDM Display Manager",
+      "package": "lightdm",
+      "unit": "lightdm.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "pulseaudio",
+      "label": "PulseAudio Sound Server",
+      "package": "pulseaudio",
+      "unit": "pulseaudio.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "xrdp",
+      "label": "Remote Desktop Server",
+      "package": "xrdp",
+      "unit": "xrdp.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "cockpit",
+      "label": "Cockpit Web Administration",
+      "package": "cockpit",
+      "unit": "cockpit.socket",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "prometheus-node-exporter",
+      "label": "Node Metrics Exporter",
+      "package": "prometheus-node-exporter",
+      "unit": "prometheus-node-exporter.service",
+      "class": "monitoring",
+      "default_enabled": false
+    },
+    {
+      "id": "thermald",
+      "label": "Thermal Management",
+      "package": "thermald",
+      "unit": "thermald.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "acpid",
+      "label": "ACPI Event Daemon",
+      "package": "acpid",
+      "unit": "acpid.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "colord",
+      "label": "Color Management",
+      "package": "colord",
+      "unit": "colord.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "geoclue-2.0",
+      "label": "Location Provider",
+      "package": "geoclue-2.0",
+      "unit": "geoclue.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "power-profiles-daemon",
+      "label": "Power Profiles",
+      "package": "power-profiles-daemon",
+      "unit": "power-profiles-daemon.service",
+      "class": "desktop",
+      "default_enabled": false
+    },
+    {
+      "id": "frr",
+      "label": "FRRouting Dynamic Routing Suite",
+      "package": "frr",
+      "unit": "frr.service",
+      "class": "network",
+      "default_enabled": false
+    }
+  ]
+}

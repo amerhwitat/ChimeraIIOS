@@ -45,3 +45,11 @@ An optional controller can push versioned policy to the OS. Envoy xDS is reserve
 - Failed control-plane updates are rejected without replacing the last known-good table.
 - Configuration changes are versioned and auditable.
 - No application is allowed to modify host routing tables directly unless explicitly granted a capability.
+
+## Vendor command compatibility
+
+The Cisco IOS/Junos adapter is documented in docs/CISCO_JUNIPER_ROUTING_CLI.md and installed as chimera-router-cli. It translates a bounded, tested command subset into native host route/interface tools or FRR vtysh. Linux uses iproute2, FreeBSD/macOS use route/netstat/ifconfig, and Windows uses route.exe/ipconfig.exe for static route and interface operations.
+
+Dynamic routing is provided only by an installed and explicitly enabled protocol daemon. FRRouting is an optional service; the catalog includes BGP, OSPF, IS-IS, RIP/RIPng, Babel, BFD, PIM and VRRP where supported by the selected FRR build. EIGRP, HSRP/GLBP, MPLS/RSVP-TE/LDP, segment routing, EVPN, BGP-LS and SDN controller APIs remain adapter/backend-specific or experimental until their own implementation and conformance tests pass.
+
+The command translator is plan-only for changes. It rejects unknown commands, avoids shell execution, validates addresses and requires explicit confirmation plus administrator privileges before mutating the host route table.
