@@ -42,7 +42,9 @@ int main(){
  /* SIGKILL (9) and SIGSTOP (19) remain unmaskable. */
  assert(chimera_process_signal_send((uint32_t)pid,10)==0);
  assert(chimera_process_signal_send((uint32_t)pid,9)==0);
+ assert(chimera_process_signal_send((uint32_t)pid,19)==0);
  assert(chimera_process_signal_take((uint32_t)pid,&delivered)==1&&delivered==9);
+ assert(chimera_process_signal_take((uint32_t)pid,&delivered)==1&&delivered==19);
  assert(chimera_process_signal_take((uint32_t)pid,&delivered)==0);
  assert(chimera_process_signal_set_mask((uint32_t)pid,0)==0);
  assert(chimera_process_signal_take((uint32_t)pid,&delivered)==1&&delivered==10);
