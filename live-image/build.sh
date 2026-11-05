@@ -257,6 +257,15 @@ mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR"
 xsetroot -solid "#071a2b" 2>/dev/null || true
 xset -dpms 2>/dev/null || true
 xset s off 2>/dev/null || true
+# Capture the renderer actually exposed by the target X/GL stack. This is
+# diagnostic evidence only; graphics remain non-boot-critical.
+if command -v glxinfo >/dev/null 2>&1; then
+  if glxinfo -B > /tmp/aurora-opengl-runtime.log 2>&1; then
+    grep -E 'direct rendering|OpenGL vendor string|OpenGL renderer string|OpenGL version string' /tmp/aurora-opengl-runtime.log || true
+  else
+    echo "[Aurora][WARN] OpenGL context probe failed; see /tmp/aurora-opengl-runtime.log" >&2
+  fi
+fi
 if grep -q "session=classic" /proc/cmdline 2>/dev/null; then
   for w in /usr/share/backgrounds/*/wp01.jpg; do [ -f "$w" ] && feh --bg-fill "$w"; done
   exec openbox
