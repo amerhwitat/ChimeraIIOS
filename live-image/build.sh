@@ -86,7 +86,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
+if [ ! -f "$BASE/.packages-installed-graphics-v2" ]; then
   log "installing shared package set (one-off)"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
@@ -114,7 +114,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  touch "$BASE/.packages-installed-graphics-v2"
 fi
 
 # ------------------------------------------------------------- rootfs copy
