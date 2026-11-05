@@ -92,8 +92,12 @@ install(TARGETS chm-sed chm-awk RUNTIME DESTINATION bin)
 add_library(chimera_hardware_runtime STATIC
   ../kernel/core/hardware.cpp
   ../kernel/core/nbit.cpp
+  ../kernel/core/cpu_arch_registry.cpp
 )
-target_include_directories(chimera_hardware_runtime PUBLIC ../kernel/include)
+target_include_directories(chimera_hardware_runtime PUBLIC
+  ../kernel/include
+  ../kernel/generated
+)
 target_compile_features(chimera_hardware_runtime PUBLIC cxx_std_20)
 
 add_executable(chimera-hwmode ../services/hardware/chimera-hwmode.cpp)
