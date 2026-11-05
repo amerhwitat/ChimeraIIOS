@@ -1,0 +1,26 @@
+# Ubuntu 24.04 runtime packages for network browsing, AD/LDAP and optical media
+samba
+smbclient
+cifs-utils
+winbind
+libnss-winbind
+libpam-winbind
+krb5-user
+realmd
+adcli
+sssd
+sssd-ad
+sssd-ldap
+sssd-tools
+ldap-utils
+libsasl2-modules-gssapi-mit
+avahi-daemon
+avahi-utils
+wsdd
+gvfs-backends
+udisks2
+util-linux
+xorriso
+udftools
+file
+eject

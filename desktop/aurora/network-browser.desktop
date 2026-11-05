@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Microsoft Network Browser
+Name[ar]=متصفح شبكة مايكروسوفت
+Comment=Discover Windows computers and browse SMB2/SMB3 shares
+Exec=/usr/local/sbin/chimera-network-browser.sh discover
+Icon=network-workgroup
+Terminal=true
+Categories=Network;System;

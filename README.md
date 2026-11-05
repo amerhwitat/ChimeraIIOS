@@ -77,6 +77,12 @@ Startup is **menu first, GUI second**. Jasper/Spit Fire exposes Live, Install, S
 
 The boot visual is represented by `boot/splash/aurora_boot_splash.svg`; the requested support footer is stored in `boot/splash/support_footer.txt` and staged into the ISO.
 
+## Network interoperability and optical media
+
+Chimera's network integration includes SMB2/SMB3 browsing and share mounting, Windows WS-Discovery, Avahi DNS-SD, administrator-driven Active Directory joining through realmd/adcli/SSSD, and TLS-verified LDAP searches. Optical-media tools mount ISO-9660/UDF images and CD/DVD devices read-only, while the FHS provisioner creates the Linux and Chimera mountpoint hierarchy.
+
+See [Network, Active Directory, LDAP and optical-media integration](docs/NETWORK_AND_MEDIA_INTEGRATION.md), the [filesystem capability profile](installer/profiles/filesystem-support.json), and the [network/media validation workflow](.github/workflows/network-media-validation.yml). These services are staged in the runtime image; network daemons and domain joining remain explicit administrator-controlled operations.
+
 ## Universal source-first ISO
 
 The structured ISO builder stages `/src`, `/opt`, `/install`, `/drivers`, `/filesystems`, `/packages`, `/repositories`, `/man`, `/games`, `/wallets` and `/ISO` as documented distribution contracts.

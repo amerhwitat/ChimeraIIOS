@@ -1,0 +1,14 @@
+[Unit]
+Description=Create standard Linux and Chimera mountpoint hierarchy
+DefaultDependencies=no
+After=local-fs.target
+Before=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/chimera-init-layout.sh --root /
+RemainAfterExit=yes
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

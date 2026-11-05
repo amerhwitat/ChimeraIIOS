@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Optical Media and ISO Manager
+Name[ar]=إدارة الأقراص الضوئية وملفات ISO
+Comment=List and mount CD, DVD, ISO-9660 and UDF media safely
+Exec=/usr/local/sbin/chimera-media-mount.sh list
+Icon=media-optical
+Terminal=true
+Categories=System;Utility;

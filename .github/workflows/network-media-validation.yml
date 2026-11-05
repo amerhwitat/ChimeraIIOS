@@ -1,0 +1,47 @@
+name: Network and media integration validation
+
+on:
+  push:
+    branches: [main, feature/smb-ad-ldap-optical-media]
+    paths:
+      - 'tools/network/**'
+      - 'tools/storage/**'
+      - 'services/network/**'
+      - 'services/storage/**'
+      - 'tests/network/**'
+      - 'installer/profiles/filesystem-support.json'
+      - 'Dockerfile'
+      - 'README.md'
+      - 'iso/manifests/network-filesystem-packages.txt'
+      - '.github/workflows/network-media-validation.yml'
+  pull_request:
+    paths:
+      - 'tools/network/**'
+      - 'tools/storage/**'
+      - 'services/network/**'
+      - 'services/storage/**'
+      - 'tests/network/**'
+      - 'installer/profiles/filesystem-support.json'
+      - 'Dockerfile'
+      - 'README.md'
+      - 'docs/NETWORK_AND_MEDIA_INTEGRATION.md'
+      - 'iso/manifests/network-filesystem-packages.txt'
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Bash syntax and command help
+        run: bash tests/network/test-network-media-tools.sh
+      - name: Validate JSON manifests
+        run: |
+          python3 -m json.tool installer/profiles/filesystem-support.json >/dev/null
+      - name: Validate no merge markers in touched shell files
+        run: |
+          ! grep -nE '^(<<<<<<<|=======|>>>>>>>)' \
+            tools/network/chimera-network-browser.sh \
+            tools/storage/chimera-media-mount.sh \
+            tools/storage/chimera-init-layout.sh
+      - name: Check patch whitespace
+        run: git diff --check
