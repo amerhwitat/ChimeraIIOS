@@ -49,6 +49,7 @@ class GraphicsRuntimeManifestTests(unittest.TestCase):
             self.assertIn(package, builder)
         self.assertIn(".packages-installed-graphics-v2", builder)
         self.assertIn("glxinfo -B", builder)
+        self.assertIn("Mesa llvmpipe fallback active after hardware context failure", builder)
         self.assertIn("if ! compgen -G '/dev/dri/renderD*'", builder)
 
         # When this test runs in OctavianOS's vendored source tree, also
