@@ -570,6 +570,7 @@ resume_artifacts_present(){
 state_done(){
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
   local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games extended linuxboot scripts squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
@@ -577,6 +578,8 @@ state_done(){
 =======
 =======
 >>>>>>> 09e3358ef (Validate saved build state before resuming completed stages)
+=======
+>>>>>>> a5324060b ( Changes to be committed:)
   local completed="$1" target="$2" stored_fingerprint current_fingerprint
   [[ -n "$completed" && -f "$STATE_FILE" ]] || return 1
   stored_fingerprint="$(sed -n 's/^fingerprint=//p' "$STATE_FILE" | tail -1)"
@@ -591,12 +594,17 @@ state_done(){
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 =======
+=======
+>>>>>>> dbf7dcf2a ( Changes to be committed:)
   local completed="$1" target="$2" stored_fingerprint current_fingerprint
   [[ -n "$completed" && -f "$STATE_FILE" ]] || return 1
+
   stored_fingerprint="$(sed -n 's/^fingerprint=//p' "$STATE_FILE" | tail -1)"
   current_fingerprint="$(state_fingerprint)"
+
   # Older state files or changed source trees are deliberately not trusted.
   [[ -n "$stored_fingerprint" && "$stored_fingerprint" == "$current_fingerprint" ]] || return 1
+<<<<<<< HEAD
   local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
 >>>>>>> a8f340cd0 (Validate saved build state before resuming completed stages)
   ci=$(printf '%s\n' "$order" | awk -v x="$completed" '{for(i=1;i<=NF;i++)if($i==x)print i}')
@@ -610,7 +618,23 @@ state_done(){
 =======
 >>>>>>> 181e59f46 (Validate saved build state before resuming completed stages)
 >>>>>>> a8f340cd0 (Validate saved build state before resuming completed stages)
+<<<<<<< HEAD
 >>>>>>> 09e3358ef (Validate saved build state before resuming completed stages)
+=======
+=======
+
+  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'
+  local ci ti
+
+  ci=$(printf '%s
+' "$order" | awk -v x="$completed" '{for(i=1;i<=NF;i++)if($i==x)print i}')
+  ti=$(printf '%s
+' "$order" | awk -v x="$target" '{for(i=1;i<=NF;i++)if($i==x)print i}')
+
+  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]] || return 1
+  resume_artifacts_present "$target"
+>>>>>>> dbf7dcf2a ( Changes to be committed:)
+>>>>>>> a5324060b ( Changes to be committed:)
 }
 run_stage(){
   local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
@@ -2206,9 +2230,12 @@ main(){
   local completed="$(state_get)"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games extended linuxboot scripts squashfs iso verify native-iso report; do
 =======
 =======
+=======
+>>>>>>> a5324060b ( Changes to be committed:)
 =======
 <<<<<<< HEAD
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
@@ -2217,23 +2244,39 @@ main(){
   for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
 =======
 >>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
+<<<<<<< HEAD
 >>>>>>> ce021b551 (build: add clean --full SDK build and ISO staging)
+=======
+=======
+>>>>>>> dbf7dcf2a ( Changes to be committed:)
+>>>>>>> a5324060b ( Changes to be committed:)
   local -a build_stages=(docker rootfs commands)
+
   if [[ "$FULL_BUILD" == 1 ]]; then
     build_stages+=(sdk)
     log_info "--full enabled: clean rebuild plus native SDK compilation, CTest and ISO staging."
   fi
+
   build_stages+=(docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report)
+
   for stage in "${build_stages[@]}"; do
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 80664aff1 (build: add clean --full SDK build and ISO staging)
 =======
+=======
+>>>>>>> a5324060b ( Changes to be committed:)
 <<<<<<< HEAD
 =======
 >>>>>>> 80664aff1 (build: add clean --full SDK build and ISO staging)
 >>>>>>> 46c7af14d (build: add clean --full SDK build and ISO staging)
 >>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
+<<<<<<< HEAD
 >>>>>>> ce021b551 (build: add clean --full SDK build and ISO staging)
+=======
+=======
+>>>>>>> dbf7dcf2a ( Changes to be committed:)
+>>>>>>> a5324060b ( Changes to be committed:)
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -2267,6 +2310,7 @@ main(){
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 =======
 =======
@@ -2280,25 +2324,36 @@ trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped 
 =======
 >>>>>>> 7152a3376 (build: redact process arguments from failure diagnostics)
 
+=======
+>>>>>>> dbf7dcf2a ( Changes to be committed:)
 stage_sdks(){
   header 'STEP: COMPILE ALL REPOSITORY SDKS'
-  # Compiles every build definition the host toolchains support (CMake, Cargo,
-  # Swift, Dart, Maven, Gradle, dotnet, npm, Go, Python) and writes an honest
-  # report into the ISO. Missing toolchains are reported as skipped, not passed.
+  # Unsupported or missing toolchains must be reported as skipped, not passed.
   local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
   mkdir -p "$(dirname "$report")"
+
   if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
     bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
-      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" ||
+      log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
     log_info "SDK report staged at $report"
   else
     log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
   fi
 }
 
->>>>>>> ab17c3805 (build: add timestamped verbose ISO diagnostics and stage telemetry)
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+# Do not print BASH_COMMAND or process arguments: they may contain secrets.
+# BASHPID identifies this shell even when trap execution involves subshells.
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then
+  log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"
+  log_debug "Failure command omitted to avoid exposing command-line secrets"
+  log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"
+  log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"
+  printf "%s\\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null ||
+    log_warning "Could not persist failed-stage marker at $FAILED_FILE"
+fi; exit "$rc"' EXIT
 
+<<<<<<< HEAD
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: $"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 <<<<<<< HEAD
 >>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
@@ -2313,4 +2368,6 @@ trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 >>>>>>> e2189180d (build: redact process arguments from failure diagnostics)
 >>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
+=======
+>>>>>>> dbf7dcf2a ( Changes to be committed:)
 main "$@"
