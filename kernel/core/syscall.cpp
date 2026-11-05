@@ -129,7 +129,11 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             /* PID comes from the active kernel-owned process record. Never
              * fabricate PID 1 when no target process is actually running. */
             const uint32_t pid = koronos_target_active_pid();
-            return pid ? static_cast<uint64_t>(pid) : static_cast<uint64_t>(-38ll);
+            if (!pid) {
+                koronos_target_log("[SYSC] GETPID rejected: active process PID missing");
+                return static_cast<uint64_t>(-38ll);
+            }
+            return static_cast<uint64_t>(pid);
         }
         case CHM_SYS_YIELD:
             // The bootstrap user entry is single-process until the scheduler owns
