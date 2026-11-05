@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
-extern "C" int koronos_process_fd_init(void) { return 0; }
+static int fd_init_status=0;
+extern "C" int koronos_process_fd_init(void) { return fd_init_status; }
 extern "C" int koronos_process_fd_close_all(uint32_t) { return 0; }
 
 static void put16(uint8_t *p,uint16_t v){p[0]=(uint8_t)v;p[1]=(uint8_t)(v>>8);}
@@ -19,6 +20,10 @@ static void make_elf(uint8_t *b,size_t n){
 }
 int main(){
  uint8_t elf[512];make_elf(elf,sizeof(elf));
+ fd_init_status=-77;
+ assert(chimera_process_init()==-77);
+ assert(chimera_process_count()==0);
+ fd_init_status=0;
  assert(chimera_process_init()==0);
  chimera_process_image admitted{};
  int pid=chimera_process_admit_elf(elf,sizeof(elf),KORONOS_EM_X86_64,0x100700000,&admitted);
