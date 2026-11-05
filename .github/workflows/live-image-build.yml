@@ -6,6 +6,12 @@ on:
     paths:
       - 'live-image/**'
       - 'tests/live-image/**'
+      - 'tests/unit/**'
+      - 'kernel/**'
+      - 'boot/**'
+      - 'graphics/**'
+      - 'vendor/chimera-ii-os/source/live-image/**'
+      - 'vendor/chimera-ii-os/source/tests/unit/**'
       - 'web/**'
       - 'desktop/**'
       - 'apps/**'
