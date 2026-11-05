@@ -35,6 +35,17 @@ int main(){
  chimera_process_image current{};
  assert(chimera_process_get((uint32_t)pid,&current)==0);
  assert(current.address_space_root==0x12345000);
+ uint32_t delivered=0;
+ assert(chimera_process_signal_send((uint32_t)pid,0)==-1);
+ assert(chimera_process_signal_send((uint32_t)pid,32)==-1);
+ assert(chimera_process_signal_set_mask((uint32_t)pid,0xFFFFFFFFu)==0);
+ /* SIGKILL (9) and SIGSTOP (19) remain unmaskable. */
+ assert(chimera_process_signal_send((uint32_t)pid,10)==0);
+ assert(chimera_process_signal_send((uint32_t)pid,9)==0);
+ assert(chimera_process_signal_take((uint32_t)pid,&delivered)==1&&delivered==9);
+ assert(chimera_process_signal_take((uint32_t)pid,&delivered)==0);
+ assert(chimera_process_signal_set_mask((uint32_t)pid,0)==0);
+ assert(chimera_process_signal_take((uint32_t)pid,&delivered)==1&&delivered==10);
  assert(chimera_process_set_state((uint32_t)pid,CHIMERA_PROCESS_RUNNING)==0);
  assert(chimera_process_bind_address_space((uint32_t)pid,0x32345000)==-3);
  assert(chimera_process_reap((uint32_t)pid,nullptr)==-3);
