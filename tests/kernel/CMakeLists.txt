@@ -83,3 +83,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_scheduler_runtime_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_scheduler_runtime COMMAND chimera_scheduler_runtime_test)
+
+add_executable(chimera_block_device_test
+  block_device_test.cpp
+  ../../kernel/core/block_device.cpp
+)
+target_include_directories(chimera_block_device_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_block_device_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_block_device_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_block_device COMMAND chimera_block_device_test)
