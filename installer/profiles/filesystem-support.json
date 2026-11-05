@@ -15,16 +15,7 @@
     "require_kernel_page_size_at_least_block": true,
     "sector_default_bytes": 512
   },
-  "installable": [
-    "qfs",
-    "ext4",
-    "xfs",
-    "btrfs",
-    "zfs",
-    "ntfs3",
-    "vfat",
-    "exfat"
-  ],
+  "installable": [],
   "boot_media": [
     "iso9660",
     "udf",
@@ -70,7 +61,7 @@
     "zfs-pools",
     "btrfs-subvolumes"
   ],
-  "policy": "QFS is the native Chimera target. Backend availability is detected at installer runtime; unsupported tools are reported rather than silently selected.",
+  "policy": "Format names and installer UI catalog entries are not driver implementations. No native Koronos filesystem backend is currently qualified for probe, format, check, mount, read/write, or live-root use. QFS currently has host-side formatting/inspection only. Installer must disable native disk installation and filesystem selection until a backend passes block-device, mount, read/write, sync, unmount, corruption and reboot tests for the selected architecture. Linux userspace utilities and optical ISO staging are separate capabilities and must not be represented as native Koronos kernel support.",
   "optical_media": {
     "filesystems": [
       "iso9660",
@@ -143,5 +134,17 @@
       "/mnt/chimera/media",
       "/mnt/chimera/network"
     ]
-  }
+  },
+  "catalog_only": [
+    "qfs",
+    "ext4",
+    "xfs",
+    "btrfs",
+    "zfs",
+    "ntfs3",
+    "vfat",
+    "exfat"
+  ],
+  "native_kernel_operations": [],
+  "native_runtime_qualified": []
 }
