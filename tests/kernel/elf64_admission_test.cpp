@@ -1,4 +1,5 @@
 #include "../../kernel/include/chimera/process.h"
+#include "../../kernel/include/chimera/elf64.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
