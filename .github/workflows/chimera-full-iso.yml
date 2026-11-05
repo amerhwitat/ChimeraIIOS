@@ -172,8 +172,9 @@ jobs:
           accepted=true
           for target in live installer recovery; do
             tree="$base/$target/tree"
-            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
+            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/targets" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
             xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
+            xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$tree/boot/targets/target-init-$target.elf" >/dev/null 2>&1 || accepted=false
             if [[ "$target" == "live" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
@@ -191,6 +192,7 @@ jobs:
           terminal_output console
           menuentry "Chimera target $target handoff acceptance" {
             multiboot2 /boot/koronos/koronos.elf
+            module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target
           GRUB
             if [[ "$target" == "live" ]]; then
               cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'

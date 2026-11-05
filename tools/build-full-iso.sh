@@ -112,6 +112,28 @@ cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
+
+# The canonical GRUB menu requests one native ring-3 init ELF for each target.
+# Stage those exact payloads into the ISO; copying only the kernel and
+# initramfs makes GRUB silently omit the USER_INIT_ELF Multiboot2 module.
+TARGETS_STAGE="$STAGE/boot/targets"
+mkdir -p "$TARGETS_STAGE"
+for target in live installer recovery; do
+  target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  [[ -s "$target_elf" ]] || {
+    echo "ERROR: required native target init is missing: $target_elf" >&2
+    exit 2
+  }
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: target init is not an ET_EXEC image: $target_elf" >&2
+    exit 2
+  }
+  readelf -lW "$target_elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: target init has no executable PT_LOAD: $target_elf" >&2
+    exit 2
+  }
+  cp -f "$target_elf" "$TARGETS_STAGE/"
+done
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
