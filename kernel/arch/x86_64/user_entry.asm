@@ -139,7 +139,9 @@ koronos_arch_enter_user:
     mov [rel koronos_cpu_syscall_state + 40], rax
     cli
     mov [rel koronos_cpu_syscall_state + 16], rsp
-    lea rax, [rel koronos_bootstrap_pml4]
+    ; Preserve the caller's actual page-table root. The bootstrap symbol is
+    ; not a substitute for the active CR3 (which may itself be a process root).
+    mov rax, cr3
     mov [rel koronos_cpu_syscall_state + 48], rax
     mov qword [rel koronos_user_exit_code], 0
     lea rax, [rel koronos_syscall_stack_top]
@@ -216,7 +218,7 @@ koronos_syscall_entry:
     iretq
 
 koronos_syscall_user_exit:
-    lea rax, [rel koronos_bootstrap_pml4]
+    mov rax, [rel koronos_cpu_syscall_state + 48]
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
     pop r15
@@ -235,7 +237,7 @@ koronos_syscall_user_exit:
 ; Discard the interrupted user IRQ frame and resume the original C caller as a
 ; failed process, using the same saved kernel continuation as syscall exit.
 koronos_user_timeout_abort:
-    lea rax, [rel koronos_bootstrap_pml4]
+    mov rax, [rel koronos_cpu_syscall_state + 48]
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
     pop r15
