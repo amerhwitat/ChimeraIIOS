@@ -1715,7 +1715,10 @@ build_native_sdk(){
   [[ -s "$sdk_src/CMakeLists.txt" ]] || { log_error "SDK CMake project is missing: $sdk_src/CMakeLists.txt"; return 1; }
   command -v cmake >/dev/null 2>&1 || { log_error "CMake is required for --full SDK compilation"; return 2; }
   command -v ctest >/dev/null 2>&1 || { log_error "CTest is required for --full SDK validation"; return 2; }
+<<<<<<< HEAD
   rm -rf -- "$sdk_build"
+=======
+>>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
   mkdir -p "$sdk_build" "$sdk_dest" "$ISO_DIR/install/sdk"
   cmake -S "$sdk_src" -B "$sdk_build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/chimera-sdk
   cmake --build "$sdk_build" --parallel "${CHIMERA_BUILD_JOBS:-2}"
@@ -1770,6 +1773,15 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
+=======
+<<<<<<< HEAD
+  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+=======
+>>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
   local -a build_stages=(docker rootfs commands)
   if [[ "$FULL_BUILD" == 1 ]]; then
     build_stages+=(sdk)
@@ -1777,6 +1789,11 @@ main(){
   fi
   build_stages+=(docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report)
   for stage in "${build_stages[@]}"; do
+<<<<<<< HEAD
+=======
+>>>>>>> 80664aff1 (build: add clean --full SDK build and ISO staging)
+>>>>>>> 46c7af14d (build: add clean --full SDK build and ISO staging)
+>>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
