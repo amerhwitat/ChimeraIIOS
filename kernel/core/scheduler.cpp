@@ -140,12 +140,28 @@ extern "C" void chimera_sched_exit(void){legacy_action(ACTION_EXIT);}
 extern "C" uint32_t chimera_sched_runnable_count(void){
     lock();uint32_t n=0;for(uint32_t i=0;i<count;i++)if(tasks[i].info.state==CHIMERA_TASK_READY)++n;unlock();return n;
 }
+<<<<<<< HEAD
+extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
+<<<<<<< HEAD
+    if (out == nullptr) {
+=======
+    if (!out) {
+<<<<<<< HEAD
+>>>>>>> 1dbb465c6 (Fix misleading indentation in scheduler snapshot)
+=======
+=======
+<<<<<<< HEAD
+extern "C" uint32_t chimera_sched_snapshot(chimera_task_info*out,uint32_t cap){
+    if(!out)return 0;lock();uint32_t n=count<cap?count:cap;for(uint32_t i=0;i<n;i++)out[i]=tasks[i].info;unlock();return n;
+=======
 extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
 <<<<<<< HEAD
     if (out == nullptr) {
 =======
     if (!out) {
 >>>>>>> 1dbb465c6 (Fix misleading indentation in scheduler snapshot)
+>>>>>>> d398b71ce (Fix misleading indentation in scheduler snapshot)
+>>>>>>> a57f0a985 (Fix misleading indentation in scheduler snapshot)
         return 0;
     }
 
@@ -156,4 +172,8 @@ extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap)
     }
     unlock();
     return n;
+<<<<<<< HEAD
+=======
+>>>>>>> 8c2967fba (Fix misleading indentation in scheduler snapshot)
+>>>>>>> d398b71ce (Fix misleading indentation in scheduler snapshot)
 }
