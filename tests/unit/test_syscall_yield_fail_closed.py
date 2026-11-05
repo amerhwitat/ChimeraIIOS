@@ -34,4 +34,10 @@ if "return static_cast<uint64_t>(-38ll);" not in native:
 if "return 0;" in native:
     raise AssertionError("native YIELD must not report false success")
 
-print("PASS: YIELD remains ENOSYS until real context switching is implemented")
+builder = (ROOT / "kernel" / "build-koronos.sh").read_text(encoding="utf-8")
+if "SMP-safe scheduler" in builder or "parallel dispatch linked" in builder:
+    raise AssertionError("kernel build banner must not claim SMP/parallel execution")
+if "AP startup and parallel execution remain blocked" not in builder:
+    raise AssertionError("kernel build banner must state the AP/SMP limitation")
+
+print("PASS: YIELD remains ENOSYS and build output does not claim unimplemented SMP")
