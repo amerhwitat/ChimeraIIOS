@@ -3,6 +3,12 @@
 #include <cstring>
 #include "chimera/process.h"
 
+/* This regression isolates process admission/state transitions. The production
+ * kernel links the real per-process FD table; this host-only test supplies
+ * inert lifecycle hooks so it does not pretend to exercise VFS behavior. */
+extern "C" int koronos_process_fd_init(void) { return 0; }
+extern "C" int koronos_process_fd_close_all(uint32_t) { return 0; }
+
 static void make_elf(uint8_t* b,bool wx){
   std::memset(b,0,4096);
   auto* h=(koronos_elf64_ehdr*)b;
