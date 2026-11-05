@@ -88,7 +88,7 @@ int probe_impl(uint32_t handle, chimera_fat_probe_info *out) {
     if (kind == CHM_FAT32) {
         if (root_entries || fat16 || !fat32) return CHM_BLOCK_EINVAL;
         const uint32_t root = le32(boot + 44) & 0x0fffffffu;
-        if (root < 2u || root >= clusters + 2u ||
+        if (root < 2u || (uint64_t)root >= clusters + 2u ||
             fat_bytes < ((clusters + 2u) * 4u))
             return CHM_BLOCK_EINVAL;
         result.root_cluster = root;
