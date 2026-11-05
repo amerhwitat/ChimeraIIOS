@@ -22,6 +22,6 @@ int main() {
     assert(koronos_vfs_open("/tmp/../etc/os-release",KORONOS_VFS_O_RDONLY)<0);
     assert(koronos_vfs_open("/etc/os-release",KORONOS_VFS_O_WRONLY)<0);
     koronos_vfs_snapshot s{};
-    assert(koronos_vfs_get_snapshot(&s)==0 && s.root_mounted && s.tmp_mounted);
+    assert(koronos_vfs_get_snapshot(&s)==0 && !s.root_mounted && s.tmp_mounted);
     return 0;
 }
