@@ -440,8 +440,8 @@ RUN install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-securityd.s
 # =============================================================================
 # Create initialization and startup scripts
 # =============================================================================
-RUN mkdir -p $INSTALL_DIR/scripts && \
-    cat > $INSTALL_DIR/scripts/init-chimera.sh << 'INIT_SCRIPT'
+RUN mkdir -p $INSTALL_DIR/scripts
+RUN cat > $INSTALL_DIR/scripts/init-chimera.sh <<'INIT_SCRIPT'
 #!/bin/bash
 echo "=================================================="
 echo "CHIMERA II OS - Comprehensive Environment"
