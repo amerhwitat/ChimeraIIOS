@@ -246,7 +246,7 @@ koronos_syscall_user_exit:
 koronos_fatal_cr3_restore:
     cli
     hlt
-    jmp .fatal_cr3_restore
+    jmp koronos_fatal_cr3_restore
 
 ; Called only by the dedicated IRQ0 stub after the in-kernel deadline expires.
 ; Discard the interrupted user IRQ frame and resume the original C caller as a
