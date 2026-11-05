@@ -8,22 +8,7 @@ uint32_t le32(const uint8_t *p) {
 uint64_t le64(const uint8_t *p) {
     return (uint64_t)le32(p) | ((uint64_t)le32(p + 4) << 32);
 }
-}
-namespace {
 volatile uint32_t probe_lock = 0;
-int probe_impl(uint32_t handle, chimera_qfs_probe_info *out) {
-
-/* The on-disk v1 header is serialized little-endian and occupies 64 bytes.
- * Read one logical sector only; never trust geometry until it is validated. */
-int probe_impl_placeholder(uint32_t, chimera_qfs_probe_info *); 
-}
-extern "C" int chimera_qfs_probe(uint32_t handle, chimera_qfs_probe_info *out) {
-    while (__sync_lock_test_and_set(&probe_lock, 1u)) {}
-    const int result = probe_impl(handle, out);
-    __sync_lock_release(&probe_lock);
-    return result;
-}
-namespace {
 int probe_impl(uint32_t handle, chimera_qfs_probe_info *out) {
     if (!out) return CHM_BLOCK_EINVAL;
     chimera_block_info device{};
@@ -32,6 +17,8 @@ int probe_impl(uint32_t handle, chimera_qfs_probe_info *out) {
         (device.sector_size & (device.sector_size - 1u)) ||
         !device.sector_count) return CHM_BLOCK_EINVAL;
 
+    /* Shared bounded buffer avoids placing up to 64 KiB on a kernel stack.
+     * The public wrapper serializes access to it. */
     static uint8_t sector[65536];
     if (chimera_block_read(handle, 0u, 1u, sector) != 0) return CHM_BLOCK_EIO;
     if (le32(sector) != CHIMERA_QFS_MAGIC) return CHM_BLOCK_ENOTSUP;
@@ -67,4 +54,11 @@ int probe_impl(uint32_t handle, chimera_qfs_probe_info *out) {
     for (uint32_t i = 0; i < 16u; ++i) out->uuid[i] = sector[48u + i];
     return 0;
 }
+}
+
+extern "C" int chimera_qfs_probe(uint32_t handle, chimera_qfs_probe_info *out) {
+    while (__sync_lock_test_and_set(&probe_lock, 1u)) {}
+    const int result = probe_impl(handle, out);
+    __sync_lock_release(&probe_lock);
+    return result;
 }
