@@ -1,4 +1,8 @@
 #include "chimera/process.h"
+/* Keep the test assertions active in Release/NDEBUG CI configurations. */
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
