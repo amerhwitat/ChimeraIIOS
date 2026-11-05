@@ -34,7 +34,10 @@ find_tool() {
   for dir in "$ROOT/usr/sbin" "$ROOT/sbin" "$ROOT/usr/bin" "$ROOT/bin"; do
     if [ -x "$dir/$name" ]; then printf '%s\n' "$dir/$name"; return 0; fi
   done
-  command -v "$name" 2>/dev/null || return 1
+  if [ "$ROOT" = "/" ]; then
+    command -v "$name" 2>/dev/null || return 1
+  fi
+  return 1
 }
 has_fs_driver() {
   fs=$1
