@@ -118,8 +118,6 @@ jobs:
           done
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
-          # Inspect the initramfs actually embedded in the ISO. This is a
-          # payload-content check, not a substitute for target-specific QEMU.
           mkdir -p "$tmp/live-root" "$tmp/recovery-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
@@ -248,6 +246,15 @@ jobs:
             echo "::warning::Six-case evidence incomplete. Release publication remains blocked."
           fi
 
+      - name: Upload target-specific userspace acceptance traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-target-userspace-traces
+          path: build/six-case-evidence/*/*/debugcon.log
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Upload six-case acceptance report
         if: always()
         uses: actions/upload-artifact@v4
@@ -289,8 +296,6 @@ jobs:
             build/iso/chimera-ii-os.iso.sha256
 
       - name: Publish validated ISO candidate to GitHub Releases
-        # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance; no release will be published without all required gates.
-        # Enable the repository variable only after the immutable six-case matrix, installed-disk persistence, recovery postcondition, and real SMP gates pass.
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.six_case_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
