@@ -27,6 +27,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
       - name: Build Koronos ELF64
         run: bash kernel/build-koronos.sh
+      - name: Verify fail-closed YIELD syscall contract
+        run: python3 tests/unit/test_syscall_yield_fail_closed.py
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
