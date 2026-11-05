@@ -2,7 +2,21 @@ name: Chimera II OS - all editions build
 on:
   workflow_dispatch:
   push:
-    paths: ['CMakeLists.txt','cmake/**','include/**','src/**','tests/**','installer/**','tools/build/**']
+    paths:
+      - '.github/workflows/build-all-editions.yml'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'include/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'installer/**'
+      - 'tools/build/**'
+      - 'kernel/**'
+      - 'boot/**'
+      - 'desktop/**'
+      - 'system/**'
+      - 'architecture/**'
+      - 'toolchains/**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
