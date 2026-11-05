@@ -2,7 +2,13 @@
 #include "../include/chimera/process_loader.h"
 #include "../include/chimera/process_fd.h"
 namespace { constexpr uint32_t MAX_SEGMENTS=16; constexpr uint64_t PAGE=4096; constexpr uint32_t PT_LOAD=1,PF_X=1,PF_W=2,PF_R=4; struct Slot { chimera_process_image image{}; bool used=false; }; Slot slots[CHIMERA_PROCESS_MAX]; uint32_t next_pid=1,count=0; static bool add_ok(uint64_t a,uint64_t b,uint64_t*o){if(a>UINT64_MAX-b)return false;*o=a+b;return true;} static uint64_t down(uint64_t x){return x&~(PAGE-1);} static bool up(uint64_t x,uint64_t*o){if(x>UINT64_MAX-(PAGE-1))return false;*o=(x+PAGE-1)&~(PAGE-1);return true;} static bool in(uint64_t o,uint64_t n,uint64_t z){uint64_t e=0;return add_ok(o,n,&e)&&e<=z;} }
-extern "C" int chimera_process_init(void){for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)slots[i]={};next_pid=1;count=0;(void)koronos_process_fd_init();return 0;}
+extern "C" int chimera_process_init(void){
+ for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)slots[i]={};
+ next_pid=1;count=0;
+ const int fd_status=koronos_process_fd_init();
+ if(fd_status!=0)return fd_status;
+ return 0;
+}
 extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
                                                 uint16_t machine, uint64_t stack,
                                                 chimera_process_image *out) {
