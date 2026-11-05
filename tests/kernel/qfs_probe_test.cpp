@@ -4,7 +4,7 @@
 #include <string.h>
 
 namespace {
-uint8_t media[64u * 512u]{};
+uint8_t media[512u * 512u]{};
 void put32(uint8_t *p, uint32_t v) {
     p[0]=(uint8_t)v; p[1]=(uint8_t)(v>>8); p[2]=(uint8_t)(v>>16); p[3]=(uint8_t)(v>>24);
 }
@@ -28,7 +28,7 @@ void make_header() {
 int main() {
     const chimera_block_ops ops{read_media,write_media,nullptr};
     uint32_t handle=0;
-    assert(chimera_block_register("qfs-test",512,64,0,&ops,nullptr,&handle)==0);
+    assert(chimera_block_register("qfs-test",512,512,0,&ops,nullptr,&handle)==0);
     make_header();
     chimera_qfs_probe_info info{};
     assert(chimera_qfs_probe(handle,&info)==0);
