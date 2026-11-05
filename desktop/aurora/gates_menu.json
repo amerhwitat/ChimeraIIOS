@@ -73,7 +73,17 @@
     "mouse": true,
     "double_click": true,
     "context_menu": true,
-    "properties": true
+    "properties": true,
+    "selection_policy": {
+      "wait_for_user_input": true,
+      "auto_activate": false,
+      "timeout_seconds": 300,
+      "timeout_action": "remain_open",
+      "selection_requires_explicit_confirmation": true,
+      "keyboard_navigation": "arrow_keys_and_enter",
+      "mouse_selection": "single_click",
+      "selected_item_persistence": "until_user_changes_selection"
+    }
   },
   "boot_contract": {
     "kernel": "Koronos",
