@@ -23,7 +23,7 @@ BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
 bash "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 bash "$ROOT/tests/kernel/run-cpu-profile-host-tests.sh"
-bash bash "$ROOT/tests/kernel/run-registry-host-tests.sh"
+bash "$ROOT/tests/kernel/run-registry-host-tests.sh"
 mkdir -p "$ROOT/build/registry"
 for hive in machine environment kernel; do
   python3 "$ROOT/tools/registry/registry_hive.py" build --input "$ROOT/system/registry/$hive.defaults.json" --output "$ROOT/build/registry/$hive.hive"
