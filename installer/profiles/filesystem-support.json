@@ -1,13 +1,38 @@
 {
-  "schema":"CHM-FILESYSTEMS-2",
-  "native":"qfs",
-  "native_block_policy":{"default_bytes":4096,"allowed_bytes":[4096,8192,16384,32768,65536],"minimum_bytes":4096,"maximum_bytes":65536,"require_kernel_page_size_at_least_block":true,"sector_default_bytes":512},
-  "installable":["qfs","ext4","xfs","btrfs","zfs","ntfs3","vfat","exfat"],
-  "boot_media":["iso9660","udf","squashfs","vfat","fat32"],
-  "network_filesystems":["nfs","nfs4","cifs","sshfs"],
-  "compatibility":["fuse","overlayfs"],
-  "operations":["probe","format","check","mount","unmount","resize","snapshot","rollback"],
-  "encryption":["luks2"],
-  "volume_management":["lvm2","mdraid","zfs-pools","btrfs-subvolumes"],
-  "policy":"QFS is the native Chimera target. Backend availability is detected at installer runtime; unsupported tools are reported rather than silently selected."
+  "schema": "CHM-FILESYSTEMS-3",
+  "native": "qfs",
+  "native_block_policy": {
+    "default_bytes": 4096,
+    "allowed_bytes": [4096, 8192, 16384, 32768, 65536],
+    "minimum_bytes": 4096,
+    "maximum_bytes": 65536,
+    "require_kernel_page_size_at_least_block": true,
+    "sector_default_bytes": 512
+  },
+  "installable": [],
+  "candidate_backends": ["qfs", "ext4", "xfs", "btrfs", "zfs", "ntfs3", "vfat", "exfat"],
+  "boot_media": ["iso9660", "udf", "squashfs", "vfat", "fat32"],
+  "network_filesystems": ["nfs", "nfs4", "cifs", "sshfs"],
+  "compatibility": ["fuse", "overlayfs"],
+  "operations": ["probe", "format", "check", "mount", "unmount", "resize", "snapshot", "rollback"],
+  "encryption": ["luks2"],
+  "volume_management": ["lvm2", "mdraid", "zfs-pools", "btrfs-subvolumes"],
+  "runtime_detection": {
+    "mode": "fail-closed",
+    "requires_block_device": true,
+    "requires_tools": ["lsblk", "blkid", "mount", "umount", "sfdisk-or-parted"],
+    "requires_kernel_filesystem_registration": true,
+    "requires_matching_formatter": true,
+    "verified_candidates": ["ext4", "xfs", "btrfs", "vfat", "ntfs3", "exfat"],
+    "qfs_native_mount": false
+  },
+  "implementation_status": {
+    "vfs": "bounded in-memory bootstrap store; no block-device-backed filesystem mount layer",
+    "qfs": "on-disk superblock/formatter contract only; directory, extent, journal, mount and recovery implementation incomplete",
+    "fat": "no native kernel block-backed FAT12/16/32 driver verified",
+    "ntfs": "no native kernel block-backed NTFS3 driver verified",
+    "xfs": "no native kernel block-backed XFS driver verified",
+    "other_filesystems": "not certified; runtime presence of external tools does not establish native kernel support"
+  },
+  "policy": "QFS remains the intended native Chimera filesystem. This profile lists candidates, not delivered drivers. The installer may expose a backend only after read-only runtime checks verify a whole-disk block device, required utilities, a registered kernel mount driver and a matching formatter. Never select or format an unverified backend."
 }
