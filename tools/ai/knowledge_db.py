@@ -102,7 +102,7 @@ SEED = [
     ("desktop", "X11 session", "startx from tty1 autologin, openbox as WM, feh for wallpapers; Ctrl+Alt+F2 reaches a text console, Ctrl+Q quits the kiosk.", ["x11", "openbox", "feh"], "project: live-image/build.sh"),
     ("desktop", "Wayland", "Compositor-owned input and buffers; clients speak xdg-shell. Aurora's Wayland profile is a visual skin, not a native compositor.", ["wayland", "xdg-shell"], "project"),
     ("userspace", "init contract", "One userspace init per boot, selected by the bootloader, running at CPL3 with its own CR3; it must emit its own readiness marker.", ["init", "pid1", "ring3"], "project: kernel/targets"),
-    ("userspace", "syscall ABI", "Koronos exposes EXIT=1, GETPID=2, YIELD=3, TIME_TICKS=4, WRITE=9 (fd 1). Linux numbers differ deliberately: no ABI compatibility is claimed.", ["syscall", "abi"], "project: kernel/core/syscall.cpp"),
+    ("userspace", "syscall ABI", "Koronos native semantic IDs include EXIT=1, GETPID=2, YIELD=3, TIME_TICKS=4 and WRITE=9. The x86-64 SYSCALL entry translates a limited Linux ABI subset: WRITE=1, GETPID=39 and EXIT=60; unsupported calls return ENOSYS.", ["syscall", "abi"], "project: kernel/core/syscall.cpp + kernel/core/compat.cpp"),
     # ---------------- Linux 7.x reference ----------------
     ("linux", "Linux 7.3 release", "Linux 7.3 released 18 October 2026 (7.3.1 stable 30 October 2026); 7.2 is in stable maintenance, 6.18 and 6.12 are LTS lines.", ["linux", "release", "7.3"], "kernel.org / endoflife.date"),
     ("linux", "Linux boot protocol", "The x86 boot protocol hands the kernel a boot_params structure with memory map, initrd address and command line; bzImage is self-decompressing.", ["linux", "boot", "bzimage"], "linux-7.3: Documentation/arch/x86/boot.rst"),
