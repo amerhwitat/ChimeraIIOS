@@ -94,19 +94,3 @@ static void init_emit_readiness(long pid) {
     (void)init_write(1, message, used);
 }
 
-static void init_write_uint(unsigned long value) {
-    char reversed[24];
-    char forward[24];
-    long digits = 0;
-    long i = 0;
-    if (value == 0) {
-        reversed[digits++] = '0';
-    } else {
-        while (value && digits < (long)sizeof(reversed)) {
-            reversed[digits++] = (char)('0' + (value % 10u));
-            value /= 10u;
-        }
-    }
-    while (digits) forward[i++] = reversed[--digits];
-    (void)init_write(1, forward, i);
-}
