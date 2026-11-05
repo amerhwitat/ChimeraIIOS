@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Guard target init against mixing Chimera IDs with Linux SYSCALL numbers."""
 from pathlib import Path
-import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -27,15 +26,12 @@ class TargetInitSyscallAbiTests(unittest.TestCase):
             ("LINUX_X64_SYS_EXIT", 60),
         ):
             with self.subTest(macro=macro):
-                self.assertRegex(
-                    self.helpers,
-                    rf"#define\\s+{macro}\\s+{number}\\b",
-                )
+                self.assertIn(f"#define {macro} {number}", self.helpers)
         for linux_number, canonical in ((1, 9), (39, 2), (60, 1)):
-            self.assertRegex(
-                self.compat,
-                rf"case\\s+{linux_number}:\\s*return\\s+{canonical};",
-            )
+            with self.subTest(linux_number=linux_number):
+                self.assertIn(
+                    f"case {linux_number}: return {canonical};", self.compat
+                )
 
     def test_targets_only_use_implemented_init_operations(self):
         for path in TARGETS:
