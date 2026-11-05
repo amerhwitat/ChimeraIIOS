@@ -6,8 +6,9 @@ int main() {
     const auto &m = filesystem_matrix;
 
     assert(m.has("qfs"));
-    assert(m.at("qfs").mode == SupportMode::NativeReadWrite);
+    assert(m.at("qfs").mode == SupportMode::CatalogOnly);
     assert(m.has("ext4"));
+    assert(m.at("ext4").mode == SupportMode::CatalogOnly);
     assert(m.has("xfs"));
     assert(m.has("btrfs"));
     assert(m.has("jfs"));
@@ -23,6 +24,6 @@ int main() {
     assert(m.has("openvms-ods5"));
     assert(m.at("openvms-ods5").semantic_layer == "RMS/Files-11 compatibility");
     assert(m.at("amiga-ffs").semantic_layer == "AmigaDOS handler compatibility");
-    assert(m.at("hp-ux-vxfs").mode == SupportMode::UserspaceCompatibility);
+    assert(m.at("hp-ux-vxfs").mode == SupportMode::CatalogOnly);
     return 0;
 }
