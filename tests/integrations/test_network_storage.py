@@ -26,7 +26,7 @@ class NetworkAndStorageTests(unittest.TestCase):
             result = smb.browse("files.example.org")
         self.assertTrue(result["authenticated"])
         self.assertEqual(result["shares"][0]["name"], "data")
-        self.assertIn("--option=client min protocol=SMB2", run.call_args.args[0])
+        self.assertIn("--option=client min protocol=SMB2_10", run.call_args.args[0])
         with self.assertRaises(ValueError):
             smb.browse("files.example.org", kerberos=False)
 
