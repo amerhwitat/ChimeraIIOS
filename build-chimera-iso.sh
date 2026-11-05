@@ -9,6 +9,7 @@ Usage:
   build-chimera-iso.sh [options] [arguments]
 
 Options:
+<<<<<<< HEAD
   -h, --help                  Show this help and exit successfully.
   --verbose, --debug          Emit detailed stage diagnostics (default).
   --quiet                     Reduce console output; logs remain enabled.
@@ -32,6 +33,15 @@ Options:
   --sync-dos-payloads         Fetch eligible DOS payloads for ISO staging.
   --skip-native-iso           Skip the additional native boot/ISO pipeline.
   --install-build-deps        Opt in to installing missing host build tools.
+=======
+  -h, --help    Show this help and exit successfully.
+  --verbose     Enable detailed build diagnostics (default; secret values are never traced).
+  --quiet       Reduce debug-only console chatter; full logs are still retained.
+  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
+  --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
+  --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
+  --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+>>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
 
 Environment:
   CHIMERA_BUILD_DIR, CHIMERA_ROOTFS_DIR, CHIMERA_ISO_OUTPUT_DIR,
@@ -581,6 +591,29 @@ run_stage(){
     return "$rc"
   fi
 }
+<<<<<<< HEAD
+=======
+run_stage(){
+  local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
+  started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  CURRENT_STAGE="$stage"
+  header "BEGIN STAGE: $stage"
+  log_info "Stage started=$started_utc function=$fn pid=$"
+  if "$fn"; then
+    elapsed=$((SECONDS-started))
+    state_mark "$stage"
+    log_success "Stage completed=$stage duration=${elapsed}s"
+    log_file "STAGE_COMPLETE stage=$stage duration_seconds=$elapsed finished=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    CURRENT_STAGE=""
+  else
+    rc=$?
+    elapsed=$((SECONDS-started))
+    log_error "Stage failed=$stage exit=$rc duration=${elapsed}s function=$fn"
+    log_file "STAGE_FAILED stage=$stage exit=$rc duration_seconds=$elapsed"
+    return "$rc"
+  fi
+}
+>>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
@@ -2168,5 +2201,31 @@ main(){
   cleanup_final_success_artifacts
 }
 
+<<<<<<< HEAD
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+=======
+<<<<<<< HEAD
+=======
+
+stage_sdks(){
+  header 'STEP: COMPILE ALL REPOSITORY SDKS'
+  # Compiles every build definition the host toolchains support (CMake, Cargo,
+  # Swift, Dart, Maven, Gradle, dotnet, npm, Go, Python) and writes an honest
+  # report into the ISO. Missing toolchains are reported as skipped, not passed.
+  local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
+  mkdir -p "$(dirname "$report")"
+  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+    log_info "SDK report staged at $report"
+  else
+    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+  fi
+}
+
+>>>>>>> ab17c3805 (build: add timestamped verbose ISO diagnostics and stage telemetry)
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: $"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+>>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
 main "$@"
