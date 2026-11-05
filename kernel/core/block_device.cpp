@@ -131,9 +131,6 @@ extern "C" int chimera_block_read(uint32_t handle, uint64_t first_sector,
         sector_count > slot->sector_count - first_sector) {
         unlock_registry(); return CHM_BLOCK_EINVAL;
     }
-    if ((uint64_t)sector_count * slot->sector_size > UINT64_MAX) {
-        unlock_registry(); return CHM_BLOCK_EINVAL;
-    }
     ++slot->active_io;
     const chimera_block_ops ops = slot->ops;
     void *context = slot->context;
