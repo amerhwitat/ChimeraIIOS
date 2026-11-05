@@ -1,29 +1,162 @@
 {
   "schema": "chimera-filesystem-registry-v1",
-  "capability_model": ["probe", "read", "write", "install-target", "live-root"],
-  "native": {"name":"qfs","block_size_default":4096,"block_size_allowed":[4096,8192,16384,32768,65536],"require_page_size_at_least_block":true},
-  "filesystems": [
-    {"name":"FAT12","probe":true,"read":true,"write":true},
-    {"name":"FAT16","probe":true,"read":true,"write":true},
-    {"name":"FAT32","probe":true,"read":true,"write":true},
-    {"name":"exFAT","probe":true,"read":true,"write":true},
-    {"name":"NTFS","probe":true,"read":true,"write":true},
-    {"name":"ext2","probe":true,"read":true,"write":true},
-    {"name":"ext3","probe":true,"read":true,"write":true},
-    {"name":"qfs","probe":true,"read":true,"write":true,"native":true,"block_size_default":4096,"block_size_allowed":[4096,8192,16384,32768,65536]},
-    {"name":"ext4","probe":true,"read":true,"write":true},
-    {"name":"XFS","probe":true,"read":true,"write":true},
-    {"name":"Btrfs","probe":true,"read":true,"write":true},
-    {"name":"ZFS","probe":true,"read":true,"write":false},
-    {"name":"ISO-9660","probe":true,"read":true,"write":false},
-    {"name":"Rock Ridge","probe":true,"read":true,"write":false},
-    {"name":"Joliet","probe":true,"read":true,"write":false},
-    {"name":"UDF","probe":true,"read":true,"write":false},
-    {"name":"SquashFS","probe":true,"read":true,"write":false},
-    {"name":"tmpfs","probe":true,"read":true,"write":true},
-    {"name":"proc","probe":true,"read":true,"write":false},
-    {"name":"sysfs","probe":true,"read":true,"write":false},
-    {"name":"network-filesystem","probe":true,"read":true,"write":true}
+  "capability_model": [
+    "probe",
+    "read",
+    "write",
+    "install-target",
+    "live-root",
+    "host-format-inspect"
   ],
-  "note": "Capabilities are independently qualified; listing a filesystem does not claim universal kernel or hardware support."
+  "native": {
+    "name": "qfs",
+    "block_size_default": 4096,
+    "block_size_allowed": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "require_page_size_at_least_block": true
+  },
+  "filesystems": [
+    {
+      "name": "FAT12",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "FAT16",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "FAT32",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "exFAT",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "NTFS",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "ext2",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "ext3",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "qfs",
+      "probe": false,
+      "read": false,
+      "write": false,
+      "native": true,
+      "block_size_default": 4096,
+      "block_size_allowed": [
+        4096,
+        8192,
+        16384,
+        32768,
+        65536
+      ],
+      "host-format-inspect": true
+    },
+    {
+      "name": "ext4",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "XFS",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "Btrfs",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "ZFS",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "ISO-9660",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "Rock Ridge",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "Joliet",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "UDF",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "SquashFS",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "tmpfs",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "proc",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "sysfs",
+      "probe": false,
+      "read": false,
+      "write": false
+    },
+    {
+      "name": "network-filesystem",
+      "probe": false,
+      "read": false,
+      "write": false
+    }
+  ],
+  "note": "This is a format catalogue, not a claim of kernel driver availability. No filesystem in this registry is currently qualified for native probe/read/write/install-target/live-root operations. QFS currently has a host-side formatter/inspector only; kernel directory, extent, journal, mount, and recovery operations are not implemented. Installer candidates must remain disabled unless a separately tested backend is present."
 }
