@@ -137,8 +137,13 @@ extern "C" int koronos_target_validate_user_buffer(uint64_t address,uint64_t len
     return koronos_address_space_validate_user_range(active_root,address,length,write_access)==0 ? 1 : 0;
 }
 extern "C" int koronos_target_vfs_initialize(void) {
-    if(koronos_vfs_init()!=0 || koronos_vfs_mount_tmpfs()!=0) { koronos_target_log("[VFS] root/tmpfs initialization failed"); return -1; }
-    koronos_target_log("[VFS] root mounted; tmpfs /tmp mounted"); return 0;
+    if(koronos_vfs_init()!=0 || koronos_vfs_mount_tmpfs()!=0) { koronos_target_log("[VFS] bootstrap store/tmpfs initialization failed"); return -1; }
+    koronos_vfs_snapshot snapshot{};
+    if(koronos_vfs_get_snapshot(&snapshot)!=0 || !snapshot.root_mounted) {
+        koronos_target_log("[VFS] bootstrap store and tmpfs active; persistent block-backed root filesystem is NOT mounted");
+        return -1;
+    }
+    koronos_target_log("[VFS] persistent root filesystem and tmpfs /tmp mounted"); return 0;
 }
 extern "C" void koronos_syscall_reset_process_fds(void);
 extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
