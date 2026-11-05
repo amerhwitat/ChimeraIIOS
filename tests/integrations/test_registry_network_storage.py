@@ -176,7 +176,7 @@ class OpticalImageTests(unittest.TestCase):
         finally:
             sys.argv = old_argv
         self.assertEqual(mocked.call_args_list[1].args[0],
-                         ["udisksctl", "mount", "--options", "ro", "--block-device", "/dev/sr0"])
+                         ["udisksctl", "mount", "--options", "ro,nodev,nosuid", "--block-device", "/dev/sr0"])
 
     def test_random_file_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
