@@ -96,6 +96,15 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
     return -11;
 }
 extern "C" int chimera_process_get(uint32_t pid,chimera_process_image*out){if(!out||!pid)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){*out=slots[i].image;return 0;}return -2;}
+extern "C" int chimera_process_bind_address_space(uint32_t pid,uint64_t root_physical){
+ if(!pid||!root_physical||(root_physical&4095u))return -1;
+ for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){
+  if(slots[i].image.state!=CHIMERA_PROCESS_ADMITTED||slots[i].image.address_space_root)return -3;
+  slots[i].image.address_space_root=root_physical;
+  return 0;
+ }
+ return -2;
+}
 extern "C" int chimera_process_set_state(uint32_t pid,chimera_process_state state){if(!pid||state<CHIMERA_PROCESS_ADMITTED||state>CHIMERA_PROCESS_FAULTED)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){slots[i].image.state=state;return 0;}return -2;}
 extern "C" int chimera_process_reap(uint32_t pid,chimera_process_image*out){if(!pid)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){const uint32_t state=slots[i].image.state;if(state!=CHIMERA_PROCESS_EXITED&&state!=CHIMERA_PROCESS_FAULTED)return -3;if(out)*out=slots[i].image;(void)koronos_process_fd_close_all(pid);slots[i]={};if(count)--count;return 0;}return -2;}
 extern "C" uint32_t chimera_process_count(void){return count;}
