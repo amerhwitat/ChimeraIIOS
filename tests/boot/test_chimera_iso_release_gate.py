@@ -17,6 +17,11 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
             self.assertIn(f'python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"', self.text)
         self.assertIn("verify-userspace-handoff.py", self.text)
 
+    def test_target_smoke_boots_attach_the_matching_native_init_elf(self):
+        self.assertIn('target_init="build/koronos/x86_64/target-init-${target}.elf"', self.text)
+        self.assertIn('install -m 0644 "$target_init" "$tree/boot/targets/target-init-${target}.elf"', self.text)
+        self.assertIn('module2 /boot/targets/target-init-${target}.elf chimera-user-init-elf target=${target}', self.text)
+
     def test_release_requires_runtime_gate_and_explicit_approval(self):
         release = self.text.split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[1]
         condition = next(line for line in release.splitlines() if line.strip().startswith("if:"))
