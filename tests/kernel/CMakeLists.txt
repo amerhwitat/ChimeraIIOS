@@ -8,10 +8,12 @@ add_executable(chimera_kernel_sync_test
   ../../kernel/core/apc.cpp
   ../../kernel/core/dpc.cpp
   ../../kernel/core/hardware.cpp
+  ../../kernel/core/cpu_arch_registry.cpp
   ../../kernel/core/nbit.cpp
 )
 target_include_directories(chimera_kernel_sync_test PRIVATE
   ${CMAKE_SOURCE_DIR}/kernel/include
+  ${CMAKE_SOURCE_DIR}/kernel/generated
 )
 target_compile_features(chimera_kernel_sync_test PRIVATE cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -22,10 +24,12 @@ add_test(NAME chimera_kernel_sync COMMAND chimera_kernel_sync_test)
 add_executable(chimera_hardware_nbit_test
   hardware_nbit_test.cpp
   ../../kernel/core/hardware.cpp
+  ../../kernel/core/cpu_arch_registry.cpp
   ../../kernel/core/nbit.cpp
 )
 target_include_directories(chimera_hardware_nbit_test PRIVATE
   ${CMAKE_SOURCE_DIR}/kernel/include
+  ${CMAKE_SOURCE_DIR}/kernel/generated
 )
 target_compile_features(chimera_hardware_nbit_test PRIVATE cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -37,16 +41,19 @@ add_executable(chimera_firmware_device_test
   firmware_device_test.cpp
   ../../kernel/core/firmware.cpp
   ../../kernel/core/hardware.cpp
+  ../../kernel/core/cpu_arch_registry.cpp
   ../../kernel/core/device.cpp
 )
 target_include_directories(chimera_firmware_device_test PRIVATE
   ${CMAKE_SOURCE_DIR}/kernel/include
+  ${CMAKE_SOURCE_DIR}/kernel/generated
 )
 target_compile_features(chimera_firmware_device_test PRIVATE cxx_std_20)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_firmware_device_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_firmware_device COMMAND chimera_firmware_device_test)
+
 
 add_executable(chimera_platform_features_test
   platform_features_test.cpp
