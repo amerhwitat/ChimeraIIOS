@@ -12,6 +12,7 @@ extern "C" {
 #define KORONOS_VFS_O_RDWR 2u
 #define KORONOS_VFS_O_CREAT 0x100u
 #define KORONOS_VFS_O_TRUNC 0x200u
+/* root_mounted is true only for a registered persistent/block-backed root mount. The current bootstrap store does not set it. */
 typedef struct koronos_vfs_snapshot { uint32_t abi,initialized,root_mounted,tmp_mounted,files,open_handles; } koronos_vfs_snapshot;
 /* Raw VFS handles are kernel-internal bootstrap handles. CPL3 code must use the process descriptor syscall layer. */
 int koronos_vfs_init(void);
