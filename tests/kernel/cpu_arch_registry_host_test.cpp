@@ -2,7 +2,9 @@
 #include <assert.h>
 #include <string.h>
 int main(void) {
-    assert(koronos_cpu_arch_count() == KORONOS_CPU_ARCH_REGISTRY_COUNT);
+    /* Keep this test coupled to the public API, not the generated header's
+       private implementation macro. The explicit inventory assertion below
+       is the reviewed expected count for this source revision. */
     assert(koronos_cpu_arch_count() == 104u);
     const koronos_cpu_arch_descriptor *x = koronos_cpu_arch_find("x86-64");
     const koronos_cpu_arch_descriptor *x32 = koronos_cpu_arch_find("x86-32");
