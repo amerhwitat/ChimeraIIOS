@@ -111,6 +111,40 @@ extern "C" int chimera_process_bind_address_space(uint32_t pid,uint64_t root_phy
  }
  return -2;
 }
+extern "C" int chimera_process_signal_send(uint32_t pid,uint32_t signal_number){
+ if(!pid||signal_number==0||signal_number>31u)return -1;
+ for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){
+  const uint32_t state=slots[i].image.state;
+  if(state==CHIMERA_PROCESS_EXITED||state==CHIMERA_PROCESS_FAULTED)return -3;
+  slots[i].image.pending_signals|=(1u<<(signal_number-1u));
+  return 0;
+ }
+ return -2;
+}
+extern "C" int chimera_process_signal_set_mask(uint32_t pid,uint32_t blocked_mask){
+ if(!pid)return -1;
+ blocked_mask&=~((1u<<(9u-1u))|(1u<<(19u-1u)));
+ for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){
+  slots[i].image.blocked_signals=blocked_mask;
+  return 0;
+ }
+ return -2;
+}
+extern "C" int chimera_process_signal_take(uint32_t pid,uint32_t *signal_number){
+ if(!pid||!signal_number)return -1;
+ for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){
+  uint32_t ready=slots[i].image.pending_signals&~slots[i].image.blocked_signals;
+  if(!ready)return 0;
+  /* Lowest-numbered unblocked signal is selected deterministically. */
+  uint32_t number=1u;
+  while(number<=31u&&!(ready&(1u<<(number-1u))))++number;
+  if(number>31u)return 0;
+  slots[i].image.pending_signals&=~(1u<<(number-1u));
+  *signal_number=number;
+  return 1;
+ }
+ return -2;
+}
 extern "C" int chimera_process_set_state(uint32_t pid,chimera_process_state state){if(!pid||state<CHIMERA_PROCESS_ADMITTED||state>CHIMERA_PROCESS_FAULTED)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){slots[i].image.state=state;return 0;}return -2;}
 extern "C" int chimera_process_reap(uint32_t pid,chimera_process_image*out){if(!pid)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){const uint32_t state=slots[i].image.state;if(state!=CHIMERA_PROCESS_EXITED&&state!=CHIMERA_PROCESS_FAULTED)return -3;if(out)*out=slots[i].image;(void)koronos_process_fd_close_all(pid);slots[i]={};if(count)--count;return 0;}return -2;}
 extern "C" uint32_t chimera_process_count(void){return count;}
