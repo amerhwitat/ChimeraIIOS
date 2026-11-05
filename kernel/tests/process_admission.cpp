@@ -23,7 +23,15 @@ int main(){
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x100700000,&p)>0);
   assert(p.segment_count==1 && p.entry==0x100400100 && p.image_low==0x100400000);
   uint32_t pid=p.pid;
+  assert(chimera_process_bind_address_space(pid,0)==-1);
+  assert(chimera_process_bind_address_space(pid,0x200001)==-1);
+  assert(chimera_process_bind_address_space(pid+1000,0x200000)==-2);
+  assert(chimera_process_bind_address_space(pid,0x200000)==0);
+  assert(chimera_process_bind_address_space(pid,0x300000)==-3);
+  chimera_process_image bound{};
+  assert(chimera_process_get(pid,&bound)==0 && bound.address_space_root==0x200000);
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
+  assert(chimera_process_bind_address_space(pid,0x400000)==-3);
   chimera_process_image q{};
   assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
   assert(chimera_process_count()==1);
