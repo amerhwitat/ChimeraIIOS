@@ -153,9 +153,14 @@ extern "C" uint32_t koronos_target_active_pid(void) {
 static uint32_t validate_active_user_context(uint64_t user_rip) {
     if (active_target == TARGET_NONE || !active_pid || !active_root) return 0u;
     if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) return 0u;
+    chimera_process_image process{};
+    if (chimera_process_get(active_pid,&process)!=0 ||
+        process.state!=CHIMERA_PROCESS_RUNNING ||
+        process.address_space_root!=active_root) return 0u;
     uint64_t current_cr3 = 0;
     __asm__ volatile("mov %%cr3, %0" : "=r"(current_cr3));
-    return ((current_cr3 & 0x000FFFFFFFFFF000ull) == active_root) ? active_pid : 0u;
+    return ((current_cr3 & 0x000FFFFFFFFFF000ull) == process.address_space_root)
+        ? active_pid : 0u;
 }
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip) {
     return validate_active_user_context(user_rip);
