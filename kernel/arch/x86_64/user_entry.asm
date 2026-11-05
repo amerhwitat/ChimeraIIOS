@@ -228,7 +228,7 @@ koronos_syscall_entry:
 koronos_syscall_user_exit:
     mov rax, [rel koronos_cpu_syscall_state + 48]
     test rax, 0xFFF
-    jnz .fatal_cr3_restore
+    jnz koronos_fatal_cr3_restore
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
     pop r15
@@ -243,7 +243,7 @@ koronos_syscall_user_exit:
     swapgs
     ret
 
-.fatal_cr3_restore:
+koronos_fatal_cr3_restore:
     cli
     hlt
     jmp .fatal_cr3_restore
@@ -254,7 +254,7 @@ koronos_syscall_user_exit:
 koronos_user_timeout_abort:
     mov rax, [rel koronos_cpu_syscall_state + 48]
     test rax, 0xFFF
-    jnz .fatal_cr3_restore
+    jnz koronos_fatal_cr3_restore
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
     pop r15
