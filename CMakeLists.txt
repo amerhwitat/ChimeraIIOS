@@ -133,6 +133,14 @@ endif()
 
 add_subdirectory(tests/kernel)
 
+# Keep the native yield syscall fail-closed until an architecture context
+# switch is wired into the scheduler. This source contract prevents false
+# success from callback-only scheduling.
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_syscall_yield_fail_closed
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_syscall_yield_fail_closed.py)
+endif()
+
 
 # Cross-platform routing command adapter and protocol capability catalogs.
 install(PROGRAMS tools/network/chimera_router_cli.py DESTINATION bin RENAME chimera-router-cli)
