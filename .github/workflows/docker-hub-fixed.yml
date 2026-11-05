@@ -46,9 +46,7 @@ jobs:
               echo "::error file=$f::CRLF detected"
               bad=1
             fi
-          done < <(find . -type f \\
-            -not -path './.git/*' \\
-            \( -name '*.sh' -o -name '*.bash' -o -name '*.command' -o -name 'Dockerfile*' \) -print0)
+          done < <(find . -type f -not -path './.git/*' \( -name '*.sh' -o -name '*.bash' -o -name '*.command' -o -name 'Dockerfile*' \) -print0)
           exit "$bad"
 
       - name: Log in to Docker Hub
