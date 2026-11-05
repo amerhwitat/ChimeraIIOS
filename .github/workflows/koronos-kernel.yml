@@ -29,6 +29,8 @@ jobs:
         run: bash kernel/build-koronos.sh
       - name: Verify fail-closed YIELD syscall contract
         run: python3 tests/unit/test_syscall_yield_fail_closed.py
+      - name: Verify target init syscall ABI translation
+        run: python3 tests/unit/test_target_init_syscall_abi.py
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
