@@ -18,6 +18,11 @@ uint32_t chimera_sched_run_once(uint32_t cpu);
 uint32_t chimera_sched_run_serial_range(uint32_t first_cpu,uint32_t cpu_count);
 /* Returns zero until real AP startup and per-CPU workers are implemented. */
 uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t cpu_count);
+/* Explicit per-CPU actions; these request state changes for the active callback,
+   not a saved-register process context switch. */
+int chimera_sched_yield_on_cpu(uint32_t cpu);
+int chimera_sched_block_on_cpu(uint32_t cpu);
+int chimera_sched_exit_on_cpu(uint32_t cpu);
 void chimera_sched_yield(void);
 void chimera_sched_block(void);
 void chimera_sched_wake(uint32_t task_id);
