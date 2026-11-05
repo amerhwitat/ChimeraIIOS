@@ -1,0 +1,21 @@
+{
+ "config": {
+  "ARCH_AARCH64": "n",
+  "ARCH_RISCV64": "n",
+  "ARCH_X86_64": "y",
+  "KORONOS_AI_MODEL": "y",
+  "KORONOS_COMPAT_ABI": "y",
+  "KORONOS_DEBUG": "y",
+  "KORONOS_DRIVERS_DISPLAY": "y",
+  "KORONOS_DRIVERS_PCI": "y",
+  "KORONOS_DRIVERS_VIRTIO": "y",
+  "KORONOS_INSTALLER": "y",
+  "KORONOS_LOCALVERSION": "-koronos",
+  "KORONOS_MODULES": "y",
+  "KORONOS_NBIT_WIDTH": "64",
+  "KORONOS_SMP": "y",
+  "KORONOS_TEST_MODULES": "y"
+ },
+ "enabled": 13,
+ "symbols": 15
+}

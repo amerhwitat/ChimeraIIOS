@@ -102,6 +102,17 @@ for target in live installer recovery; do
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
 
+# Stage the AI knowledge database. The kernel classifies it as
+# CHIMERA_MODULE_AI_KNOWLEDGE_DB and reports its entry count on the boot trace.
+printf '%s\n' '[3c/7] Stage AI knowledge database'
+KB_SRC="$ROOT/config/ai/knowledge-db.json"
+test -s "$KB_SRC" || { echo "ERROR: knowledge database missing: $KB_SRC (run tools/ai/knowledge_db.py build)" >&2; exit 2; }
+mkdir -p "$DIST/iso/boot/ai"
+cp -f "$KB_SRC" "$DIST/iso/boot/ai/knowledge-db.json"
+python3 "$ROOT/tools/ai/knowledge_db.py" validate --db "$DIST/iso/boot/ai/knowledge-db.json" >/dev/null || {
+  echo "ERROR: staged knowledge database failed validation" >&2; exit 2; }
+sha256sum "$DIST/iso/boot/ai/knowledge-db.json" | awk '{print $1"  knowledge-db.json"}' > "$DIST/iso/boot/ai/knowledge-db.json.sha256"
+
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"

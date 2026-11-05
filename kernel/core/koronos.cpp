@@ -1,4 +1,5 @@
 #include "../include/chimera/koronos_abi.h"
+#include "chimera/ai_model.h"
 #include "chimera/scheduler.h"
 #include "chimera/driver.h"
 #include "chimera/learning.h"
@@ -441,6 +442,20 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_progress(5, "Koronos boot context accepted");
     console_write("[HW  ] Initializing hardware...");
     uint32_t modules = chimera_multiboot_scan(ctx->boot_info);
+    {
+        uint32_t kb_bytes = 0;
+        const uint32_t kb_entries = chimera_ai_kb_scan(&kb_bytes);
+        if (kb_entries) {
+            console_raw("[AI  ] Knowledge database staged: ");
+            console_u32_raw(kb_entries);
+            console_raw(" entries, ");
+            console_u32_raw(kb_bytes);
+            console_raw(" bytes");
+            console_endline();
+        } else {
+            console_write("[AI  ] No knowledge database module staged");
+        }
+    }
     console_write("[MB2 ] Scanned Multiboot2 modules");
     const int physmap_init = koronos_physmap_init();
     if (physmap_init == 0) {

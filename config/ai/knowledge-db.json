@@ -1,0 +1,4010 @@
+{
+ "schema_version": 1,
+ "name": "chimera-octavian-knowledge-db",
+ "generated_utc": "2026-11-05T02:33:28+00:00",
+ "generator": "tools/ai/knowledge_db.py",
+ "categories": {
+  "arch": "CPU architecture",
+  "boot": "boot and firmware",
+  "kernel": "kernel subsystem",
+  "driver": "hardware driver",
+  "toolchain": "compiler, assembler, linker",
+  "language": "programming language",
+  "desktop": "desktop and session",
+  "userspace": "userspace runtime",
+  "linux": "Linux 7.x reference",
+  "isa": "ISA instruction catalogue",
+  "fs": "filesystem format"
+ },
+ "entry_count": 269,
+ "notes": "Curated retrieval corpus for the embedded AI module. Appending a validated entry is the learning step; no model weights are stored.",
+ "entries": [
+  {
+   "id": "arch:aarch64-armv8-a",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "AArch64 (ARMv8-A)",
+   "summary": "64-bit ARM: 31 GPRs plus SP, EL0-EL3 exception levels, TTBR0/TTBR1 translation regimes, 4/16/64 KiB granule support.",
+   "tags": [
+    "arm64",
+    "aarch64",
+    "el0"
+   ],
+   "source": "linux-7.3: arch/arm64",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:ibm-power-ppc64le",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "IBM POWER (ppc64le)",
+   "summary": "Little-endian POWER8+: 64-bit GPRs, segment tables plus hash/page-table MMU, OPAL firmware interface for runtime services.",
+   "tags": [
+    "ppc64le",
+    "opal"
+   ],
+   "source": "linux-7.3: arch/powerpc",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:loongarch",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "LoongArch",
+   "summary": "64-bit RISC ISA with 32 GPRs, 3 privilege levels, page-walk through CRMD/DMW registers, LoongArch Linux ABI.",
+   "tags": [
+    "loongarch"
+   ],
+   "source": "linux-7.3: arch/loongarch",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:mips",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "MIPS",
+   "summary": "Load/store RISC with delay slots, KSEG0/KSEG1 mapped segments, CP0 coprocessor for exceptions and TLB.",
+   "tags": [
+    "mips",
+    "tlb"
+   ],
+   "source": "linux-7.3: arch/mips",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:risc-v-rv64gc",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "RISC-V RV64GC",
+   "summary": "Open ISA: RV64I base plus M/A/F/D/C extensions; M/S/U privilege modes, satp-based Sv39/Sv48 paging, CLINT/PLIC interrupt controllers.",
+   "tags": [
+    "riscv",
+    "sv39",
+    "plic"
+   ],
+   "source": "linux-7.3: arch/riscv",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:risc-v-sbi",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "RISC-V SBI",
+   "summary": "Supervisor Binary Interface (SBI) is the firmware/kernel contract: console putchar, IPI send, timer set, hart start, system reset.",
+   "tags": [
+    "riscv",
+    "sbi",
+    "firmware"
+   ],
+   "source": "linux-7.3: arch/riscv/kernel/sbi.c",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:webassembly",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "WebAssembly",
+   "summary": "Stack machine with a linear memory; not a boot target for Koronos, but the desktop tooling emits wasm for in-browser demos.",
+   "tags": [
+    "wasm",
+    "browser"
+   ],
+   "source": "project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:aarch64-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "aarch64 toolchain",
+   "summary": "aarch64: assembler GNU as or LLVM MC; GCC triplet aarch64-linux-gnu; syscall entry `svc #0`; paging 4/16/64 KiB granules, TTBR0/TTBR1; boot UEFI stub + device tree, arm64 Image; ABI X0-X5 args, X8 number, SVC immediate 0.",
+   "tags": [
+    "aarch64",
+    "arm64",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:aarch64-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "aarch64 user/kernel boundary",
+   "summary": "aarch64 crosses to CPL0 with `svc #0` and keeps a per-process address space; the ABI is X0-X5 args, X8 number, SVC immediate 0.",
+   "tags": [
+    "aarch64",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:armv7-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "armv7 toolchain",
+   "summary": "armv7: assembler GNU as; GCC triplet arm-linux-gnueabihf; syscall entry `svc #0` (ARM and Thumb); paging 4 KiB, short-descriptor tables; boot U-Boot, device tree, zImage; ABI R0-R6 args, R7 number.",
+   "tags": [
+    "armv7",
+    "arm",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:armv7-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "armv7 user/kernel boundary",
+   "summary": "armv7 crosses to CPL0 with `svc #0` (ARM and Thumb) and keeps a per-process address space; the ABI is R0-R6 args, R7 number.",
+   "tags": [
+    "armv7",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:i386-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "i386 toolchain",
+   "summary": "i386: assembler GNU as or NASM; GCC triplet i386-linux-gnu; syscall entry `int 0x80` / `sysenter`; paging 4 KiB pages, PAE optional; boot Multiboot 1/2, bzImage; ABI EAX number, EBX/ECX/EDX/ESI/EDI/EBP args.",
+   "tags": [
+    "i386",
+    "x86",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:i386-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "i386 user/kernel boundary",
+   "summary": "i386 crosses to CPL0 with `int 0x80` / `sysenter` and keeps a per-process address space; the ABI is EAX number, EBX/ECX/EDX/ESI/EDI/EBP args.",
+   "tags": [
+    "i386",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:loongarch64-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "loongarch64 toolchain",
+   "summary": "loongarch64: assembler GNU as; GCC triplet loongarch64-linux-gnu; syscall entry `syscall 0`; paging 16 KiB pages typical; boot UEFI + device tree; ABI A0-A7 args, A7 number.",
+   "tags": [
+    "loongarch64",
+    "loongarch",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:loongarch64-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "loongarch64 user/kernel boundary",
+   "summary": "loongarch64 crosses to CPL0 with `syscall 0` and keeps a per-process address space; the ABI is A0-A7 args, A7 number.",
+   "tags": [
+    "loongarch64",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:mips64le-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "mips64le toolchain",
+   "summary": "mips64le: assembler GNU as; GCC triplet mips64el-linux-gnuabi64; syscall entry `syscall`; paging 4/16/64 KiB, TLB-based; boot U-Boot ELF, device tree; ABI A0-A3 args, V0 number.",
+   "tags": [
+    "mips64le",
+    "mips",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:mips64le-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "mips64le user/kernel boundary",
+   "summary": "mips64le crosses to CPL0 with `syscall` and keeps a per-process address space; the ABI is A0-A3 args, V0 number.",
+   "tags": [
+    "mips64le",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:ppc64le-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "ppc64le toolchain",
+   "summary": "ppc64le: assembler GNU as; GCC triplet powerpc64le-linux-gnu; syscall entry `sc` (system call); paging Hash MMU or radix tree, 64 KiB pages typical; boot OPAL/skiboot, PPC64 ELF v2; ABI R3-R10 args, R0 number.",
+   "tags": [
+    "ppc64le",
+    "powerpc",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:ppc64le-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "ppc64le user/kernel boundary",
+   "summary": "ppc64le crosses to CPL0 with `sc` (system call) and keeps a per-process address space; the ABI is R3-R10 args, R0 number.",
+   "tags": [
+    "ppc64le",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:riscv32-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "riscv32 toolchain",
+   "summary": "riscv32: assembler GNU as; GCC triplet riscv32-linux-gnu; syscall entry `ecall`; paging Sv32 two-level paging; boot U-Boot/OpenSBI; ABI A0-A5 args, A7 number.",
+   "tags": [
+    "riscv32",
+    "riscv",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:riscv32-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "riscv32 user/kernel boundary",
+   "summary": "riscv32 crosses to CPL0 with `ecall` and keeps a per-process address space; the ABI is A0-A5 args, A7 number.",
+   "tags": [
+    "riscv32",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:riscv64-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "riscv64 toolchain",
+   "summary": "riscv64: assembler GNU as or LLVM MC; GCC triplet riscv64-linux-gnu; syscall entry `ecall` (SBI or S-mode); paging Sv39/Sv48/Sv57, 4 KiB base; boot OpenSBI + device tree, Image; ABI A0-A5 args, A7 number.",
+   "tags": [
+    "riscv64",
+    "riscv",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:riscv64-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "riscv64 user/kernel boundary",
+   "summary": "riscv64 crosses to CPL0 with `ecall` (SBI or S-mode) and keeps a per-process address space; the ABI is A0-A5 args, A7 number.",
+   "tags": [
+    "riscv64",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:s390x",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "s390x",
+   "summary": "IBM Z 64-bit: 16 GPRs, dynamic address translation, channel I/O (subchannels/CCW) instead of MMIO, LPAR/z/VM virtualization.",
+   "tags": [
+    "s390",
+    "channel-io"
+   ],
+   "source": "linux-7.3: arch/s390",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:s390x-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "s390x toolchain",
+   "summary": "s390x: assembler GNU as (HLASM-compatible mnemonics); GCC triplet s390x-linux-gnu; syscall entry `svc 0`; paging DAT (dynamic address translation), 4 KiB; boot zipl + LPAR/z/VM; ABI R2-R7 args, R1 number.",
+   "tags": [
+    "s390x",
+    "s390",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:s390x-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "s390x user/kernel boundary",
+   "summary": "s390x crosses to CPL0 with `svc 0` and keeps a per-process address space; the ABI is R2-R7 args, R1 number.",
+   "tags": [
+    "s390x",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:sparc64-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "sparc64 toolchain",
+   "summary": "sparc64: assembler GNU as; GCC triplet sparc64-linux-gnu; syscall entry `ta 0x6d` (trap always); paging 8 KiB pages, sun4v/sun4u MMU; boot OpenBoot/GRUB IEEE1275; ABI O0-O5 args, G1 number.",
+   "tags": [
+    "sparc64",
+    "sparc",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:sparc64-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "sparc64 user/kernel boundary",
+   "summary": "sparc64 crosses to CPL0 with `ta 0x6d` (trap always) and keeps a per-process address space; the ABI is O0-O5 args, G1 number.",
+   "tags": [
+    "sparc64",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:wasm32-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "wasm32 toolchain",
+   "summary": "wasm32: assembler WAT or LLVM MC; GCC triplet wasm32-unknown-unknown; syscall entry host sandbox call (no rings); paging linear memory, 64 KiB pages; boot browser/WASI host; ABI no register ABI; values on the operand stack.",
+   "tags": [
+    "wasm32",
+    "wasm",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:wasm32-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "wasm32 user/kernel boundary",
+   "summary": "wasm32 crosses to CPL0 with host sandbox call (no rings) and keeps a per-process address space; the ABI is no register ABI; values on the operand stack.",
+   "tags": [
+    "wasm32",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:x86-protected-mode",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "x86 protected mode",
+   "summary": "32-bit protected mode introduces segmentation, paging and the GDT/IDT; long mode requires PAE-like paging structures and EFER.LME.",
+   "tags": [
+    "x86",
+    "segmentation",
+    "gdt"
+   ],
+   "source": "linux-7.3: arch/x86/boot",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:x86-64-amd64",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "x86_64 (AMD64)",
+   "summary": "64-bit extension of x86: long mode, 16 general registers, 4-level (optionally 5-level) paging, CPL0-3 privilege rings, IST stacks in the TSS.",
+   "tags": [
+    "x86",
+    "long-mode",
+    "paging",
+    "rings"
+   ],
+   "source": "linux-7.3: arch/x86",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:x86-64-toolchain",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "x86_64 toolchain",
+   "summary": "x86_64: assembler GNU as (AT&T) or NASM (Intel); GCC triplet x86_64-linux-gnu; syscall entry `syscall` (MSR_LSTAR) / legacy `int 0x80`; paging 4 KiB pages, 4- or 5-level paging; boot GRUB Multiboot2, UEFI PE/COFF, bzImage; ABI RDX/RSI/RDI/R10/R8/R9 then stack; RCX and R11 clobbered by syscall.",
+   "tags": [
+    "x86_64",
+    "x86",
+    "toolchain"
+   ],
+   "source": "linux-7.3 arch documentation / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "arch:x86-64-user-kernel-boundary",
+   "category": "arch",
+   "category_label": "CPU architecture",
+   "topic": "x86_64 user/kernel boundary",
+   "summary": "x86_64 crosses to CPL0 with `syscall` (MSR_LSTAR) / legacy `int 0x80` and keeps a per-process address space; the ABI is RDX/RSI/RDI/R10/R8/R9 then stack; RCX and R11 clobbered by syscall.",
+   "tags": [
+    "x86_64",
+    "syscall",
+    "privilege"
+   ],
+   "source": "linux-7.3 arch documentation",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "boot:el-torito",
+   "category": "boot",
+   "category_label": "boot and firmware",
+   "topic": "El Torito",
+   "summary": "ISO 9660 boot record that points the BIOS at a boot image; xorriso's -report_el_torito shows the catalog entries used for verification.",
+   "tags": [
+    "iso9660",
+    "bios",
+    "xorriso"
+   ],
+   "source": "project: ISO-BOOT-REPORT.txt",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "boot:higher-half-kernel",
+   "category": "boot",
+   "category_label": "boot and firmware",
+   "topic": "Higher-half kernel",
+   "summary": "Koronos links at 0xFFFF800000000000+ and keeps user images below 0x0000800000000000 so a single PML4 split separates user and kernel space.",
+   "tags": [
+    "higher-half",
+    "pml4"
+   ],
+   "source": "project: kernel/arch/x86_64/koronos.ld",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "boot:long-mode-trampoline",
+   "category": "boot",
+   "category_label": "boot and firmware",
+   "topic": "Long-mode trampoline",
+   "summary": "Transition from 32-bit protected mode to long mode: build PML4/PDPT/PD, set EFER.LME, enable CR0.PG then far-jump into a 64-bit code segment.",
+   "tags": [
+    "long-mode",
+    "trampoline"
+   ],
+   "source": "project: boot/spitfire/sf1_longmode.asm",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "boot:multiboot2",
+   "category": "boot",
+   "category_label": "boot and firmware",
+   "topic": "Multiboot2",
+   "summary": "GRUB's Multiboot2 protocol: 32-bit entry with a magic value, information request tags, memory map, framebuffer and module tags; modules are named blobs the kernel classifies.",
+   "tags": [
+    "grub",
+    "multiboot2",
+    "modules"
+   ],
+   "source": "linux-7.3: Documentation/arch/x86/boot.rst (comparison)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "boot:uefi-boot",
+   "category": "boot",
+   "category_label": "boot and firmware",
+   "topic": "UEFI boot",
+   "summary": "UEFI firmware loads PE/COFF images from the ESP; GRUB's efi.img provides the chain into Multiboot2 so one ISO boots BIOS and UEFI.",
+   "tags": [
+    "uefi",
+    "esp",
+    "grub"
+   ],
+   "source": "project: boot/iso/build-iso.sh",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "boot:initramfs-cpio",
+   "category": "boot",
+   "category_label": "boot and firmware",
+   "topic": "initramfs (cpio)",
+   "summary": "A gzip-compressed newc cpio archive the kernel unpacks into a ramfs and executes /init from; Koronos currently stages it as payload data.",
+   "tags": [
+    "cpio",
+    "initramfs"
+   ],
+   "source": "linux-7.3: usr/initramfs_data.S",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "desktop:aurora-shell",
+   "category": "desktop",
+   "category_label": "desktop and session",
+   "topic": "Aurora shell",
+   "summary": "Multi-profile HTML/JS desktop (Jasper/Windows-like, Gates/macOS-like, Aurora/Linux-like, Marine) rendered by WebKit in the Linux live session.",
+   "tags": [
+    "aurora",
+    "webkit",
+    "desktop"
+   ],
+   "source": "project: desktop/aurora-shell",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "desktop:wayland",
+   "category": "desktop",
+   "category_label": "desktop and session",
+   "topic": "Wayland",
+   "summary": "Compositor-owned input and buffers; clients speak xdg-shell. Aurora's Wayland profile is a visual skin, not a native compositor.",
+   "tags": [
+    "wayland",
+    "xdg-shell"
+   ],
+   "source": "project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "desktop:webkitgtk-kiosk",
+   "category": "desktop",
+   "category_label": "desktop and session",
+   "topic": "WebKitGTK kiosk",
+   "summary": "GTK3 window + WebKit2 WebView, undecorated fullscreen, hardware acceleration disabled for software rendering on VMs.",
+   "tags": [
+    "webkitgtk",
+    "gtk3",
+    "kiosk"
+   ],
+   "source": "project: live-image/lib/aurora-kiosk.py",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "desktop:x11-session",
+   "category": "desktop",
+   "category_label": "desktop and session",
+   "topic": "X11 session",
+   "summary": "startx from tty1 autologin, openbox as WM, feh for wallpapers; Ctrl+Alt+F2 reaches a text console, Ctrl+Q quits the kiosk.",
+   "tags": [
+    "x11",
+    "openbox",
+    "feh"
+   ],
+   "source": "project: live-image/build.sh",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:acpi-s5",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "ACPI S5",
+   "summary": "FADT supplies the PM1a/PM1b control values that power the machine off.",
+   "tags": [
+    "power",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:acpi-tables",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "ACPI tables",
+   "summary": "RSDP -> RSDT/XSDT -> MADT (interrupt controllers), FADT (power), DSDT (device tree); required for APIC and power management.",
+   "tags": [
+    "acpi",
+    "madt",
+    "rsdp"
+   ],
+   "source": "linux-7.3: drivers/acpi",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:ahci-port",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "AHCI port",
+   "summary": "Per-port command list, FIS-based DMA, hot-plug via port interrupt status.",
+   "tags": [
+    "storage",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:ahci-sata",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "AHCI/SATA",
+   "summary": "Host controller with per-port command lists and FIS packets; identify-device returns the model string used in storage inventories.",
+   "tags": [
+    "ahci",
+    "sata",
+    "storage"
+   ],
+   "source": "linux-7.3: drivers/ata",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:framebuffer-console",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "Framebuffer console",
+   "summary": "Multiboot2 framebuffer tag gives address, pitch, width/height and bpp; a linear framebuffer blitter plus an 8x16 font draws the console.",
+   "tags": [
+    "framebuffer",
+    "console",
+    "font"
+   ],
+   "source": "project: kernel/drivers/builtin/pc-display.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:hpet",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "HPET",
+   "summary": "High Precision Event Timer, MMIO comparators; alternative to the PIT for calibration.",
+   "tags": [
+    "timer",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:ioapic",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "IOAPIC",
+   "summary": "Routes PCI/legacy interrupts to LAPIC vectors; programmed through the MADT.",
+   "tags": [
+    "interrupt",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:iommu-vt-d",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "IOMMU (VT-d)",
+   "summary": "DMA remapping tables let the kernel confine device access to owned frames.",
+   "tags": [
+    "security",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:msi-msi-x",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "MSI/MSI-X",
+   "summary": "Message-signalled interrupts written to the LAPIC; MSI-X adds per-vector table entries.",
+   "tags": [
+    "interrupt",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:nvme",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "NVMe",
+   "summary": "Queue-pair based block protocol over PCIe: admin and I/O submission/completion queues, PRP/SGL data pointers, doorbell registers.",
+   "tags": [
+    "nvme",
+    "pcie"
+   ],
+   "source": "linux-7.3: drivers/nvme",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:nvme-admin-queue",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "NVMe admin queue",
+   "summary": "Identify Controller/Namespace, then create I/O queue pairs.",
+   "tags": [
+    "storage",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:pci-enumeration",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "PCI enumeration",
+   "summary": "Walk bus/device/function, read vendor/device/class from config space, size BARs, assign memory windows, then bind a driver by class/vendor id.",
+   "tags": [
+    "pci",
+    "bar",
+    "enumeration"
+   ],
+   "source": "linux-7.3: drivers/pci",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:pcie-ecam",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "PCIe ECAM",
+   "summary": "MMCONFIG window maps 4 KiB per function; replaces legacy 0xCF8/0xCFC.",
+   "tags": [
+    "pci",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:ps-2-keyboard",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "PS/2 keyboard",
+   "summary": "i8042 controller, scan code set 1/2, IRQ1; the classic fallback input path.",
+   "tags": [
+    "input",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:rtc-cmos",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "RTC (CMOS)",
+   "summary": "MC146818 registers 0x00-0x0D hold time and date; update-in-progress flag guards reads.",
+   "tags": [
+    "timer",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:smbios",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "SMBIOS",
+   "summary": "DMI tables describe the board, BIOS and memory modules.",
+   "tags": [
+    "firmware",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:smp-trampoline",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "SMP trampoline",
+   "summary": "APs start in real mode at a SIPI vector; a 16-bit trampoline switches them to long mode.",
+   "tags": [
+    "smp",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:serial-16550-uart",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "Serial 16550 UART",
+   "summary": "Port-mapped UART: divisor latch sets baud, line status bit 5 means transmit-hold-empty; COM1 is 0x3F8 and is the usual debug console.",
+   "tags": [
+    "uart",
+    "serial",
+    "com1"
+   ],
+   "source": "linux-7.3: drivers/tty/serial/8250",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:tpm-2-0",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "TPM 2.0",
+   "summary": "CRB/TIS interface, PCR extend and seal/unseal for measured boot.",
+   "tags": [
+    "security",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:uefi-gop",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "UEFI GOP",
+   "summary": "Graphics Output Protocol gives a linear framebuffer before ExitBootServices.",
+   "tags": [
+    "firmware",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:usb-mass-storage",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "USB mass storage",
+   "summary": "BOT/SCSI over xHCI bulk endpoints.",
+   "tags": [
+    "usb",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:bochs-vga",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "bochs-vga",
+   "summary": "QEMU default VGA; the Multiboot2 framebuffer tag supersedes programming it directly.",
+   "tags": [
+    "display",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:e1000",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "e1000",
+   "summary": "Intel 8254x PCI NIC; descriptor rings, EEPROM MAC, MMIO registers.",
+   "tags": [
+    "net",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:isa-debugcon",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "isa-debugcon",
+   "summary": "QEMU's port 0xE9 debug console: one `outb` per character, captured with -debugcon file:...; the acceptance traces use it.",
+   "tags": [
+    "qemu",
+    "debugcon",
+    "trace"
+   ],
+   "source": "project: tools/boot",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:rtl8139",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "rtl8139",
+   "summary": "Realtek 8139 PCI NIC; simple RX/TX buffer model, common in emulators.",
+   "tags": [
+    "net",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:virtio",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "virtio",
+   "summary": "Paravirtual device family (net, blk, console, gpu) with split virtqueues, descriptor rings and a status handshake; the transport is PCI or MMIO.",
+   "tags": [
+    "virtio",
+    "virtqueue",
+    "qemu"
+   ],
+   "source": "linux-7.3: drivers/virtio",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:virtio-blk",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "virtio-blk",
+   "summary": "Virtqueue-backed block device; sector reads via descriptor chains, used by QEMU images.",
+   "tags": [
+    "virtio",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:virtio-net",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "virtio-net",
+   "summary": "Virtqueue RX/TX pairs with a MAC from the device config space.",
+   "tags": [
+    "virtio",
+    "driver"
+   ],
+   "source": "linux-7.3 drivers/ (reference model) / project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "driver:xhci-usb",
+   "category": "driver",
+   "category_label": "hardware driver",
+   "topic": "xHCI USB",
+   "summary": "Extensible host controller: device slots, transfer rings, endpoint contexts; keyboards and mass storage are the usual first targets.",
+   "tags": [
+    "usb",
+    "xhci"
+   ],
+   "source": "linux-7.3: drivers/usb/host",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "fs:fat32",
+   "category": "fs",
+   "category_label": "filesystem format",
+   "topic": "FAT32",
+   "summary": "simple BPB-described filesystem used on EFI system partitions.",
+   "tags": [
+    "fs",
+    "filesystem"
+   ],
+   "source": "linux-7.3 fs/ (reference model)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "fs:iso9660-rock-ridge",
+   "category": "fs",
+   "category_label": "filesystem format",
+   "topic": "ISO9660 + Rock Ridge",
+   "summary": "optical layout used by the release images; El Torito adds the boot record.",
+   "tags": [
+    "fs",
+    "filesystem"
+   ],
+   "source": "linux-7.3 fs/ (reference model)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "fs:cpio-newc",
+   "category": "fs",
+   "category_label": "filesystem format",
+   "topic": "cpio newc",
+   "summary": "archive format of initramfs images (gzip-compressed).",
+   "tags": [
+    "fs",
+    "filesystem"
+   ],
+   "source": "linux-7.3 fs/ (reference model)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "fs:ext4",
+   "category": "fs",
+   "category_label": "filesystem format",
+   "topic": "ext4",
+   "summary": "journaled Linux filesystem; extent trees, 4 KiB blocks, journal replay.",
+   "tags": [
+    "fs",
+    "filesystem"
+   ],
+   "source": "linux-7.3 fs/ (reference model)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "fs:squashfs",
+   "category": "fs",
+   "category_label": "filesystem format",
+   "topic": "squashfs",
+   "summary": "read-only compressed filesystem used by the Linux live image (xz + BCJ).",
+   "tags": [
+    "fs",
+    "filesystem"
+   ],
+   "source": "linux-7.3 fs/ (reference model)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "fs:tar",
+   "category": "fs",
+   "category_label": "filesystem format",
+   "topic": "tar",
+   "summary": "source snapshot archive stored on the ISO for provenance.",
+   "tags": [
+    "fs",
+    "filesystem"
+   ],
+   "source": "linux-7.3 fs/ (reference model)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-adc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 ADC",
+   "summary": "ADC #0 — imm form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "ADC",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-beq",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 BEQ",
+   "summary": "BEQ 0 — rel form, operands: branch-offset, condition, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "BEQ",
+    "rel"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-bne",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 BNE",
+   "summary": "BNE 0 — rel form, operands: branch-offset, condition, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "BNE",
+    "rel"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-inx",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 INX",
+   "summary": "INX — none form, operands: register, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "INX",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-jmp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 JMP",
+   "summary": "JMP $0000 — abs form, operands: branch-offset, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "JMP",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-jsr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 JSR",
+   "summary": "JSR $0000 — abs form, operands: branch-offset, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "JSR",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-lda",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 LDA",
+   "summary": "LDA #0 — imm form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "LDA",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 NOP",
+   "summary": "NOP — none form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-rts",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 RTS",
+   "summary": "RTS — none form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "RTS",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-sbc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 SBC",
+   "summary": "SBC #0 — imm form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "SBC",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-sta",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 STA",
+   "summary": "STA $0000 — abs form, operands: memory, register, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "STA",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:6502-tax",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "6502 TAX",
+   "summary": "TAX — none form, operands: register, 8-bit encoding.",
+   "tags": [
+    "6502",
+    "TAX",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 ADD",
+   "summary": "ADD A,#0 — imm form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "ADD",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-djnz",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 DJNZ",
+   "summary": "DJNZ direct,rel — rel form, operands: memory, branch-offset, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "DJNZ",
+    "rel"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-inc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 INC",
+   "summary": "INC A — a form, operands: register, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "INC",
+    "a"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-ljmp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 LJMP",
+   "summary": "LJMP 0 — abs form, operands: branch-offset, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "LJMP",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-mov",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 MOV",
+   "summary": "MOV A,#0 — imm form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "MOV",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 NOP",
+   "summary": "NOP — none form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-sjmp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 SJMP",
+   "summary": "SJMP 0 — rel form, operands: branch-offset, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "SJMP",
+    "rel"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:8051-subb",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "8051 SUBB",
+   "summary": "SUBB A,#0 — imm form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "8051",
+    "SUBB",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 ADD",
+   "summary": "ADD X0,X1,X2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "ADD",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-and",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 AND",
+   "summary": "AND X0,X1,X2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "AND",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-b",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 B",
+   "summary": "B 0 — imm form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "B",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-bl",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 BL",
+   "summary": "BL 0 — imm form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "BL",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-blr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 BLR",
+   "summary": "BLR X0 — reg form, operands: register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "BLR",
+    "reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-br",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 BR",
+   "summary": "BR X0 — reg form, operands: register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "BR",
+    "reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-eor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 EOR",
+   "summary": "EOR X0,X1,X2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "EOR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-ldr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 LDR",
+   "summary": "LDR X0,[X1,#0] — unsigned form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "LDR",
+    "unsigned"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 NOP",
+   "summary": "NOP — none form, operands: implicit, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-orr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 ORR",
+   "summary": "ORR X0,X1,X2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "ORR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-ret",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 RET",
+   "summary": "RET X30 — reg form, operands: register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "RET",
+    "reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-str",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 STR",
+   "summary": "STR X0,[X1,#0] — unsigned form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "STR",
+    "unsigned"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 SUB",
+   "summary": "SUB X0,X1,X2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "SUB",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:aarch64-svc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "aarch64 SVC",
+   "summary": "SVC #0 — imm form, operands: immediate, 32-bit encoding.",
+   "tags": [
+    "aarch64",
+    "SVC",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 ADD",
+   "summary": "ADD r0,r1,r2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "ADD",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-and",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 AND",
+   "summary": "AND r0,r1,r2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "AND",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-b",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 B",
+   "summary": "B 0 — imm form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "B",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-bl",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 BL",
+   "summary": "BL 0 — imm form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "BL",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-bx",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 BX",
+   "summary": "BX lr — reg form, operands: register, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "BX",
+    "reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-ldr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 LDR",
+   "summary": "LDR r0,[r1,#0] — imm form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "LDR",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-mov",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 MOV",
+   "summary": "MOV r0,r1 — reg form, operands: register, register, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "MOV",
+    "reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-orr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 ORR",
+   "summary": "ORR r0,r1,r2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "ORR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-str",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 STR",
+   "summary": "STR r0,[r1,#0] — imm form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "STR",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32 SUB",
+   "summary": "SUB r0,r1,r2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "arm32",
+    "SUB",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-thumb-bx",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32-thumb BX",
+   "summary": "BX r14 — thumb16-reg form, operands: register, 16-bit encoding.",
+   "tags": [
+    "arm32-thumb",
+    "BX",
+    "thumb16-reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-thumb-movs",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32-thumb MOVS",
+   "summary": "MOVS r0,#0 — thumb16-imm8 form, operands: register, immediate, 16-bit encoding.",
+   "tags": [
+    "arm32-thumb",
+    "MOVS",
+    "thumb16-imm8"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:arm32-thumb-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "arm32-thumb NOP",
+   "summary": "NOP — thumb16 form, operands: implicit, 16-bit encoding.",
+   "tags": [
+    "arm32-thumb",
+    "NOP",
+    "thumb16"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr ADD",
+   "summary": "ADD r16,r17 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "ADD",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-and",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr AND",
+   "summary": "AND r16,r17 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "AND",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-call",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr CALL",
+   "summary": "CALL 0 — abs form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "avr",
+    "CALL",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-eor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr EOR",
+   "summary": "EOR r16,r17 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "EOR",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr NOP",
+   "summary": "NOP — none form, operands: implicit, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-or",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr OR",
+   "summary": "OR r16,r17 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "OR",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-ret",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr RET",
+   "summary": "RET — none form, operands: implicit, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "RET",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-rjmp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr RJMP",
+   "summary": "RJMP 0 — rel form, operands: branch-offset, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "RJMP",
+    "rel"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:avr-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "avr SUB",
+   "summary": "SUB r16,r17 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "avr",
+    "SUB",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:chimera-c8192-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "chimera-c8192 ADD",
+   "summary": "ADD Z0,Z1 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "chimera-c8192",
+    "ADD",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:chimera-c8192-modexp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "chimera-c8192 MODEXP",
+   "summary": "MODEXP Z0,Z1,Z2 — rrr form, operands: register, register, register, 16-bit encoding.",
+   "tags": [
+    "chimera-c8192",
+    "MODEXP",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:chimera-c8192-mul",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "chimera-c8192 MUL",
+   "summary": "MUL Z0,Z1 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "chimera-c8192",
+    "MUL",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:chimera-c8192-netsend",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "chimera-c8192 NETSEND",
+   "summary": "NETSEND Z0,P0 — rp form, operands: register, mask, 16-bit encoding.",
+   "tags": [
+    "chimera-c8192",
+    "NETSEND",
+    "rp"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:chimera-c8192-tcontract",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "chimera-c8192 TCONTRACT",
+   "summary": "TCONTRACT Z0,Z1,Z2 — rrr form, operands: register, register, register, 16-bit encoding.",
+   "tags": [
+    "chimera-c8192",
+    "TCONTRACT",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-addq",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k ADDQ",
+   "summary": "ADDQ #1,D0 — imm form, operands: immediate, register, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "ADDQ",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-bra",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k BRA",
+   "summary": "BRA 0 — disp form, operands: branch-offset, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "BRA",
+    "disp"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-bsr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k BSR",
+   "summary": "BSR 0 — disp form, operands: branch-offset, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "BSR",
+    "disp"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-jmp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k JMP",
+   "summary": "JMP (A0) — indirect form, operands: memory, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "JMP",
+    "indirect"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-jsr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k JSR",
+   "summary": "JSR (A0) — indirect form, operands: memory, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "JSR",
+    "indirect"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-moveq",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k MOVEQ",
+   "summary": "MOVEQ #0,D0 — imm form, operands: immediate, register, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "MOVEQ",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k NOP",
+   "summary": "NOP — none form, operands: implicit, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-rts",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k RTS",
+   "summary": "RTS — none form, operands: implicit, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "RTS",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:m68k-subq",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "m68k SUBQ",
+   "summary": "SUBQ #1,D0 — imm form, operands: immediate, register, 16-bit encoding.",
+   "tags": [
+    "m68k",
+    "SUBQ",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 ADD",
+   "summary": "ADD $t0,$t1,$t2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "ADD",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-addi",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 ADDI",
+   "summary": "ADDI $t0,$t1,1 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "ADDI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-and",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 AND",
+   "summary": "AND $t0,$t1,$t2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "AND",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-beq",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 BEQ",
+   "summary": "BEQ $t0,$t1,1 — branch form, operands: register, register, branch-offset, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "BEQ",
+    "branch"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-j",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 J",
+   "summary": "J 0 — jump form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "J",
+    "jump"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-jal",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 JAL",
+   "summary": "JAL 0 — jump form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "JAL",
+    "jump"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-jr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 JR",
+   "summary": "JR $ra — reg form, operands: register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "JR",
+    "reg"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-lw",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 LW",
+   "summary": "LW $t0,0($t1) — mem form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "LW",
+    "mem"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-or",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 OR",
+   "summary": "OR $t0,$t1,$t2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "OR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-slt",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 SLT",
+   "summary": "SLT $t0,$t1,$t2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "SLT",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 SUB",
+   "summary": "SUB $t0,$t1,$t2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "SUB",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-sw",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 SW",
+   "summary": "SW $t0,0($t1) — mem form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "SW",
+    "mem"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:mips32-xor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "mips32 XOR",
+   "summary": "XOR $t0,$t1,$t2 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "mips32",
+    "XOR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc ADD",
+   "summary": "add r3,r4,r5 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "ADD",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-addi",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc ADDI",
+   "summary": "addi r3,r4,1 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "ADDI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-b",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc B",
+   "summary": "b 0 — imm form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "B",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-bl",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc BL",
+   "summary": "bl 0 — imm form, operands: branch-offset, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "BL",
+    "imm"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-blr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc BLR",
+   "summary": "blr — none form, operands: implicit, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "BLR",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-lwz",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc LWZ",
+   "summary": "lwz r3,0(r4) — mem form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "LWZ",
+    "mem"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc NOP",
+   "summary": "nop — none form, operands: implicit, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-or",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc OR",
+   "summary": "or r3,r4,r5 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "OR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-stw",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc STW",
+   "summary": "stw r3,0(r4) — mem form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "STW",
+    "mem"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-subf",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc SUBF",
+   "summary": "subf r3,r4,r5 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "SUBF",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:powerpc-xor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "powerpc XOR",
+   "summary": "xor r3,r4,r5 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "powerpc",
+    "XOR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 ADD",
+   "summary": "ADD x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "ADD",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-addi",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 ADDI",
+   "summary": "ADDI x1,x2,5 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "ADDI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-and",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 AND",
+   "summary": "AND x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "AND",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-andi",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 ANDI",
+   "summary": "ANDI x1,x2,1 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "ANDI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-auipc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 AUIPC",
+   "summary": "AUIPC x1,0x1 — u form, operands: register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "AUIPC",
+    "u"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-beq",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 BEQ",
+   "summary": "BEQ x1,x2,8 — branch form, operands: register, register, branch-offset, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "BEQ",
+    "branch"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-ebreak",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 EBREAK",
+   "summary": "EBREAK — system form, operands: implicit, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "EBREAK",
+    "system"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-ecall",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 ECALL",
+   "summary": "ECALL — system form, operands: implicit, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "ECALL",
+    "system"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-fence",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 FENCE",
+   "summary": "FENCE — fence form, operands: memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "FENCE",
+    "fence"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-jal",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 JAL",
+   "summary": "JAL x1,8 — jal form, operands: register, branch-offset, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "JAL",
+    "jal"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-jalr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 JALR",
+   "summary": "JALR x1,0(x2) — jalr form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "JALR",
+    "jalr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-lbu",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 LBU",
+   "summary": "LBU x1,8(x2) — load form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "LBU",
+    "load"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-lh",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 LH",
+   "summary": "LH x1,8(x2) — load form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "LH",
+    "load"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-lui",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 LUI",
+   "summary": "LUI x1,0x1 — u form, operands: register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "LUI",
+    "u"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-lw",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 LW",
+   "summary": "LW x1,8(x2) — load form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "LW",
+    "load"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-mret",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 MRET",
+   "summary": "MRET — system form, operands: implicit, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "MRET",
+    "system"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-or",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 OR",
+   "summary": "OR x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "OR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-ori",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 ORI",
+   "summary": "ORI x1,x2,1 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "ORI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sb",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SB",
+   "summary": "SB x3,8(x2) — store form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SB",
+    "store"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sh",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SH",
+   "summary": "SH x3,8(x2) — store form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SH",
+    "store"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sll",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SLL",
+   "summary": "SLL x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SLL",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-slt",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SLT",
+   "summary": "SLT x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SLT",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-slti",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SLTI",
+   "summary": "SLTI x1,x2,1 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SLTI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sltu",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SLTU",
+   "summary": "SLTU x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SLTU",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sra",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SRA",
+   "summary": "SRA x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SRA",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-srl",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SRL",
+   "summary": "SRL x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SRL",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SUB",
+   "summary": "SUB x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SUB",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-sw",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 SW",
+   "summary": "SW x3,8(x2) — store form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "SW",
+    "store"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-xor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 XOR",
+   "summary": "XOR x1,x2,x3 — rrr form, operands: register, register, register, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "XOR",
+    "rrr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:riscv64-xori",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "riscv64 XORI",
+   "summary": "XORI x1,x2,1 — ri form, operands: register, register, immediate, 32-bit encoding.",
+   "tags": [
+    "riscv64",
+    "XORI",
+    "ri"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:s390x-a",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "s390x A",
+   "summary": "A R1,D2(X2,B2) — rxy form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "s390x",
+    "A",
+    "rxy"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:s390x-ag",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "s390x AG",
+   "summary": "AG R1,D2(X2,B2) — rxy form, operands: register, memory, 48-bit encoding.",
+   "tags": [
+    "s390x",
+    "AG",
+    "rxy"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:s390x-ar",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "s390x AR",
+   "summary": "AR R1,R2 — rr form, operands: register, register, 16-bit encoding.",
+   "tags": [
+    "s390x",
+    "AR",
+    "rr"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:s390x-bal",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "s390x BAL",
+   "summary": "BAL R1,D2(X2,B2) — rx form, operands: register, memory, 32-bit encoding.",
+   "tags": [
+    "s390x",
+    "BAL",
+    "rx"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 ADD",
+   "summary": "ADD r/m64,r64 — rm64_r64 form, operands: memory, register, 24-bit encoding.",
+   "tags": [
+    "x86-64",
+    "ADD",
+    "rm64_r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-and",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 AND",
+   "summary": "AND r/m64,r64 — rm64_r64 form, operands: memory, register, 24-bit encoding.",
+   "tags": [
+    "x86-64",
+    "AND",
+    "rm64_r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-call",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 CALL",
+   "summary": "CALL rel32 — rel32 form, operands: branch-offset, 40-bit encoding.",
+   "tags": [
+    "x86-64",
+    "CALL",
+    "rel32"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-jmp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 JMP",
+   "summary": "JMP rel32 — rel32 form, operands: branch-offset, 40-bit encoding.",
+   "tags": [
+    "x86-64",
+    "JMP",
+    "rel32"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-mov",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 MOV",
+   "summary": "MOV r/m64,r64 — rm64_r64 form, operands: memory, register, 24-bit encoding.",
+   "tags": [
+    "x86-64",
+    "MOV",
+    "rm64_r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 NOP",
+   "summary": "NOP — fixed form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "x86-64",
+    "NOP",
+    "fixed"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-or",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 OR",
+   "summary": "OR r/m64,r64 — rm64_r64 form, operands: memory, register, 24-bit encoding.",
+   "tags": [
+    "x86-64",
+    "OR",
+    "rm64_r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-pop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 POP",
+   "summary": "POP r64 — r64 form, operands: register, 8-bit encoding.",
+   "tags": [
+    "x86-64",
+    "POP",
+    "r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-push",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 PUSH",
+   "summary": "PUSH r64 — r64 form, operands: register, 8-bit encoding.",
+   "tags": [
+    "x86-64",
+    "PUSH",
+    "r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-ret",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 RET",
+   "summary": "RET — fixed form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "x86-64",
+    "RET",
+    "fixed"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 SUB",
+   "summary": "SUB r/m64,r64 — rm64_r64 form, operands: memory, register, 24-bit encoding.",
+   "tags": [
+    "x86-64",
+    "SUB",
+    "rm64_r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:x86-64-xor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "x86-64 XOR",
+   "summary": "XOR r/m64,r64 — rm64_r64 form, operands: memory, register, 24-bit encoding.",
+   "tags": [
+    "x86-64",
+    "XOR",
+    "rm64_r64"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-add",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 ADD",
+   "summary": "ADD A,0 — imm8 form, operands: register, immediate, 16-bit encoding.",
+   "tags": [
+    "z80",
+    "ADD",
+    "imm8"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-call",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 CALL",
+   "summary": "CALL 0 — abs form, operands: branch-offset, 8-bit encoding.",
+   "tags": [
+    "z80",
+    "CALL",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-jp",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 JP",
+   "summary": "JP 0 — abs form, operands: branch-offset, 8-bit encoding.",
+   "tags": [
+    "z80",
+    "JP",
+    "abs"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-ld",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 LD",
+   "summary": "LD A,0 — imm8 form, operands: register, immediate, 8-bit encoding.",
+   "tags": [
+    "z80",
+    "LD",
+    "imm8"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-nop",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 NOP",
+   "summary": "NOP — none form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "z80",
+    "NOP",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-ret",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 RET",
+   "summary": "RET — none form, operands: implicit, 8-bit encoding.",
+   "tags": [
+    "z80",
+    "RET",
+    "none"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-sub",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 SUB",
+   "summary": "SUB 0 — imm8 form, operands: register, immediate, 16-bit encoding.",
+   "tags": [
+    "z80",
+    "SUB",
+    "imm8"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "isa:z80-xor",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "z80 XOR",
+   "summary": "XOR A — a form, operands: register, 8-bit encoding.",
+   "tags": [
+    "z80",
+    "XOR",
+    "a"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:4-level-paging",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "4-level paging",
+   "summary": "PML4 -> PDPT -> PD -> PT, 9 bits per level, 4 KiB pages, NX and U/S bits per entry; CR3 holds the physical address of the active PML4.",
+   "tags": [
+    "paging",
+    "cr3",
+    "nx"
+   ],
+   "source": "linux-7.3: arch/x86/mm",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:apic-and-pit",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "APIC and PIT",
+   "summary": "The 8254 PIT provides a calibration heartbeat; the local APIC timer drives per-CPU preemption. Koronos uses a PIT deadline to abort runaway ring-3 processes.",
+   "tags": [
+    "pit",
+    "apic",
+    "timer"
+   ],
+   "source": "project: kernel/core/timer.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:elf64-loading",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "ELF64 loading",
+   "summary": "Validate e_ident/e_machine/e_type, iterate PT_LOAD, honour p_vaddr/p_filesz/p_memsz, zero BSS, honour PF_W/PF_X for W^X, reject overlap and overflow.",
+   "tags": [
+    "elf64",
+    "w^x",
+    "loader"
+   ],
+   "source": "project: kernel/core/process_loader.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:gdt-user-descriptors",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "GDT user descriptors",
+   "summary": "Ring-3 code/data descriptors (DPL=3) are required before iretq can return to user mode; Koronos uses 0x1B data and 0x23 code selectors.",
+   "tags": [
+    "gdt",
+    "dpl3",
+    "iretq"
+   ],
+   "source": "project: kernel/arch/x86_64/user_entry.asm",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:int-0x80-gate",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "INT 0x80 gate",
+   "summary": "A DPL3 interrupt gate that saves CS, letting the kernel verify CS.RPL==3 as proof the call originated in user mode; Koronos uses it as the audit gate.",
+   "tags": [
+    "int80",
+    "cpl3",
+    "audit"
+   ],
+   "source": "project: kernel/core/target_launch.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:interrupt-descriptor-table",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "Interrupt descriptor table",
+   "summary": "256 gates; each entry carries handler offset, segment selector, IST index and DPL. Koronos keeps ring-3 gates closed until TSS/stack/address space are ready.",
+   "tags": [
+    "idt",
+    "ist"
+   ],
+   "source": "project: kernel/core/interrupt.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:kbuild-kconfig",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "Kbuild/Kconfig",
+   "summary": "Linux-style build: per-directory Kbuild fragments (obj-y/obj-m), Kconfig symbols, savedefconfig, modules_install and DESTDIR install targets.",
+   "tags": [
+    "kbuild",
+    "kconfig",
+    "make"
+   ],
+   "source": "linux-7.3: Documentation/kbuild",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:physical-frame-allocator",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "Physical frame allocator",
+   "summary": "Bitmap/buddy allocator over the Multiboot2 memory map; Koronos rejects RAM above the 4 GiB bootstrap ceiling and reserves the framebuffer range.",
+   "tags": [
+    "frame-allocator",
+    "memory-map"
+   ],
+   "source": "project: kernel/core/frame_allocator.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:syscall-sysret",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "SYSCALL/SYSRET",
+   "summary": "MSR_STAR/LSTAR/SFMASK configure the fast system-call path; SYSCALL clobbers RCX (return RIP) and R11 (RFLAGS), so user stubs must preserve them.",
+   "tags": [
+    "syscall",
+    "msr",
+    "star"
+   ],
+   "source": "linux-7.3: arch/x86/entry/entry_64.S",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:scheduler",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "Scheduler",
+   "summary": "Priority-ordered run queues with per-CPU snapshots; `make`-time config selects round-robin vs priority mode. Linux 7.x uses EEVDF, Koronos keeps a simpler deterministic policy.",
+   "tags": [
+    "scheduler",
+    "eevdf"
+   ],
+   "source": "linux-7.3: kernel/sched/fair.c",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:tss-and-rsp0",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "TSS and RSP0",
+   "summary": "A 64-bit TSS descriptor supplies RSP0, the kernel stack used when an interrupt or syscall enters from CPL3; LTR loads the selector.",
+   "tags": [
+    "tss",
+    "rsp0",
+    "ltr"
+   ],
+   "source": "linux-7.3: arch/x86/kernel/cpu/common.c",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "kernel:printk-style-tagging",
+   "category": "kernel",
+   "category_label": "kernel subsystem",
+   "topic": "printk-style tagging",
+   "summary": "Koronos prefixes console lines ([KRN ], [RUN ], [SCH ], [MM  ], [AI  ]) so boot traces can be asserted mechanically, like dmesg tags on Linux.",
+   "tags": [
+    "logging",
+    "trace"
+   ],
+   "source": "project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:arm-assembly-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "ARM assembly in systems work",
+   "summary": "ARM assembly (GAS): AArch64 entry and vector tables. Typical build: aarch64-linux-gnu-as.",
+   "tags": [
+    "arm assembly",
+    "language",
+    "GAS"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:ada-spark-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Ada/SPARK in systems work",
+   "summary": "Ada/SPARK ( Ravenscar profile): formal-verification friendly embedded work. Typical build: gnatmake.",
+   "tags": [
+    "ada/spark",
+    "language",
+    " Ravenscar profile"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:c-freestanding",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "C (freestanding)",
+   "summary": "No hosted libc: provide memset/memcpy/memmove, avoid TLS and constructors, and never assume a stack protector or red zone.",
+   "tags": [
+    "c",
+    "freestanding"
+   ],
+   "source": "project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:c-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "C in systems work",
+   "summary": "C (C11/C17 freestanding): kernel and userspace payloads in this tree. Typical build: gcc -ffreestanding.",
+   "tags": [
+    "c",
+    "language",
+    "C11/C17 freestanding"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:c-in-a-kernel",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "C++ in a kernel",
+   "summary": "-fno-exceptions -fno-rtti -fno-threadsafe-statics; avoid new/delete or provide a pool; virtual dispatch is fine but adds vtables to .rodata.",
+   "tags": [
+    "c++",
+    "rtti",
+    "exceptions"
+   ],
+   "source": "project: kernel/build-koronos.sh",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:fortran-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Fortran in systems work",
+   "summary": "Fortran (scientific): userspace numerics, not kernel. Typical build: gfortran.",
+   "tags": [
+    "fortran",
+    "language",
+    "scientific"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:go-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Go in systems work",
+   "summary": "Go (runtime-based): not suitable for ring-0 without a custom runtime; userspace tooling only. Typical build: go build.",
+   "tags": [
+    "go",
+    "language",
+    "runtime-based"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:java-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Java in systems work",
+   "summary": "Java (JVM): CPU4096 simulator and hosted tools. Typical build: javac.",
+   "tags": [
+    "java",
+    "language",
+    "JVM"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:javascript-typescript-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "JavaScript/TypeScript in systems work",
+   "summary": "JavaScript/TypeScript (WebKit/Node): Aurora desktop shell. Typical build: node / WebKit2.",
+   "tags": [
+    "javascript/typescript",
+    "language",
+    "WebKit/Node"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:python-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Python in systems work",
+   "summary": "Python (CPython 3): image build, verification and knowledge tooling. Typical build: python3.",
+   "tags": [
+    "python",
+    "language",
+    "CPython 3"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:python-tooling",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Python tooling",
+   "summary": "Build/verify scripts use stdlib only so CI images stay small; type hints + dataclasses keep schemas honest without dependencies.",
+   "tags": [
+    "python",
+    "tooling"
+   ],
+   "source": "project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:rust-for-kernels",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Rust for kernels",
+   "summary": "no_std + core, panic handler, custom allocator; Linux 7.x supports Rust in drivers and core subsystems.",
+   "tags": [
+    "rust",
+    "no_std"
+   ],
+   "source": "linux-7.3: rust/",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:rust-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Rust in systems work",
+   "summary": "Rust (no_std): Linux 7.x drivers and core subsystems; not used by Koronos yet. Typical build: rustc --target <triple> -C panic=abort.",
+   "tags": [
+    "rust",
+    "language",
+    "no_std"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:zig-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "Zig in systems work",
+   "summary": "Zig (freestanding): can target bare metal via build.zig, no runtime. Typical build: zig build-obj -target x86_64-freestanding.",
+   "tags": [
+    "zig",
+    "language",
+    "freestanding"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "language:x86-assembly-in-systems-work",
+   "category": "language",
+   "category_label": "programming language",
+   "topic": "x86 assembly in systems work",
+   "summary": "x86 assembly (NASM/GAS): entry stubs, GDT/TSS setup, ring-3 trampoline. Typical build: nasm -f elf64.",
+   "tags": [
+    "x86 assembly",
+    "language",
+    "NASM/GAS"
+   ],
+   "source": "project / linux-7.3",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-7-3-release",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux 7.3 release",
+   "summary": "Linux 7.3 released 18 October 2026 (7.3.1 stable 30 October 2026); 7.2 is in stable maintenance, 6.18 and 6.12 are LTS lines.",
+   "tags": [
+    "linux",
+    "release",
+    "7.3"
+   ],
+   "source": "kernel.org / endoflife.date",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-kbuild",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux Kbuild",
+   "summary": "make defconfig/menuconfig, O= out-of-tree builds, per-directory Kbuild with obj-y/obj-m, and modules_install under /lib/modules/<release>.",
+   "tags": [
+    "linux",
+    "kbuild"
+   ],
+   "source": "linux-7.3: Documentation/kbuild",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-vfs",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux VFS",
+   "summary": "super_block/dentry/inode/file abstractions with per-filesystem operations vectors; page cache and writeback sit below them.",
+   "tags": [
+    "linux",
+    "vfs"
+   ],
+   "source": "linux-7.3: fs/",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-boot-protocol",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux boot protocol",
+   "summary": "The x86 boot protocol hands the kernel a boot_params structure with memory map, initrd address and command line; bzImage is self-decompressing.",
+   "tags": [
+    "linux",
+    "boot",
+    "bzimage"
+   ],
+   "source": "linux-7.3: Documentation/arch/x86/boot.rst",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-driver-model",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux driver model",
+   "summary": "bus/driver/device matching via IDs, probe()/remove(), devres-managed resources, and module_init/module_exit registration macros.",
+   "tags": [
+    "linux",
+    "driver-model",
+    "probe"
+   ],
+   "source": "linux-7.3: drivers/base",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-init-main-c",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux init/main.c",
+   "summary": "start_kernel() sets up traps, memory, scheduler, IRQs, then rest_init() spawns PID 1 which execs /sbin/init or /init from initramfs.",
+   "tags": [
+    "linux",
+    "start_kernel",
+    "init"
+   ],
+   "source": "linux-7.3: init/main.c",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "linux:linux-scheduler-eevdf",
+   "category": "linux",
+   "category_label": "Linux 7.x reference",
+   "topic": "Linux scheduler (EEVDF)",
+   "summary": "Earliest Eligible Virtual Deadline First replaced CFS in 6.6+: per-task lag/virtual deadline, per-CPU runqueues, load balancing via sched domains.",
+   "tags": [
+    "linux",
+    "eevdf",
+    "sched"
+   ],
+   "source": "linux-7.3: kernel/sched/fair.c",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "toolchain:cross-compilation",
+   "category": "toolchain",
+   "category_label": "compiler, assembler, linker",
+   "topic": "Cross compilation",
+   "summary": "Use a triplet (aarch64-linux-gnu-, riscv64-linux-gnu-, powerpc64le-linux-gnu-) with --sysroot; Debian packages gcc-<triplet>.",
+   "tags": [
+    "cross",
+    "triplet",
+    "sysroot"
+   ],
+   "source": "linux-7.3: Documentation/kbuild",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "toolchain:gcc-for-freestanding-code",
+   "category": "toolchain",
+   "category_label": "compiler, assembler, linker",
+   "topic": "GCC for freestanding code",
+   "summary": "Flags that matter: -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -fno-pie -mno-red-zone -mno-sse -mcmodel=kernel|large; link with -nostdlib.",
+   "tags": [
+    "gcc",
+    "freestanding",
+    "flags"
+   ],
+   "source": "linux-7.3: Makefile",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "toolchain:gnu-as-nasm",
+   "category": "toolchain",
+   "category_label": "compiler, assembler, linker",
+   "topic": "GNU as / NASM",
+   "summary": "GAS uses AT&T syntax by default (.intel_syntax available); NASM uses Intel syntax with `bits 64`, `global`, `section .text`. Koronos assembles with NASM.",
+   "tags": [
+    "nasm",
+    "gas",
+    "assembly"
+   ],
+   "source": "project: kernel/build-koronos.sh",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "toolchain:llvm-clang",
+   "category": "toolchain",
+   "category_label": "compiler, assembler, linker",
+   "topic": "LLVM/Clang",
+   "summary": "Clang can build Linux and freestanding kernels; lld links faster than GNU ld, and -fuse-ld=lld is the usual switch. Cross targets use --target=<triple>.",
+   "tags": [
+    "clang",
+    "llvm",
+    "lld"
+   ],
+   "source": "linux-7.3: Documentation/kbuild/llvm.rst",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "toolchain:linker-scripts",
+   "category": "toolchain",
+   "category_label": "compiler, assembler, linker",
+   "topic": "Linker scripts",
+   "summary": "SECTIONS, ENTRY, PHDRS and OUTPUT_FORMAT control segment layout; a kernel script pins the load address and drops .eh_frame/.comment.",
+   "tags": [
+    "ld",
+    "linker-script"
+   ],
+   "source": "project: kernel/arch/x86_64/koronos.ld",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "toolchain:objcopy-readelf-nm",
+   "category": "toolchain",
+   "category_label": "compiler, assembler, linker",
+   "topic": "objcopy/readelf/nm",
+   "summary": "objcopy converts ELF<->binary and sets arch flags; readelf -lW proves PT_LOAD flags; nm checks exported symbols in the acceptance gates.",
+   "tags": [
+    "binutils",
+    "elf",
+    "readelf"
+   ],
+   "source": "project",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "userspace:init-contract",
+   "category": "userspace",
+   "category_label": "userspace runtime",
+   "topic": "init contract",
+   "summary": "One userspace init per boot, selected by the bootloader, running at CPL3 with its own CR3; it must emit its own readiness marker.",
+   "tags": [
+    "init",
+    "pid1",
+    "ring3"
+   ],
+   "source": "project: kernel/targets",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  },
+  {
+   "id": "userspace:syscall-abi",
+   "category": "userspace",
+   "category_label": "userspace runtime",
+   "topic": "syscall ABI",
+   "summary": "Koronos exposes EXIT=1, GETPID=2, YIELD=3, TIME_TICKS=4, WRITE=9 (fd 1). Linux numbers differ deliberately: no ABI compatibility is claimed.",
+   "tags": [
+    "syscall",
+    "abi"
+   ],
+   "source": "project: kernel/core/syscall.cpp",
+   "confidence": "curated",
+   "added": "2026-11-05"
+  }
+ ]
+}
