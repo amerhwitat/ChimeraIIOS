@@ -100,12 +100,17 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
-      libgl1 libglx-mesa0 libegl1 libgles2 \
+      libgl1 libglx-mesa0 libegl1 libgles2 libgbm1 libgl1-mesa-dri \
+      libwayland-egl1 libdrm2 mesa-utils mesa-vulkan-drivers firefox-esr \
       openbox xterm feh \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    for package in libgl1 libglx-mesa0 libegl1 libgles2 libgbm1 libgl1-mesa-dri libwayland-egl1 libdrm2 mesa-utils mesa-vulkan-drivers firefox-esr; do
+      status="$(dpkg-query -W -f='${db:Status-Status}' "$package")"
+      [ "$status" = installed ] || { echo "graphics runtime package missing: $package ($status)" >&2; exit 1; }
+    done
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
@@ -243,9 +248,10 @@ install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
 #!/bin/bash
 # Session entry point started from the tty1 autologin.
-export LIBGL_ALWAYS_SOFTWARE=1
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
+# Prefer the target's DRM render node; use Mesa llvmpipe only when no render node exists.
+if ! compgen -G '/dev/dri/renderD*' >/dev/null; then
+  export LIBGL_ALWAYS_SOFTWARE=1
+fi
 export GDK_BACKEND=x11
 export XDG_RUNTIME_DIR=/tmp/runtime-live
 mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR"
