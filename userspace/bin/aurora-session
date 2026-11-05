@@ -86,5 +86,5 @@ else
   echo "[Aurora][WARN] PolicyKit agent missing; AD enrollment needs an administrator terminal." >&2
 fi
 
-echo "[Aurora] Openbox ready; starting fullscreen desktop (profile: $profile)."
+echo "[Aurora] Openbox window manager ready; starting fullscreen desktop (profile: $profile)."
 exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py "$uri"
