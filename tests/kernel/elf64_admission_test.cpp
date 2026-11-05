@@ -26,9 +26,9 @@ static void build_elf(uint8_t *b, size_t n) {
     put16(b + 52, 64);
     put16(b + 54, 56);
     put16(b + 56, 1);
-    put32(b + 64, 1);       // PT_LOAD
-    put32(b + 68, 5);       // PF_R | PF_X
-    put64(b + 72, 0x100);   // file offset
+    put32(b + 64, 1);
+    put32(b + 68, 5);
+    put64(b + 72, 0x100);
     put64(b + 80, 0x100400100);
     put64(b + 96, 4);
     put64(b + 104, 4096);
@@ -40,7 +40,15 @@ int main() {
     build_elf(elf, sizeof(elf));
     assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 1);
 
+    // Reject invalid ELF version and an empty program-header table.
+    put32(elf + 20, 0);
+    assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
+    build_elf(elf, sizeof(elf));
+    put16(elf + 56, 0);
+    assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
+
     // Attacker-controlled offsets and counts must never wrap the bounds check.
+    build_elf(elf, sizeof(elf));
     put64(elf + 32, UINT64_MAX - 7);
     assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
     build_elf(elf, sizeof(elf));
@@ -57,10 +65,10 @@ int main() {
     assert(admitted.segment_count == 1 && admitted.entry == 0x100400100);
 
     // An entry point in a non-executable PT_LOAD is not a runnable ELF image.
-    put32(elf + 68, 6); // PF_R | PF_W
+    put32(elf + 68, 6);
     chimera_process_image rejected{};
     assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
                                      0x100700000, &rejected) < 0);
-    puts("ELF64 validation/admission: bounds and executable-entry checks passed");
+    puts("ELF64 validation/admission: overflow, version, empty-table and executable-entry checks passed");
     return 0;
 }
