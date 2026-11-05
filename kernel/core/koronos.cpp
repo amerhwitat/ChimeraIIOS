@@ -17,6 +17,7 @@
 #include "chimera/process.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
+extern "C" void koronos_target_log(const char *message);
 
 /* Monitor task id, used by the idle loop to drive a periodic diagnostic tick.
    Without it every bootstrap service blocks and the scheduler has no runnable
