@@ -24,6 +24,9 @@ int main(){
  assert(chimera_fat_probe(h,&i)==CHM_BLOCK_EINVAL);
  base();memcpy(media+3,"EXFAT   ",8);media[108]=9;media[109]=0;p32(media+72,4096);p32(media+80,24);p32(media+84,32);p32(media+88,56);p32(media+92,100);p32(media+96,2);
  assert(chimera_fat_probe(h,&i)==0 && i.kind==CHM_EXFAT);
+ /* The maximum malformed cluster count must not wrap the root bound. */
+ p32(media+92,0xffffffffu);p32(media+96,2u);
+ assert(chimera_fat_probe(h,&i)==CHM_BLOCK_EINVAL);
  assert(chimera_block_unregister(h)==0);
  return 0;
 }
