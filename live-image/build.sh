@@ -108,8 +108,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
     for package in libgl1 libglx-mesa0 libegl1 libgles2 libgbm1 libgl1-mesa-dri libwayland-egl1 libdrm2 mesa-utils mesa-vulkan-drivers firefox-esr; do
-      status="$(dpkg-query -W -f='${db:Status-Status}' "$package")"
-      [ "$status" = installed ] || { echo "graphics runtime package missing: $package ($status)" >&2; exit 1; }
+      dpkg-query -s "$package" | grep -q "^Status: install ok installed$" || { echo "graphics runtime package missing: $package" >&2; exit 1; }
     done
     apt-get clean
     rm -rf /var/lib/apt/lists/*
