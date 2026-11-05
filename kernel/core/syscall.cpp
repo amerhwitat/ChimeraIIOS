@@ -110,7 +110,21 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         return static_cast<uint64_t>(-38ll);
     }
     koronos_target_log("[SYSC] accepted user syscall context");
-    switch (frame->rax) {
+
+    /* Octavian's init is linked against musl and enters through the Linux
+     * x86-64 syscall ABI. Translate the raw Linux syscall number into the
+     * stable Chimera semantic ABI before dispatch. Do not interpret Linux
+     * syscall 1 (write) as native CHM_SYS_EXIT (also 1). */
+    chimera_syscall_identity identity{};
+    if (chimera_compat_recognize_syscall(
+            CHM_ENTRY_X86_SYSCALL, 64u,
+            static_cast<uint32_t>(frame->rax), &identity) != 0 ||
+        identity.canonical == 0xFFFFFFFFu) {
+        koronos_target_log("[SYSC] rejected unknown Linux syscall number");
+        return static_cast<uint64_t>(-38ll);
+    }
+
+    switch (identity.canonical) {
         case CHM_SYS_GETPID: {
             /* PID comes from the active kernel-owned process record. Never
              * fabricate PID 1 when no target process is actually running. */
