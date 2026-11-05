@@ -40,7 +40,7 @@ int probe_impl(uint32_t handle, chimera_fat_probe_info *out) {
             cluster_shift > 25u - sector_shift ||
             !volume_length || volume_length > dev.sector_count ||
             !fat_offset || !fat_length || !clusters || root < 2u ||
-            root >= clusters + 2u || fat_offset >= heap_offset ||
+            (uint64_t)root >= (uint64_t)clusters + 2u || fat_offset >= heap_offset ||
             (uint64_t)fat_offset + fat_length > heap_offset ||
             heap_offset >= volume_length ||
             (uint64_t)heap_offset + ((uint64_t)clusters << cluster_shift) > volume_length ||
@@ -89,7 +89,7 @@ int probe_impl(uint32_t handle, chimera_fat_probe_info *out) {
         if (root_entries || fat16 || !fat32) return CHM_BLOCK_EINVAL;
         const uint32_t root = le32(boot + 44) & 0x0fffffffu;
         if (root < 2u || root >= clusters + 2u ||
-            fat_bytes < ((clusters + 2u) * 4u + 7u) / 8u)
+            fat_bytes < ((clusters + 2u) * 4u))
             return CHM_BLOCK_EINVAL;
         result.root_cluster = root;
     } else {
