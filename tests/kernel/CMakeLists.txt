@@ -124,3 +124,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(chimera_fat_probe_test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 add_test(NAME chimera_fat_probe COMMAND chimera_fat_probe_test)
+
+add_executable(chimera_process_address_space_test
+  ../../kernel/tests/process_address_space_test.cpp
+  ../../kernel/core/process.cpp
+)
+target_include_directories(chimera_process_address_space_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_process_address_space_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_process_address_space_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME chimera_process_address_space COMMAND chimera_process_address_space_test)
