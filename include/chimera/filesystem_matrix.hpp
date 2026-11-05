@@ -9,7 +9,9 @@ enum class SupportMode {
     NativeReadWrite,
     NativeReadOnly,
     UserspaceCompatibility,
-    EmulatorOnly
+    EmulatorOnly,
+    // Listed in the format catalogue, but no native runtime driver is qualified.
+    CatalogOnly
 };
 
 struct FilesystemProfile {
