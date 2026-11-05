@@ -8,15 +8,23 @@ uint32_t le32(const uint8_t *p) {
 uint64_t le64(const uint8_t *p) {
     return (uint64_t)le32(p) | ((uint64_t)le32(p + 4) << 32);
 }
-uint32_t gcd32(uint32_t a, uint32_t b) {
-    while (b) { const uint32_t r = a % b; a = b; b = r; }
-    return a;
 }
-}
+namespace {
+volatile uint32_t probe_lock = 0;
+int probe_impl(uint32_t handle, chimera_qfs_probe_info *out) {
 
 /* The on-disk v1 header is serialized little-endian and occupies 64 bytes.
  * Read one logical sector only; never trust geometry until it is validated. */
+int probe_impl_placeholder(uint32_t, chimera_qfs_probe_info *); 
+}
 extern "C" int chimera_qfs_probe(uint32_t handle, chimera_qfs_probe_info *out) {
+    while (__sync_lock_test_and_set(&probe_lock, 1u)) {}
+    const int result = probe_impl(handle, out);
+    __sync_lock_release(&probe_lock);
+    return result;
+}
+namespace {
+int probe_impl(uint32_t handle, chimera_qfs_probe_info *out) {
     if (!out) return CHM_BLOCK_EINVAL;
     chimera_block_info device{};
     if (chimera_block_get_info(handle, &device) != 0) return CHM_BLOCK_ENODEV;
@@ -40,7 +48,7 @@ extern "C" int chimera_qfs_probe(uint32_t handle, chimera_qfs_probe_info *out) {
         sector_size != device.sector_size ||
         block_size < sector_size || block_size % sector_size ||
         !total_blocks || total_blocks > UINT64_MAX / block_size ||
-        total_blocks * block_size > device.sector_count * (uint64_t)device.sector_size ||
+        total_blocks > device.sector_count / (block_size / sector_size) ||
         metadata_start != 1u || data_start <= metadata_start ||
         data_start >= total_blocks || !root_inode)
         return CHM_BLOCK_EINVAL;
@@ -58,4 +66,5 @@ extern "C" int chimera_qfs_probe(uint32_t handle, chimera_qfs_probe_info *out) {
     out->root_inode = root_inode;
     for (uint32_t i = 0; i < 16u; ++i) out->uuid[i] = sector[48u + i];
     return 0;
+}
 }
