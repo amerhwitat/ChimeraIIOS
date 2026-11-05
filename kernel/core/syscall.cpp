@@ -55,9 +55,11 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
             *return_value = error_value();
             return -1;
         case CHM_SYS_YIELD:
-            chimera_sched_yield();
-            *return_value = 0;
-            return 0;
+            /* No process-owned saved context exists in this compatibility
+             * entry. Do not claim a yield occurred when no switch can happen. */
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_TIME_TICKS:
             *return_value = chimera_timer_now();
             return 0;
@@ -127,7 +129,9 @@ static uint64_t dispatch_native(const koronos_user_syscall_frame *frame,uint64_t
         case CHM_SYS_GETPID:
             return static_cast<uint64_t>(pid);
         case CHM_SYS_YIELD:
-            return 0;
+            /* The callback scheduler cannot switch a ring-3 process context.
+             * Return ENOSYS until saved-RSP/CR3 rescheduling is implemented. */
+            return static_cast<uint64_t>(-38ll);
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
