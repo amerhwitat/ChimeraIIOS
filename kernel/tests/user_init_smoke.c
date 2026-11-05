@@ -83,7 +83,7 @@ __attribute__((noreturn, used)) void _start(void) {
                      : "D"(fd), "S"(buffer), "d"(length)
                      : "rcx", "r11", "memory");
 
-    number = 1; /* CHM_SYS_EXIT */
+    number = 60; /* Linux x86-64 exit */
     fd = 0;
     __asm__ volatile("syscall"
                      : "+a"(number)
