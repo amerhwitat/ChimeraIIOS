@@ -1,7 +1,68 @@
 {
-  "address_families": ["ipv4", "ipv6", "dual-stack"],
-  "transport": ["tcp", "udp", "quic"],
-  "routing": ["static", "connected", "rip", "ripng", "ospfv2", "ospfv3", "isis", "bgp4", "eigrp-adapter", "babel", "bfd", "vrrp", "pim", "openfabric", "bgp-ls"],
-  "sdn": ["openflow", "p4runtime", "netconf", "restconf", "gnmi", "envoy-xds"],
-  "policy": {"dynamic_routing_default": false, "applications_may_change_rib": false, "require_versioned_config": true, "atomic_fib_updates": true}
+  "address_families": [
+    "ipv4",
+    "ipv6",
+    "dual-stack"
+  ],
+  "transport": [
+    "tcp",
+    "udp",
+    "quic"
+  ],
+  "routing": [
+    "static",
+    "connected",
+    "rip",
+    "ripng",
+    "ospfv2",
+    "ospfv3",
+    "isis",
+    "bgp4",
+    "eigrp-adapter",
+    "babel",
+    "bfd",
+    "vrrp",
+    "pim",
+    "openfabric",
+    "bgp-ls"
+  ],
+  "sdn": [
+    "openflow",
+    "p4runtime",
+    "netconf",
+    "restconf",
+    "gnmi",
+    "envoy-xds"
+  ],
+  "policy": {
+    "dynamic_routing_default": false,
+    "applications_may_change_rib": false,
+    "require_versioned_config": true,
+    "atomic_fib_updates": true
+  },
+  "vendor_cli": [
+    "cisco-ios-subset",
+    "juniper-junos-subset"
+  ],
+  "backends": {
+    "static_routes": [
+      "iproute2",
+      "Spotnik RIB/FIB ABI"
+    ],
+    "dynamic_routing": [
+      "FRRouting vtysh adapter"
+    ],
+    "vendor_cli": [
+      "chimera-router-cli"
+    ],
+    "policy": "catalogue does not imply backend implementation"
+  },
+  "safety": {
+    "dynamic_routing_default": false,
+    "applications_may_change_rib": false,
+    "require_versioned_config": true,
+    "atomic_fib_updates": true,
+    "route_mutation_requires_admin": true,
+    "unknown_cli_commands_rejected": true
+  }
 }

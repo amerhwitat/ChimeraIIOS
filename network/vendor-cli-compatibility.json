@@ -1,0 +1,198 @@
+{
+  "schema": "CHIMERA-ROUTER-VENDOR-CLI-1",
+  "vendors": {
+    "cisco_ios": {
+      "dialect": "ios",
+      "read_commands": [
+        "show ip route",
+        "show ipv6 route",
+        "show ip interface brief",
+        "show interfaces",
+        "show ip bgp summary",
+        "show ipv6 bgp summary",
+        "show ip ospf neighbor",
+        "show isis neighbors",
+        "show running-config",
+        "show ip protocols",
+        "show ip bgp",
+        "show ip ospf",
+        "show standby brief",
+        "show ip route summary"
+      ],
+      "configuration_commands": [
+        "ip route",
+        "no ip route",
+        "router bgp",
+        "neighbor remote-as",
+        "network",
+        "router ospf",
+        "router isis",
+        "passive-interface",
+        "interface",
+        "ip address",
+        "description",
+        "router isis <tag> and net <ISO-NET>"
+      ],
+      "notes": "IS-IS configuration requires an explicit valid NET; the adapter will reject incomplete IS-IS configuration. Unknown IOS commands are not passed through."
+    },
+    "juniper_junos": {
+      "dialect": "junos",
+      "read_commands": [
+        "show route",
+        "show route protocol bgp",
+        "show route protocol ospf",
+        "show interfaces terse",
+        "show bgp summary",
+        "show configuration",
+        "show route summary",
+        "show route protocol isis",
+        "show ospf neighbor",
+        "show isis adjacency",
+        "show bgp neighbor",
+        "show isis adjacency"
+      ],
+      "configuration_commands": [
+        "set routing-options autonomous-system",
+        "set routing-options static route",
+        "delete routing-options static route",
+        "set protocols bgp group neighbor peer-as",
+        "set protocols ospf area interface"
+      ],
+      "notes": "Junos candidate configuration, commit/rollback and vendor-specific policy syntax are not implemented by this adapter."
+    }
+  },
+  "protocols": {
+    "kernel": [
+      "IPv4",
+      "IPv6",
+      "static routes",
+      "policy routing",
+      "VRF",
+      "ECMP"
+    ],
+    "igp": [
+      "RIPv2",
+      "RIPng",
+      "OSPFv2",
+      "OSPFv3",
+      "IS-IS",
+      "Babel",
+      "EIGRP adapter"
+    ],
+    "egp": [
+      "BGP-4",
+      "MP-BGP",
+      "BGP-LS"
+    ],
+    "resilience": [
+      "BFD",
+      "VRRP"
+    ],
+    "multicast": [
+      "PIM-SM",
+      "PIM-DM",
+      "PIM-SSM"
+    ],
+    "overlay": [
+      "VXLAN",
+      "EVPN",
+      "GRE",
+      "IPIP",
+      "Geneve",
+      "WireGuard"
+    ],
+    "sdn": [
+      "OpenFlow",
+      "P4Runtime",
+      "NETCONF",
+      "RESTCONF",
+      "gNMI"
+    ],
+    "vendor_feature_families": {
+      "cisco": [
+        "BGP",
+        "OSPF",
+        "IS-IS",
+        "RIP",
+        "EIGRP",
+        "HSRP",
+        "GLBP",
+        "VRRP",
+        "PIM",
+        "MPLS",
+        "LDP",
+        "Segment Routing",
+        "EVPN/VXLAN",
+        "Policy Based Routing",
+        "BFD"
+      ],
+      "juniper": [
+        "BGP",
+        "OSPF",
+        "IS-IS",
+        "RIP",
+        "VRRP",
+        "PIM",
+        "MPLS",
+        "RSVP-TE",
+        "LDP",
+        "Segment Routing MPLS",
+        "SRv6",
+        "EVPN/VXLAN",
+        "BFD",
+        "Routing Policy"
+      ]
+    },
+    "implementation_status": {
+      "native_spotnik": [
+        "static IPv4/IPv6 route API and policy route contract"
+      ],
+      "optional_frr": [
+        "BGP",
+        "OSPF",
+        "IS-IS",
+        "RIP/RIPng",
+        "Babel",
+        "BFD",
+        "PIM",
+        "VRRP",
+        "OpenFabric"
+      ],
+      "planned_or_backend_specific": [
+        "EIGRP",
+        "GLBP",
+        "HSRP",
+        "MPLS/RSVP-TE/LDP",
+        "SR-MPLS/SRv6",
+        "EVPN",
+        "BGP-LS",
+        "P4Runtime",
+        "NETCONF",
+        "RESTCONF",
+        "gNMI"
+      ]
+    }
+  },
+  "backends": {
+    "static_routes": [
+      "iproute2",
+      "Spotnik RIB/FIB ABI"
+    ],
+    "dynamic_routing": [
+      "FRRouting vtysh adapter"
+    ],
+    "eigrp": "experimental-adapter-only",
+    "policy": "Protocol is operational only when daemon/backend and conformance tests are installed; catalog entry alone is not proof of implementation."
+  },
+  "safety": {
+    "shell_execution": false,
+    "default_mode": "plan-only",
+    "mutation_requires": [
+      "--apply",
+      "exact confirmation phrase",
+      "administrator/root privileges"
+    ],
+    "unknown_commands": "reject",
+    "dynamic_peer_establishment": "disabled until explicitly configured"
+  }
+}

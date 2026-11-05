@@ -70,7 +70,11 @@
         "dns",
         "routes",
         "network_reset",
-        "sharing"
+        "sharing",
+        "windows_network_browsing",
+        "smb_shares",
+        "shared_folders",
+        "directory_services"
       ]
     },
     {
@@ -131,7 +135,10 @@
         "ssh_keys",
         "kerberos",
         "active_directory",
-        "ldap"
+        "ldap",
+        "winbind",
+        "smb_credentials",
+        "directory_service_status"
       ]
     },
     {

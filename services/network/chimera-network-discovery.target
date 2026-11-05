@@ -1,0 +1,7 @@
+[Unit]
+Description=Chimera Windows Network Neighborhood services
+Documentation=man:smbd(8) man:wsdd(1)
+Wants=network-online.target
+After=network-online.target
+Wants=smbd.service avahi-daemon.service chimera-wsdd.service
+After=smbd.service avahi-daemon.service chimera-wsdd.service

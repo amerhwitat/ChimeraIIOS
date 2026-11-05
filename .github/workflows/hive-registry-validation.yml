@@ -1,0 +1,39 @@
+name: Hive registry and VFS validation
+on:
+  push:
+    branches: [main, feature/hive-registry-vfs-aurora-editor]
+    paths:
+      - 'userspace/hive/**'
+      - 'tests/hive/**'
+      - 'desktop/aurora/apps/aurora_registry_editor.cpp'
+      - 'desktop/aurora/apps/aurora_settings.cpp'
+      - 'userland/CMakeLists.txt'
+      - 'services/storage/chimera-hive-vfs@.service'
+      - '.github/workflows/hive-registry-validation.yml'
+  pull_request:
+    paths:
+      - 'userspace/hive/**'
+      - 'tests/hive/**'
+      - 'desktop/aurora/apps/aurora_registry_editor.cpp'
+      - 'desktop/aurora/apps/aurora_settings.cpp'
+      - 'userland/CMakeLists.txt'
+      - 'services/storage/chimera-hive-vfs@.service'
+jobs:
+  registry:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install optional desktop and FUSE development dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ pkg-config libfuse3-dev qt6-base-dev
+      - name: Test durable registry transactions and CLI
+        run: bash tests/hive/test-registry-store.sh
+      - name: Compile optional FUSE adapter
+        run: bash tests/hive/test-registry-fuse.sh
+      - name: Configure native project targets
+        run: cmake -S . -B build-hive -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Check merge markers and whitespace
+        run: |
+          ! grep -R -nE '^(<<<<<<<|=======|>>>>>>>)' userspace/hive tests/hive desktop/aurora/apps/aurora_registry_editor.cpp
+          git diff --check

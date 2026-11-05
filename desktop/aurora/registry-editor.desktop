@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Hive Registry Editor
+Name[ar]=محرر سجل Hive
+Comment=Browse and modify Chimera registry entries
+Exec=aurora-registry-editor
+Icon=preferences-system
+Terminal=false
+Categories=Settings;System;

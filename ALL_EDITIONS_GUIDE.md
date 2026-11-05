@@ -423,3 +423,22 @@ Then come back in 3-5 hours! ⏰
 
 *created by Amer Abdullah Suleiman Hwitat - عامر الحويطات*
 *Amman 11814, Jordan | amer.hwitat@proton.me*
+
+## Hosted and BareMetal cross-platform compatibility
+
+The five ISO images above are packaging variants; Hosted and BareMetal are separate runtime delivery models shared across those variants.
+
+| Host OS | Hosted runtime | BareMetal build/flash | Native integration |
+|---|---|---|---|
+| Linux | Native user-space bridge | Supported with toolchain | systemd/OpenRC services; iproute2 |
+| FreeBSD | POSIX/BSD adapter (partial) | Supported when toolchain is present | rc.d/sysrc; route/netstat/ifconfig |
+| Windows 10/11 | Win32/NT user-space bridge | WSL2 or native LLVM/Clang toolchain | SCM via sc.exe; route.exe/ipconfig.exe |
+| macOS | Darwin user-space bridge | Supported when toolchain is present | launchd; route/netstat/ifconfig |
+
+Hosted calls the host OS APIs and does not replace the host kernel. BareMetal boots Koronos and does not import host kernel drivers or service managers. Compatibility is adapter-by-adapter, not a claim of full Linux, FreeBSD, Windows NT or XNU kernel equivalence. See [the detailed platform matrix](docs/PLATFORM_COMPATIBILITY_MATRIX.md).
+
+## Cross-platform service and routing utilities
+
+- `chimera-host-services` inspects and manages systemd/OpenRC, FreeBSD rc.d, Windows SCM and macOS launchd services. Mutations require explicit confirmation and elevation.
+- `chimera-router-cli` translates a bounded Cisco IOS/Junos command subset into native route/interface commands on Linux, FreeBSD, Windows and macOS. It defaults to planning, not changing routes.
+- Dynamic routing is optional through FRRouting where a supported package/backend is available. Protocol catalogs are not proof that every proprietary feature is implemented.

@@ -1,0 +1,59 @@
+name: Platform and routing compatibility validation
+on:
+  pull_request:
+    paths:
+      - 'system/platform/**'
+      - 'system/baremetal/**'
+      - 'network/**'
+      - 'tools/network/chimera_router_cli.py'
+      - 'tests/network/test_router_cli.py'
+      - 'tests/platform/**'
+      - 'services/linux/service-catalog.json'
+      - 'tools/service-manager.sh'
+      - 'tests/services/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/platform-routing-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'system/platform/**'
+      - 'system/baremetal/**'
+      - 'network/**'
+      - 'tools/network/chimera_router_cli.py'
+      - 'tests/network/test_router_cli.py'
+      - 'tests/platform/**'
+      - 'services/linux/service-catalog.json'
+      - 'tools/service-manager.sh'
+      - 'tests/services/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/platform-routing-validation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: platform-routing-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compatibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate platform and routing manifests
+        run: |
+          python3 -m json.tool system/platform/compatibility-contract.json >/dev/null
+          python3 -m json.tool system/baremetal/compatibility-matrix.json >/dev/null
+          python3 -m json.tool network/vendor-cli-compatibility.json >/dev/null
+          python3 -m json.tool network/routing-protocols.json >/dev/null
+          python3 -m json.tool network/routing_capabilities.json >/dev/null
+          python3 -m json.tool network/protocols/routing_protocols.json >/dev/null
+          python3 -m json.tool network/protocols/edition_network_profiles.json >/dev/null
+      - name: Run command translation tests
+        run: python3 tests/network/test_router_cli.py
+      - name: Run platform contract tests
+        run: python3 tests/platform/test_platform_compatibility.py
+      - name: Run cross-platform service adapter tests
+        run: python3 tests/platform/test_host_services.py
+      - name: Run Linux service catalog tests
+        run: bash tests/services/test-service-manager.sh

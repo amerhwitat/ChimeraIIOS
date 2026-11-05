@@ -133,6 +133,7 @@ install(PROGRAMS desktop/aurora/aurora_flash_tool.py desktop/aurora/aurora_flash
 install(FILES desktop/aurora/aurora-flash-tool.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES desktop/file_associations/context_menu_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/file-associations)
 add_executable(aurora_settings desktop/aurora/apps/aurora_settings.cpp)
+target_include_directories(aurora_settings PRIVATE "${CMAKE_SOURCE_DIR}/userspace/hive")
 chimera_warnings(aurora_settings)
 install(TARGETS aurora_settings RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES desktop/aurora/aurora_settings_registry.json DESTINATION ${CMAKE_INSTALL_DATADIR}/chimera/settings)

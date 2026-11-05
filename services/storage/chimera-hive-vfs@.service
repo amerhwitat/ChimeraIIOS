@@ -1,0 +1,19 @@
+[Unit]
+Description=Chimera Hive registry VFS mount
+After=local-fs.target
+RequiresMountsFor=/var/lib/chimera/hive
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/mkdir -p /run/chimera/registry
+ExecStart=/usr/bin/chm-registry-mount /var/lib/chimera/hive /run/chimera/registry -f
+ExecStop=/bin/fusermount3 -u /run/chimera/registry
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/chimera/hive /run/chimera/registry
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

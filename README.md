@@ -77,6 +77,12 @@ Startup is **menu first, GUI second**. Jasper/Spit Fire exposes Live, Install, S
 
 The boot visual is represented by `boot/splash/aurora_boot_splash.svg`; the requested support footer is stored in `boot/splash/support_footer.txt` and staged into the ISO.
 
+## Hive registry database and Aurora editor
+
+Hive now includes a durable userspace registry store with a write-ahead log, committed-transaction recovery, atomic snapshot checkpointing, and a command-line manager. Aurora Settings persists preferences through Hive while retaining a legacy configuration mirror. When Qt 6 Widgets is present, the graphical Hive Registry Editor is built; when FUSE 3 is present, an optional registry VFS mount exposes registry keys as files.
+
+See [Hive Registry and VFS documentation](docs/HIVE_REGISTRY_VFS.md) and [Hive validation workflow](.github/workflows/hive-registry-validation.yml). Live Koronos process/kernel setting projection remains gated on a versioned, authorized IPC contract and verified x86-64 interrupt/syscall/SMP foundations.
+
 ## Network interoperability and optical media
 
 Chimera's network integration includes SMB2/SMB3 browsing and share mounting, Windows WS-Discovery, Avahi DNS-SD, administrator-driven Active Directory joining through realmd/adcli/SSSD, and TLS-verified LDAP searches. Optical-media tools mount ISO-9660/UDF images and CD/DVD devices read-only, while the FHS provisioner creates the Linux and Chimera mountpoint hierarchy.
@@ -212,3 +218,15 @@ and produces the ISO with `grub-mkrescue`. See `live-image/README.md`.
 Scope: the image boots a Linux kernel plus this project's userland. The native
 Spit Fire/Koronos microkernel is not in the boot path, because upstream remains blocked
 on the userspace handoff gate that the ISO release acceptance workflow enforces.
+
+## Linux services
+
+The Linux systemd service catalog and optional service manager are documented in [docs/LINUX_SERVICES.md](docs/LINUX_SERVICES.md). Aurora Settings declares service-management pages; administrators can inspect units, install service packages or named profiles, and explicitly enable services with `sudo chimera-services`. Optional listeners are not activated automatically.
+
+## Cross-platform Hosted and BareMetal compatibility
+
+The platform contract for Linux, FreeBSD, Windows and macOS is documented in [docs/PLATFORM_COMPATIBILITY_MATRIX.md](docs/PLATFORM_COMPATIBILITY_MATRIX.md). Hosted uses native host APIs; BareMetal boots Koronos and uses host OSes only for build/flash workflows. Unsupported API calls must be reported rather than silently emulated.
+
+## Cisco and Juniper routing CLI
+
+A bounded, safe Cisco IOS/Junos command adapter is documented in [docs/CISCO_JUNIPER_ROUTING_CLI.md](docs/CISCO_JUNIPER_ROUTING_CLI.md). Mutating commands are plan-only unless explicitly confirmed with administrator privileges. Dynamic routing backends remain optional.

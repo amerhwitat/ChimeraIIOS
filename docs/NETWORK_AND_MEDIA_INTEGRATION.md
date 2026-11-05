@@ -21,9 +21,9 @@ The ISO runtime package layer includes the package set in `iso/manifests/network
 
 Install the tools into `/usr/local/sbin` and service/config assets into their corresponding `/etc` or `/usr/lib/systemd/system` locations. Enable only services needed by the machine:
 
-    sudo systemctl enable --now smbd.service
-    sudo systemctl enable --now avahi-daemon.service
-    sudo systemctl enable --now chimera-wsdd.service
+    sudo systemctl enable --now chimera-network-discovery.target
+
+The target starts the packaged Samba `smbd.service`, Avahi DNS-SD, and Chimera's WSD host/client service together. You can still enable the individual units if you need a narrower role.
 
 For a server, create `/srv/smb/public`, create a dedicated `smbusers` group, review `services/network/smb.conf.example`, and add authorized users with `smbpasswd`. Do not expose writable guest shares by default.
 
