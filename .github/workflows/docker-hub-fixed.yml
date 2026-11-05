@@ -41,7 +41,7 @@ jobs:
         run: |
           set -euo pipefail
           while IFS= read -r -d '' f; do
-            if grep -Iq . "$f" 2>/dev/null && grep -q  "$f"; then
+            if grep -Iq . "$f" 2>/dev/null && LC_ALL=C grep -q $'\r' "$f"; then
               echo "::notice file=$f::CRLF detected; Dockerfile normalizes this source file before build execution"
             fi
           done < <(find . -type f -not -path './.git/*' \( -name '*.sh' -o -name '*.bash' -o -name '*.command' -o -name 'Dockerfile*' \) -print0)
