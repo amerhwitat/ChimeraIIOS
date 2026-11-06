@@ -89,11 +89,11 @@ trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 if [ ! -f "$BASE/.packages-installed" ]; then
   log "installing shared package set (one-off)"
   mount_chroot "$BASE"
+  install -D -m 0755 "$REPO_DIR/tools/aurora/install-runtime-packages.sh" "$BASE/usr/local/sbin/chimera-install-runtime-packages"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
-    install -D -m 0755 "$REPO_DIR/tools/aurora/install-runtime-packages.sh" /usr/local/sbin/chimera-install-runtime-packages
     /usr/local/sbin/chimera-install-runtime-packages
     apt-get install -y -qq --no-install-recommends \
       linux-image-amd64 initramfs-tools live-boot live-boot-initramfs-tools \
