@@ -122,12 +122,12 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 # tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
 # /sys are rebuilt empty (the initramfs mounts their filesystems).
 cp -a "$BASE/." "$WORK/" 2>/dev/null || true
-# Build the implemented native command multicall for every configured Linux ABI.
+# Cross-build the implemented Linux ELF compatibility multicall; not Koronos-native.
 python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
   --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
   --output "$BUILD/native-command-isa" --require-all
-install -d "$WORK/usr/lib/chimera/commands/native"
+install -d "$WORK/usr/lib/chimera/commands/linux-abi"
 cp -a "$BUILD/native-command-isa/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 # Install the complete command and ISA catalogues into both hosted OS rootfs trees.
 mkdir -p "$WORK/usr/share/chimera/catalogs"
