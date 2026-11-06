@@ -21,5 +21,7 @@ source_builder=(root/"tools/aurora/build-terminal-shell-sources.sh").read_text()
 for binary in ("yash","nu","wezterm","ghostty","contour"):
     assert binary in source_builder, f"missing source build recipe for {binary}"
 assert "git clone --depth 1" in source_builder
+for alias in ("chimera-terminal","chimera-terminals","chimera-shell-ar"):
+    assert alias in (root/"tools/aurora/install-terminal-shell-suite.sh").read_text()
 assert "rev-parse HEAD" in source_builder
 print("PASS: 10 terminal and 8 shell providers are package-checked; launchers require installed executables")
