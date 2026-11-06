@@ -11,7 +11,7 @@ root=pathlib.Path(sys.argv[1]); manifest=json.loads(pathlib.Path(sys.argv[2]).re
 names={"xterm":"XTerm","gnome-terminal":"GNOME Terminal","konsole":"Konsole","xfce4-terminal":"XFCE Terminal",
        "foot":"Foot","kitty":"Kitty","alacritty":"Alacritty","wezterm":"WezTerm","ghostty":"Ghostty","contour":"Contour"}
 for row in manifest.get("entries",[]):
-    if row.get("kind")!="terminal" or row.get("status") not in ("binary-present","verified-elf-provider"):
+    if row.get("kind")!="terminal" or row.get("status") not in ("binary-present","verified-elf-provider") or row.get("runtime_status")!="version-smoke-pass":
         continue
     path=row.get("path","")
     if not path or not (root/path.lstrip("/")).is_file() or not (root/path.lstrip("/")).stat().st_mode&0o111: continue
