@@ -9,6 +9,8 @@ on:
       - 'tools/commands/build-command-isa-coverage.py'
       - 'tools/boot/verify-menu-timeouts.py'
       - 'tests/live-image/**'
+      - 'tests/desktop/test_aurora_sound_contract.py'
+      - 'desktop/aurora-shell/**'
       - 'web/**'
       - 'desktop/**'
       - 'apps/**'
@@ -23,6 +25,8 @@ on:
       - 'tools/commands/build-command-isa-coverage.py'
       - 'tools/boot/verify-menu-timeouts.py'
       - 'tests/live-image/**'
+      - 'tests/desktop/test_aurora_sound_contract.py'
+      - 'desktop/aurora-shell/**'
       - 'web/**'
       - 'desktop/**'
       - 'apps/**'
@@ -65,6 +69,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py tools/aurora/export-icon-theme.py tools/commands/build-command-isa-coverage.py tools/boot/verify-menu-timeouts.py
+          python3 tests/desktop/test_aurora_sound_contract.py
           python3 tools/boot/verify-menu-timeouts.py --root .
           python3 tools/aurora/export-icon-theme.py --output "$RUNNER_TEMP/aurora-icon-export"
           python3 - "$RUNNER_TEMP/aurora-icon-export/manifest.json" <<'PY'
