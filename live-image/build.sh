@@ -21,6 +21,8 @@ esac
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$REPO_DIR/tools/boot/verify-menu-timeouts.py" --root "$REPO_DIR"
+python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$REPO_DIR/system/commands/command-runtime-capabilities.json" >/dev/null
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
 NATIVE_COMMAND_OUT="$BUILD/native-command-isa"
@@ -104,8 +106,9 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
+if [ ! -f "$BASE/.packages-installed-v3" ]; then
   log "installing shared package set (one-off)"
+  install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
@@ -136,11 +139,13 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       tar gzip bzip2 xz-utils zip unzip man-db manpages \
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    bash /tmp/chimera-install-command-providers.sh
+    rm -f /tmp/chimera-install-command-providers.sh
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  touch "$BASE/.packages-installed-v3"
 fi
 
 # ------------------------------------------------------------- rootfs copy
@@ -173,7 +178,14 @@ done < <("$WORK$BB_IN_ROOT" --list)
 # Put the complete command/ISA catalogues and the actual provider coverage
 # report in both desktop editions; catalog-only entries remain explicitly marked.
 install -d "$WORK/usr/share/chimera/catalogs"
-for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
   if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
 done
 install -d "$WORK/usr/lib/chimera/commands/linux-abi"
@@ -224,7 +236,10 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
 bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
-# Recompute provider coverage after all distro packages and source-built terminals are installed.
+# Audit every command record against actual files in the final target rootfs.
+python3 "$REPO_DIR/tools/commands/verify-command-provider-coverage.py" \
+  "$WORK" "$REPO_DIR/system/commands/command-runtime-capabilities.json" x86_64
+# Recompute the platform-specific command/ISA report after all providers are installed.
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
   --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
