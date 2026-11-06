@@ -1,5 +1,7 @@
 import json
 import re
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -45,11 +47,20 @@ class BootMenuTimeoutTests(unittest.TestCase):
         self.assertEqual(policy["on_timeout"], "launch_configured_default")
         self.assertTrue(policy["auto_select_default"])
 
-    def test_userspace_tmpfiles_declaration_is_packaged(self):
+    def test_userspace_tmpfiles_declaration_is_installed(self):
         source = Path("userspace/tmpfiles/aurora.conf")
-        makefile = Path("userspace/Makefile").read_text()
         self.assertTrue(source.is_file())
-        self.assertIn("tmpfiles/aurora.conf", makefile)
+        with tempfile.TemporaryDirectory() as destdir:
+            subprocess.run(
+                ["make", "-C", "userspace", "install", f"DESTDIR={destdir}"],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            installed = Path(destdir) / "usr/lib/tmpfiles.d/aurora.conf"
+            self.assertTrue(installed.is_file())
+            self.assertEqual(installed.read_text(), source.read_text())
 
 
 if __name__ == "__main__":
