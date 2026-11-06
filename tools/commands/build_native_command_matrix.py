@@ -30,7 +30,7 @@ def main():
    if link.exists() or link.is_symlink():link.unlink()
    link.symlink_to("chimera-cmd")
   row.update({"binary_status":"cross-compiled-and-elf-machine-validated","elf_machine":machine,"elf_machine_id":spec["elf_machine"],"binary":str(binary.relative_to(a.output)),"sha256":sha256(binary),"runtime_status":"not-tested-cross-build-only"});rows.append(row)
- manifest={"schema":"CHM-NATIVE-COMMAND-ISA-BUILD-1","policy":"Only compiled outputs with a verified ELF machine field are marked built. Cross-compilation is not native runtime acceptance.","native_command_count":len(aliases),"target_count":len(TARGETS),"targets":rows}
+ manifest={"schema":"CHM-LINUX-ABI-COMMAND-BUILD-1","policy":"Only compiled outputs with a verified ELF machine field are marked built. Cross-compilation is not native runtime acceptance.","native_command_count":len(aliases),"target_count":len(TARGETS),"targets":rows}
  (a.output/"manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
  print(json.dumps({"built":sum(r["binary_status"]=="cross-compiled-and-elf-machine-validated" for r in rows),"targets":len(rows),"failures":failures},sort_keys=True))
  return 1 if a.require_all and failures else 0
