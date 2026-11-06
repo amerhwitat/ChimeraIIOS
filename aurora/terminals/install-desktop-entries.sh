@@ -50,7 +50,9 @@ X-Chimera-Aurora=true
 X-Chimera-Shell-ID={ident}
 """
     (apps/f"chimera-{kind}-{ident}.desktop").write_text(desktop)
-(apps/"chimera-terminal-center.desktop").write_text("""[Desktop Entry]
+center=next((p for p in (root/"usr/bin/aurora-terminal-center",root/"usr/local/bin/aurora-terminal-center") if p.is_file() and p.stat().st_mode&0o111),None)
+if center:
+    (apps/"chimera-terminal-center.desktop").write_text("""[Desktop Entry]
 Type=Application
 Name=Aurora Terminal Center
 Comment=Available terminal emulators and command shells
