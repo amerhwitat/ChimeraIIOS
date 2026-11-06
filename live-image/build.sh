@@ -117,7 +117,13 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
     # Optional open-source shells and terminal emulators: install only packages
     # available from the signed Debian repositories. Missing packages remain
     # visible in the staging manifest instead of producing placeholder launchers.
-    for pkg in bash zsh fish dash mksh yash elvish nushell gnome-terminal konsole xfce4-terminal foot kitty alacritty wezterm ghostty contour; do
+    # Install every catalogued shell and terminal for both hosted editions.
+    # Packages unavailable in this Ubuntu suite remain visible in the runtime manifest;
+    # no desktop launcher is generated unless its real executable passes verification.
+    for pkg in bash zsh fish dash mksh yash elvish nushell \
+      xterm gnome-terminal gnome-console konsole xfce4-terminal foot kitty ptyxis \
+      alacritty wezterm ghostty contour terminator tilix mate-terminal qterminal \
+      sakura terminology lxterminal blackbox-terminal; do
       if apt-cache show "$pkg" >/dev/null 2>&1; then
         apt-get install -y -qq --no-install-recommends "$pkg" || echo "[AURORA-TERMINALS] package install failed: $pkg"
       else
