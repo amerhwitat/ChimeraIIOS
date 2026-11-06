@@ -37,7 +37,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes ${{ matrix.package }} binutils
-      - name: Run native multicall semantic smoke tests
+      - name: Run host multicall smoke tests
         if: matrix.arch == 'x86_64'
         run: bash tests/commands/test_chimera_cmd.sh
       - name: Build architecture-specific command binary
