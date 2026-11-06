@@ -257,7 +257,7 @@ build_iso_edition() {
     log_info "Creating GRUB configuration..."
     cat > "$edition_build_dir/iso/boot/grub/grub.cfg" << GRUB_CFG
 set default=0
-set timeout=10
+set timeout=30
 
 menuentry "Chimera II OS - $edition_name (Live)" {
     search --label ChimeraIIOS-$edition --set root
