@@ -113,6 +113,13 @@ python3 "$ROOT/tools/ai/knowledge_db.py" validate --db "$DIST/iso/boot/ai/knowle
   echo "ERROR: staged knowledge database failed validation" >&2; exit 2; }
 sha256sum "$DIST/iso/boot/ai/knowledge-db.json" | awk '{print $1"  knowledge-db.json"}' > "$DIST/iso/boot/ai/knowledge-db.json.sha256"
 
+# Stage the complete media / app-catalogue / documentation / CI-workflow payload
+# under /payload with a manifest and per-file digests.
+printf '%s\n' '[3d/7] Stage media, apps, docs and workflow payload'
+python3 "$ROOT/tools/iso/stage_payload.py" --root "$ROOT" --iso "$DIST/iso" --limit-mb "${CHIMERA_PAYLOAD_LIMIT_MB:-200}"
+test -s "$DIST/iso/payload/MANIFEST.json" || { echo "ERROR: payload manifest missing" >&2; exit 2; }
+test -s "$DIST/iso/payload/SHA256SUMS" || { echo "ERROR: payload checksums missing" >&2; exit 2; }
+
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"

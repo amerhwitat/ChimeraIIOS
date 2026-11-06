@@ -254,6 +254,8 @@ def expand_seed(entries: dict) -> None:
         entries.setdefault(e["id"], e)
     for e in isa_entries():
         entries.setdefault(e["id"], e)
+    for e in isa_architecture_entries():
+        entries.setdefault(e["id"], e)
     for (name, fam, asm, triple, syscall, paging, boot, abi) in ARCH:
         e = make_entry("arch", f"{name} toolchain",
                        f"{name}: assembler {asm}; GCC triplet {triple}; syscall entry {syscall}; paging {paging}; boot {boot}; ABI {abi}.",
@@ -274,6 +276,31 @@ def expand_seed(entries: dict) -> None:
     for (name, summary, tag) in FS:
         e = make_entry("fs", name, summary, [tag, "filesystem"], "linux-7.3 fs/ (reference model)")
         entries.setdefault(e["id"], e)
+
+
+def isa_architecture_entries() -> list[dict]:
+    """Import the canonical ISA architecture rows (104) as catalogue entries."""
+    out = []
+    path = os.path.join(ROOT, "isa", "isa_database.json")
+    if not os.path.exists(path):
+        return out
+    try:
+        data = json.load(open(path, encoding="utf-8"))
+    except Exception:
+        return out
+    for row in data.get("architectures", []):
+        if not isinstance(row, list) or len(row) < 5:
+            continue
+        name, cls, family, bits, status = row[0], row[1], row[2], row[3], row[4]
+        enc = row[5] if len(row) > 5 else ""
+        out.append(make_entry(
+            "isa",
+            f"architecture {name}",
+            f"{name}: class {cls}, family {family}, {bits}-bit words, status {status}, encoding {enc}.",
+            [str(name), str(family), "architecture"],
+            "isa/isa_database.json (CHM-ISA-DB-4)",
+        ))
+    return out
 
 
 def build(db_path: str) -> dict:

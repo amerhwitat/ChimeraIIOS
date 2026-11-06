@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "name": "chimera-octavian-knowledge-db",
- "generated_utc": "2026-11-05T02:33:28+00:00",
+ "generated_utc": "2026-11-06T05:57:36+00:00",
  "generator": "tools/ai/knowledge_db.py",
  "categories": {
   "arch": "CPU architecture",
@@ -16,7 +16,7 @@
   "isa": "ISA instruction catalogue",
   "fs": "filesystem format"
  },
- "entry_count": 269,
+ "entry_count": 373,
  "notes": "Curated retrieval corpus for the embedded AI module. Appending a validated entry is the learning step; no model weights are stored.",
  "entries": [
   {
@@ -32,7 +32,7 @@
    ],
    "source": "linux-7.3: arch/arm64",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:ibm-power-ppc64le",
@@ -46,7 +46,7 @@
    ],
    "source": "linux-7.3: arch/powerpc",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:loongarch",
@@ -59,7 +59,7 @@
    ],
    "source": "linux-7.3: arch/loongarch",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:mips",
@@ -73,7 +73,7 @@
    ],
    "source": "linux-7.3: arch/mips",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:risc-v-rv64gc",
@@ -88,7 +88,7 @@
    ],
    "source": "linux-7.3: arch/riscv",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:risc-v-sbi",
@@ -103,7 +103,7 @@
    ],
    "source": "linux-7.3: arch/riscv/kernel/sbi.c",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:webassembly",
@@ -117,7 +117,7 @@
    ],
    "source": "project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:aarch64-toolchain",
@@ -132,7 +132,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:aarch64-user-kernel-boundary",
@@ -147,7 +147,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:armv7-toolchain",
@@ -162,7 +162,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:armv7-user-kernel-boundary",
@@ -177,7 +177,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:i386-toolchain",
@@ -192,7 +192,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:i386-user-kernel-boundary",
@@ -207,7 +207,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:loongarch64-toolchain",
@@ -222,7 +222,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:loongarch64-user-kernel-boundary",
@@ -237,7 +237,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:mips64le-toolchain",
@@ -252,7 +252,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:mips64le-user-kernel-boundary",
@@ -267,7 +267,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:ppc64le-toolchain",
@@ -282,7 +282,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:ppc64le-user-kernel-boundary",
@@ -297,7 +297,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:riscv32-toolchain",
@@ -312,7 +312,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:riscv32-user-kernel-boundary",
@@ -327,7 +327,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:riscv64-toolchain",
@@ -342,7 +342,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:riscv64-user-kernel-boundary",
@@ -357,7 +357,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:s390x",
@@ -371,7 +371,7 @@
    ],
    "source": "linux-7.3: arch/s390",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:s390x-toolchain",
@@ -386,7 +386,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:s390x-user-kernel-boundary",
@@ -401,7 +401,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:sparc64-toolchain",
@@ -416,7 +416,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:sparc64-user-kernel-boundary",
@@ -431,7 +431,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:wasm32-toolchain",
@@ -446,7 +446,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:wasm32-user-kernel-boundary",
@@ -461,7 +461,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:x86-protected-mode",
@@ -476,7 +476,7 @@
    ],
    "source": "linux-7.3: arch/x86/boot",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:x86-64-amd64",
@@ -492,7 +492,7 @@
    ],
    "source": "linux-7.3: arch/x86",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:x86-64-toolchain",
@@ -507,7 +507,7 @@
    ],
    "source": "linux-7.3 arch documentation / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "arch:x86-64-user-kernel-boundary",
@@ -522,7 +522,7 @@
    ],
    "source": "linux-7.3 arch documentation",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "boot:el-torito",
@@ -537,7 +537,7 @@
    ],
    "source": "project: ISO-BOOT-REPORT.txt",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "boot:higher-half-kernel",
@@ -551,7 +551,7 @@
    ],
    "source": "project: kernel/arch/x86_64/koronos.ld",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "boot:long-mode-trampoline",
@@ -565,7 +565,7 @@
    ],
    "source": "project: boot/spitfire/sf1_longmode.asm",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "boot:multiboot2",
@@ -580,7 +580,7 @@
    ],
    "source": "linux-7.3: Documentation/arch/x86/boot.rst (comparison)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "boot:uefi-boot",
@@ -595,7 +595,7 @@
    ],
    "source": "project: boot/iso/build-iso.sh",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "boot:initramfs-cpio",
@@ -609,7 +609,7 @@
    ],
    "source": "linux-7.3: usr/initramfs_data.S",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "desktop:aurora-shell",
@@ -624,7 +624,7 @@
    ],
    "source": "project: desktop/aurora-shell",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "desktop:wayland",
@@ -638,7 +638,7 @@
    ],
    "source": "project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "desktop:webkitgtk-kiosk",
@@ -653,7 +653,7 @@
    ],
    "source": "project: live-image/lib/aurora-kiosk.py",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "desktop:x11-session",
@@ -668,7 +668,7 @@
    ],
    "source": "project: live-image/build.sh",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:acpi-s5",
@@ -682,7 +682,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:acpi-tables",
@@ -697,7 +697,7 @@
    ],
    "source": "linux-7.3: drivers/acpi",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:ahci-port",
@@ -711,7 +711,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:ahci-sata",
@@ -726,7 +726,7 @@
    ],
    "source": "linux-7.3: drivers/ata",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:framebuffer-console",
@@ -741,7 +741,7 @@
    ],
    "source": "project: kernel/drivers/builtin/pc-display.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:hpet",
@@ -755,7 +755,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:ioapic",
@@ -769,7 +769,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:iommu-vt-d",
@@ -783,7 +783,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:msi-msi-x",
@@ -797,7 +797,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:nvme",
@@ -811,7 +811,7 @@
    ],
    "source": "linux-7.3: drivers/nvme",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:nvme-admin-queue",
@@ -825,7 +825,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:pci-enumeration",
@@ -840,7 +840,7 @@
    ],
    "source": "linux-7.3: drivers/pci",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:pcie-ecam",
@@ -854,7 +854,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:ps-2-keyboard",
@@ -868,7 +868,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:rtc-cmos",
@@ -882,7 +882,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:smbios",
@@ -896,7 +896,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:smp-trampoline",
@@ -910,7 +910,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:serial-16550-uart",
@@ -925,7 +925,7 @@
    ],
    "source": "linux-7.3: drivers/tty/serial/8250",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:tpm-2-0",
@@ -939,7 +939,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:uefi-gop",
@@ -953,7 +953,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:usb-mass-storage",
@@ -967,7 +967,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:bochs-vga",
@@ -981,7 +981,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:e1000",
@@ -995,7 +995,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:isa-debugcon",
@@ -1010,7 +1010,7 @@
    ],
    "source": "project: tools/boot",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:rtl8139",
@@ -1024,7 +1024,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:virtio",
@@ -1039,7 +1039,7 @@
    ],
    "source": "linux-7.3: drivers/virtio",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:virtio-blk",
@@ -1053,7 +1053,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:virtio-net",
@@ -1067,7 +1067,7 @@
    ],
    "source": "linux-7.3 drivers/ (reference model) / project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "driver:xhci-usb",
@@ -1081,7 +1081,7 @@
    ],
    "source": "linux-7.3: drivers/usb/host",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "fs:fat32",
@@ -1095,7 +1095,7 @@
    ],
    "source": "linux-7.3 fs/ (reference model)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "fs:iso9660-rock-ridge",
@@ -1109,7 +1109,7 @@
    ],
    "source": "linux-7.3 fs/ (reference model)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "fs:cpio-newc",
@@ -1123,7 +1123,7 @@
    ],
    "source": "linux-7.3 fs/ (reference model)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "fs:ext4",
@@ -1137,7 +1137,7 @@
    ],
    "source": "linux-7.3 fs/ (reference model)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "fs:squashfs",
@@ -1151,7 +1151,7 @@
    ],
    "source": "linux-7.3 fs/ (reference model)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "fs:tar",
@@ -1165,7 +1165,7 @@
    ],
    "source": "linux-7.3 fs/ (reference model)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-adc",
@@ -1180,7 +1180,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-beq",
@@ -1195,7 +1195,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-bne",
@@ -1210,7 +1210,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-inx",
@@ -1225,7 +1225,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-jmp",
@@ -1240,7 +1240,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-jsr",
@@ -1255,7 +1255,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-lda",
@@ -1270,7 +1270,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-nop",
@@ -1285,7 +1285,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-rts",
@@ -1300,7 +1300,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-sbc",
@@ -1315,7 +1315,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-sta",
@@ -1330,7 +1330,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:6502-tax",
@@ -1345,7 +1345,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-add",
@@ -1360,7 +1360,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-djnz",
@@ -1375,7 +1375,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-inc",
@@ -1390,7 +1390,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-ljmp",
@@ -1405,7 +1405,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-mov",
@@ -1420,7 +1420,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-nop",
@@ -1435,7 +1435,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-sjmp",
@@ -1450,7 +1450,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:8051-subb",
@@ -1465,7 +1465,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-add",
@@ -1480,7 +1480,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-and",
@@ -1495,7 +1495,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-b",
@@ -1510,7 +1510,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-bl",
@@ -1525,7 +1525,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-blr",
@@ -1540,7 +1540,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-br",
@@ -1555,7 +1555,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-eor",
@@ -1570,7 +1570,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-ldr",
@@ -1585,7 +1585,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-nop",
@@ -1600,7 +1600,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-orr",
@@ -1615,7 +1615,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-ret",
@@ -1630,7 +1630,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-str",
@@ -1645,7 +1645,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-sub",
@@ -1660,7 +1660,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:aarch64-svc",
@@ -1675,7 +1675,1567 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-6502",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture 6502",
+   "summary": "6502: class CISC, family MOS 6502, 8-bit words, status legacy, encoding 1/2/3-byte.",
+   "tags": [
+    "6502",
+    "MOS 6502",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-8051",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture 8051",
+   "summary": "8051: class CISC, family MCS-51, 8-bit words, status legacy/standard, encoding 1/2/3-byte.",
+   "tags": [
+    "8051",
+    "MCS-51",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-aarch64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture aarch64",
+   "summary": "aarch64: class RISC, family AArch64, 64-bit words, status standard, encoding fixed 32-bit fielded instructions.",
+   "tags": [
+    "aarch64",
+    "AArch64",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-alpha",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture alpha",
+   "summary": "alpha: class RISC, family DEC Alpha, 64-bit words, status legacy, encoding fixed 32-bit.",
+   "tags": [
+    "alpha",
+    "DEC Alpha",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-alpha-ev6",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture alpha-ev6",
+   "summary": "alpha-ev6: class RISC, family DEC Alpha EV6, 64-bit words, status catalog-only, encoding fixed 32-bit instruction format; implementation extensions.",
+   "tags": [
+    "alpha-ev6",
+    "DEC Alpha EV6",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-amd-gcn",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture amd-gcn",
+   "summary": "amd-gcn: class GPU, family AMD GCN/RDNA/CDNA, 32-bit words, status catalog-only, encoding 32/64-bit GPU instruction encodings with generation-specific variants.",
+   "tags": [
+    "amd-gcn",
+    "AMD GCN/RDNA/CDNA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-amd-gcn-rdna",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture amd-gcn-rdna",
+   "summary": "amd-gcn-rdna: class GPU, family AMD GCN/RDNA/CDNA families, 32-bit words, status catalog-only, encoding generation-specific GPU machine encodings.",
+   "tags": [
+    "amd-gcn-rdna",
+    "AMD GCN/RDNA/CDNA families",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-andes-nds32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture andes-nds32",
+   "summary": "andes-nds32: class RISC, family Andes NDS32, 32-bit words, status catalog-only, encoding fixed and optional compressed forms by generation.",
+   "tags": [
+    "andes-nds32",
+    "Andes NDS32",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-apple-gpu",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture apple-gpu",
+   "summary": "apple-gpu: class GPU, family Apple GPU ISA family, 32-bit words, status catalog-only, encoding proprietary generation-specific machine ISA.",
+   "tags": [
+    "apple-gpu",
+    "Apple GPU ISA family",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-arc-compact",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture arc-compact",
+   "summary": "arc-compact: class RISC, family Synopsys ARC, 32-bit words, status catalog-only, encoding configurable compact and extension encodings.",
+   "tags": [
+    "arc-compact",
+    "Synopsys ARC",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-arm-mve",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture arm-mve",
+   "summary": "arm-mve: class RISC-extension, family Arm M-profile Vector Extension, 32-bit words, status catalog-only, encoding Thumb-2-associated vector extension; profile-specific.",
+   "tags": [
+    "arm-mve",
+    "Arm M-profile Vector Extension",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-arm-sme",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture arm-sme",
+   "summary": "arm-sme: class RISC-extension, family Arm Scalable Matrix Extension, 128-bit words, status catalog-only, encoding AArch64 extension; vector/matrix state and instructions.",
+   "tags": [
+    "arm-sme",
+    "Arm Scalable Matrix Extension",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-arm-sve",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture arm-sve",
+   "summary": "arm-sve: class RISC-extension, family Arm Scalable Vector Extension, 128-bit words, status catalog-only, encoding AArch64 scalable vector extension; vector length implementation-defined.",
+   "tags": [
+    "arm-sve",
+    "Arm Scalable Vector Extension",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-arm32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture arm32",
+   "summary": "arm32: class RISC, family A32/T32, 32-bit words, status standard, encoding 32-bit A32 plus 16/32-bit Thumb.",
+   "tags": [
+    "arm32",
+    "A32/T32",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-arm32-thumb",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture arm32-thumb",
+   "summary": "arm32-thumb: class RISC, family AArch32/T32, 32-bit words, status standard, encoding Thumb/T32 mixed 16/32-bit instruction encodings.",
+   "tags": [
+    "arm32-thumb",
+    "AArch32/T32",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-armv7-m",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture armv7-m",
+   "summary": "armv7-m: class RISC, family ARMv7-M, 32-bit words, status catalog-only, encoding Thumb-2 mixed-width encodings and system instructions.",
+   "tags": [
+    "armv7-m",
+    "ARMv7-M",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-armv7-risc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture armv7-risc",
+   "summary": "armv7-risc: class RISC, family ARMv7-A/R, 32-bit words, status catalog-only, encoding A32 32-bit and T32 16/32-bit encodings.",
+   "tags": [
+    "armv7-risc",
+    "ARMv7-A/R",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-armv8-a32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture armv8-a32",
+   "summary": "armv8-a32: class RISC, family ARMv8-A AArch32, 32-bit words, status catalog-only, encoding A32/T32 encodings with architecture-version extensions.",
+   "tags": [
+    "armv8-a32",
+    "ARMv8-A AArch32",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-armv9-a64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture armv9-a64",
+   "summary": "armv9-a64: class RISC, family Armv9-A AArch64, 64-bit words, status catalog-only, encoding fixed 32-bit encodings with architecture extensions.",
+   "tags": [
+    "armv9-a64",
+    "Armv9-A AArch64",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-avr",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture avr",
+   "summary": "avr: class RISC, family AVR, 8-bit words, status standard, encoding 16/32-bit.",
+   "tags": [
+    "avr",
+    "AVR",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-avr8",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture avr8",
+   "summary": "avr8: class RISC, family Atmel AVR 8-bit, 8-bit words, status catalog-only, encoding 8-bit MCU ISA with multiword instructions.",
+   "tags": [
+    "avr8",
+    "Atmel AVR 8-bit",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-blackfin",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture blackfin",
+   "summary": "blackfin: class RISC, family Analog Devices Blackfin, 32-bit words, status catalog-only, encoding 16/32-bit instruction words with DSP operations.",
+   "tags": [
+    "blackfin",
+    "Analog Devices Blackfin",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-bpf",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture bpf",
+   "summary": "bpf: class VM, family Berkeley Packet Filter bytecode, 64-bit words, status catalog-only, encoding virtual instruction set; verifier/runtime restrictions.",
+   "tags": [
+    "bpf",
+    "Berkeley Packet Filter bytecode",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-c6000",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture c6000",
+   "summary": "c6000: class VLIW, family TI C6000 DSP, 32-bit words, status catalog-only, encoding 32-bit instruction slots and packetized VLIW execution.",
+   "tags": [
+    "c6000",
+    "TI C6000 DSP",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-chimera-c8192",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture chimera-c8192",
+   "summary": "chimera-c8192: class custom, family Chimera, 8192-bit words, status project-defined, encoding 16-bit research opcode selector plus operand subfields.",
+   "tags": [
+    "chimera-c8192",
+    "Chimera",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-chimera-r8192",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture chimera-r8192",
+   "summary": "chimera-r8192: class custom, family Chimera, 8192-bit words, status project-defined, encoding 16-bit research opcode selector plus operand subfields.",
+   "tags": [
+    "chimera-r8192",
+    "Chimera",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-dspic",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture dsPIC",
+   "summary": "dsPIC: class DSP, family Microchip dsPIC/PIC24, 16-bit words, status catalog-only, encoding 16-bit DSP/control instruction formats.",
+   "tags": [
+    "dsPIC",
+    "Microchip dsPIC/PIC24",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-dspic33",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture dspic33",
+   "summary": "dspic33: class RISC, family Microchip dsPIC33, 24-bit words, status catalog-only, encoding 24-bit instruction words with DSP-specific operations.",
+   "tags": [
+    "dspic33",
+    "Microchip dsPIC33",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-e2k",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture e2k",
+   "summary": "e2k: class VLIW, family Elbrus E2K, 64-bit words, status catalog-only, encoding VLIW bundles and predicated operations.",
+   "tags": [
+    "e2k",
+    "Elbrus E2K",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-ebpf",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture ebpf",
+   "summary": "ebpf: class VM, family Linux eBPF virtual ISA, 64-bit words, status catalog-only, encoding register-based bytecode; kernel verifier constraints apply.",
+   "tags": [
+    "ebpf",
+    "Linux eBPF virtual ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-fr-v",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture fr-v",
+   "summary": "fr-v: class RISC, family Fujitsu FR-V, 32-bit words, status catalog-only, encoding VLIW/parallel instruction grouping by implementation.",
+   "tags": [
+    "fr-v",
+    "Fujitsu FR-V",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-hexagon",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture hexagon",
+   "summary": "hexagon: class DSP, family Qualcomm Hexagon, 32-bit words, status catalog-only, encoding packetized VLIW DSP ISA; generation-specific.",
+   "tags": [
+    "hexagon",
+    "Qualcomm Hexagon",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-hppa",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture hppa",
+   "summary": "hppa: class RISC, family PA-RISC, 64-bit words, status legacy/standard, encoding fixed 32-bit.",
+   "tags": [
+    "hppa",
+    "PA-RISC",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-hppa-2",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture hppa-2",
+   "summary": "hppa-2: class RISC, family PA-RISC 2.0, 64-bit words, status catalog-only, encoding fixed-width instruction encodings.",
+   "tags": [
+    "hppa-2",
+    "PA-RISC 2.0",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-i8080",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture i8080",
+   "summary": "i8080: class CISC, family Intel 8080/8085, 8-bit words, status catalog-only, encoding 1-3 byte instruction encodings.",
+   "tags": [
+    "i8080",
+    "Intel 8080/8085",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-ia-64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture ia-64",
+   "summary": "ia-64: class EPIC, family Intel Itanium IA-64, 64-bit words, status legacy/standard, encoding 128-bit bundles with three instruction slots.",
+   "tags": [
+    "ia-64",
+    "Intel Itanium IA-64",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-ia64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture ia64",
+   "summary": "ia64: class EPIC, family Itanium, 64-bit words, status legacy, encoding 128-bit bundles.",
+   "tags": [
+    "ia64",
+    "Itanium",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-ibm-s360",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture ibm-s360",
+   "summary": "ibm-s360: class CISC, family IBM System/360, 32-bit words, status catalog-only, encoding 2/4/6-byte instruction formats.",
+   "tags": [
+    "ibm-s360",
+    "IBM System/360",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-ibm-z",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture ibm-z",
+   "summary": "ibm-z: class CISC, family IBM z/Architecture, 64-bit words, status catalog-only, encoding 2/4/6-byte instruction formats and extensions.",
+   "tags": [
+    "ibm-z",
+    "IBM z/Architecture",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-intel-xe-gpu",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture intel-xe-gpu",
+   "summary": "intel-xe-gpu: class GPU, family Intel Xe GPU ISA, 32-bit words, status catalog-only, encoding generation-specific GPU instruction encodings.",
+   "tags": [
+    "intel-xe-gpu",
+    "Intel Xe GPU ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-loongarch32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture loongarch32",
+   "summary": "loongarch32: class RISC, family LoongArch32, 32-bit words, status catalog-only, encoding fixed 32-bit instruction format.",
+   "tags": [
+    "loongarch32",
+    "LoongArch32",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-loongarch64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture loongarch64",
+   "summary": "loongarch64: class RISC, family LoongArch, 64-bit words, status standard, encoding fixed 32-bit.",
+   "tags": [
+    "loongarch64",
+    "LoongArch",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-m68000",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture m68000",
+   "summary": "m68000: class CISC, family Motorola 68000 family, 32-bit words, status catalog-only, encoding variable-length word-oriented encodings.",
+   "tags": [
+    "m68000",
+    "Motorola 68000 family",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-m680x",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture m680x",
+   "summary": "m680x: class CISC, family Motorola 6800/6801/6803, 8-bit words, status catalog-only, encoding variable 1-5 byte instruction forms.",
+   "tags": [
+    "m680x",
+    "Motorola 6800/6801/6803",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-m68k",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture m68k",
+   "summary": "m68k: class CISC, family Motorola 68000, 32-bit words, status legacy/standard, encoding variable 16-bit-word encoding.",
+   "tags": [
+    "m68k",
+    "Motorola 68000",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-m68k-coldfire",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture m68k-coldfire",
+   "summary": "m68k-coldfire: class CISC, family Motorola ColdFire, 32-bit words, status catalog-only, encoding variable-length 68k-derived encodings with subset differences.",
+   "tags": [
+    "m68k-coldfire",
+    "Motorola ColdFire",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-mcs51",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture mcs51",
+   "summary": "mcs51: class CISC, family Intel MCS-51 / 8051, 8-bit words, status catalog-only, encoding 1-3 byte instruction forms.",
+   "tags": [
+    "mcs51",
+    "Intel MCS-51 / 8051",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-microblaze",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture microblaze",
+   "summary": "microblaze: class RISC, family AMD/Xilinx MicroBlaze, 32-bit words, status catalog-only, encoding fixed 32-bit instruction formats and optional extensions.",
+   "tags": [
+    "microblaze",
+    "AMD/Xilinx MicroBlaze",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-microchip-pic16",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture microchip-pic16",
+   "summary": "microchip-pic16: class RISC, family Microchip PIC16, 14-bit words, status catalog-only, encoding 14-bit instruction words; device-family-specific extensions.",
+   "tags": [
+    "microchip-pic16",
+    "Microchip PIC16",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-microchip-pic18",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture microchip-pic18",
+   "summary": "microchip-pic18: class RISC, family Microchip PIC18, 16-bit words, status catalog-only, encoding 16-bit instruction words with multiword forms.",
+   "tags": [
+    "microchip-pic18",
+    "Microchip PIC18",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-microchip-pic24",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture microchip-pic24",
+   "summary": "microchip-pic24: class RISC, family Microchip PIC24, 24-bit words, status catalog-only, encoding 24-bit instruction words and family-specific forms.",
+   "tags": [
+    "microchip-pic24",
+    "Microchip PIC24",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-mips16",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture mips16",
+   "summary": "mips16: class RISC, family MIPS16, 32-bit words, status catalog-only, encoding compressed 16-bit instruction subset.",
+   "tags": [
+    "mips16",
+    "MIPS16",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-mips32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture mips32",
+   "summary": "mips32: class RISC, family MIPS, 32-bit words, status standard, encoding fixed 32-bit R/I/J.",
+   "tags": [
+    "mips32",
+    "MIPS",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-mips64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture mips64",
+   "summary": "mips64: class RISC, family MIPS, 64-bit words, status standard, encoding fixed 32-bit R/I/J.",
+   "tags": [
+    "mips64",
+    "MIPS",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-mips64r6",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture mips64r6",
+   "summary": "mips64r6: class RISC, family MIPS64 Release 6, 64-bit words, status catalog-only, encoding fixed 32-bit forms with revision-specific encoding changes.",
+   "tags": [
+    "mips64r6",
+    "MIPS64 Release 6",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-mos6502",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture mos6502",
+   "summary": "mos6502: class CISC, family MOS 6502 family, 8-bit words, status catalog-only, encoding 1-3 byte opcodes and addressing modes.",
+   "tags": [
+    "mos6502",
+    "MOS 6502 family",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-motorola-6809",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture motorola-6809",
+   "summary": "motorola-6809: class CISC, family Motorola 6809, 8-bit words, status catalog-only, encoding 1-5 byte prefixed instruction forms.",
+   "tags": [
+    "motorola-6809",
+    "Motorola 6809",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-msp430",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture msp430",
+   "summary": "msp430: class RISC, family TI MSP430, 16-bit words, status catalog-only, encoding 16-bit instruction words with extension-word forms.",
+   "tags": [
+    "msp430",
+    "TI MSP430",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-msp430x",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture msp430x",
+   "summary": "msp430x: class RISC, family TI MSP430X, 20-bit words, status catalog-only, encoding 16-bit words with extended 20-bit addressing forms.",
+   "tags": [
+    "msp430x",
+    "TI MSP430X",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-nios-ii",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture nios-ii",
+   "summary": "nios-ii: class RISC, family Intel Altera Nios II, 32-bit words, status catalog-only, encoding soft-core processor ISA.",
+   "tags": [
+    "nios-ii",
+    "Intel Altera Nios II",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-nios2",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture nios2",
+   "summary": "nios2: class RISC, family Intel/Altera Nios II, 32-bit words, status catalog-only, encoding fixed 32-bit instruction formats.",
+   "tags": [
+    "nios2",
+    "Intel/Altera Nios II",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-nvidia-ptx",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture nvidia-ptx",
+   "summary": "nvidia-ptx: class GPU-VM, family NVIDIA PTX virtual ISA, 32-bit words, status catalog-only, encoding GPU virtual ISA compiled to target-specific machine code.",
+   "tags": [
+    "nvidia-ptx",
+    "NVIDIA PTX virtual ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-openrisc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture openrisc",
+   "summary": "openrisc: class RISC, family OpenRISC 1000, 32-bit words, status catalog-only, encoding fixed-width 32-bit instruction formats.",
+   "tags": [
+    "openrisc",
+    "OpenRISC 1000",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-or1k",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture or1k",
+   "summary": "or1k: class RISC, family OpenRISC ORBIS, 32-bit words, status catalog-only, encoding fixed-width 32-bit instruction formats.",
+   "tags": [
+    "or1k",
+    "OpenRISC ORBIS",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-pa-risc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture pa-risc",
+   "summary": "pa-risc: class RISC, family HP PA-RISC, 64-bit words, status legacy/standard, encoding fixed-width instruction encodings; version-specific.",
+   "tags": [
+    "pa-risc",
+    "HP PA-RISC",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-pdp11",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture pdp11",
+   "summary": "pdp11: class CISC, family DEC PDP-11, 16-bit words, status catalog-only, encoding variable-length operands and addressing modes.",
+   "tags": [
+    "pdp11",
+    "DEC PDP-11",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-pic24-dspic",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture pic24-dspic",
+   "summary": "pic24-dspic: class RISC, family Microchip PIC24/dsPIC, 24-bit words, status catalog-only, encoding 24-bit instruction words with multiword variants.",
+   "tags": [
+    "pic24-dspic",
+    "Microchip PIC24/dsPIC",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-pic8",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture pic8",
+   "summary": "pic8: class CISC, family Microchip PIC 8-bit, 8-bit words, status catalog-only, encoding family-specific mid-range/high-end encodings.",
+   "tags": [
+    "pic8",
+    "Microchip PIC 8-bit",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-power10",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture power10",
+   "summary": "power10: class RISC, family IBM POWER10 / Power ISA, 64-bit words, status catalog-only, encoding fixed-width and prefixed instruction forms.",
+   "tags": [
+    "power10",
+    "IBM POWER10 / Power ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-power10-mma",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture power10-mma",
+   "summary": "power10-mma: class RISC-extension, family IBM Power10 MMA, 128-bit words, status catalog-only, encoding matrix multiply assist extension; implementation-specific state.",
+   "tags": [
+    "power10-mma",
+    "IBM Power10 MMA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-powerpc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture powerpc",
+   "summary": "powerpc: class RISC, family Power ISA, 32-bit words, status standard, encoding fixed 32-bit forms.",
+   "tags": [
+    "powerpc",
+    "Power ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-ppc64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture ppc64",
+   "summary": "ppc64: class RISC, family Power ISA, 64-bit words, status standard, encoding 32-bit forms plus prefixed extensions.",
+   "tags": [
+    "ppc64",
+    "Power ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-qualcomm-adreno",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture qualcomm-adreno",
+   "summary": "qualcomm-adreno: class GPU, family Qualcomm Adreno GPU ISA, 32-bit words, status catalog-only, encoding proprietary generation-specific machine ISA.",
+   "tags": [
+    "qualcomm-adreno",
+    "Qualcomm Adreno GPU ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-renesas-rx",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture renesas-rx",
+   "summary": "renesas-rx: class CISC, family Renesas RX, 32-bit words, status catalog-only, encoding variable-length instruction encoding.",
+   "tags": [
+    "renesas-rx",
+    "Renesas RX",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-renesas-v850",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture renesas-v850",
+   "summary": "renesas-v850: class RISC, family Renesas V850, 32-bit words, status catalog-only, encoding 16/32-bit instruction forms.",
+   "tags": [
+    "renesas-v850",
+    "Renesas V850",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv-crypto",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv-crypto",
+   "summary": "riscv-crypto: class RISC-extension, family RISC-V Cryptography Extensions, 32-bit words, status catalog-only, encoding extension encodings depend on ratified spec/version.",
+   "tags": [
+    "riscv-crypto",
+    "RISC-V Cryptography Extensions",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv-vector",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv-vector",
+   "summary": "riscv-vector: class RISC-extension, family RISC-V Vector Extension, 64-bit words, status catalog-only, encoding RVV vector extension with implementation-defined VLEN.",
+   "tags": [
+    "riscv-vector",
+    "RISC-V Vector Extension",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv128",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv128",
+   "summary": "riscv128: class RISC, family RISC-V RV128I proposal, 128-bit words, status catalog-only, encoding specification/proposal-dependent; not general deployed baseline.",
+   "tags": [
+    "riscv128",
+    "RISC-V RV128I proposal",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv32",
+   "summary": "riscv32: class RISC, family RISC-V, 32-bit words, status standard, encoding 16/32-bit base plus extensions.",
+   "tags": [
+    "riscv32",
+    "RISC-V",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv32e",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv32e",
+   "summary": "riscv32e: class RISC, family RISC-V RV32E, 32-bit words, status catalog-only, encoding RV32 base with embedded register subset and optional extensions.",
+   "tags": [
+    "riscv32e",
+    "RISC-V RV32E",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv64",
+   "summary": "riscv64: class RISC, family RISC-V, 64-bit words, status standard, encoding 16/32-bit base plus extensions.",
+   "tags": [
+    "riscv64",
+    "RISC-V",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv64e",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv64e",
+   "summary": "riscv64e: class RISC, family RISC-V RV64E, 64-bit words, status catalog-only, encoding RV64 embedded register subset where specified.",
+   "tags": [
+    "riscv64e",
+    "RISC-V RV64E",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-riscv64gc",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture riscv64gc",
+   "summary": "riscv64gc: class RISC, family RISC-V RV64GC profile, 64-bit words, status catalog-only, encoding RV64I plus G and C extension family.",
+   "tags": [
+    "riscv64gc",
+    "RISC-V RV64GC profile",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-s390x",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture s390x",
+   "summary": "s390x: class CISC, family IBM z/Architecture, 64-bit words, status standard, encoding 2/4/6-byte formats.",
+   "tags": [
+    "s390x",
+    "IBM z/Architecture",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-sh4",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture sh4",
+   "summary": "sh4: class RISC, family SuperH, 32-bit words, status legacy/standard, encoding fixed 16-bit.",
+   "tags": [
+    "sh4",
+    "SuperH",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-sparc-v8",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture sparc-v8",
+   "summary": "sparc-v8: class RISC, family SPARC V8, 32-bit words, status catalog-only, encoding fixed 32-bit instruction format.",
+   "tags": [
+    "sparc-v8",
+    "SPARC V8",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-sparc-v9",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture sparc-v9",
+   "summary": "sparc-v9: class RISC, family SPARC, 64-bit words, status standard, encoding fixed 32-bit forms.",
+   "tags": [
+    "sparc-v9",
+    "SPARC",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-spir-v",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture spir-v",
+   "summary": "spir-v: class GPU-VM, family Khronos SPIR-V, 32-bit words, status catalog-only, encoding typed intermediate representation for GPU/compute APIs.",
+   "tags": [
+    "spir-v",
+    "Khronos SPIR-V",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-superh-sh2",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture superh-sh2",
+   "summary": "superh-sh2: class RISC, family SuperH SH-2, 32-bit words, status catalog-only, encoding fixed 16-bit instruction encoding.",
+   "tags": [
+    "superh-sh2",
+    "SuperH SH-2",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-superh-sh4",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture superh-sh4",
+   "summary": "superh-sh4: class RISC, family SuperH SH-4, 32-bit words, status catalog-only, encoding 16/32-bit mixed instruction encodings.",
+   "tags": [
+    "superh-sh4",
+    "SuperH SH-4",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-superh-sh4a",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture superh-sh4a",
+   "summary": "superh-sh4a: class RISC, family SuperH SH-4A, 32-bit words, status catalog-only, encoding 16-bit base with 32-bit instruction extensions.",
+   "tags": [
+    "superh-sh4a",
+    "SuperH SH-4A",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-tricore",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture tricore",
+   "summary": "tricore: class RISC, family Infineon TriCore, 32-bit words, status catalog-only, encoding 16/32-bit instruction formats and DSP extensions.",
+   "tags": [
+    "tricore",
+    "Infineon TriCore",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-v850",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture v850",
+   "summary": "v850: class RISC, family Renesas V850, 32-bit words, status catalog-only, encoding embedded instruction formats; variant-specific.",
+   "tags": [
+    "v850",
+    "Renesas V850",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-vax",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture vax",
+   "summary": "vax: class CISC, family VAX, 32-bit words, status legacy, encoding variable byte-oriented encoding.",
+   "tags": [
+    "vax",
+    "VAX",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-wasm32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture wasm32",
+   "summary": "wasm32: class VM, family WebAssembly 32-bit virtual ISA, 32-bit words, status catalog-only, encoding stack-machine bytecode; not a physical CPU ISA.",
+   "tags": [
+    "wasm32",
+    "WebAssembly 32-bit virtual ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-wasm64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture wasm64",
+   "summary": "wasm64: class VM, family WebAssembly 64-bit virtual ISA, 64-bit words, status catalog-only, encoding stack-machine bytecode; not a physical CPU ISA.",
+   "tags": [
+    "wasm64",
+    "WebAssembly 64-bit virtual ISA",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-wdc65c816",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture wdc65c816",
+   "summary": "wdc65c816: class CISC, family WDC 65C816, 16-bit words, status catalog-only, encoding 8/16-bit accumulator modes and variable operand widths.",
+   "tags": [
+    "wdc65c816",
+    "WDC 65C816",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-x86-16",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture x86-16",
+   "summary": "x86-16: class CISC, family x86 real mode, 16-bit words, status catalog-only, encoding variable-length prefixes/opcodes/ModR-M/immediates.",
+   "tags": [
+    "x86-16",
+    "x86 real mode",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-x86-32",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture x86-32",
+   "summary": "x86-32: class CISC, family x86, 32-bit words, status standard, encoding variable-length x86 encoding.",
+   "tags": [
+    "x86-32",
+    "x86",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-x86-64",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture x86-64",
+   "summary": "x86-64: class CISC, family x86, 64-bit words, status standard, encoding variable-length prefixes/opcode/ModR-M/SIB/displacement/immediate.",
+   "tags": [
+    "x86-64",
+    "x86",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-x86-avx10",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture x86-avx10",
+   "summary": "x86-avx10: class CISC-extension, family Intel AVX10, 512-bit words, status catalog-only, encoding x86 extension; exact feature support is model/OS-state dependent.",
+   "tags": [
+    "x86-avx10",
+    "Intel AVX10",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-xtensa",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture xtensa",
+   "summary": "xtensa: class RISC, family Xtensa, 32-bit words, status configurable, encoding 16/24/32-bit configurable.",
+   "tags": [
+    "xtensa",
+    "Xtensa",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-xtensa-lx",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture xtensa-lx",
+   "summary": "xtensa-lx: class RISC, family Tensilica Xtensa LX, 32-bit words, status catalog-only, encoding configurable 16/24-bit and optional extension instructions.",
+   "tags": [
+    "xtensa-lx",
+    "Tensilica Xtensa LX",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
+  },
+  {
+   "id": "isa:architecture-z80",
+   "category": "isa",
+   "category_label": "ISA instruction catalogue",
+   "topic": "architecture z80",
+   "summary": "z80: class CISC, family Z80, 8-bit words, status legacy, encoding prefix plus 1/2/3-byte.",
+   "tags": [
+    "z80",
+    "Z80",
+    "architecture"
+   ],
+   "source": "isa/isa_database.json (CHM-ISA-DB-4)",
+   "confidence": "curated",
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-add",
@@ -1690,7 +3250,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-and",
@@ -1705,7 +3265,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-b",
@@ -1720,7 +3280,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-bl",
@@ -1735,7 +3295,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-bx",
@@ -1750,7 +3310,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-ldr",
@@ -1765,7 +3325,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-mov",
@@ -1780,7 +3340,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-orr",
@@ -1795,7 +3355,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-str",
@@ -1810,7 +3370,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-sub",
@@ -1825,7 +3385,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-thumb-bx",
@@ -1840,7 +3400,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-thumb-movs",
@@ -1855,7 +3415,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:arm32-thumb-nop",
@@ -1870,7 +3430,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-add",
@@ -1885,7 +3445,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-and",
@@ -1900,7 +3460,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-call",
@@ -1915,7 +3475,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-eor",
@@ -1930,7 +3490,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-nop",
@@ -1945,7 +3505,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-or",
@@ -1960,7 +3520,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-ret",
@@ -1975,7 +3535,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-rjmp",
@@ -1990,7 +3550,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:avr-sub",
@@ -2005,7 +3565,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:chimera-c8192-add",
@@ -2020,7 +3580,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:chimera-c8192-modexp",
@@ -2035,7 +3595,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:chimera-c8192-mul",
@@ -2050,7 +3610,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:chimera-c8192-netsend",
@@ -2065,7 +3625,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:chimera-c8192-tcontract",
@@ -2080,7 +3640,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-addq",
@@ -2095,7 +3655,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-bra",
@@ -2110,7 +3670,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-bsr",
@@ -2125,7 +3685,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-jmp",
@@ -2140,7 +3700,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-jsr",
@@ -2155,7 +3715,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-moveq",
@@ -2170,7 +3730,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-nop",
@@ -2185,7 +3745,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-rts",
@@ -2200,7 +3760,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:m68k-subq",
@@ -2215,7 +3775,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-add",
@@ -2230,7 +3790,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-addi",
@@ -2245,7 +3805,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-and",
@@ -2260,7 +3820,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-beq",
@@ -2275,7 +3835,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-j",
@@ -2290,7 +3850,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-jal",
@@ -2305,7 +3865,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-jr",
@@ -2320,7 +3880,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-lw",
@@ -2335,7 +3895,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-or",
@@ -2350,7 +3910,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-slt",
@@ -2365,7 +3925,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-sub",
@@ -2380,7 +3940,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-sw",
@@ -2395,7 +3955,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:mips32-xor",
@@ -2410,7 +3970,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-add",
@@ -2425,7 +3985,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-addi",
@@ -2440,7 +4000,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-b",
@@ -2455,7 +4015,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-bl",
@@ -2470,7 +4030,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-blr",
@@ -2485,7 +4045,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-lwz",
@@ -2500,7 +4060,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-nop",
@@ -2515,7 +4075,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-or",
@@ -2530,7 +4090,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-stw",
@@ -2545,7 +4105,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-subf",
@@ -2560,7 +4120,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:powerpc-xor",
@@ -2575,7 +4135,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-add",
@@ -2590,7 +4150,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-addi",
@@ -2605,7 +4165,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-and",
@@ -2620,7 +4180,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-andi",
@@ -2635,7 +4195,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-auipc",
@@ -2650,7 +4210,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-beq",
@@ -2665,7 +4225,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-ebreak",
@@ -2680,7 +4240,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-ecall",
@@ -2695,7 +4255,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-fence",
@@ -2710,7 +4270,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-jal",
@@ -2725,7 +4285,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-jalr",
@@ -2740,7 +4300,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-lbu",
@@ -2755,7 +4315,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-lh",
@@ -2770,7 +4330,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-lui",
@@ -2785,7 +4345,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-lw",
@@ -2800,7 +4360,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-mret",
@@ -2815,7 +4375,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-or",
@@ -2830,7 +4390,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-ori",
@@ -2845,7 +4405,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sb",
@@ -2860,7 +4420,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sh",
@@ -2875,7 +4435,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sll",
@@ -2890,7 +4450,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-slt",
@@ -2905,7 +4465,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-slti",
@@ -2920,7 +4480,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sltu",
@@ -2935,7 +4495,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sra",
@@ -2950,7 +4510,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-srl",
@@ -2965,7 +4525,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sub",
@@ -2980,7 +4540,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-sw",
@@ -2995,7 +4555,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-xor",
@@ -3010,7 +4570,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:riscv64-xori",
@@ -3025,7 +4585,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:s390x-a",
@@ -3040,7 +4600,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:s390x-ag",
@@ -3055,7 +4615,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:s390x-ar",
@@ -3070,7 +4630,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:s390x-bal",
@@ -3085,7 +4645,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-add",
@@ -3100,7 +4660,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-and",
@@ -3115,7 +4675,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-call",
@@ -3130,7 +4690,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-jmp",
@@ -3145,7 +4705,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-mov",
@@ -3160,7 +4720,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-nop",
@@ -3175,7 +4735,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-or",
@@ -3190,7 +4750,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-pop",
@@ -3205,7 +4765,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-push",
@@ -3220,7 +4780,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-ret",
@@ -3235,7 +4795,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-sub",
@@ -3250,7 +4810,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:x86-64-xor",
@@ -3265,7 +4825,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-add",
@@ -3280,7 +4840,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-call",
@@ -3295,7 +4855,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-jp",
@@ -3310,7 +4870,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-ld",
@@ -3325,7 +4885,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-nop",
@@ -3340,7 +4900,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-ret",
@@ -3355,7 +4915,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-sub",
@@ -3370,7 +4930,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "isa:z80-xor",
@@ -3385,7 +4945,7 @@
    ],
    "source": "isa/isa_database.json (CHM-ISA-DB-4)",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:4-level-paging",
@@ -3400,7 +4960,7 @@
    ],
    "source": "linux-7.3: arch/x86/mm",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:apic-and-pit",
@@ -3415,7 +4975,7 @@
    ],
    "source": "project: kernel/core/timer.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:elf64-loading",
@@ -3430,7 +4990,7 @@
    ],
    "source": "project: kernel/core/process_loader.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:gdt-user-descriptors",
@@ -3445,7 +5005,7 @@
    ],
    "source": "project: kernel/arch/x86_64/user_entry.asm",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:int-0x80-gate",
@@ -3460,7 +5020,7 @@
    ],
    "source": "project: kernel/core/target_launch.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:interrupt-descriptor-table",
@@ -3474,7 +5034,7 @@
    ],
    "source": "project: kernel/core/interrupt.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:kbuild-kconfig",
@@ -3489,7 +5049,7 @@
    ],
    "source": "linux-7.3: Documentation/kbuild",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:physical-frame-allocator",
@@ -3503,7 +5063,7 @@
    ],
    "source": "project: kernel/core/frame_allocator.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:syscall-sysret",
@@ -3518,7 +5078,7 @@
    ],
    "source": "linux-7.3: arch/x86/entry/entry_64.S",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:scheduler",
@@ -3532,7 +5092,7 @@
    ],
    "source": "linux-7.3: kernel/sched/fair.c",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:tss-and-rsp0",
@@ -3547,7 +5107,7 @@
    ],
    "source": "linux-7.3: arch/x86/kernel/cpu/common.c",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "kernel:printk-style-tagging",
@@ -3561,7 +5121,7 @@
    ],
    "source": "project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:arm-assembly-in-systems-work",
@@ -3576,7 +5136,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:ada-spark-in-systems-work",
@@ -3591,7 +5151,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:c-freestanding",
@@ -3605,7 +5165,7 @@
    ],
    "source": "project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:c-in-systems-work",
@@ -3620,7 +5180,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:c-in-a-kernel",
@@ -3635,7 +5195,7 @@
    ],
    "source": "project: kernel/build-koronos.sh",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:fortran-in-systems-work",
@@ -3650,7 +5210,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:go-in-systems-work",
@@ -3665,7 +5225,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:java-in-systems-work",
@@ -3680,7 +5240,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:javascript-typescript-in-systems-work",
@@ -3695,7 +5255,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:python-in-systems-work",
@@ -3710,7 +5270,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:python-tooling",
@@ -3724,7 +5284,7 @@
    ],
    "source": "project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:rust-for-kernels",
@@ -3738,7 +5298,7 @@
    ],
    "source": "linux-7.3: rust/",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:rust-in-systems-work",
@@ -3753,7 +5313,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:zig-in-systems-work",
@@ -3768,7 +5328,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "language:x86-assembly-in-systems-work",
@@ -3783,7 +5343,7 @@
    ],
    "source": "project / linux-7.3",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-7-3-release",
@@ -3798,7 +5358,7 @@
    ],
    "source": "kernel.org / endoflife.date",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-kbuild",
@@ -3812,7 +5372,7 @@
    ],
    "source": "linux-7.3: Documentation/kbuild",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-vfs",
@@ -3826,7 +5386,7 @@
    ],
    "source": "linux-7.3: fs/",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-boot-protocol",
@@ -3841,7 +5401,7 @@
    ],
    "source": "linux-7.3: Documentation/arch/x86/boot.rst",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-driver-model",
@@ -3856,7 +5416,7 @@
    ],
    "source": "linux-7.3: drivers/base",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-init-main-c",
@@ -3871,7 +5431,7 @@
    ],
    "source": "linux-7.3: init/main.c",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "linux:linux-scheduler-eevdf",
@@ -3886,7 +5446,7 @@
    ],
    "source": "linux-7.3: kernel/sched/fair.c",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "toolchain:cross-compilation",
@@ -3901,7 +5461,7 @@
    ],
    "source": "linux-7.3: Documentation/kbuild",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "toolchain:gcc-for-freestanding-code",
@@ -3916,7 +5476,7 @@
    ],
    "source": "linux-7.3: Makefile",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "toolchain:gnu-as-nasm",
@@ -3931,7 +5491,7 @@
    ],
    "source": "project: kernel/build-koronos.sh",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "toolchain:llvm-clang",
@@ -3946,7 +5506,7 @@
    ],
    "source": "linux-7.3: Documentation/kbuild/llvm.rst",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "toolchain:linker-scripts",
@@ -3960,7 +5520,7 @@
    ],
    "source": "project: kernel/arch/x86_64/koronos.ld",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "toolchain:objcopy-readelf-nm",
@@ -3975,7 +5535,7 @@
    ],
    "source": "project",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "userspace:init-contract",
@@ -3990,7 +5550,7 @@
    ],
    "source": "project: kernel/targets",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   },
   {
    "id": "userspace:syscall-abi",
@@ -4004,7 +5564,7 @@
    ],
    "source": "project: kernel/core/syscall.cpp",
    "confidence": "curated",
-   "added": "2026-11-05"
+   "added": "2026-11-06"
   }
  ]
 }
