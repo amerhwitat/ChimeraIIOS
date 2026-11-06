@@ -22,7 +22,7 @@ machines={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devic
  "riscv64":"RISC-V","ppc64le":"PowerPC64","s390x":"IBM S/390"}
 expected=machines.get(target,target); entries=[]
 for ident,kind,binary in rows:
-    path=next((p for p in (root/"usr/bin"/binary,root/"bin"/binary) if p.is_file() and p.stat().st_mode&0o111),None)
+    path=next((p for p in (root/"usr/local/bin"/binary,root/"usr/bin"/binary,root/"bin"/binary) if p.is_file() and p.stat().st_mode&0o111),None)
     row={"id":ident,"kind":kind,"binary":binary,"status":"unavailable","runtime_status":"not-runtime-tested","target_architecture":target}
     if path:
         row.update(path="/"+str(path.relative_to(root)),sha256=hashlib.sha256(path.read_bytes()).hexdigest())
@@ -34,10 +34,14 @@ for ident,kind,binary in rows:
             else:
                 row["status"]="verified-elf-provider"
                 if kind=="shell":
-                    probe=subprocess.run([str(path),"-c","printf CHIMERA_SHELL_SMOKE"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=10)
+                    rel="/"+str(path.relative_to(root))
+                    command=["chroot",str(root),rel,"-c","printf CHIMERA_SHELL_SMOKE"] if (root/"bin/sh").exists() else [str(path),"-c","printf CHIMERA_SHELL_SMOKE"]
+                    probe=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=10)
                     row["runtime_status"]="shell-command-smoke-pass" if probe.returncode==0 and b"CHIMERA_SHELL_SMOKE" in probe.stdout else "shell-command-smoke-fail"
                 else:
-                    probe=subprocess.run([str(path),"--version"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=10)
+                    rel="/"+str(path.relative_to(root))
+                    command=["chroot",str(root),rel,"--version"] if (root/"bin/sh").exists() else [str(path),"--version"]
+                    probe=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=10)
                     row["runtime_status"]="version-smoke-pass" if probe.returncode==0 else "version-smoke-fail"
         else: row["status"]="present-but-not-ELF"
     entries.append(row)
@@ -52,7 +56,7 @@ for row in entries:
     if row["kind"]=="terminal" and row["status"]=="verified-elf-provider" and row["runtime_status"]=="version-smoke-pass":
         ident=row["id"]; binary=row["binary"]
         (root/"usr/share/applications"/f"chimera-terminal-{ident}.desktop").write_text(
-          "[Desktop Entry]\nType=Application\nName="+names.get(ident,ident)+"\nExec=/usr/bin/"+binary+
+          "[Desktop Entry]\nType=Application\nName="+names.get(ident,ident)+"\nExec=/"+str(path.relative_to(root))+
           "\nTerminal=false\nCategories=System;TerminalEmulator;\nX-Chimera-Aurora=true\n")
 missing=[e["id"] for e in entries if e["status"]!="verified-elf-provider"]
 bad=[e["id"] for e in entries if e["runtime_status"].endswith("-fail")]
