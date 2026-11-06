@@ -104,10 +104,10 @@ done
 
 # Stage cross-built Linux ABI command multicall binaries for all currently
 # supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
-printf '%s\\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, AArch64, ARMv7, RV64, PPC64LE and s390x'
+printf '%s\\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
-for arch in x86_64 i686 aarch64 armv7 riscv64 ppc64le s390x; do
+for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
   test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
 done
@@ -116,7 +116,14 @@ cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
 # Carry every command and ISA catalogue with explicit platform/provider metadata.
 CATALOG_OUT="$DIST/iso/system/commands/catalogs"
 mkdir -p "$CATALOG_OUT"
-for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
   [[ -s "$ROOT/$rel" ]] && install -D -m 0644 "$ROOT/$rel" "$CATALOG_OUT/$(basename "$rel")"
 done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminals-registry.json"
@@ -125,7 +132,7 @@ install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$CATALOG_OUT/linux-abi-c
 python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
 import json,sys
 manifest=json.load(open(sys.argv[1],encoding="utf-8"))
-expected={"x86_64","i686","aarch64","armv7","riscv64","ppc64le","s390x"}
+expected={"x86_64","i686","armel","aarch64","armv7","riscv64","ppc64le","s390x"}
 rows={row["target"]:row for row in manifest.get("targets",[])}
 if set(rows)!=expected: raise SystemExit(f"wrong native command target set: {sorted(rows)}")
 for arch,row in rows.items():
