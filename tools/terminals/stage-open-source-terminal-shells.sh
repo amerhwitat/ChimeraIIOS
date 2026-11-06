@@ -56,7 +56,7 @@ if (("${#AVAILABLE[@]}")); then
   cp -an "$WORK/extracted/." "$DEST/"
 fi
 python3 - "$DEST" "$REQUIRE_ALL" "${CHIMERA_TARGET_ARCH:-$(uname -m)}" <<'PY'
-import hashlib,json,pathlib,shutil,subprocess,sys
+import hashlib,json,pathlib,shutil,subprocess,sys,platform
 dest=pathlib.Path(sys.argv[1]); require_all=sys.argv[2]=="1"; target=sys.argv[3]; readelf=shutil.which("readelf")
 machines={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devices X86-64","aarch64":"AArch64","arm64":"AArch64","i686":"Intel 80386","i386":"Intel 80386","riscv64":"RISC-V","ppc64le":"PowerPC64","s390x":"IBM S/390"}
 expected=machines.get(target,target)
@@ -79,7 +79,20 @@ for ident,kind,binary in rows:
             machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
             if proc.returncode or not machine: row["status"]="present-but-not-valid-ELF"
             elif expected not in machine and machine not in expected: row["status"]="wrong-architecture"
-            else: row["elf_machine"]=machine
+            else:
+                row["elf_machine"]=machine
+                host=platform.machine()
+                aliases={"amd64":"x86_64","arm64":"aarch64"}
+                if aliases.get(host,host)==aliases.get(target,target):
+                    args=[str(path),"-c","printf CHIMERA_SHELL_SMOKE"] if kind=="shell" else [str(path),"--version"]
+                    try:
+                        probe=subprocess.run(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=12)
+                        ok=probe.returncode==0 and (kind!="shell" or b"CHIMERA_SHELL_SMOKE" in probe.stdout)
+                        row["runtime_status"]=("shell-command-smoke-pass" if kind=="shell" else "version-smoke-pass") if ok else ("shell-command-smoke-fail" if kind=="shell" else "version-smoke-fail")
+                    except (OSError,subprocess.TimeoutExpired):
+                        row["runtime_status"]="smoke-test-failed"
+                else:
+                    row["runtime_status"]="not-runnable-on-builder"
         else: row["status"]="present-hash-only"
     manifest.append(row)
 out={"schema":"AURORA-TERMINAL-SHELL-STAGING-1","policy":"Only real executable files are listed; SHA-256 identifies exact bytes; staging does not imply runtime compatibility.","entries":manifest}
