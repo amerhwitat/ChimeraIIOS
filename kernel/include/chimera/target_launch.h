@@ -1,12 +1,13 @@
 #pragma once
 #include <stdint.h>
+#include "chimera/compat.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define KORONOS_USER_ABI_CHIMERA 1u
-#define KORONOS_USER_ABI_LINUX 2u
+#define KORONOS_USER_ABI_CHIMERA CHM_USER_ABI_NATIVE
+#define KORONOS_USER_ABI_LINUX CHM_USER_ABI_LINUX
 
 /* Called by the live/bootstrap scheduler task. Returns 0 only when no target
    ELF was selected or when the selected init exited after its own readiness
