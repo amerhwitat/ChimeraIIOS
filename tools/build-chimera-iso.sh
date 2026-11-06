@@ -125,6 +125,7 @@ python3 "$ROOT/tools/commands/build_native_command_matrix.py" \
   --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
   --output "$ROOT/build/native-command-isa" \
   --require-all
+bash "$ROOT/tests/commands/test-native-command-matrix.sh" "$ROOT/build/native-command-isa"
 "$ROOT/tools/build-live-boot-binaries.sh"
 say ISO "Generating BIOS/UEFI ISO"
 CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" "$ROOT/boot/iso/build-iso.sh"
