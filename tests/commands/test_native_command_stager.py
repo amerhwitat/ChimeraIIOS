@@ -50,6 +50,15 @@ class NativeCommandStagerTests(unittest.TestCase):
             )
             self.assertEqual(smoke.returncode, 0, smoke.stderr)
             self.assertEqual(smoke.stdout.strip(), "native-stager-ok")
+            launcher = subprocess.run(
+                [str(dest / "usr/bin/chimera-native"), "echo", "launcher-ok"],
+                env=dict(os.environ, CHIMERA_ROOT_PREFIX=str(dest)),
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(launcher.returncode, 0, launcher.stderr)
+            self.assertEqual(launcher.stdout.strip(), "launcher-ok")
 
             commands = dest / "usr/share/chimera/commands"
             isa = dest / "usr/share/chimera/isa"
