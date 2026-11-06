@@ -122,6 +122,13 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 # tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
 # /sys are rebuilt empty (the initramfs mounts their filesystems).
 cp -a "$BASE/." "$WORK/" 2>/dev/null || true
+# Build the implemented native command multicall for every configured Linux ABI.
+python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
+  --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
+  --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
+  --output "$BUILD/native-command-isa" --require-all
+install -d "$WORK/usr/lib/chimera/commands/native"
+cp -a "$BUILD/native-command-isa/." "$WORK/usr/lib/chimera/commands/native/"
 # Compile source-first Aurora terminal and shell projects when a target package
 # is unavailable. The importers retain the official package binary as fallback.
 CHIMERA_ROOTFS_DIR="$WORK" CHIMERA_TERMINAL_CACHE="$BUILD/terminal-cache" CHIMERA_TERMINAL_MODE=source-first bash "$REPO_DIR/scripts/import-aurora-terminal-suite.sh"
@@ -129,7 +136,7 @@ CHIMERA_ROOTFS_DIR="$WORK" CHIMERA_SHELL_CACHE="$BUILD/shell-cache" CHIMERA_SHEL
 # Audit the actual staged binaries, not registry declarations. These reports are
 # carried in both hosted editions and are also consumed by CI validation.
 python3 "$REPO_DIR/tools/aurora/audit-terminal-shell-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
-python3 "$REPO_DIR/tools/commands/audit-command-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
+python3 "$REPO_DIR/tools/commands/audit-command-providers.py" --rootfs "$WORK" --repo "$REPO_DIR" --native-matrix "$BUILD/native-command-isa/manifest.json"
 python3 "$REPO_DIR/tools/isa/audit-isa-emulation-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
 # Install the registry/launcher consumed by the Aurora Terminal Center.
 install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$WORK/usr/share/chimera/aurora/terminals/registry.json"
