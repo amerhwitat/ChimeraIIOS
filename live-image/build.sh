@@ -150,6 +150,15 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 # tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
 # /sys are rebuilt empty (the initramfs mounts their filesystems).
 cp -a "$BASE/." "$WORK/" 2>/dev/null || true
+# Compile/stage the same real terminal and shell providers in both hosted editions.
+# The hook only creates desktop launchers for binaries present in this target rootfs.
+CHIMERA_ROOTFS_DIR="$WORK" \
+CHIMERA_BUILD_DIR="$BUILD" \
+CHIMERA_TERMINAL_CACHE="$BUILD/terminal-cache" \
+CHIMERA_SHELL_CACHE="$BUILD/shell-cache" \
+CHIMERA_TERMINAL_REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-1}" \
+bash "$COMMAND_SOURCE/scripts/chimera-iso-terminal-shell-hook.sh"
+bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
