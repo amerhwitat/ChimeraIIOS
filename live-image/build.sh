@@ -133,7 +133,7 @@ install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chim
 install -D -m 0755 "$REPO_DIR/aurora/shells/launch-shell.sh" "$WORK/usr/lib/chimera/aurora/launch-shell.sh"
 # Export every generated C++ SVG icon and the full generated Aurora media set.
 python3 "$REPO_DIR/tools/aurora/export-icon-theme.py" --source "$REPO_DIR/desktop/aurora/icons/chimera_icons.cpp" --output "$WORK/usr/share/icons/chimera-aurora"
-install -D -m 0644 "$WORK/usr/share/icons/chimera-aurora/index.theme" "$WORK/usr/share/icons/chimera-aurora/index.theme"
+mkdir -p "$WORK/etc/environment.d"
 printf 'GTK_ICON_THEME=chimera-aurora\\n' > "$WORK/etc/environment.d/90-chimera-aurora-icons.conf"
 bash "$REPO_DIR/tools/aurora/build-visual-assets.sh" "$BUILD/aurora-media"
 mkdir -p "$WORK/usr/share/chimera/aurora/media"
