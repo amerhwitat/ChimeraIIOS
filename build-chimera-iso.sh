@@ -14,6 +14,7 @@ Options:
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --install-macos-sdk         Request Apple's interactive macOS SDK/Command Line Tools installer (macOS host only), verify, and exit.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -212,6 +213,7 @@ header(){ printf '\n============================================================
 
 REFRESH_ONLINE_CATALOGS="${CHIMERA_REFRESH_ONLINE_CATALOGS:-0}"
 DOS_FETCH_ON_BUILD="${CHIMERA_DOS_FETCH_ON_BUILD:-0}"
+INSTALL_MACOS_SDK=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -232,10 +234,18 @@ while [[ $# -gt 0 ]]; do
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
+    --install-macos-sdk) INSTALL_MACOS_SDK=1; shift;;
     --registry) export REGISTRY_NAME="$2"; shift 2;;
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# Apple's SDK is host tooling, never an ISO payload. Keep this opt-in and exit
+# after the user-facing installer/verification workflow rather than starting an OS build.
+if (( INSTALL_MACOS_SDK )); then
+  bash "$SCRIPT_DIR/tools/macos-compat/install-sdk.sh" install
+  exit $?
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"

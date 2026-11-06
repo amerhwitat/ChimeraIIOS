@@ -1,0 +1,30 @@
+{
+  "schema": "CHM-MACOS-APP-COMPAT-1",
+  "profiles": {
+    "apple-macos": {
+      "status": "host-build-only",
+      "requires": ["Apple-branded macOS", "licensed local Xcode/macOS SDK", "Clang"],
+      "runs_on_chimera_or_octavian": false
+    },
+    "portable-gnustep": {
+      "status": "toolchain-dependent",
+      "requires": ["Clang", "GNUstep Base development runtime"],
+      "runs_on_chimera_or_octavian": "only-if-ELF-ABI-and-required-runtime-libraries-are-available"
+    },
+    "portable-posix": {
+      "status": "per-app-validation-required",
+      "requires": ["native target ABI", "POSIX/runtime dependencies"],
+      "runs_on_chimera_or_octavian": "per-app-validation-required"
+    },
+    "darwin-mach-o": {
+      "status": "blocked-not-implemented",
+      "requires": ["Mach-O loader", "Darwin ABI/syscalls", "dynamic linker", "framework/API compatibility", "GUI/input/security integration"],
+      "runs_on_chimera_or_octavian": false
+    }
+  },
+  "policy": {
+    "redistribute_apple_sdk": false,
+    "claim_native_macos_app_compatibility_without_runtime_evidence": false,
+    "unknown_apps_default": "blocked-pending-audit"
+  }
+}

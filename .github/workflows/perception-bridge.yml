@@ -1,0 +1,29 @@
+name: Perception bridge safety
+on:
+  pull_request:
+    paths:
+      - 'research/perception_bridge.hpp'
+      - 'research/test_perception_bridge.cpp'
+      - '.github/workflows/perception-bridge.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'research/perception_bridge.hpp'
+      - 'research/test_perception_bridge.cpp'
+      - '.github/workflows/perception-bridge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpp-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile with warnings as errors
+        run: c++ -std=c++17 -O2 -Wall -Wextra -Werror -pedantic research/test_perception_bridge.cpp -o /tmp/perception-bridge-test
+      - name: Run safety contract tests
+        run: /tmp/perception-bridge-test
+      - name: AddressSanitizer and UndefinedBehaviorSanitizer
+        run: |
+          c++ -std=c++17 -O1 -g -Wall -Wextra -Werror -pedantic -fsanitize=address,undefined -fno-omit-frame-pointer research/test_perception_bridge.cpp -o /tmp/perception-bridge-sanitized
+          /tmp/perception-bridge-sanitized

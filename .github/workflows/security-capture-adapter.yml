@@ -1,0 +1,31 @@
+name: Security and compositor capture adapter
+on:
+  pull_request:
+    paths:
+      - "tests/security/compositor_capture_adapter_test.cpp"
+      - ".github/workflows/security-capture-adapter.yml"
+  push:
+    branches: [main, "feat/perception-cv-bridge-2026-10"]
+    paths:
+      - "tests/security/compositor_capture_adapter_test.cpp"
+      - ".github/workflows/security-capture-adapter.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenSSL development headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ libssl-dev
+      - name: Compile with strict warnings
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -O2 \
+            tests/security/compositor_capture_adapter_test.cpp -lcrypto \
+            -o /tmp/compositor-capture-adapter-test
+      - name: Run security regression tests
+        run: /tmp/compositor-capture-adapter-test
