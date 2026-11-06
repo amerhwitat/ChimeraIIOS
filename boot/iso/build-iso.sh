@@ -104,15 +104,24 @@ done
 
 # Stage cross-built Linux ABI command multicall binaries for all currently
 # supported Linux command ABIs. Cross-build validation is not runtime acceptance.
-printf '%s\\n' '[3c] Stage native command binaries for x86_64, i686, AArch64, ARMv7, RV64, PPC64LE and s390x'
+printf '%s\\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
 for arch in x86_64 i686 aarch64 armv7 riscv64 ppc64le s390x; do
-  test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: native command binary missing for $arch" >&2; exit 2; }
-  test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: native command aliases missing for $arch" >&2; exit 2; }
+  test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
+  test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
 done
 mkdir -p "$DIST/iso/system/commands/linux-abi"
 cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
+# Carry every command and ISA catalogue with explicit platform/provider metadata.
+CATALOG_OUT="$DIST/iso/system/commands/catalogs"
+mkdir -p "$CATALOG_OUT"
+for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+  [[ -s "$ROOT/$rel" ]] && install -D -m 0644 "$ROOT/$rel" "$CATALOG_OUT/$(basename "$rel")"
+done
+install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminals-registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$CATALOG_OUT/shells-registry.json"
+install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$CATALOG_OUT/linux-abi-command-matrix.json"
 python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
 import json,sys
 manifest=json.load(open(sys.argv[1],encoding="utf-8"))
