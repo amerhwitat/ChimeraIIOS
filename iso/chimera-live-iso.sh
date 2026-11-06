@@ -165,6 +165,26 @@ cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
+# GRUB's canonical menu references these Multiboot2 modules for Live,
+# Installer and Recovery. Keep the ISO tree and menu contract synchronized.
+mkdir -p "$STAGE/boot/targets"
+for target in live installer recovery; do
+  target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  [[ -s "$target_elf" ]] || {
+    echo "ERROR: required native target init is missing: $target_elf" >&2
+    exit 2
+  }
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: target init is not ET_EXEC: $target_elf" >&2
+    exit 2
+  }
+  readelf -lW "$target_elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: target init has no executable PT_LOAD: $target_elf" >&2
+    exit 2
+  }
+  cp -f "$target_elf" "$STAGE/boot/targets/"
+done
+
 install_iso_dependencies
 if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
   echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2

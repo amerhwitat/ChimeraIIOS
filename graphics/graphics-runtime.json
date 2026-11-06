@@ -1,0 +1,97 @@
+{
+  "schema": "CHIMERA-GRAPHICS-RUNTIME-1",
+  "scope": "target-rootfs-package-plan",
+  "status": "requested_not_runtime_certified",
+  "policy": {
+    "open_source_only": true,
+    "never_copy_host_libraries_into_target": true,
+    "verify_repository_signatures": true,
+    "resolve_package_names_for_target_distribution": true,
+    "preserve_software_fallback": true,
+    "graphics_are_not_boot_critical": true
+  },
+  "native_opengl": {
+    "api": "OpenGL and OpenGL ES via EGL",
+    "required_runtime_capabilities": [
+      "libGL",
+      "libEGL",
+      "libGLESv2",
+      "GBM",
+      "DRM",
+      "Wayland EGL platform"
+    ],
+    "debian_ubuntu_packages": [
+      "libgl1",
+      "libegl1",
+      "libgles2",
+      "libgbm1",
+      "libgl1-mesa-dri",
+      "libwayland-egl1",
+      "libdrm2"
+    ],
+    "optional_acceleration_packages": [
+      "mesa-vulkan-drivers",
+      "mesa-utils"
+    ],
+    "software_renderer": {
+      "implementation": "Mesa llvmpipe",
+      "required_as_fallback": true,
+      "must_be_reported_as_software": true
+    },
+    "acceptance": [
+      "target_rootfs_has_resolved_runtime_libraries",
+      "EGL_display_initialization_succeeds_on_target",
+      "OpenGL_context_creation_succeeds_on_target",
+      "renderer_and_version_are_recorded",
+      "software_fallback_is_not_misreported_as_hardware_acceleration"
+    ]
+  },
+  "webgl": {
+    "api": "WebGL 2",
+    "requires_browser_or_embedded_web_runtime": true,
+    "debian_ubuntu_browser_candidates": [
+      "firefox-esr",
+      "chromium"
+    ],
+    "browser_selection": "install_one_available_signed_candidate; do_not_require_both",
+    "required_capabilities": [
+      "WebGL 2 context creation",
+      "GLSL ES 3.00 shader compilation",
+      "GPU acceleration when a supported driver is present",
+      "explicit software-renderer fallback when hardware acceleration is unavailable"
+    ],
+    "acceptance": [
+      "browser_reports_webgl2_available",
+      "minimal_webgl2_shader_compiles_and_links",
+      "draw_and_readback_test_passes",
+      "context_loss_and_restoration_test_passes",
+      "renderer_identity_and_acceleration_mode_are_recorded"
+    ]
+  },
+  "distribution_adapters": {
+    "debian_ubuntu": {
+      "package_names": "debian_ubuntu_packages_and_browser_candidates",
+      "installation": "target-build-stage-or-explicit-target-package-manager",
+      "must_not_use_host_root": true
+    },
+    "other_distributions": {
+      "package_names": "resolve_from_signed_target_repository_metadata",
+      "installation": "target-build-stage-or-explicit-target-package-manager",
+      "must_not_assume_debian_package_names": true
+    }
+  },
+  "architecture_policy": {
+    "architectures": [
+      "x86_64",
+      "x86",
+      "aarch64",
+      "armv7",
+      "riscv64",
+      "riscv32",
+      "mips64",
+      "powerpc64",
+      "loongarch64"
+    ],
+    "rule": "package availability and runtime tests are required independently per architecture; listing an architecture is not support certification"
+  }
+}

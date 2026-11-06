@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - "architecture/support-matrix.json"
+      - "kernel/arch/**"
+      - "tools/build-koronos-targets.sh"
       - "docs/architecture/RISC_CISC_MOBILE_SUPPORT_MATRIX.md"
       - "tests/architecture/test_support_matrix.py"
       - ".github/workflows/architecture-support-contract.yml"
@@ -22,6 +24,69 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate machine-readable support contract
         run: python3 -m unittest tests/architecture/test_support_matrix.py -v
+      - name: Install cross compilers for existing architecture probes
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+      - name: Compile AArch64 and RISC-V64 startup, privilege and core probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/koronos/ports/entry
+          AARCH64_CC=aarch64-linux-gnu-g++ RISCV64_CC=riscv64-linux-gnu-g++ bash tools/build-koronos-targets.sh
+          aarch64-linux-gnu-gcc -march=armv8-a -ffreestanding -c kernel/arch/aarch64/entry.S -o build/koronos/ports/entry/aarch64-entry.o
+          aarch64-linux-gnu-gcc -march=armv8-a -ffreestanding -c kernel/arch/aarch64/priv.S -o build/koronos/ports/entry/aarch64-priv.o
+          riscv64-linux-gnu-gcc -march=rv64gc -mabi=lp64d -ffreestanding -c kernel/arch/riscv64/entry.S -o build/koronos/ports/entry/riscv64-entry.o
+          riscv64-linux-gnu-gcc -march=rv64gc -mabi=lp64d -ffreestanding -c kernel/arch/riscv64/priv.S -o build/koronos/ports/entry/riscv64-priv.o
+          readelf -h build/koronos/ports/entry/aarch64-entry.o | grep -Eq "Machine:[[:space:]]+AArch64"
+          readelf -h build/koronos/ports/entry/riscv64-entry.o | grep -Eq "Machine:[[:space:]]+RISC-V"
+          file build/koronos/ports/aarch64-arch-init.o build/koronos/ports/riscv64-arch-init.o build/koronos/ports/entry/*.o
+      - name: Upload cross-architecture compile-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-cross-architecture-compile-only
+          path: build/koronos/ports/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Generate architecture runtime and release eligibility report
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          matrix = json.loads(Path("architecture/support-matrix.json").read_text(encoding="utf-8"))
+          targets = matrix.get("targets", [])
+          report = {
+              "policy": matrix.get("policy"),
+              "targets": [
+                  {
+                      "id": item.get("id"),
+                      "native_kernel": item.get("native_kernel"),
+                      "qemu": item.get("qemu"),
+                      "userspace": item.get("userspace"),
+                      "release_supported": item.get("release_supported", False),
+                      "evidence_required": item.get("evidence_required", []),
+                  }
+                  for item in targets
+              ],
+              "release_supported_architectures": [item.get("id") for item in targets if item.get("release_supported") is True],
+              "blocked_architectures": [item.get("id") for item in targets if item.get("release_supported") is not True],
+              "compile_only_is_runtime_support": False,
+          }
+          Path("architecture-support-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(report, indent=2))
+          if report["blocked_architectures"]:
+              print("::warning::Production release remains blocked for architectures without native boot and userspace acceptance.")
+          PY
+      - name: Upload architecture support report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-architecture-runtime-support-report
+          path: architecture-support-report.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Verify available cross-toolchain inventory without claiming boot support
         shell: bash
         run: |

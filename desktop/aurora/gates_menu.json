@@ -139,5 +139,11 @@
       "PS4",
       "PS5"
     ]
+  },
+  "input_policy": {
+    "requires_explicit_user_selection": true,
+    "auto_select_default": false,
+    "idle_timeout_action": "remain_on_menu",
+    "description": "Gates never launches a default item because of inactivity; the user must explicitly select an item."
   }
 }

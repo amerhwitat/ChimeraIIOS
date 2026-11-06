@@ -8,6 +8,7 @@ on:
       - 'kernel/**'
       - 'installer/**'
       - 'desktop/aurora/assets/**'
+      - 'desktop/aurora-shell/**'
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'tools/boot/**'
@@ -20,6 +21,12 @@ on:
       - 'data/isa/online-isa-index.json'
       - 'tools/tests/test-iso-resume-and-aurora.sh'
       - 'build-chimera-iso.sh'
+      - 'complete-build-system.sh'
+      - 'generate-iso-from-docker.sh'
+      - 'generate-all-iso-editions.sh'
+      - 'Dockerfile.iso-builder'
+      - 'Dockerfile.vmware'
+      - 'live-image/build.sh'
       - '.github/workflows/boot-iso-validation.yml'
   pull_request:
     paths:
@@ -27,9 +34,16 @@ on:
       - 'kernel/**'
       - 'installer/**'
       - 'desktop/aurora/assets/**'
+      - 'desktop/aurora-shell/**'
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'build-chimera-iso.sh'
+      - 'complete-build-system.sh'
+      - 'generate-iso-from-docker.sh'
+      - 'generate-all-iso-editions.sh'
+      - 'Dockerfile.iso-builder'
+      - 'Dockerfile.vmware'
+      - 'live-image/build.sh'
       - 'tests/build/**'
       - 'tools/catalogs/**'
       - 'data/isa/online-source-catalog.json'
@@ -64,6 +78,8 @@ jobs:
           bash tools/tests/test-iso-resume-and-aurora.sh
           python3 tools/boot/validate_boot_pipeline.py
           python3 -m unittest discover -s tests/boot -p 'test_native_boot_pipeline.py' -v
+          python3 -m unittest discover -s tests/boot -p 'test_boot_menu_timeout.py' -v
+          python3 -m unittest discover -s tests/boot -p 'test_target_init_staging.py' -v
           bash -n boot/iso/build-iso.sh
           bash -n boot/iso/prepare-layout.sh
           bash -n boot/spitfire/build-spitfire.sh
