@@ -79,6 +79,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py tools/aurora/export-icon-theme.py tools/aurora/export-app-icon-theme.py tools/commands/build-command-isa-coverage.py tools/commands/build_native_command_matrix.py tools/boot/verify-menu-timeouts.py
           bash -n tools/aurora/install-terminal-shell-suite.sh tools/aurora/build-terminal-shell-sources.sh aurora/terminals/install-desktop-entries.sh aurora/terminals/aurora-terminal-center.sh aurora/shells/aurora-shell-center.sh tests/commands/test-native-command-matrix.sh
+          bash -n tools/commands/install-busybox-applets.sh
           python3 tests/desktop/test_aurora_sound_contract.py
           python3 tests/desktop/test_terminal_shell_suite_contract.py
           python3 tests/desktop/test_app_icon_export.py
@@ -145,6 +146,27 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          test -s "$root/usr/share/chimera/catalogs/chimera-command-list.json"
+          test -s "$root/usr/share/chimera/catalogs/linux-command-registry.json"
+          test -s "$root/usr/share/chimera/catalogs/ISA.csv"
+          test -s "$root/usr/share/chimera/catalogs/online-isa-index.json"
+          test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+          test -s "$root/usr/share/chimera/catalogs/terminals-registry.json"
+          test -s "$root/usr/share/chimera/catalogs/shells-registry.json"
+          test -s "$root/usr/share/chimera/commands/busybox-applets.tsv"
+          python3 - "$root" <<'PY'
+          import pathlib,sys
+          root=pathlib.Path(sys.argv[1])
+          bb=(root/'bin/busybox') if (root/'bin/busybox').exists() else (root/'usr/bin/busybox')
+          assert bb.is_file(), 'BusyBox binary missing'
+          rows=(root/'usr/share/chimera/commands/busybox-applets.tsv').read_text().splitlines()
+          for row in rows:
+              name,path,provider=row.split('|')
+              link=root/path.lstrip('/')
+              assert link.is_symlink() and link.resolve()==bb.resolve(), f'bad BusyBox provider link: {name}'
+          assert rows, 'no BusyBox applets were installed'
+          print(f'Verified {len(rows)} BusyBox applet symlinks.')
+          PY
           test -s "$root/usr/lib/chimera/commands/linux-abi/x86_64/chimera-cmd"
           test -s "$root/usr/lib/chimera/commands/linux-abi/aarch64/chimera-cmd"
           test -s "$root/usr/lib/chimera/commands/linux-abi/riscv64/chimera-cmd"
