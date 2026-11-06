@@ -74,9 +74,9 @@
     "double_click": true,
     "context_menu": true,
     "properties": true,
-    "auto_launch_default": false,
-    "idle_default_timeout_seconds": 0,
-    "menu_remains_open_until_user_action": true
+    "auto_launch_default": true,
+    "idle_default_timeout_seconds": 300,
+    "menu_remains_open_until_user_action": false
   },
   "boot_contract": {
     "kernel": "Koronos",
@@ -90,7 +90,8 @@
     "vmlinuz": false,
     "primary_menu_timeout_seconds": 300,
     "submenu_timeout_seconds": 120,
-    "timeout_policy": "Boot selection waits for explicit input until the configured timeout; Gates desktop navigation never auto-launches a default application while idle."
+    "timeout_policy": "Wait for user input for 300 seconds on the primary Gates menu, then select the configured default action (live). Nested menus wait 120 seconds before selecting their configured default entry.",
+    "default_action": "live"
   },
   "actions": {
     "live": {
