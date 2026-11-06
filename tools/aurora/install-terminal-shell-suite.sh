@@ -44,10 +44,11 @@ chroot "$ROOTFS" /bin/sh -eu -c '
   for item in \
     "bash|bash" "zsh|zsh" "fish|fish" "dash|dash" "mksh|mksh" "yash|yash" \
     "elvish|elvish" "nushell|nu" \
-    "xterm|xterm" "gnome-terminal|gnome-terminal" "konsole|konsole" \
-    "xfce4-terminal|xfce4-terminal" "foot|foot" "kitty|kitty" \
-    "alacritty|alacritty" "wezterm|wezterm" "ghostty|ghostty" \
-    "contour|contour"; do
+    "xterm|xterm" "gnome-terminal|gnome-terminal" "gnome-console|kgx" "konsole|konsole" \
+    "xfce4-terminal|xfce4-terminal" "foot|foot" "kitty|kitty" "ptyxis|ptyxis" \
+    "alacritty|alacritty" "wezterm|wezterm" "ghostty|ghostty" "contour|contour" \
+    "terminator|terminator" "tilix|tilix" "mate-terminal|mate-terminal" "qterminal|qterminal" \
+    "sakura|sakura" "terminology|terminology" "lxterminal|lxterminal" "blackbox-terminal|blackbox"; do
     pkg="${item%%|*}"; bin="${item#*|}"
     install_one "$pkg" "$bin"
   done
