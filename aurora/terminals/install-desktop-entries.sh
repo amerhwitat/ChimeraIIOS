@@ -44,6 +44,10 @@ for spec in \
   'ghostty|Ghostty|ghostty' \
   'contour|Contour|contour'; do
   IFS='|' read -r id name bin <<< "$spec"
+  if ! chroot "$ROOTFS" /bin/sh -c "command -v '$bin' >/dev/null 2>&1"; then
+    printf '[Aurora] Not exposing %s: executable %s is not installed.\\n' "$id" "$bin" >&2
+    continue
+  fi
   cat > "$APPS/chimera-terminal-$id.desktop" <<EOF
 [Desktop Entry]
 Type=Application
