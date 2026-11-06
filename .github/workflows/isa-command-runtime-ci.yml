@@ -254,8 +254,8 @@ jobs:
       - name: Exercise full native command compatibility builder
         run: |
           CHIMERA_ROOTFS_DIR=/tmp/chimera-command-rootfs CC=cc bash tools/build-chimera-command-compat.sh
-          test -x /tmp/chimera-command-rootfs/usr/bin/chimera-cmd
-          test -L /tmp/chimera-command-rootfs/usr/bin/mv
+          test -x /tmp/chimera-command-rootfs/usr/lib/chimera/native-bin/chimera-cmd
+          test -L /tmp/chimera-command-rootfs/usr/lib/chimera/native-bin/mv
           test -s /tmp/chimera-command-rootfs/etc/chimera/commands/registry.tsv
           test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/native-command-candidates.json
           test -s /tmp/chimera-command-rootfs/usr/share/chimera/commands/command_candidate_router.py
