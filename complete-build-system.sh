@@ -413,7 +413,7 @@ build_iso() {
     cat > "${boot_dir}/grub/grub.cfg" << 'GRUBCFG'
 # CHIMERA II OS - GRUB2 BOOT MENU
 set default=0
-set timeout=15
+set timeout=30
 set menu_color_highlight=white/blue
 set menu_color_normal=white/black
 
