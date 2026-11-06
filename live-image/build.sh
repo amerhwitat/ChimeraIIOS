@@ -188,6 +188,9 @@ cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
   mkdir -p "$PAY/desktop"
   cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+  # The shell resolves audio files relative to desktop/aurora-shell/index.html.
+  install -d "$PAY/desktop/aurora/assets"
+  cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$PAY/desktop/aurora/assets/sounds"
 fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
