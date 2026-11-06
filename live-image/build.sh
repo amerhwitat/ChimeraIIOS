@@ -129,6 +129,11 @@ python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
   --output "$BUILD/native-command-isa" --require-all
 install -d "$WORK/usr/lib/chimera/commands/native"
 cp -a "$BUILD/native-command-isa/." "$WORK/usr/lib/chimera/commands/native/"
+# Install the complete command and ISA catalogues into both hosted OS rootfs trees.
+mkdir -p "$WORK/usr/share/chimera/catalogs"
+for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json tools/commands/os-command-runtime.json isa/catalog.json ISA.csv data/isa/online-isa-index.json; do
+  [[ -s "$REPO_DIR/$rel" ]] && install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
+done
 # Compile source-first Aurora terminal and shell projects when a target package
 # is unavailable. The importers retain the official package binary as fallback.
 CHIMERA_ROOTFS_DIR="$WORK" CHIMERA_TERMINAL_CACHE="$BUILD/terminal-cache" CHIMERA_TERMINAL_MODE=source-first bash "$REPO_DIR/scripts/import-aurora-terminal-suite.sh"
