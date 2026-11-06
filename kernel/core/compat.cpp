@@ -1,4 +1,5 @@
 #include "chimera/compat.h"
+#include "chimera/syscall.h"
 
 namespace {
 
@@ -197,6 +198,32 @@ extern "C" int chimera_compat_recognize_syscall(uint32_t entry, uint32_t bitness
         return 0;
     }
     return 0;
+}
+
+extern "C" int chimera_compat_resolve_user_syscall(uint32_t user_abi, uint32_t entry, uint32_t bitness, uint32_t number, uint32_t *canonical) {
+    if (!canonical) return -1;
+    *canonical = 0xFFFFFFFFu;
+    if (user_abi == CHM_USER_ABI_NATIVE) {
+        switch (number) {
+            case CHM_SYS_EXIT: case CHM_SYS_GETPID: case CHM_SYS_YIELD:
+            case CHM_SYS_TIME_TICKS: case CHM_SYS_READ: case CHM_SYS_WRITE:
+            case CHM_SYS_MMAP: case CHM_SYS_MUNMAP: case CHM_SYS_IOCTL:
+            case CHM_SYS_NANOSLEEP: case CHM_SYS_WAIT: case CHM_SYS_ARCH_PRCTL:
+            case CHM_SYS_EXIT_GROUP:
+                *canonical = number;
+                return 0;
+            default:
+                return -2;
+        }
+    }
+    if (user_abi == CHM_USER_ABI_LINUX) {
+        chimera_syscall_identity identity{};
+        if (chimera_compat_recognize_syscall(entry, bitness, number, &identity) != 0)
+            return -3;
+        *canonical = identity.canonical;
+        return *canonical == 0xFFFFFFFFu ? -2 : 0;
+    }
+    return -4;
 }
 
 extern "C" int chimera_compat_recognize_interrupt(uint32_t vector, chimera_interrupt_identity *out) {
