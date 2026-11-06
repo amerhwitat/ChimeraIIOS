@@ -46,7 +46,7 @@
     "entrypoint": "tools/build-chimera-command-compat.sh",
     "source": "src/chimera-command-compat/chimera-cmd.c",
     "compiler": "CC environment override, otherwise cc/gcc/clang",
-    "output": "rootfs/usr/bin/chimera-cmd",
+    "output": "rootfs/usr/lib/chimera/native-bin/chimera-cmd",
     "multicall_aliases": [
       "pwd",
       "echo",

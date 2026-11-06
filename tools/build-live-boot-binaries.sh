@@ -49,6 +49,29 @@ mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initram
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
+
+# The native GRUB/Jasper entries launch distinct ring-3 init ELFs. They are
+# separate from the Linux live/recovery initramfs images and must be present
+# in the ISO at /boot/targets or Koronos cannot perform the selected handoff.
+TARGET_BUILD="$ROOT/build/koronos/x86_64"
+need_target_build=0
+for target in live installer recovery; do
+  [[ -s "$TARGET_BUILD/target-init-$target.elf" ]] || need_target_build=1
+done
+if [[ "$need_target_build" == "1" ]]; then
+  echo "[CHIMERA] Building missing Koronos ring-3 target init payloads..."
+  bash "$ROOT/kernel/build-koronos.sh"
+fi
+mkdir -p "$OUT/boot/targets"
+for target in live installer recovery; do
+  source="$TARGET_BUILD/target-init-$target.elf"
+  [[ -s "$source" ]] || { echo "ERROR: missing Koronos target init ELF: $source" >&2; exit 2; }
+  chimera_copy_if_distinct "$source" "$OUT/boot/targets/target-init-$target.elf"
+  readelf -h "$OUT/boot/targets/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: target-init-$target.elf is not an executable ELF" >&2; exit 2;
+  }
+  sha256sum "$OUT/boot/targets/target-init-$target.elf" > "$OUT/boot/targets/target-init-$target.elf.sha256"
+done
 INIT="$OUT/initramfs/root"
 # Initramfs packing needs cpio and gzip on the build host; fail loudly rather
 # than emitting a truncated image when either is missing (the cpio pipeline used

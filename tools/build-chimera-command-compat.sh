@@ -66,12 +66,13 @@ OUT="${CHIMERA_ROOTFS_DIR:-$ROOT/rootfs}"
 BIN="$OUT/usr/bin"
 SBIN="$OUT/usr/sbin"
 LIB="$OUT/usr/lib/chimera"
+NATIVE_BIN="$OUT/usr/lib/chimera/native-bin"
 ETC="$OUT/etc/chimera"
 CMDROOT="$ETC/commands"
 SHARE="$OUT/usr/share/chimera/commands"
 BACKUP="$ROOT/.chimera-fix-backups/command-compat"
 JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
-mkdir -p "$BIN" "$SBIN" "$LIB" "$ETC" "$CMDROOT" "$SHARE" "$BACKUP" "$BUILD"
+mkdir -p "$BIN" "$SBIN" "$LIB" "$NATIVE_BIN" "$ETC" "$CMDROOT" "$SHARE" "$BACKUP" "$BUILD"
 
 # Train the advisory RNN on the imported command and universal ISA catalogs when
 # available. Legacy catalogs are only a bootstrap fallback; model output never
@@ -178,9 +179,9 @@ backup_once() {
 
 # Compile one real multicall executable. Command names are symlinks to this
 # binary; unimplemented names remain compatibility-provider lookups.
-"$CHIMERA_CC" -std=c11 -O2 -Wall -Wextra -Werror "$SRC/chimera-cmd.c" -o "$BIN/chimera-cmd"
+"$CHIMERA_CC" -std=c11 -O2 -Wall -Wextra -Werror "$SRC/chimera-cmd.c" -o "$NATIVE_BIN/chimera-cmd"
 
-chmod 0755 "$BIN/chimera-cmd"
+chmod 0755 "$NATIVE_BIN/chimera-cmd"
 
 ###############################################################################
 # 3. Install native command names
@@ -205,7 +206,7 @@ NATIVE_COMMANDS=(
 )
 
 for command in "${NATIVE_COMMANDS[@]}"; do
-    target="$BIN/$command"
+    target="$NATIVE_BIN/$command"
 
     if [[ -e "$target" && ! -L "$target" ]]; then
         backup_once "$target"
@@ -557,12 +558,14 @@ run_native() {
         *)
             local root_prefix="${CHIMERA_ROOT_PREFIX:-}"
 
-            if [[ -x "${root_prefix}/usr/bin/$command" ]]; then
-                exec "${root_prefix}/usr/bin/$command" "$@"
+            local native_bin
+            if [[ -n "$root_prefix" ]]; then
+                native_bin="$root_prefix/usr/lib/chimera/native-bin"
+            else
+                native_bin="/usr/lib/chimera/native-bin"
             fi
-
-            if command -v "$command" >/dev/null 2>&1; then
-                exec "$command" "$@"
+            if [[ -x "$native_bin/$command" ]]; then
+                exec "$native_bin/$command" "$@"
             fi
 
             echo "chimera: native command unavailable: $command" >&2
@@ -898,14 +901,22 @@ bash -n "$OUT/etc/profile.d/chimera-command-compat.sh"
 
 log "Testing native command binary..."
 
-"$BIN/chimera-cmd"
+"$NATIVE_BIN/chimera-cmd"
 
 for command in "${NATIVE_COMMANDS[@]}"; do
-    [[ -x "$BIN/$command" ]] || die \
+    [[ -x "$NATIVE_BIN/$command" ]] || die \
         "Native command missing: $command"
 done
 
 log "Testing command dispatcher against staged rootfs..."
+native_smoke="$(
+  CHIMERA_COMMAND_ROOT="$CMDROOT" CHIMERA_ROOT_PREFIX="$OUT" \
+    "$BIN/chimera" echo "native-dispatch-ok"
+)"
+[[ "$native_smoke" == "native-dispatch-ok" ]] || die "Native command dispatcher smoke test failed."
+if [[ -L "$BIN/ls" && "$(readlink "$BIN/ls")" == "chimera-cmd" ]]; then
+  die "Native command staging must not replace the system ls provider."
+fi
 
 CHIMERA_COMMAND_ROOT="$CMDROOT" \
 CHIMERA_ROOT_PREFIX="$OUT" \
@@ -1003,7 +1014,7 @@ PY
 
 cat > "$BUILD/chimera-command-compat.manifest" <<EOF
 CHIMERA_COMMAND_COMPAT=1
-NATIVE_BINARY=$BIN/chimera-cmd
+NATIVE_BINARY=$NATIVE_BIN/chimera-cmd
 DISPATCHER=$BIN/chimera
 EXEC_FORMAT_DISPATCHER=$BIN/chimera-exec
 REGISTRY=$CMDROOT/registry.tsv

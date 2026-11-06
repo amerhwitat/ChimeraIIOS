@@ -243,7 +243,8 @@ create_bootloader() {
     log_info "Creating GRUB2 configuration..."
     cat > "$GRUB_DIR/grub.cfg" << 'GRUB_CFG'
 set default=0
-set timeout=10
+set timeout=300
+set timeout_style=menu
 set menu_color_highlight=white/blue
 set menu_color_normal=white/black
 

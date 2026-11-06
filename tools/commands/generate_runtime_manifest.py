@@ -106,7 +106,7 @@ def main():
     OUT.write_text(json.dumps({
         "schema":"CHM-COMMAND-RUNTIME-CAPABILITIES-1",
         "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
-        "native_binary":"rootfs/usr/bin/chimera-cmd",
+        "native_binary":"rootfs/usr/lib/chimera/native-bin/chimera-cmd",
         "command_count":len(commands),
         "mode_counts":{mode:sum(c["mode"]==mode for c in commands) for mode in sorted({c["mode"] for c in commands})},
         "commands":commands

@@ -123,6 +123,41 @@ cp -a "$BASE/." "$WORK/" 2>/dev/null || true
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
+# ------------------------------------------------------------- native command + ISA runtime
+COMMAND_SOURCE="$REPO_DIR"
+if [ "$ED" = "octavian" ]; then
+  COMMAND_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source"
+fi
+[ -s "$COMMAND_SOURCE/src/chimera-command-compat/chimera-cmd.c" ] || {
+  echo "ERROR: native command source missing: $COMMAND_SOURCE" >&2
+  exit 2
+}
+log "staging non-destructive native commands and offline command/ISA catalogues"
+CHIMERA_COMMAND_LINK_MODE=dynamic CHIMERA_INSTALL_DISPATCHER=1 CHIMERA_STAGE_CATALOGS=1 \
+  bash "$REPO_DIR/tools/stage-native-command-runtime.sh" "$COMMAND_SOURCE" "$WORK"
+test -x "$WORK/usr/lib/chimera/native-bin/chimera-cmd" || { echo "ERROR: native command binary was not staged" >&2; exit 2; }
+test -x "$WORK/usr/bin/chimera-native" || { echo "ERROR: native command launcher was not staged" >&2; exit 2; }
+test -x "$WORK/usr/bin/chimera" || { echo "ERROR: compatibility dispatcher was not staged" >&2; exit 2; }
+test -s "$WORK/usr/share/chimera/commands/catalogs/chimera-command-list.json" || { echo "ERROR: command catalogue was not staged" >&2; exit 2; }
+test -s "$WORK/usr/share/chimera/isa/generated/universal-instruction-catalog.json" || { echo "ERROR: universal ISA catalogue was not staged" >&2; exit 2; }
+if [ "${INSTALL_COMMAND_PROVIDERS:-1}" = "1" ]; then
+  provider_installer="$COMMAND_SOURCE/tools/commands/install-command-providers.sh"
+  [ -s "$provider_installer" ] || { echo "ERROR: command provider installer missing: $provider_installer" >&2; exit 2; }
+  install -Dm0755 "$provider_installer" "$WORK/usr/local/sbin/chimera-install-command-providers.sh"
+  provider_log="$BUILD/command-provider-install-$ED.log"
+  mkdir -p "$(dirname "$provider_log")"
+  log "installing Linux command providers from the SS64 compatibility catalogue"
+  mount_chroot "$WORK"
+  if ! DEBIAN_FRONTEND=noninteractive chroot "$WORK" /bin/bash /usr/local/sbin/chimera-install-command-providers.sh >"$provider_log" 2>&1; then
+    umount_chroot "$WORK"
+    echo "ERROR: command provider installation failed; see $provider_log" >&2
+    exit 2
+  fi
+  umount_chroot "$WORK"
+  cp -f "$provider_log" "$WORK/usr/share/chimera/commands/provider-install-report.txt"
+fi
+if [ -L "$WORK/usr/bin/ls" ] && [ "$(readlink "$WORK/usr/bin/ls")" = "chimera-cmd" ]; then echo "ERROR: native staging replaced the system ls provider" >&2; exit 2; fi
+
 # ------------------------------------------------------------- payload
 log "staging payload"
 PAY="$WORK/opt/aurora"
@@ -131,8 +166,11 @@ cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 
 # Aurora desktop shell (multi-profile window manager + apps) for every edition.
 if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
-  mkdir -p "$PAY/desktop"
-  cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+  # Merge into the selected desktop tree. Octavian already copies the full
+  # desktop directory, so copying the directory node itself would nest
+  # aurora-shell/aurora-shell and leave ENTRY unresolved.
+  mkdir -p "$PAY/desktop/aurora-shell"
+  cp -a "$REPO_DIR/desktop/aurora-shell/." "$PAY/desktop/aurora-shell/"
 fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
@@ -352,7 +390,8 @@ convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
 
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
 set default=0
-set timeout=10
+set timeout=300
+set timeout_style=menu
 insmod all_video
 insmod gfxterm
 insmod png

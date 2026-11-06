@@ -192,7 +192,7 @@ esac
 if [[ "$EFFECTIVE_MODE" == "native" ]]; then
     if [[ "$IMPLEMENTATION" == "chimera-cmd" ]]; then
 
-        NATIVE="${ROOT_PREFIX}/usr/bin/chimera-cmd"
+        NATIVE="${ROOT_PREFIX}/usr/lib/chimera/native-bin/chimera-cmd"
 
         [[ -x "$NATIVE" ]] || {
             echo "chimera: native runtime unavailable: $NATIVE" >&2
