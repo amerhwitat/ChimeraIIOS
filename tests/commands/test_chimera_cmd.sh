@@ -16,38 +16,11 @@ test -n "$("$TMP/pwd")"
 if "$TMP/false"; then echo "false returned success" >&2; exit 1; fi
 test -n "$("$TMP/date")"
 test -n "$("$TMP/hostname")"
-clear_output="$("$TMP/clear")"
-test "$clear_output" = 
-test -n "$(env -u USER "$TMP/whoami")"
-printf 'copy-payload' > "$TMP/source"
-"$TMP/cp" "$TMP/source" "$TMP/copied"
-test "$(cat "$TMP/copied")" = "copy-payload"
-"$TMP/mv" "$TMP/copied" "$TMP/moved"
-test ! -e "$TMP/copied"
-test "$(cat "$TMP/moved")" = "copy-payload"
-"$TMP/mkdir" "$TMP/directory"
-test -d "$TMP/directory"
-"$TMP/rm" "$TMP/moved"
-test ! -e "$TMP/moved"
-python3 - "$TMP/touched" <<'PY'
-import os,sys,time
-p=sys.argv[1]
-with open(p,"w") as f: f.write("touch")
-old=time.time()-120
-os.utime(p,(old,old))
+python3 - "$TMP/clear" <<'PY'
+import subprocess,sys
+out=subprocess.check_output([sys.argv[1]])
+assert out == bytes([27])+b"[2J"+bytes([27])+b"[H", repr(out)
 PY
-"$TMP/touch" "$TMP/touched"
-python3 - "$TMP/touched" <<'PY'
-import os,sys,time
-assert os.stat(sys.argv[1]).st_mtime > time.time()-10, "touch did not update mtime"
-PY
-"$TMP/ls" "$TMP" | grep -q source
-test "$("$TMP/cat" "$TMP/source")" = "copy-payload"
-banner="$("$TMP/chimera-cmd")"
-grep -q "Readiness: not asserted" <<<"$banner"
-if grep -qi "Status: operational" <<<"$banner"; then echo "false readiness banner remains" >&2; exit 1; fi
-echo "PASS: all 15 registered native multicall command entry points passed host semantic smoke tests."
-\\033[2J\\033[H'
 test -n "$(env -u USER "$TMP/whoami")"
 printf 'copy-payload' > "$TMP/source"
 "$TMP/cp" "$TMP/source" "$TMP/copied"
