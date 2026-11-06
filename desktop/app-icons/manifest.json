@@ -1,8 +1,8 @@
 {
   "schema": "chimera-octavian-app-icons/v1",
   "generated": "2026-11-06",
-  "count": 127,
-  "usage": "Render each icon by referencing #app-{id} from this SVG sprite. These are original generic app icons, not upstream trademarks. Icon presence does not imply installation, porting, licensing, or runtime support.",
+  "count": 133,
+  "usage": "Render each icon by referencing #app-{id} from this SVG sprite. These are original generic app icons, not upstream trademarks. Icon presence does not imply installation, porting, licensing, or runtime support. The six additional shell shortcut symbols (voiceconnect, network, settings, store, about, docs) cover Aurora's default desktop launcher.",
   "sprite": "catalog.svg",
   "apps": [
     {
@@ -1274,6 +1274,66 @@
       "symbol": "#app-zoom",
       "availability": "external-or-wrapped-catalog-entry",
       "installation_status": "not_verified"
+    },
+    {
+      "id": "voiceconnect",
+      "name": "VoiceConnect",
+      "category": "communication",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-voiceconnect",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "network",
+      "name": "Network Applications",
+      "category": "network",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-network",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "category": "system",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-settings",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "store",
+      "name": "App Center",
+      "category": "system",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-store",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "about",
+      "name": "About",
+      "category": "system",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-about",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "docs",
+      "name": "Documentation",
+      "category": "documents",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-docs",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
     }
   ]
 }
