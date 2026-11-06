@@ -102,6 +102,31 @@ for target in live installer recovery; do
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
 
+# Stage the cross-built native command multicall binaries for all currently
+# supported Linux command ABIs. Cross-build validation is not runtime acceptance.
+printf '%s\\n' '[3c] Stage native command binaries for x86_64, AArch64 and RV64'
+NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
+test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
+for arch in x86_64 aarch64 riscv64; do
+  test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: native command binary missing for $arch" >&2; exit 2; }
+  test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: native command aliases missing for $arch" >&2; exit 2; }
+done
+mkdir -p "$DIST/iso/system/commands/native"
+cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/native/"
+python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
+import json,sys
+manifest=json.load(open(sys.argv[1],encoding="utf-8"))
+expected={"x86_64","aarch64","riscv64"}
+rows={row["target"]:row for row in manifest.get("targets",[])}
+if set(rows)!=expected: raise SystemExit(f"wrong native command target set: {sorted(rows)}")
+for arch,row in rows.items():
+    if row.get("binary_status")!="cross-compiled-and-elf-machine-validated":
+        raise SystemExit(f"{arch} command binary not ELF-validated: {row}")
+    if row.get("runtime_status")!="not-tested-cross-build-only":
+        raise SystemExit(f"{arch} runtime status must remain explicitly untested")
+print("Native command ELF matrix validated; runtime execution remains untested.")
+PY
+
 # Stage the AI knowledge database. The kernel classifies it as
 # CHIMERA_MODULE_AI_KNOWLEDGE_DB and reports its entry count on the boot trace.
 printf '%s\n' '[3c/7] Stage AI knowledge database'
