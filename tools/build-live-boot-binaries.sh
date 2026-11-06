@@ -79,7 +79,7 @@ for rel in system/commands/chimera-command-list.json config/linux-command-regist
   if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"; fi
 done
 python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
-  --root "$ROOT" --busybox "$BUSYBOX" \
+  --root "$ROOT" --busybox "$BUSYBOX" --rootfs "$INIT" \
   --output "$INIT/etc/chimera/catalogs/command-isa-coverage.json"
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
