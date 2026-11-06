@@ -131,8 +131,11 @@ cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 
 # Aurora desktop shell (multi-profile window manager + apps) for every edition.
 if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
-  mkdir -p "$PAY/desktop"
-  cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+  # Merge into the selected desktop tree. Octavian already copies the full
+  # desktop directory, so copying the directory node itself would nest
+  # aurora-shell/aurora-shell and leave ENTRY unresolved.
+  mkdir -p "$PAY/desktop/aurora-shell"
+  cp -a "$REPO_DIR/desktop/aurora-shell/." "$PAY/desktop/aurora-shell/"
 fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
@@ -352,7 +355,8 @@ convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
 
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
 set default=0
-set timeout=10
+set timeout=300
+set timeout_style=menu
 insmod all_video
 insmod gfxterm
 insmod png
