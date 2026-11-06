@@ -58,6 +58,10 @@ for tool in cpio gzip; do
 done
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
+if command -v file >/dev/null 2>&1 && ! file "$BUSYBOX" | grep -qi 'statically linked'; then
+  echo "ERROR: a statically linked BusyBox is required for the initramfs; install busybox-static." >&2
+  exit 2
+fi
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
 # Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
 while IFS= read -r applet; do
