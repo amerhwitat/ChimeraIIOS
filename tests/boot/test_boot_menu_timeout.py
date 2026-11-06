@@ -14,6 +14,11 @@ class BootMenuTimeoutTests(unittest.TestCase):
         self.assertRegex(text, r"(?m)^set default=0\s*$")
 
     def test_primary_boot_menus_wait_five_minutes(self):
+        for path in ("boot/iso/grub.cfg", "boot/jasper/jasper.cfg"):
+            with self.subTest(graphics_path=path):
+                text = Path(path).read_text()
+                self.assertRegex(text, r"(?m)^set gfxmode=5120x2880,")
+
         for path in (
             "boot/iso/grub.cfg",
             "boot/jasper/jasper.cfg",
