@@ -256,6 +256,8 @@ python3 "$REPO_DIR/tools/aurora/export-app-icon-theme.py" \
   --sprite "$REPO_DIR/desktop/app-icons/catalog.svg" \
   --manifest "$REPO_DIR/desktop/app-icons/manifest.json" \
   --output "$WORK/usr/share/icons/hicolor/scalable/apps"
+mkdir -p "$PAY/desktop/app-icons/icons"
+cp -f "$WORK/usr/share/icons/hicolor/scalable/apps"/chimera-*.svg "$PAY/desktop/app-icons/icons/"
 cat > "$WORK/usr/share/icons/hicolor/index.theme" <<'THEME'
 [Icon Theme]
 Name=hicolor
