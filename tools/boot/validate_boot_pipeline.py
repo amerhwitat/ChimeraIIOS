@@ -54,7 +54,7 @@ def main():
             # This raster is intentionally materialized from the tracked .b64 source during ISO staging.
             continue
         require(p.is_file(),f"declared artwork source missing: {rel}")
-    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/jasper/jasper.cfg","boot/iso/grub.cfg","boot/jasper/live.cfg","boot/jasper/install.cfg","boot/jasper/recovery.cfg","boot/jasper/diagnostics.cfg","boot/jasper/retro.cfg","boot/jasper/safe-mode.cfg","boot/jasper/last-known-good.cfg","boot/installation/menu.cfg"]:
+    for rel in ["boot/loader-menu.cfg","boot/spitfire/spitfire-menu.cfg","boot/jasper/jasper.cfg","boot/iso/grub.cfg","boot/jasper/live.cfg","boot/jasper/install.cfg","boot/jasper/recovery.cfg","boot/jasper/diagnostics.cfg","boot/jasper/retro.cfg","boot/jasper/safe-mode.cfg","boot/jasper/last-known-good.cfg","boot/installation/menu.cfg"]:
         p=ROOT/rel
         require(p.is_file(),f"boot menu source missing: {rel}")
         text=p.read_text(errors="replace")
