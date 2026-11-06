@@ -158,7 +158,7 @@ CHIMERA_TERMINAL_CACHE="$BUILD/terminal-cache" \
 CHIMERA_SHELL_CACHE="$BUILD/shell-cache" \
 CHIMERA_TERMINAL_REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-1}" \
 bash "$COMMAND_SOURCE/scripts/chimera-iso-terminal-shell-hook.sh"
-bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
+CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
