@@ -30,11 +30,27 @@ done
 if (("${#available[@]}")); then
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${available[@]}"
 fi
+# Expose every applet actually compiled into BusyBox without replacing any
+# existing GNU/system command. This gives the hosted editions a real fallback
+# provider path for commands that do not have a dedicated package binary.
+BB="$(command -v busybox || true)"
+APPLET_DIR=/usr/lib/chimera/busybox-bin
+busybox_applets=()
+if [[ -n "$BB" ]]; then
+  mkdir -p "$APPLET_DIR" /etc/profile.d
+  while IFS= read -r applet; do
+    [[ -n "$applet" && "$applet" != "busybox" ]] || continue
+    busybox_applets+=("$applet")
+    command -v "$applet" >/dev/null 2>&1 && continue
+    ln -sfn "$BB" "$APPLET_DIR/$applet"
+  done < <("$BB" --list)
+  printf 'export PATH=%s:$PATH\\n' "$APPLET_DIR" > /etc/profile.d/90-chimera-busybox-path.sh
+fi
 mkdir -p /usr/share/chimera/runtime
-python3 - "${available[*]}" "${missing[*]}" <<'PY'
+python3 - "${available[*]}" "${missing[*]}" "${busybox_applets[*]}" <<'PY'
 import json,sys
 from datetime import datetime,timezone
-out={"schema":"CHM-RUNTIME-PACKAGES-1","generated_utc":datetime.now(timezone.utc).isoformat(),"package_provider":"Debian APT","available_candidates":sys.argv[1].split(),"unavailable_candidates":sys.argv[2].split(),"note":"Candidate availability is not proof that every catalogue command or ISA instruction is implemented; see command and ISA audit reports."}
+out={"schema":"CHM-RUNTIME-PACKAGES-1","generated_utc":datetime.now(timezone.utc).isoformat(),"package_provider":"Debian APT","available_candidates":sys.argv[1].split(),"unavailable_candidates":sys.argv[2].split(),"busybox_applets":sys.argv[3].split(),"note":"Package availability and BusyBox applet presence are provider evidence, not proof of every catalogue command or ISA instruction's runtime semantics; see command and ISA audit reports."}
 with open("/usr/share/chimera/runtime/package-install-report.json","w") as f: json.dump(out,f,indent=2); f.write("\n")
 PY
 printf '[RUNTIME] Installed %s available packages; %s candidates unavailable\n' "${#available[@]}" "${#missing[@]}"
