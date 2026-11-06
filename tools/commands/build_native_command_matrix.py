@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-build the real Chimera native multicall command for supported Linux ABIs."""
+"""Cross-build the real Chimera command compatibility multicall for Linux ELF ABIs; this is not the Koronos userspace ABI."""
 from __future__ import annotations
 import argparse, hashlib, json, shutil, subprocess, sys
 from pathlib import Path
@@ -29,8 +29,8 @@ def main():
    link=d/name
    if link.exists() or link.is_symlink():link.unlink()
    link.symlink_to("chimera-cmd")
-  row.update({"binary_status":"cross-compiled-and-elf-machine-validated","elf_machine":machine,"elf_machine_id":spec["elf_machine"],"binary":str(binary.relative_to(a.output)),"sha256":sha256(binary),"runtime_status":"not-tested-cross-build-only"});rows.append(row)
- manifest={"schema":"CHM-NATIVE-COMMAND-ISA-BUILD-1","policy":"Only compiled outputs with a verified ELF machine field are marked built. Cross-compilation is not native runtime acceptance.","native_command_count":len(aliases),"target_count":len(TARGETS),"targets":rows}
+  row.update({"binary_status":"linux-abi-cross-compiled-and-elf-machine-validated","elf_machine":machine,"elf_machine_id":spec["elf_machine"],"binary":str(binary.relative_to(a.output)),"sha256":sha256(binary),"runtime_status":"not-tested-linux-abi-cross-build-only"});rows.append(row)
+ manifest={"schema":"CHM-LINUX-ABI-COMMAND-MATRIX-1","policy":"These are Linux ELF ABI binaries, not Koronos-native user programs. Only compiled outputs with a verified ELF machine field are marked built; cross-compilation is not runtime acceptance.","linux_abi_command_count":len(aliases),"target_count":len(TARGETS),"targets":rows}
  (a.output/"manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
  print(json.dumps({"built":sum(r["binary_status"]=="cross-compiled-and-elf-machine-validated" for r in rows),"targets":len(rows),"failures":failures},sort_keys=True))
  return 1 if a.require_all and failures else 0
