@@ -61,6 +61,7 @@ jobs:
           bash -n tools/branding/stage-aurora-image.sh
           bash -n tools/branding/chimera-set-desktop-background.sh
           bash tests/boot/test-boot-artifact-regressions.sh
+          python3 tests/boot/test_boot_menu_timeouts.py
           bash tools/tests/test-iso-resume-and-aurora.sh
           python3 tools/boot/validate_boot_pipeline.py
           python3 -m unittest discover -s tests/boot -p 'test_native_boot_pipeline.py' -v
