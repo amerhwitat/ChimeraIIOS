@@ -127,7 +127,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       aptitude aspell at bsdextrautils dos2unix ddrescue iw mtr-tiny netcat-openbsd \
       nftables pv ripgrep rename screen sharutils sysstat tmux unrar-free vim-tiny \
       wl-clipboard xclip xxd zstd \
-      libgtk-4-1 libadwaita-1-0 libqt6core6t64 libqt6gui6t64 libqt6widgets6t64 libqt6qml6 \
+      libgtk-4-1 libadwaita-1-0 \
       libxkbcommon0 libwayland-client0 libwayland-cursor0 libx11-6 libxcb1 libfontconfig1 \
       libfreetype6 libharfbuzz0b libvulkan1 libdbus-1-3 libssl3t64 libasound2t64 libpulse0 \
       libxrandr2 libxi6 libxinerama1 libxcursor1 libxext6 libxrender1 libxfixes3 libxdamage1 libxcomposite1 \
