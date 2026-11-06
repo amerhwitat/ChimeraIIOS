@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse,json,shutil,subprocess
 from pathlib import Path
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument("--rootfs",type=Path,required=True);ap.add_argument("--repo",type=Path,default=Path(__file__).resolve().parents[2]);ap.add_argument("--native-matrix",type=Path);ap.add_argument("--output",type=Path);a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument("--rootfs",type=Path,required=True);ap.add_argument("--repo",type=Path,default=Path(__file__).resolve().parents[2]);ap.add_argument("--native-matrix",dest="linux_abi_matrix",type=Path);ap.add_argument("--output",type=Path);a=ap.parse_args()
     root=a.rootfs.resolve();cat=json.loads((a.repo/"system/commands/chimera-command-list.json").read_text())
     matrix={}
     if a.linux_abi_matrix and a.linux_abi_matrix.exists():
