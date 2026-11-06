@@ -909,6 +909,14 @@ for command in "${NATIVE_COMMANDS[@]}"; do
 done
 
 log "Testing command dispatcher against staged rootfs..."
+native_smoke="$(
+  CHIMERA_COMMAND_ROOT="$CMDROOT" CHIMERA_ROOT_PREFIX="$OUT" \
+    "$BIN/chimera" echo "native-dispatch-ok"
+)"
+[[ "$native_smoke" == "native-dispatch-ok" ]] || die "Native command dispatcher smoke test failed."
+if [[ -L "$BIN/ls" && "$(readlink "$BIN/ls")" == "chimera-cmd" ]]; then
+  die "Native command staging must not replace the system ls provider."
+fi
 
 CHIMERA_COMMAND_ROOT="$CMDROOT" \
 CHIMERA_ROOT_PREFIX="$OUT" \
