@@ -65,7 +65,7 @@ for item in reg["entries"]:
   except Exception: pass
  digest=hashlib.sha256(b.read_bytes()).hexdigest() if b.is_file() else None
  rows.append({"id":item["id"],"binary":item["binary"],"status":"built-or-provider-present" if b.is_file() and b.stat().st_mode&0o111 else "provider-missing","source_commit":commit,"sha256":digest})
-out=prefix/"share/chimera/aurora/shells/shell-build-report.json";out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps({"schema":"CHM-SHELL-BUILD-REPORT-1","entries":rows},indent=2)+"\\n")
+out=prefix/"share/chimera/aurora/shells/shell-build-report.json";out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps({"schema":"CHM-SHELL-BUILD-REPORT-1","entries":rows},indent=2)+"\n")
 print("Shell source/provider report:",sum(x["status"]=="built-or-provider-present" for x in rows),"/",len(rows))
 PY
 log "Shell registry staged at $PREFIX/share/chimera/aurora/shells/registry.json"
