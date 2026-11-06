@@ -20,7 +20,7 @@ def main():
   compiler=shutil.which(spec["compiler"]);row={"target":target,"compiler":spec["compiler"],"binary_status":"not-built","runtime_status":"not-tested","aliases":aliases}
   if not compiler:row["reason"]="target compiler unavailable";failures.append(target);rows.append(row);continue
   d=a.output/target;d.mkdir(parents=True,exist_ok=True);binary=d/"chimera-cmd"
-  proc=subprocess.run([compiler,"-std=c11","-O2","-Wall","-Wextra","-Werror",str(a.source),"-o",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+  proc=subprocess.run([compiler,"-std=c11","-O2","-Wall","-Wextra","-Werror","-static",str(a.source),"-o",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
   if proc.returncode:row["reason"]="compiler failed";row["compiler_stderr"]=proc.stderr[-4000:];failures.append(target);rows.append(row);continue
   hdr=subprocess.run([readelf,"-h",str(binary)],check=True,text=True,stdout=subprocess.PIPE).stdout
   machine=next((line.split(":",1)[1].strip() for line in hdr.splitlines() if line.strip().startswith("Machine:")),None)
