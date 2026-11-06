@@ -10,7 +10,10 @@ chroot "$ROOTFS" /bin/sh -eu -c '
   install_one() {
     pkg="$1"; bin="$2"
     if apt-cache show "$pkg" >/dev/null 2>&1; then
-      apt-get install -y --no-install-recommends "$pkg"
+      if ! apt-get install -y --no-install-recommends "$pkg"; then
+        missing="${missing}${pkg}|${bin}|package-install-failed-source-build-required\\n"
+        return 0
+      fi
       if command -v "$bin" >/dev/null 2>&1; then
         installed="${installed}${pkg}|${bin}\n"
       else
