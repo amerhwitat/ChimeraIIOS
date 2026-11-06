@@ -27,6 +27,10 @@ P="$WORK/initramfs"
 mkdir -p "$P"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer,var/log}
 BB="$(command -v busybox || true)"
 if [[ -z "$BB" ]]; then echo "ERROR: busybox is required to build installation.img" >&2; exit 2; fi
+if command -v file >/dev/null 2>&1 && ! file "$BB" | grep -qi 'statically linked'; then
+  echo "ERROR: a statically linked BusyBox is required for the initramfs; install busybox-static." >&2
+  exit 2
+fi
 cp "$BB" "$P/bin/busybox"
 # Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
 while IFS= read -r applet; do
