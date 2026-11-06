@@ -97,7 +97,7 @@ def main():
             status="host ISA detection only; no complete Koronos kernel target"
         else:
             status="catalogue-only; no executable Koronos backend declared"
-        target_key={"x86-64":"x86_64","x86_64":"x86_64","aarch64":"aarch64","riscv64":"riscv64"}.get(key)
+        target_key={"x86-64":"x86_64","x86_64":"x86_64","i686":"i686","x86":"i686","aarch64":"aarch64","armv7":"armv7","arm":"armv7","riscv64":"riscv64","ppc64le":"ppc64le","powerpc64le":"ppc64le","s390x":"s390x"}.get(key)
         cmd_row=native_targets.get(target_key,{}) if target_key else {}
         command_status=cmd_row.get("binary_status","not-built")
         matrix.append({"architecture":arch,"instruction_forms":info["instruction_forms"],
@@ -128,7 +128,7 @@ def main():
       "limitations":[
         "Catalogue entries are not automatically executable binaries; provider-required and candidate rows are not replaced by fake stubs.",
         "The ISA candidate index is discovery metadata, not a complete encoding or conformance database.",
-        "The Koronos Makefile currently accepts only x86_64; AArch64/RISC-V host detection is not a bootable kernel port.",
+        "The Koronos Makefile currently accepts only x86_64; the seven Linux command ABIs are cross-build candidates, not bootable Koronos ports.",
         "Native instruction semantics, privileged operations, device services and per-architecture QEMU tests remain required."
       ]
     }
