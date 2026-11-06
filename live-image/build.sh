@@ -128,7 +128,7 @@ python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
   --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
   --output "$BUILD/native-command-isa" --require-all
 install -d "$WORK/usr/lib/chimera/commands/native"
-cp -a "$BUILD/native-command-isa/." "$WORK/usr/lib/chimera/commands/native/"
+cp -a "$BUILD/native-command-isa/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 # Install the complete command and ISA catalogues into both hosted OS rootfs trees.
 mkdir -p "$WORK/usr/share/chimera/catalogs"
 for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json tools/commands/os-command-runtime.json isa/catalog.json ISA.csv data/isa/online-isa-index.json; do
