@@ -223,6 +223,11 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
 bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
+# Recompute provider coverage after all distro packages and source-built terminals are installed.
+python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
+  --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
+  --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # ------------------------------------------------------------- payload
 log "staging payload"
