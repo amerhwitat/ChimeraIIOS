@@ -22,7 +22,7 @@ def main():
                 p=subprocess.run(["chroot",str(root),str(bash.relative_to(root) if bash.is_relative_to(root) else "/bin/bash"),"-c",'type -t -- "$1" >/dev/null 2>&1',"_",name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=3)
                 if p.returncode==0:return "bash-builtin-or-command"
             except (OSError,subprocess.TimeoutExpired): pass
-        for d in ("bin","usr/bin","sbin","usr/sbin","usr/local/bin","usr/local/sbin"):
+        for d in ("bin","usr/bin","sbin","usr/sbin","usr/local/bin","usr/local/sbin","usr/lib/chimera/busybox-bin"):
             p=root/d/name
             if p.exists() and p.is_file() and p.stat().st_mode & 0o111:return "executable-present"
         return None
