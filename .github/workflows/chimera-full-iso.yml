@@ -248,6 +248,28 @@ jobs:
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
 
+      - name: Require evidence-backed architecture support for native release
+        id: architecture_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          matrix = json.loads(Path("architecture/support-matrix.json").read_text(encoding="utf-8"))
+          target = next((item for item in matrix.get("targets", []) if item.get("id") == "x86_64"), None)
+          accepted = bool(target and target.get("release_supported") is True)
+          if not accepted:
+              print("Native Koronos release blocked: x86_64 is not marked release-supported by the evidence-gated architecture matrix.")
+              if target:
+                  print("Required evidence: " + ", ".join(target.get("evidence_required", [])))
+          else:
+              print("x86_64 release support is explicitly accepted by the architecture matrix.")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("accepted=" + ("true" if accepted else "false") + "\n")
+          PY
+
       - name: Upload target-specific userspace acceptance traces
         if: always()
         uses: actions/upload-artifact@v4
@@ -285,7 +307,7 @@ jobs:
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.architecture_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
