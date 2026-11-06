@@ -244,7 +244,16 @@ if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
 fi
 
-free_bytes(){ df -PB1 "$1" 2>/dev/null | awk 'NR==2{print $4}'; }
+free_bytes(){
+  # df fails on a path that does not exist yet (preflight runs before the rootfs
+  # and ISO output directories are created), which reported 0 GiB free and
+  # aborted the build with "Insufficient storage". Measure the nearest existing
+  # ancestor instead.
+  local p="$1"
+  while [[ -n "$p" && ! -e "$p" ]]; do p="$(dirname "$p")"; done
+  [[ -d "$p" ]] || p=/
+  df -PB1 "$p" 2>/dev/null | awk 'NR==2{print $4}'
+}
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
 docker_image_bytes(){ docker image inspect "$1" --format '{{.Size}}' 2>/dev/null | awk 'NR==1{print $1+0}'; }
 cleanup_generated_build_artifacts(){
@@ -440,7 +449,8 @@ check_deps(){
     log_error 'Docker CLI cannot access the configured Docker Engine.'
     log_error "Docker context: $(docker context show 2>/dev/null || echo unknown)"
     log_error "DOCKER_HOST: ${DOCKER_HOST:-<unset>}"
-    docker_socket="${DOCKER_HOST#unix://}"
+    docker_socket="${DOCKER_HOST:-}"
+    docker_socket="${docker_socket#unix://}"
     [[ -n "$docker_socket" && "$docker_socket" != "$DOCKER_HOST" ]] || docker_socket="/var/run/docker.sock"
     [[ -S "$docker_socket" ]] && log_info "Docker socket exists: $docker_socket" || log_warning "Docker socket not found at $docker_socket"
     [[ -S /run/docker.sock ]] && log_info "Alternative socket exists: /run/docker.sock"
