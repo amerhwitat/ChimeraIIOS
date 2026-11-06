@@ -12,7 +12,7 @@ def elf_machine(p):
         return struct.unpack(endian+"H",h[18:20])[0]
     except (OSError,struct.error): return None
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("--rootfs",type=Path,required=True); ap.add_argument("--repo",type=Path,default=Path(__file__).resolve().parents[2]); ap.add_argument("--output",type=Path); a=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument("--rootfs",type=Path,required=True); ap.add_argument("--repo",type=Path,default=Path(__file__).resolve().parents[2]); ap.add_argument("--output",type=Path); ap.add_argument("--expected-elf-machine",type=int,default=62); a=ap.parse_args()
     root=a.rootfs.resolve()
     terminal=json.loads((a.repo/"aurora/terminals/registry.json").read_text())
     shells=json.loads((a.repo/"aurora/shells/registry.json").read_text())
@@ -30,7 +30,7 @@ def main():
                     status="verified-elf-provider" if machine is not None and resolved.stat().st_mode & 0o111 else "present-but-not-verified-elf"
                 except (OSError,ValueError): status="unsafe-or-broken-path"
             rows.append({"id":item["id"],"name":item["name"],"kind":group,"binary":binary,"source":item.get("source"),"status":status,"elf_machine":machine,"sha256":hashlib.sha256(resolved.read_bytes()).hexdigest() if resolved else None,"path":str(found.relative_to(root)) if found else None})
-    result={"schema":"CHM-AURORA-TERMINAL-SHELL-AUDIT-1","architecture":"derived-from-ELF-machine","summary":{},"entries":rows,"policy":"Registry entries are not treated as installed until a real executable ELF provider is found inside the target rootfs."}
+    result={"schema":"CHM-AURORA-TERMINAL-SHELL-AUDIT-1","expected_elf_machine":a.expected_elf_machine,"architecture":"derived-from-ELF-machine","summary":{},"entries":rows,"policy":"Registry entries are not treated as installed until a real executable ELF provider is found inside the target rootfs."}
     for kind in ("terminal","shell"):
         subset=[x for x in rows if x["kind"]==kind]
         result["summary"][kind]={"catalogued":len(subset),"verified_elf":sum(x["status"]=="verified-elf-provider" for x in subset),"missing":sum(x["status"]=="provider-missing" for x in subset),"other":sum(x["status"] not in ("verified-elf-provider","provider-missing") for x in subset)}
