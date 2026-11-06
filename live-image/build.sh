@@ -127,6 +127,17 @@ cp -a "$BASE/." "$WORK/" 2>/dev/null || true
 python3 "$REPO_DIR/tools/aurora/audit-terminal-shell-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
 python3 "$REPO_DIR/tools/commands/audit-command-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
 python3 "$REPO_DIR/tools/isa/audit-isa-emulation-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
+# Install the registry/launcher consumed by the Aurora Terminal Center.
+install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$WORK/usr/share/chimera/aurora/terminals/registry.json"
+install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chimera/aurora/shells/registry.json"
+install -D -m 0755 "$REPO_DIR/aurora/shells/launch-shell.sh" "$WORK/usr/lib/chimera/aurora/launch-shell.sh"
+# Export every generated C++ SVG icon and the full generated Aurora media set.
+python3 "$REPO_DIR/tools/aurora/export-icon-theme.py" --source "$REPO_DIR/desktop/aurora/icons/chimera_icons.cpp" --output "$WORK/usr/share/icons/chimera-aurora"
+install -D -m 0644 "$WORK/usr/share/icons/chimera-aurora/index.theme" "$WORK/usr/share/icons/chimera-aurora/index.theme"
+printf 'GTK_ICON_THEME=chimera-aurora\\n' > "$WORK/etc/environment.d/90-chimera-aurora-icons.conf"
+bash "$REPO_DIR/tools/aurora/build-visual-assets.sh" "$BUILD/aurora-media"
+mkdir -p "$WORK/usr/share/chimera/aurora/media"
+cp -a "$BUILD/aurora-media/." "$WORK/usr/share/chimera/aurora/media/"
 CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/aurora/terminals/install-desktop-entries.sh"
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
