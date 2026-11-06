@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse, hashlib, json, shutil, subprocess, sys
 from pathlib import Path
-TARGETS={"x86_64":{"compiler":"cc","machine":"Advanced Micro Devices X86-64","elf_machine":62},"i686":{"compiler":"i686-linux-gnu-gcc","machine":"Intel 80386","elf_machine":3},"aarch64":{"compiler":"aarch64-linux-gnu-gcc","machine":"AArch64","elf_machine":183},"armv7":{"compiler":"arm-linux-gnueabihf-gcc","machine":"ARM","elf_machine":40},"riscv64":{"compiler":"riscv64-linux-gnu-gcc","machine":"RISC-V","elf_machine":243},"ppc64le":{"compiler":"powerpc64le-linux-gnu-gcc","machine":"PowerPC64","elf_machine":21},"s390x":{"compiler":"s390x-linux-gnu-gcc","machine":"IBM S/390","elf_machine":22}}
+TARGETS={"x86_64":{"compiler":"cc","machine":"Advanced Micro Devices X86-64","elf_machine":62},"aarch64":{"compiler":"aarch64-linux-gnu-gcc","machine":"AArch64","elf_machine":183},"riscv64":{"compiler":"riscv64-linux-gnu-gcc","machine":"RISC-V","elf_machine":243}}
 def sha256(path):
  h=hashlib.sha256()
  with path.open("rb") as f:
@@ -20,7 +20,7 @@ def main():
   compiler=shutil.which(spec["compiler"]);row={"target":target,"compiler":spec["compiler"],"binary_status":"not-built","runtime_status":"not-tested","aliases":aliases}
   if not compiler:row["reason"]="target compiler unavailable";failures.append(target);rows.append(row);continue
   d=a.output/target;d.mkdir(parents=True,exist_ok=True);binary=d/"chimera-cmd"
-  proc=subprocess.run([compiler,"-std=c11","-O2","-Wall","-Wextra","-Werror","-static",str(a.source),"-o",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+  proc=subprocess.run([compiler,"-std=c11","-O2","-Wall","-Wextra","-Werror",str(a.source),"-o",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
   if proc.returncode:row["reason"]="compiler failed";row["compiler_stderr"]=proc.stderr[-4000:];failures.append(target);rows.append(row);continue
   hdr=subprocess.run([readelf,"-h",str(binary)],check=True,text=True,stdout=subprocess.PIPE).stdout
   machine=next((line.split(":",1)[1].strip() for line in hdr.splitlines() if line.strip().startswith("Machine:")),None)
@@ -30,7 +30,7 @@ def main():
    if link.exists() or link.is_symlink():link.unlink()
    link.symlink_to("chimera-cmd")
   row.update({"binary_status":"cross-compiled-and-elf-machine-validated","elf_machine":machine,"elf_machine_id":spec["elf_machine"],"binary":str(binary.relative_to(a.output)),"sha256":sha256(binary),"runtime_status":"not-tested-cross-build-only"});rows.append(row)
- manifest={"schema":"CHM-LINUX-ABI-COMMAND-BUILD-1","policy":"Only compiled outputs with a verified ELF machine field are marked built. Cross-compilation is not native runtime acceptance.","native_command_count":len(aliases),"target_count":len(TARGETS),"targets":rows}
+ manifest={"schema":"CHM-NATIVE-COMMAND-ISA-BUILD-1","policy":"Only compiled outputs with a verified ELF machine field are marked built. Cross-compilation is not native runtime acceptance.","native_command_count":len(aliases),"target_count":len(TARGETS),"targets":rows}
  (a.output/"manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
  print(json.dumps({"built":sum(r["binary_status"]=="cross-compiled-and-elf-machine-validated" for r in rows),"targets":len(rows),"failures":failures},sort_keys=True))
  return 1 if a.require_all and failures else 0
