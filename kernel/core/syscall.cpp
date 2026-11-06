@@ -107,21 +107,9 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
     }
 
     uint32_t canonical = 0xFFFFFFFFu;
-    const uint32_t abi = koronos_target_syscall_abi();
-    if (abi == KORONOS_USER_ABI_CHIMERA) {
-        /* Native Koronos target ELFs use the stable Chimera syscall numbers
-         * declared in kernel/include/chimera/syscall.h. They must not be
-         * interpreted as Linux syscall numbers (for example native EXIT=1
-         * and Linux WRITE=1 are intentionally different operations). */
-        if (frame->rax <= UINT32_MAX) canonical = static_cast<uint32_t>(frame->rax);
-    } else if (abi == KORONOS_USER_ABI_LINUX) {
-        chimera_syscall_identity identity{};
-        if (chimera_compat_recognize_syscall(
-                CHM_ENTRY_X86_SYSCALL, 64u,
-                static_cast<uint32_t>(frame->rax), &identity) == 0) {
-            canonical = identity.canonical;
-        }
-    } else {
+    if (chimera_compat_resolve_user_syscall(
+            koronos_target_syscall_abi(), CHM_ENTRY_X86_SYSCALL, 64u,
+            static_cast<uint32_t>(frame->rax), &canonical) != 0) {
         return static_cast<uint64_t>(-38ll);
     }
 
