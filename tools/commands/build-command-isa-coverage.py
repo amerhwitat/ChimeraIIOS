@@ -130,7 +130,7 @@ def main():
             status="host ISA detection only; no complete Koronos kernel target"
         else:
             status="catalogue-only; no executable Koronos backend declared"
-        target_key={"x86-64":"x86_64","x86_64":"x86_64","i686":"i686","x86":"i686","aarch64":"aarch64","armv7":"armv7","arm":"armv7","riscv64":"riscv64","ppc64le":"ppc64le","powerpc64le":"ppc64le","s390x":"s390x"}.get(key)
+        target_key={"x86-64":"x86_64","x86_64":"x86_64","i686":"i686","x86":"i686","aarch64":"aarch64","armel":"armel","armv7":"armv7","arm":"armv7","riscv64":"riscv64","ppc64le":"ppc64le","powerpc64le":"ppc64le","s390x":"s390x"}.get(key)
         cmd_row=native_targets.get(target_key,{}) if target_key else {}
         command_status=cmd_row.get("binary_status","not-built")
         matrix.append({"architecture":arch,"instruction_forms":info["instruction_forms"],
