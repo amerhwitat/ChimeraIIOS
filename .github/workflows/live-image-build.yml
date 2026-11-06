@@ -5,6 +5,8 @@ on:
     branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
     paths:
       - 'live-image/**'
+      - 'tools/commands/**'
+      - 'system/commands/**'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -16,6 +18,8 @@ on:
   pull_request:
     paths:
       - 'live-image/**'
+      - 'tools/commands/**'
+      - 'system/commands/**'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
