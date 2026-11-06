@@ -9,9 +9,9 @@ from pathlib import Path
 class BootMenuTimeoutTests(unittest.TestCase):
     def assert_menu_policy(self, relative, seconds):
         text = Path(relative).read_text()
-        self.assertRegex(text, rf"(?m)^set timeout={seconds}\\s*$")
-        self.assertRegex(text, r"(?m)^set timeout_style=menu\\s*$")
-        self.assertRegex(text, r"(?m)^set default=0\\s*$")
+        self.assertRegex(text, rf"(?m)^set timeout={seconds}\s*$")
+        self.assertRegex(text, r"(?m)^set timeout_style=menu\s*$")
+        self.assertRegex(text, r"(?m)^set default=0\s*$")
 
     def test_primary_boot_menus_wait_five_minutes(self):
         for path in (
@@ -38,7 +38,7 @@ class BootMenuTimeoutTests(unittest.TestCase):
     def test_generated_jasper_recovery_menu_uses_two_minute_policy(self):
         script = Path("boot/iso/prepare-layout.sh").read_text()
         match = re.search(
-            r'cat > "\\$DIST/boot/jasper/recovery\\.cfg" <<\\'EOF\\'\\n(.*?)\\nEOF',
+            r'cat > "\$DIST/boot/jasper/recovery\.cfg" <<\'EOF\'\n(.*?)\nEOF',
             script,
             re.S,
         )
