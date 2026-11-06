@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'src/chimera-command-compat/**'
+      - 'tests/commands/**'
       - 'tools/build-command-arch-matrix.sh'
       - '.github/workflows/command-arch-matrix.yml'
   pull_request:
@@ -36,6 +37,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes ${{ matrix.package }} binutils
+      - name: Run native multicall semantic smoke tests
+        if: matrix.arch == 'x86_64'
+        run: bash tests/commands/test_chimera_cmd.sh
       - name: Build architecture-specific command binary
         env:
           CC: ${{ matrix.compiler }}
