@@ -4,6 +4,7 @@
 #include "chimera/compat.h"
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
+#include "chimera/target_launch.h"
 
 namespace {
 static volatile uint32_t g_initialized = 0;
