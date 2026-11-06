@@ -358,19 +358,15 @@ static int cmd_clear(void)
 
 static int cmd_whoami(void)
 {
-    const char *u = getenv("USER");
-    if (u != NULL && u[0] != '\0') {
-        puts(u);
-        return 0;
-    }
-
-    struct passwd *entry = getpwuid(getuid());
+    /* GNU whoami reports the effective UID; never trust the USER environment. */
+    uid_t uid = geteuid();
+    struct passwd *entry = getpwuid(uid);
     if (entry != NULL && entry->pw_name != NULL && entry->pw_name[0] != '\0') {
         puts(entry->pw_name);
         return 0;
     }
 
-    fprintf(stderr, "whoami: cannot resolve uid %lu\n", (unsigned long)getuid());
+    fprintf(stderr, "whoami: cannot resolve uid %lu\n", (unsigned long)uid);
     return 1;
 }
 
