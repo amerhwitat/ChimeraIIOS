@@ -326,7 +326,7 @@ if [ -x "$REPO_DIR/tools/build-sdks.sh" ]; then
   log "sdk build"
   mkdir -p "$PAY/reports"
   bash "$REPO_DIR/tools/build-sdks.sh" --out "$PAY/reports/sdk-build-report.json" \
-    --max 12 --timeout 180 || true
+    --max 6 --timeout 120 || true
 fi
 
 log "trimming"
