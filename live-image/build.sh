@@ -43,7 +43,7 @@ for cmd in i686-linux-gnu-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc \
 done
 python3 -c 'import venv' || { echo "python3-venv is required for the pinned Ghostty Zig toolchain." >&2; exit 2; }
 # Build target-specific Linux ABI command binaries for both hosted desktop editions.
-python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
+python3 "$REPO_DIR/tools/commands/build_linux_abi_command_matrix.py" \
   --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
   --output "$NATIVE_COMMAND_OUT" \
