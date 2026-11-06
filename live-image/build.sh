@@ -143,9 +143,15 @@ install -d "$WORK/usr/share/chimera/aurora/media" "$WORK/usr/share/chimera/auror
 cp -a "$AURORA_MEDIA/." "$WORK/usr/share/chimera/aurora/media/"
 python3 "$REPO_DIR/tools/aurora/export-icon-theme.py" \
   --output "$BUILD/aurora-icons-$ED"
-install -d "$WORK/usr/share/icons/hicolor/scalable/apps" "$WORK/usr/share/icons/chimera-aurora"
+install -d "$WORK/usr/share/icons/hicolor/scalable/apps" "$WORK/usr/share/icons/chimera-aurora/scalable/apps"
 cp -a "$BUILD/aurora-icons-$ED/." "$WORK/usr/share/icons/chimera-aurora/"
 cp -a "$BUILD/aurora-icons-$ED/chimera-"*.svg "$WORK/usr/share/icons/hicolor/scalable/apps/"
+cp -a "$BUILD/aurora-icons-$ED/chimera-"*.svg "$WORK/usr/share/icons/chimera-aurora/scalable/apps/"
+install -d "$WORK/etc/gtk-3.0"
+cat > "$WORK/etc/gtk-3.0/settings.ini" <<'GTK'
+[Settings]
+gtk-icon-theme-name=chimera-aurora
+GTK
 cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$WORK/usr/share/chimera/aurora/"
 cp -a "$REPO_DIR/desktop/aurora/icons/icon_theme.json" "$WORK/usr/share/chimera/aurora/icons/"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
