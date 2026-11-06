@@ -87,9 +87,9 @@ class IsoTargetRoutingTests(unittest.TestCase):
         )
         for relative in menu_paths:
             text = (ROOT / relative).read_text(encoding="utf-8")
-            self.assertRegex(text, r"(?m)^set timeout_style=menu\\s*$", relative)
-            self.assertRegex(text, r"(?m)^set timeout=60\\s*$", relative)
-            self.assertRegex(text, r"(?m)^set default=0\\s*$", relative)
+            self.assertRegex(text, r"(?m)^set timeout_style=menu\s*$", relative)
+            self.assertRegex(text, r"(?m)^set timeout=60\s*$", relative)
+            self.assertRegex(text, r"(?m)^set default=0\s*$", relative)
 
 
 if __name__ == "__main__":
