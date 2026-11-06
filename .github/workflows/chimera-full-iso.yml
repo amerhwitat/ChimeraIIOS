@@ -112,6 +112,10 @@ jobs:
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          extract /desktop/aurora/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json "$tmp/terminal-shell-staging.json"
+          xorriso -osirrox on -indev "$iso" -extract /desktop/aurora/terminal-shell-rootfs/usr "$tmp/terminal-rootfs-usr" >/dev/null
+          test -d "$tmp/terminal-rootfs-usr/bin"
+
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -122,6 +126,24 @@ jobs:
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          terminal = json.loads((root / "terminal-shell-staging.json").read_text())
+          if terminal.get("schema") != "AURORA-TERMINAL-SHELL-STAGING-1":
+              raise SystemExit("terminal/shell staging manifest schema mismatch")
+          terminal_root = root / "terminal-rootfs-usr"
+          for item in terminal.get("entries", []):
+              if item.get("status") == "binary-present":
+                  relative = item["path"].removeprefix("/usr/")
+                  binary = terminal_root / relative
+                  if not binary.is_file():
+                      raise SystemExit(f"terminal provider missing from ISO payload: {item['id']}")
+                  import hashlib
+                  if hashlib.sha256(binary.read_bytes()).hexdigest() != item.get("sha256"):
+                      raise SystemExit(f"terminal provider hash mismatch: {item['id']}")
+                  if item.get("kind") == "terminal" and not (terminal_root / "share/applications" / f"chimera-terminal-{item['id']}.desktop").is_file():
+                      raise SystemExit(f"present terminal provider lacks desktop entry: {item['id']}")
+              elif item.get("status") == "wrong-architecture":
+                  print(f"Terminal provider not usable on this ISO architecture: {item['id']}")
+
           if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
           grub = (root / "grub.cfg").read_text()
