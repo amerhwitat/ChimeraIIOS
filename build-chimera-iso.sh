@@ -1486,6 +1486,9 @@ build_command_runtime(){
   CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
   [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
+  log_info "Building/staging the registered open-source shells and terminal emulators"
+  CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_TERMINAL_REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-1}" bash "$SCRIPT_DIR/scripts/chimera-iso-terminal-shell-hook.sh"
+  [[ -s "$ROOTFS_DIR/usr/share/chimera/aurora/terminal-shell-staging.json" ]] || { log_error "Terminal/shell staging manifest missing"; return 1; }
 }
 
 main(){
