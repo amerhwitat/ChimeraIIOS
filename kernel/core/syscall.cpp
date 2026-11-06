@@ -53,9 +53,12 @@ extern "C" int chimera_syscall_dispatch(uint32_t entry, uint32_t bitness, uint32
             *return_value = error_value();
             return -1;
         case CHM_SYS_YIELD:
-            chimera_sched_yield();
-            *return_value = 0;
-            return 0;
+            /* The callback scheduler does not switch saved register frames,
+             * kernel stacks, or CR3. Report unsupported until a real context
+             * switch is owned by the runnable-process scheduler. */
+            ++g_rejected;
+            *return_value = error_value();
+            return -1;
         case CHM_SYS_TIME_TICKS:
             *return_value = chimera_timer_now();
             return 0;
@@ -136,9 +139,11 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             return static_cast<uint64_t>(pid);
         }
         case CHM_SYS_YIELD:
-            // The bootstrap user entry is single-process until the scheduler owns
-            // address-space context switches; yielding is currently a safe no-op.
-            return 0;
+            /* A successful no-op would falsely promise scheduling semantics.
+             * Keep the syscall fail-closed until saved-frame/stack/CR3 switching
+             * is implemented by the process scheduler. */
+            koronos_target_log("[SYSC] YIELD rejected: process context switching is unavailable");
+            return static_cast<uint64_t>(-38ll);
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
