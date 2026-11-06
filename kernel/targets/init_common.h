@@ -18,6 +18,7 @@
 #define CHM_SYS_GETPID 2
 #define CHM_SYS_YIELD 3
 #define CHM_SYS_TIME_TICKS 4
+#define CHM_SYS_READ 8
 #define CHM_SYS_WRITE 9
 
 static void init_int80(void) {
@@ -48,6 +49,9 @@ static long init_syscall3(long number, long arg1, long arg2, long arg3) {
 static long init_getpid(void) { return init_syscall1(CHM_SYS_GETPID); }
 static void init_yield(void) { (void)init_syscall1(CHM_SYS_YIELD); }
 static long init_time_ticks(void) { return init_syscall1(CHM_SYS_TIME_TICKS); }
+static long init_read(long fd, char *buffer, long length) {
+    return init_syscall3(CHM_SYS_READ, fd, (long)buffer, length);
+}
 static long init_write(long fd, const char *buffer, long length) {
     return init_syscall3(CHM_SYS_WRITE, fd, (long)buffer, length);
 }
