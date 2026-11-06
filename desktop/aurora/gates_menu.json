@@ -139,5 +139,10 @@
       "PS4",
       "PS5"
     ]
+  },
+  "input_policy": {
+    "requires_explicit_user_selection": true,
+    "auto_select_default": false,
+    "description": "Gates is an interactive desktop launcher and does not auto-select or launch a default item."
   }
 }
