@@ -13,9 +13,15 @@ manifest="$ROOTFS/usr/share/chimera/commands/hosted-tools.tsv"
 "$CXX" -std=c++20 -O2 -Wall -Wextra -Werror "$ROOT/userland/commands/chmctl.cpp" -o "$ROOTFS/usr/bin/chmctl"
 printf 'chmctl|/usr/bin/chmctl|compiled-linux-userspace\n' >> "$manifest"
 
-install -D -m 0755 "$ROOT/tools/help/chimera-help" "$OUT/chimera-help"
+install -D -m 0755 "$ROOT/tools/help/chimera-help" "$ROOTFS/usr/share/chimera/help/tools/help/chimera-help"
 cp -a "$ROOT/tools/help/." "$ROOTFS/usr/share/chimera/help/tools/help/"
 [[ -s "$ROOT/web/man_pages.json" ]] && install -D -m 0644 "$ROOT/web/man_pages.json" "$ROOTFS/usr/share/chimera/help/web/man_pages.json"
+cat > "$OUT/chimera-help" <<'HELP'
+#!/bin/sh
+export CHIMERA_HELP_ROOT=/usr/share/chimera/help
+exec python3 /usr/share/chimera/help/tools/help/chimera-help "$@"
+HELP
+chmod 0755 "$OUT/chimera-help"
 printf 'chimera-help|/usr/bin/chimera-help|python3-help-database\n' >> "$manifest"
 
 install -D -m 0755 "$ROOT/tools/display/chimera-display" "$OUT/chimera-display"
