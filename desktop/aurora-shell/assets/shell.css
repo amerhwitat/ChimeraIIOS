@@ -166,6 +166,13 @@ html[data-profile="jasper"] .icon.selected { background: rgba(15, 108, 189, .18)
   transform: translateZ(0);
   transition: transform .14s cubic-bezier(.2, .8, .3, 1.4), box-shadow .14s ease;
 }
+.glyph.has-art, .dock-icon.has-art, .tb-icon.has-art, .sm-icon.has-art {
+  background: transparent !important; box-shadow: none !important; border: 0;
+}
+.app-icon-art { display: block; width: 100%; height: 100%; overflow: visible; }
+.dock-icon { width: 34px; height: 34px; display: block; }
+.tb-icon { width: 20px; height: 20px; flex: 0 0 20px; display: block; }
+.sm-app .sm-icon { width: 40px; height: 40px; display: grid; place-items: center; }
 .icon:hover .glyph { transform: translateY(-2px) scale(1.03); }
 .icon:active .glyph { transform: translateY(1px) scale(.98); box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45); }
 .icon .label {
