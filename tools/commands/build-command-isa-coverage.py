@@ -156,6 +156,10 @@ def main():
       "catalogued_command_count":len(command_rows),
       "commands":command_rows,
       "command_summary":counts,
+      "linux_abi_multicall_alias_count":len(LINUX_ABI_MULTICALL_IMPLEMENTED),
+      "native_chimera_command_count":sum("chimera-native" in row["platforms"] for row in command_rows),
+      "native_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="native-command-source-present" for row in command_rows),
+      "hosted_linux_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="hosted-linux-rootfs-executable" for row in command_rows),
       "linux_abi_command_build_matrix":native_matrix or {"status":"not-run","targets":[]},
       "isa_source":"ISA.csv",
       "isa_architectures":matrix,
@@ -163,6 +167,8 @@ def main():
       "limitations":[
         "Catalogue entries are not automatically executable binaries; provider-required and candidate rows are not replaced by fake stubs.",
         "The ISA candidate index is discovery metadata, not a complete encoding or conformance database.",
+        "The 15 POSIX multicall aliases are Linux userspace commands and do not implement the 90 Chimera-native catalogue commands.",
+        "Hosted Linux command frontends do not establish Koronos-native syscall or service integration.",
         "The Koronos Makefile currently accepts only x86_64; the seven Linux command ABIs are cross-build candidates, not bootable Koronos ports.",
         "Native instruction semantics, privileged operations, device services and per-architecture QEMU tests remain required."
       ]
