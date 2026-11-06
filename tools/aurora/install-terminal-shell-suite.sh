@@ -10,7 +10,7 @@ chroot "$ROOTFS" /bin/sh -eu -c '
   case "$target_arch" in
     amd64) expected_machine="Advanced Micro Devices X86-64" ;;
     arm64) expected_machine="AArch64" ;;
-    armhf) expected_machine="ARM" ;;
+    armel|armhf) expected_machine="ARM" ;;
     i386) expected_machine="Intel 80386" ;;
     riscv64) expected_machine="RISC-V" ;;
     ppc64el) expected_machine="PowerPC64" ;;
