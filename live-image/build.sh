@@ -140,7 +140,7 @@ if [[ -z "$BB_IN_ROOT" ]]; then
   exit 2
 fi
 while IFS= read -r applet; do
-  [[ -n "$applet" && "$applet" != */* ]] || continue
+  [[ -n "$applet" && "$applet" != */* && "$applet" != "busybox" ]] || continue
   if [[ ! -e "$WORK/usr/bin/$applet" && ! -e "$WORK/bin/$applet" ]]; then
     ln -s /bin/busybox "$WORK/usr/bin/$applet"
   fi
