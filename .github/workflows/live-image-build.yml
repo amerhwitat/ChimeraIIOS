@@ -129,7 +129,7 @@ jobs:
           OUT_DIR: ${{ runner.temp }}/aurora-live-output
         run: |
           set -euo pipefail
-          sudo -E env "PATH=$PATH" bash live-image/build.sh chimera
+          sudo -E env "PATH=$PATH" "RUSTUP_HOME=$HOME/.rustup" "CARGO_HOME=$HOME/.cargo" bash live-image/build.sh chimera
           # The builder runs as root to configure the chroot; restore runner
           # ownership so the validation and artifact-upload steps can read it.
           sudo chown -R "$(id -u):$(id -g)" "$OUT_DIR"
@@ -310,7 +310,7 @@ jobs:
           OUT_DIR: ${{ runner.temp }}/octavian-live-output
         run: |
           set -euo pipefail
-          sudo -E env "PATH=$PATH" bash live-image/build.sh octavian
+          sudo -E env "PATH=$PATH" "RUSTUP_HOME=$HOME/.rustup" "CARGO_HOME=$HOME/.cargo" bash live-image/build.sh octavian
           sudo chown -R "$(id -u):$(id -g)" "$OUT_DIR"
           iso="$OUT_DIR/octavian-os-live-amd64.iso"
           test -s "$iso"
