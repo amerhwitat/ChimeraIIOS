@@ -908,6 +908,7 @@
     applyWallpaper(load("wallpaper", ""), false);
     installSoundFeedback();
     wire();
+    playSound("startup");
     startClock();
     renderIcons();
     renderDock();
