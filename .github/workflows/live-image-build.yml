@@ -56,6 +56,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Install current stable Rust toolchain for source-built shells and terminals
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install host ISO and graphical smoke-test dependencies
         run: |
@@ -257,6 +259,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Install current stable Rust toolchain for source-built shells and terminals
+        uses: dtolnay/rust-toolchain@stable
       - name: Install host ISO and cross-build dependencies
         run: |
           sudo apt-get update
