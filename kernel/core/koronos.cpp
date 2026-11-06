@@ -409,6 +409,85 @@ extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length) {
+    if (length == 0) return 0;
+    if (length > 4096u) return -22;
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 1u) != 0) {
+        koronos_target_log("[SYSC] READ rejected: user buffer is not writable mapped memory");
+        return -14;
+    }
+    auto *buffer = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(address));
+    static uint8_t shift_down = 0;
+    static uint8_t caps_lock = 0;
+    uint64_t used = 0;
+    __asm__ volatile("sti" ::: "memory");
+    while (used < length) {
+        uint8_t status = 0;
+        do {
+            __asm__ volatile("inb $0x64, %0" : "=a"(status));
+            if ((status & 1u) == 0) __asm__ volatile("pause" ::: "memory");
+        } while ((status & 1u) == 0);
+        uint8_t scan = 0;
+        __asm__ volatile("inb $0x60, %0" : "=a"(scan));
+        if (scan == 0xE0u || scan == 0xE1u) continue;
+        if (scan == 0x2Au || scan == 0x36u) { shift_down = 1u; continue; }
+        if (scan == 0xAAu || scan == 0xB6u) { shift_down = 0u; continue; }
+        if (scan == 0x3Au) { caps_lock ^= 1u; continue; }
+        if (scan & 0x80u) continue;
+        char ch = 0;
+        switch (scan) {
+            case 0x02: ch = shift_down ? '!' : '1'; break;
+            case 0x03: ch = shift_down ? '@' : '2'; break;
+            case 0x04: ch = shift_down ? '#' : '3'; break;
+            case 0x05: ch = shift_down ? '$' : '4'; break;
+            case 0x06: ch = shift_down ? '%' : '5'; break;
+            case 0x07: ch = shift_down ? '^' : '6'; break;
+            case 0x08: ch = shift_down ? '&' : '7'; break;
+            case 0x09: ch = shift_down ? '*' : '8'; break;
+            case 0x0A: ch = shift_down ? '(' : '9'; break;
+            case 0x0B: ch = shift_down ? ')' : '0'; break;
+            case 0x0C: ch = shift_down ? '_' : '-'; break;
+            case 0x0D: ch = shift_down ? '+' : '='; break;
+            case 0x0E: ch = '\b'; break;
+            case 0x0F: ch = '\t'; break;
+            case 0x10: ch = 'q'; break; case 0x11: ch = 'w'; break;
+            case 0x12: ch = 'e'; break; case 0x13: ch = 'r'; break;
+            case 0x14: ch = 't'; break; case 0x15: ch = 'y'; break;
+            case 0x16: ch = 'u'; break; case 0x17: ch = 'i'; break;
+            case 0x18: ch = 'o'; break; case 0x19: ch = 'p'; break;
+            case 0x1A: ch = shift_down ? '{' : '['; break;
+            case 0x1B: ch = shift_down ? '}' : ']'; break;
+            case 0x1C: ch = '\n'; break;
+            case 0x1E: ch = 'a'; break; case 0x1F: ch = 's'; break;
+            case 0x20: ch = 'd'; break; case 0x21: ch = 'f'; break;
+            case 0x22: ch = 'g'; break; case 0x23: ch = 'h'; break;
+            case 0x24: ch = 'j'; break; case 0x25: ch = 'k'; break;
+            case 0x26: ch = 'l'; break;
+            case 0x27: ch = shift_down ? ':' : ';'; break;
+            case 0x28: ch = shift_down ? '"' : '\''; break;
+            case 0x29: ch = shift_down ? '~' : '`'; break;
+            case 0x2B: ch = shift_down ? '|' : '\\'; break;
+            case 0x2C: ch = 'z'; break; case 0x2D: ch = 'x'; break;
+            case 0x2E: ch = 'c'; break; case 0x2F: ch = 'v'; break;
+            case 0x30: ch = 'b'; break; case 0x31: ch = 'n'; break;
+            case 0x32: ch = 'm'; break;
+            case 0x33: ch = shift_down ? '<' : ','; break;
+            case 0x34: ch = shift_down ? '>' : '.'; break;
+            case 0x35: ch = shift_down ? '?' : '/'; break;
+            case 0x39: ch = ' '; break;
+            default: break;
+        }
+        if (ch >= 'a' && ch <= 'z' && (shift_down ^ caps_lock)) ch = static_cast<char>(ch - 'a' + 'A');
+        if (ch == 0) continue;
+        buffer[used++] = static_cast<uint8_t>(ch);
+        if (ch == '\n') break;
+    }
+    __asm__ volatile("cli" ::: "memory");
+    return static_cast<int64_t>(used);
+}
+
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
     if (length == 0) return 0;
     if (length > 4096u) return -22;
