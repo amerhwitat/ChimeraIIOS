@@ -27,7 +27,18 @@ Type=Application
 Name=Aurora Terminal Center
 Comment=Chimera II OS terminal emulator and shell launcher
 Exec=aurora-terminal-center
-Terminal=false
+Terminal=true
+Categories=System;TerminalEmulator;
+X-Chimera-Aurora=true
+X-Chimera-Panel=Terminals & Shells
+EOF
+cat > "$APPS/chimera-shell-center.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Aurora Shell Center
+Comment=Choose an installed open-source command shell
+Exec=aurora-shell-center
+Terminal=true
 Categories=System;TerminalEmulator;
 X-Chimera-Aurora=true
 X-Chimera-Panel=Terminals & Shells
