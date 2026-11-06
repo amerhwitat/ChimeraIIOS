@@ -26,7 +26,7 @@ jobs:
       - name: Install cross compilers and ELF inspection tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils
+          sudo apt-get install -y gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static
       - name: Build native multicall commands for target ISAs
         run: |
           python3 tools/commands/build_native_command_matrix.py \
@@ -34,6 +34,7 @@ jobs:
             --policy system/commands/compatibility-binary-policy.json \
             --output build/native-command-isa \
             --require-all
+          bash tests/commands/test-native-command-matrix.sh build/native-command-isa
       - name: Upload target command binaries and machine-verification manifest
         uses: actions/upload-artifact@v4
         with:
