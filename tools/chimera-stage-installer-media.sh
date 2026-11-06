@@ -34,6 +34,11 @@ while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != "busybox" ]] || continue
   ln -sf busybox "$P/bin/$applet"
 done < <("$BB" --list)
+# Embed the same complete command and ISA catalogues in installer media.
+mkdir -p "$P/etc/chimera/catalogs"
+for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json isa/catalog.json ISA.csv data/isa/online-isa-index.json; do
+  [[ -s "$ROOT/$rel" ]] && install -D -m 0644 "$ROOT/$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+done
 if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/chimera-installer-runtime.sh" "$P/bin/"; chmod +x "$P/bin/chimera-installer-runtime.sh"; fi
 for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
 cat > "$P/init" <<'EOF'
