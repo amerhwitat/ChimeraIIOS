@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate truthful command/ISA coverage for shipped OS and initramfs runtimes."""
 from __future__ import annotations
-import argparse, csv, json, subprocess
+import argparse, csv, json, subprocess, stat
 from pathlib import Path
 
 PLATFORMS={
@@ -16,14 +16,28 @@ PLATFORMS={
 NATIVE_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
+def rootfs_executable(rootfs: Path | None, name: str):
+    if rootfs is None:
+        return None
+    for directory in ("usr/local/bin", "usr/local/sbin", "usr/bin", "usr/sbin", "bin", "sbin"):
+        candidate=rootfs/directory/name
+        try:
+            if candidate.is_file() and (candidate.stat().st_mode & (stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)):
+                return "/" + str(candidate.relative_to(rootfs))
+        except OSError:
+            continue
+    return None
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[2])
     ap.add_argument("--busybox",type=Path,required=True)
     ap.add_argument("--native-matrix",type=Path)
+    ap.add_argument("--rootfs",type=Path,help="Target root filesystem to inspect for real executable providers")
     ap.add_argument("--output",type=Path,required=True)
     args=ap.parse_args()
     root=args.root.resolve()
+    target_rootfs=args.rootfs.resolve() if args.rootfs else None
     busybox=set(subprocess.check_output([str(args.busybox),"--list"],text=True).split())
     catalog=json.loads((root/"system/commands/chimera-command-list.json").read_text(encoding="utf-8"))
     rows={}
@@ -43,17 +57,25 @@ def main():
     for row in rows.values():
         name=row["command"]
         if "linux-bash" in row["platforms"]:
+            target_path=rootfs_executable(target_rootfs,name)
             if name in busybox:
                 row.update(provider="busybox-applet",path="/bin/"+name)
             elif name in SHELL_BUILTINS:
                 row.update(provider="shell-builtin",path="/bin/sh")
+            elif target_path:
+                row.update(provider="target-rootfs-executable",path=target_path)
             else:
                 row.update(provider="catalogued-provider-required",path=None)
         elif "chimera-native" in row["platforms"]:
+            target_path=rootfs_executable(target_rootfs,name)
             if name.casefold() in NATIVE_IMPLEMENTED:
                 row.update(provider="native-command-source-present",path=None)
+            elif target_path:
+                row.update(provider="hosted-linux-rootfs-executable",path=target_path,
+                           native_koronos_status="not-implemented-by-linux-provider")
             else:
-                row.update(provider="native-candidate-not-yet-implemented",path=None)
+                row.update(provider="native-candidate-not-yet-implemented",path=None,
+                           native_koronos_status="not-implemented")
         else:
             row.update(provider="compatibility-provider-required",path=None)
         row["platforms"].sort()
@@ -117,6 +139,8 @@ def main():
       "edition_targets":["ChimeraIIOS","OctavianOS"],
       "command_catalog_source":"system/commands/chimera-command-list.json + config/linux-command-registry.json",
       "busybox_binary":str(args.busybox),
+      "target_rootfs":str(target_rootfs) if target_rootfs else None,
+      "provider_scope":"A target-rootfs executable is verified for the specified hosted Linux image only; it does not prove Koronos-native ABI support.",
       "busybox_applet_count":len(busybox),
       "catalogued_command_count":len(command_rows),
       "commands":command_rows,
