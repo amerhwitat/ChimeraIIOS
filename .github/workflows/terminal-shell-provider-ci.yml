@@ -83,6 +83,7 @@ jobs:
           name: aurora-terminal-shell-providers-x86_64
           path: |
             ${{ runner.temp }}/terminal-shell-rootfs/usr/bin/
+            ${{ runner.temp }}/terminal-shell-rootfs/usr/local/bin/
             ${{ runner.temp }}/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json
             ${{ runner.temp }}/terminal-shell-rootfs/usr/share/applications/
           if-no-files-found: warn
