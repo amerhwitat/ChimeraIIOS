@@ -552,3 +552,8 @@ html[data-profile="jasper"] .dialog .content .row .k { color: #5a718d; }
   .vc, .files, .settings { grid-template-columns: 1fr; }
   .vc aside, .files .sidebar, .settings .nav { display: none; }
 }
+
+
+/* Original SVG application artwork from ../app-icons/catalog.svg */
+.glyph .app-symbol { display: block; width: 100%; height: 100%; overflow: visible; }
+.icon .glyph .app-symbol, .sm-app .glyph .app-symbol { border-radius: inherit; }

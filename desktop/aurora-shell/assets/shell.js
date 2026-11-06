@@ -79,6 +79,33 @@
     { id: "docs", name: "Documentation", glyph: "📘", tile: ["#6c8cff", "#22318f"], app: "docs" }
   ];
 
+  const ICON_SYMBOLS = Object.freeze({
+    files: "file-manager",
+    terminal: "terminal",
+    voiceconnect: "voiceconnect",
+    network: "network",
+    settings: "settings",
+    system: "system-monitor",
+    media: "aurora-media-player",
+    store: "store",
+    about: "about",
+    docs: "docs"
+  });
+
+  function appGlyphNode(glyph, symbolId) {
+    const node = el("span", "glyph", glyph || "▣");
+    if (!symbolId) return node;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add("app-symbol");
+    svg.setAttribute("viewBox", "0 0 64 64");
+    svg.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", "../app-icons/catalog.svg#app-" + symbolId);
+    svg.appendChild(use);
+    node.replaceChildren(svg);
+    return node;
+  }
+
   // ------------------------------------------------------------------ helpers
   function toast(message, ms) {
     const node = $("#toast");
@@ -155,7 +182,7 @@
     const node = el("div", "icon");
     node.dataset.iconId = icon.id;
     node.tabIndex = 0;
-    const glyph = el("div", "glyph", icon.glyph || "▣");
+    const glyph = appGlyphNode(icon.glyph, ICON_SYMBOLS[icon.id]);
     glyph.style.setProperty("--tile-a", (icon.tile && icon.tile[0]) || "#2f7cf6");
     glyph.style.setProperty("--tile-b", (icon.tile && icon.tile[1]) || "#134a9e");
     const label = el("div", "label", icon.name);
@@ -615,7 +642,7 @@
     panelsHost.replaceChildren();
     const icons = desktopIcons();
     for (const icon of icons) {
-      appsHost.appendChild(launcherButton(icon.glyph, icon.name, () => { hideStart(); openApp(icon.app, { title: icon.name }); }));
+      appsHost.appendChild(launcherButton(icon.glyph, icon.name, () => { hideStart(); openApp(icon.app, { title: icon.name }); }, ICON_SYMBOLS[icon.id]));
     }
     for (const panel of state.panels) {
       panelsHost.appendChild(launcherButton(panel.glyph || "▤", panel.name, () => {
@@ -625,10 +652,10 @@
     }
   }
 
-  function launcherButton(glyph, name, onClick) {
+  function launcherButton(glyph, name, onClick, symbolId) {
     const button = el("button", "sm-app");
     button.type = "button";
-    const icon = el("span", "glyph", glyph);
+    const icon = appGlyphNode(glyph, symbolId);
     button.append(icon, el("span", "", name));
     button.addEventListener("click", onClick);
     return button;
