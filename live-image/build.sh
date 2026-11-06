@@ -193,7 +193,7 @@ install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chim
 install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$WORK/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
-  --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
@@ -226,7 +226,7 @@ bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/te
 # Recompute provider coverage after all distro packages and source-built terminals are installed.
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
-  --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # ------------------------------------------------------------- payload
