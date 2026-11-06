@@ -1,0 +1,1737 @@
+{
+ "schema": "aurora-network-apps-1",
+ "generated_by": "tools/build_network_catalog.py",
+ "count": 172,
+ "categories": [
+  "cloud",
+  "communication",
+  "connectivity",
+  "emulation",
+  "monitoring",
+  "p2p",
+  "security",
+  "transfer"
+ ],
+ "apps": [
+  {
+   "id": "cloud-adapters-aws-py",
+   "name": "Aws",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/aws.py",
+   "entry": "cloud/adapters/aws.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/aws.py)."
+  },
+  {
+   "id": "cloud-adapters-azure-py",
+   "name": "Azure",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/azure.py",
+   "entry": "cloud/adapters/azure.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/azure.py)."
+  },
+  {
+   "id": "tools-cloud-chimera-cloud-py",
+   "name": "Chimera Cloud",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "tools/cloud/chimera_cloud.py",
+   "entry": "tools/cloud/chimera_cloud.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (tools/cloud/chimera_cloud.py)."
+  },
+  {
+   "id": "infrastructure-kubernetes-chimera-cluster-yaml",
+   "name": "Chimera Cluster",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "infrastructure/kubernetes/chimera-cluster.yaml",
+   "entry": "infrastructure/kubernetes/chimera-cluster.yaml",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (infrastructure/kubernetes/chimera-cluster.yaml)."
+  },
+  {
+   "id": "desktop-aurora-cloud-fabric-api-json",
+   "name": "Cloud Fabric Api",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "desktop/aurora/cloud_fabric_api.json",
+   "entry": "desktop/aurora/cloud_fabric_api.json",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (desktop/aurora/cloud_fabric_api.json)."
+  },
+  {
+   "id": "desktop-aurora-cloud-fabric-client-py",
+   "name": "Cloud Fabric Client",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "desktop/aurora/cloud_fabric_client.py",
+   "entry": "desktop/aurora/cloud_fabric_client.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (desktop/aurora/cloud_fabric_client.py)."
+  },
+  {
+   "id": "cloud-adapters-gcp-py",
+   "name": "Gcp",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/gcp.py",
+   "entry": "cloud/adapters/gcp.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/gcp.py)."
+  },
+  {
+   "id": "tools-installer-install-cloud-platforms-sh",
+   "name": "Install Cloud Platforms",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "tools/installer/install_cloud_platforms.sh",
+   "entry": "tools/installer/install_cloud_platforms.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (tools/installer/install_cloud_platforms.sh)."
+  },
+  {
+   "id": "tools-installer-install-kubernetes-sh",
+   "name": "Install Kubernetes",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "tools/installer/install_kubernetes.sh",
+   "entry": "tools/installer/install_kubernetes.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (tools/installer/install_kubernetes.sh)."
+  },
+  {
+   "id": "koronos-build-orchestrator-sh",
+   "name": "Koronos Build Orchestrator",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "koronos-build-orchestrator.sh",
+   "entry": "koronos-build-orchestrator.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (koronos-build-orchestrator.sh)."
+  },
+  {
+   "id": "koronos-build-orchestrator-aurora-updated-sh",
+   "name": "Koronos Build Orchestrator Aurora Updated",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "koronos-build-orchestrator-aurora-updated.sh",
+   "entry": "koronos-build-orchestrator-aurora-updated.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (koronos-build-orchestrator-aurora-updated.sh)."
+  },
+  {
+   "id": "cloud-adapters-kubernetes-py",
+   "name": "Kubernetes",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/kubernetes.py",
+   "entry": "cloud/adapters/kubernetes.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/kubernetes.py)."
+  },
+  {
+   "id": "kubernetes-deployment-yaml",
+   "name": "Kubernetes Deployment",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "kubernetes-deployment.yaml",
+   "entry": "kubernetes-deployment.yaml",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (kubernetes-deployment.yaml)."
+  },
+  {
+   "id": "desktop-aurora-network-fabric-json",
+   "name": "Network Fabric",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "desktop/aurora/network_fabric.json",
+   "entry": "desktop/aurora/network_fabric.json",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (desktop/aurora/network_fabric.json)."
+  },
+  {
+   "id": "cloud-adapters-openshift-py",
+   "name": "Openshift",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/openshift.py",
+   "entry": "cloud/adapters/openshift.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/openshift.py)."
+  },
+  {
+   "id": "cloud-adapters-openstack-py",
+   "name": "Openstack",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/openstack.py",
+   "entry": "cloud/adapters/openstack.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/openstack.py)."
+  },
+  {
+   "id": "cloud-providers-json",
+   "name": "Providers",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/providers.json",
+   "entry": "cloud/providers.json",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/providers.json)."
+  },
+  {
+   "id": "cloud-adapters-public-cloud-py",
+   "name": "Public Cloud",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "cloud/adapters/public_cloud.py",
+   "entry": "cloud/adapters/public_cloud.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (cloud/adapters/public_cloud.py)."
+  },
+  {
+   "id": "tools-cloud-validate-cloud-py",
+   "name": "Validate Cloud",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "tools/cloud/validate_cloud.py",
+   "entry": "tools/cloud/validate_cloud.py",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (tools/cloud/validate_cloud.py)."
+  },
+  {
+   "id": "tools-installer-verify-cloud-tools-sh",
+   "name": "Verify Cloud Tools",
+   "category": "cloud",
+   "glyph": "\u2601",
+   "path": "tools/installer/verify_cloud_tools.sh",
+   "entry": "tools/installer/verify_cloud_tools.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Cloud surface found in ChimeraIIOS (tools/installer/verify_cloud_tools.sh)."
+  },
+  {
+   "id": "desktop-aurora-shell-assets-apps-voiceconnect-js",
+   "name": "Apps Voiceconnect",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "desktop/aurora-shell/assets/apps-voiceconnect.js",
+   "entry": "desktop/aurora-shell/assets/apps-voiceconnect.js",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (desktop/aurora-shell/assets/apps-voiceconnect.js)."
+  },
+  {
+   "id": "userspace-systemd-aurora-voiceconnect-service",
+   "name": "Aurora Voiceconnect",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "userspace/systemd/aurora-voiceconnect.service",
+   "entry": "userspace/systemd/aurora-voiceconnect.service",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (userspace/systemd/aurora-voiceconnect.service)."
+  },
+  {
+   "id": "desktop-aurora-apps-chimera-neural-chat-cpp",
+   "name": "Chimera Neural Chat",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "desktop/aurora/apps/chimera_neural_chat.cpp",
+   "entry": "desktop/aurora/apps/chimera_neural_chat.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (desktop/aurora/apps/chimera_neural_chat.cpp)."
+  },
+  {
+   "id": "desktop-aurora-chimera-neural-chat-desktop-json",
+   "name": "Chimera Neural Chat.desktop",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "desktop/aurora/chimera-neural-chat.desktop.json",
+   "entry": "desktop/aurora/chimera-neural-chat.desktop.json",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (desktop/aurora/chimera-neural-chat.desktop.json)."
+  },
+  {
+   "id": "voice-python-chimera-voice-py",
+   "name": "Chimera Voice",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "voice/python/chimera_voice.py",
+   "entry": "voice/python/chimera_voice.py",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (voice/python/chimera_voice.py)."
+  },
+  {
+   "id": "sdk-src-chimera-win32-message-cpp",
+   "name": "Chimera Win32 Message",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "sdk/src/chimera_win32_message.cpp",
+   "entry": "sdk/src/chimera_win32_message.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (sdk/src/chimera_win32_message.cpp)."
+  },
+  {
+   "id": "kernel-core-syscall-cpp",
+   "name": "Syscall",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "kernel/core/syscall.cpp",
+   "entry": "kernel/core/syscall.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (kernel/core/syscall.cpp)."
+  },
+  {
+   "id": "voice-voiceconnect-json",
+   "name": "Voiceconnect",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "voice/voiceconnect.json",
+   "entry": "voice/voiceconnect.json",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (voice/voiceconnect.json)."
+  },
+  {
+   "id": "voice-cpp-src-voiceconnect-cpp",
+   "name": "Voiceconnect",
+   "category": "communication",
+   "glyph": "\ud83c\udf99",
+   "path": "voice/cpp/src/voiceconnect.cpp",
+   "entry": "voice/cpp/src/voiceconnect.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Communication surface found in ChimeraIIOS (voice/cpp/src/voiceconnect.cpp)."
+  },
+  {
+   "id": "src-network-ai-network-cpp",
+   "name": "Ai Network",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "src/network/ai_network.cpp",
+   "entry": "src/network/ai_network.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (src/network/ai_network.cpp)."
+  },
+  {
+   "id": "network-protocols-ai-network-protocols-json",
+   "name": "Ai Network Protocols",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/protocols/ai_network_protocols.json",
+   "entry": "network/protocols/ai_network_protocols.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/protocols/ai_network_protocols.json)."
+  },
+  {
+   "id": "compat-api-abi-registry-json",
+   "name": "Api Abi Registry",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "compat/api-abi-registry.json",
+   "entry": "compat/api-abi-registry.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (compat/api-abi-registry.json)."
+  },
+  {
+   "id": "system-windows-api-set-registry-json",
+   "name": "Api Set Registry",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "system/windows/api-set-registry.json",
+   "entry": "system/windows/api-set-registry.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (system/windows/api-set-registry.json)."
+  },
+  {
+   "id": "network-applicationnetworkmodule-md",
+   "name": "ApplicationNetworkModule",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/ApplicationNetworkModule.md",
+   "entry": "network/ApplicationNetworkModule.md",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/ApplicationNetworkModule.md)."
+  },
+  {
+   "id": "desktop-aurora-shell-assets-apps-network-js",
+   "name": "Apps Network",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "desktop/aurora-shell/assets/apps-network.js",
+   "entry": "desktop/aurora-shell/assets/apps-network.js",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (desktop/aurora-shell/assets/apps-network.js)."
+  },
+  {
+   "id": "userspace-systemd-aurora-network-service",
+   "name": "Aurora Network",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "userspace/systemd/aurora-network.service",
+   "entry": "userspace/systemd/aurora-network.service",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (userspace/systemd/aurora-network.service)."
+  },
+  {
+   "id": "services-network-avahi-smb-service",
+   "name": "Avahi Smb",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "services/network/avahi-smb.service",
+   "entry": "services/network/avahi-smb.service",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (services/network/avahi-smb.service)."
+  },
+  {
+   "id": "tools-thamudic-nlp-bridge-py",
+   "name": "Bridge",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/thamudic-nlp/bridge.py",
+   "entry": "tools/thamudic-nlp/bridge.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/thamudic-nlp/bridge.py)."
+  },
+  {
+   "id": "tools-game-center-bridge-py",
+   "name": "Bridge",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/game-center/bridge.py",
+   "entry": "tools/game-center/bridge.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/game-center/bridge.py)."
+  },
+  {
+   "id": "tools-network-bridge-py",
+   "name": "Bridge",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/network/bridge.py",
+   "entry": "tools/network/bridge.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/network/bridge.py)."
+  },
+  {
+   "id": "tools-pdf-reader-bridge-py",
+   "name": "Bridge",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/pdf-reader/bridge.py",
+   "entry": "tools/pdf-reader/bridge.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/pdf-reader/bridge.py)."
+  },
+  {
+   "id": "tools-build-network-catalog-py",
+   "name": "Build Network Catalog",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/build_network_catalog.py",
+   "entry": "tools/build_network_catalog.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/build_network_catalog.py)."
+  },
+  {
+   "id": "tools-build-network-toolkit-sh",
+   "name": "Build Network Toolkit",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/build-network-toolkit.sh",
+   "entry": "tools/build-network-toolkit.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/build-network-toolkit.sh)."
+  },
+  {
+   "id": "tools-network-chimera-browser-py",
+   "name": "Chimera Browser",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/network/chimera_browser.py",
+   "entry": "tools/network/chimera_browser.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/network/chimera_browser.py)."
+  },
+  {
+   "id": "tools-runtime-chimera-local-bridge-py",
+   "name": "Chimera Local Bridge",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/runtime/chimera-local-bridge.py",
+   "entry": "tools/runtime/chimera-local-bridge.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/runtime/chimera-local-bridge.py)."
+  },
+  {
+   "id": "tools-network-chimera-network-browser-sh",
+   "name": "Chimera Network Browser",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/network/chimera-network-browser.sh",
+   "entry": "tools/network/chimera-network-browser.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/network/chimera-network-browser.sh)."
+  },
+  {
+   "id": "data-network-chimera-nodes-json",
+   "name": "Chimera Nodes",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "data/network/chimera_nodes.json",
+   "entry": "data/network/chimera_nodes.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (data/network/chimera_nodes.json)."
+  },
+  {
+   "id": "tools-network-chimera-router-cli-py",
+   "name": "Chimera Router Cli",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/network/chimera_router_cli.py",
+   "entry": "tools/network/chimera_router_cli.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/network/chimera_router_cli.py)."
+  },
+  {
+   "id": "services-network-chimera-wsdd-service",
+   "name": "Chimera Wsdd",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "services/network/chimera-wsdd.service",
+   "entry": "services/network/chimera-wsdd.service",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (services/network/chimera-wsdd.service)."
+  },
+  {
+   "id": "data-network-discovered-hosts-json",
+   "name": "Discovered Hosts",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "data/network/discovered_hosts.json",
+   "entry": "data/network/discovered_hosts.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (data/network/discovered_hosts.json)."
+  },
+  {
+   "id": "network-protocols-edition-network-profiles-json",
+   "name": "Edition Network Profiles",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/protocols/edition_network_profiles.json",
+   "entry": "network/protocols/edition_network_profiles.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/protocols/edition_network_profiles.json)."
+  },
+  {
+   "id": "data-network-gateways-json",
+   "name": "Gateways",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "data/network/gateways.json",
+   "entry": "data/network/gateways.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (data/network/gateways.json)."
+  },
+  {
+   "id": "web-help-help-api-js",
+   "name": "Help Api",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "web/help/help_api.js",
+   "entry": "web/help/help_api.js",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (web/help/help_api.js)."
+  },
+  {
+   "id": "web-network-html",
+   "name": "Network",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "web/network.html",
+   "entry": "web/network.html",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (web/network.html)."
+  },
+  {
+   "id": "desktop-aurora-shell-data-network-apps-json",
+   "name": "Network Apps",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "desktop/aurora-shell/data/network-apps.json",
+   "entry": "desktop/aurora-shell/data/network-apps.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (desktop/aurora-shell/data/network-apps.json)."
+  },
+  {
+   "id": "services-network-network-discovery-json",
+   "name": "Network Discovery",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "services/network/network-discovery.json",
+   "entry": "services/network/network-discovery.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (services/network/network-discovery.json)."
+  },
+  {
+   "id": "desktop-aurora-network-discovery-desktop-json",
+   "name": "Network Discovery.desktop",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "desktop/aurora/network-discovery.desktop.json",
+   "entry": "desktop/aurora/network-discovery.desktop.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (desktop/aurora/network-discovery.desktop.json)."
+  },
+  {
+   "id": "services-network-network-discovery-service-json",
+   "name": "Network Discovery.service",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "services/network/network-discovery.service.json",
+   "entry": "services/network/network-discovery.service.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (services/network/network-discovery.service.json)."
+  },
+  {
+   "id": "services-network-network-discoveryd-py",
+   "name": "Network Discoveryd",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "services/network/network-discoveryd.py",
+   "entry": "services/network/network-discoveryd.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (services/network/network-discoveryd.py)."
+  },
+  {
+   "id": "installer-network-preflight-py",
+   "name": "Network Preflight",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "installer/network_preflight.py",
+   "entry": "installer/network_preflight.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (installer/network_preflight.py)."
+  },
+  {
+   "id": "network-network-toolkit-json",
+   "name": "Network Toolkit",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/network-toolkit.json",
+   "entry": "network/network-toolkit.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/network-toolkit.json)."
+  },
+  {
+   "id": "desktop-aurora-networking-panel-json",
+   "name": "Networking Panel",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "desktop/aurora/networking_panel.json",
+   "entry": "desktop/aurora/networking_panel.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (desktop/aurora/networking_panel.json)."
+  },
+  {
+   "id": "database-manifests-neural-network-database-yaml",
+   "name": "Neural Network Database",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "database/manifests/neural-network-database.yaml",
+   "entry": "database/manifests/neural-network-database.yaml",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (database/manifests/neural-network-database.yaml)."
+  },
+  {
+   "id": "tools-network-package-json",
+   "name": "Package",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/network/package.json",
+   "entry": "tools/network/package.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/network/package.json)."
+  },
+  {
+   "id": "network-route-gui-json",
+   "name": "Route Gui",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/route-gui.json",
+   "entry": "network/route-gui.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/route-gui.json)."
+  },
+  {
+   "id": "network-routing-capabilities-json",
+   "name": "Routing Capabilities",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/routing_capabilities.json",
+   "entry": "network/routing_capabilities.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/routing_capabilities.json)."
+  },
+  {
+   "id": "network-routing-protocols-json",
+   "name": "Routing Protocols",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/routing-protocols.json",
+   "entry": "network/routing-protocols.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/routing-protocols.json)."
+  },
+  {
+   "id": "network-protocols-routing-protocols-json",
+   "name": "Routing Protocols",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/protocols/routing_protocols.json",
+   "entry": "network/protocols/routing_protocols.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/protocols/routing_protocols.json)."
+  },
+  {
+   "id": "network-routingandsdn-md",
+   "name": "RoutingAndSDN",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/RoutingAndSDN.md",
+   "entry": "network/RoutingAndSDN.md",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/RoutingAndSDN.md)."
+  },
+  {
+   "id": "execution-universal-execution-api-json",
+   "name": "Universal Execution Api",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "execution/universal_execution_api.json",
+   "entry": "execution/universal_execution_api.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (execution/universal_execution_api.json)."
+  },
+  {
+   "id": "network-vendor-cli-compatibility-json",
+   "name": "Vendor Cli Compatibility",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "network/vendor-cli-compatibility.json",
+   "entry": "network/vendor-cli-compatibility.json",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (network/vendor-cli-compatibility.json)."
+  },
+  {
+   "id": "tools-media-vision-mediapipe-py",
+   "name": "Vision Mediapipe",
+   "category": "connectivity",
+   "glyph": "\ud83c\udf10",
+   "path": "tools/media/vision_mediapipe.py",
+   "entry": "tools/media/vision_mediapipe.py",
+   "repo": "ChimeraIIOS",
+   "description": "Connectivity surface found in ChimeraIIOS (tools/media/vision_mediapipe.py)."
+  },
+  {
+   "id": "aurora-emulators-bin-aurora-emulator-window-sh",
+   "name": "Aurora Emulator Window",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/bin/aurora-emulator-window.sh",
+   "entry": "aurora/emulators/bin/aurora-emulator-window.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/bin/aurora-emulator-window.sh)."
+  },
+  {
+   "id": "aurora-emulators-aurora-emulators-panel-sh",
+   "name": "Aurora Emulators Panel",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/aurora-emulators-panel.sh",
+   "entry": "aurora/emulators/aurora-emulators-panel.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/aurora-emulators-panel.sh)."
+  },
+  {
+   "id": "aurora-emulators-binary-manifest-json",
+   "name": "Binary Manifest",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/binary-manifest.json",
+   "entry": "aurora/emulators/binary-manifest.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/binary-manifest.json)."
+  },
+  {
+   "id": "emulation-catalog-bios-rules-json",
+   "name": "Bios Rules",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "emulation/catalog/bios-rules.json",
+   "entry": "emulation/catalog/bios-rules.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (emulation/catalog/bios-rules.json)."
+  },
+  {
+   "id": "tools-amiga-local-core-bridge-py",
+   "name": "Bridge",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/amiga-local-core/bridge.py",
+   "entry": "tools/amiga-local-core/bridge.py",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/amiga-local-core/bridge.py)."
+  },
+  {
+   "id": "tools-build-emulator-payloads-sh",
+   "name": "Build Emulator Payloads",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/build-emulator-payloads.sh",
+   "entry": "tools/build-emulator-payloads.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/build-emulator-payloads.sh)."
+  },
+  {
+   "id": "tools-build-emulator-stack-sh",
+   "name": "Build Emulator Stack",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/build-emulator-stack.sh",
+   "entry": "tools/build-emulator-stack.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/build-emulator-stack.sh)."
+  },
+  {
+   "id": "tools-amiga-local-core-build-local-core-sh",
+   "name": "Build Local Core",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/amiga-local-core/build-local-core.sh",
+   "entry": "tools/amiga-local-core/build-local-core.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/amiga-local-core/build-local-core.sh)."
+  },
+  {
+   "id": "system-kore-chimera-emulation-runtime-json",
+   "name": "Chimera Emulation Runtime",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "system/kore/chimera-emulation-runtime.json",
+   "entry": "system/kore/chimera-emulation-runtime.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (system/kore/chimera-emulation-runtime.json)."
+  },
+  {
+   "id": "library-reference-chimera-ii-8192-cpu-emulator-py",
+   "name": "Chimera Ii 8192 Cpu Emulator",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "library/reference/chimera_ii_8192_cpu_emulator.py",
+   "entry": "library/reference/chimera_ii_8192_cpu_emulator.py",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (library/reference/chimera_ii_8192_cpu_emulator.py)."
+  },
+  {
+   "id": "tools-mobile-chimera-mobile-rom-discovery-py",
+   "name": "Chimera Mobile Rom Discovery",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/mobile/chimera-mobile-rom-discovery.py",
+   "entry": "tools/mobile/chimera-mobile-rom-discovery.py",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/mobile/chimera-mobile-rom-discovery.py)."
+  },
+  {
+   "id": "tools-chimera-playstation-center-sh",
+   "name": "Chimera Playstation Center",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/chimera-playstation-center.sh",
+   "entry": "tools/chimera-playstation-center.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/chimera-playstation-center.sh)."
+  },
+  {
+   "id": "tools-chimera-rom-search-sh",
+   "name": "Chimera Rom Search",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/chimera-rom-search.sh",
+   "entry": "tools/chimera-rom-search.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/chimera-rom-search.sh)."
+  },
+  {
+   "id": "config-aurora-emulator-associations-json",
+   "name": "Emulator Associations",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/emulator-associations.json",
+   "entry": "config/aurora/emulator-associations.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/emulator-associations.json)."
+  },
+  {
+   "id": "config-aurora-emulator-compression-json",
+   "name": "Emulator Compression",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/emulator-compression.json",
+   "entry": "config/aurora/emulator-compression.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/emulator-compression.json)."
+  },
+  {
+   "id": "aurora-emulators-emulator-registry-json",
+   "name": "Emulator Registry",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/emulator-registry.json",
+   "entry": "aurora/emulators/emulator-registry.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/emulator-registry.json)."
+  },
+  {
+   "id": "config-aurora-emulator-windows-json",
+   "name": "Emulator Windows",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/emulator-windows.json",
+   "entry": "config/aurora/emulator-windows.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/emulator-windows.json)."
+  },
+  {
+   "id": "config-aurora-emulators-json",
+   "name": "Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/emulators.json",
+   "entry": "config/aurora/emulators.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/emulators.json)."
+  },
+  {
+   "id": "config-aurora-free-roms-json",
+   "name": "Free Roms",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/free-roms.json",
+   "entry": "config/aurora/free-roms.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/free-roms.json)."
+  },
+  {
+   "id": "generate-iso-from-docker-sh",
+   "name": "Generate Iso From Docker",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "generate-iso-from-docker.sh",
+   "entry": "generate-iso-from-docker.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (generate-iso-from-docker.sh)."
+  },
+  {
+   "id": "aurora-emulators-install-sakhr-emulators-sh",
+   "name": "Install Sakhr Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/install-sakhr-emulators.sh",
+   "entry": "aurora/emulators/install-sakhr-emulators.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/install-sakhr-emulators.sh)."
+  },
+  {
+   "id": "iso-from-docker-guide-md",
+   "name": "ISO FROM DOCKER GUIDE",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "ISO_FROM_DOCKER_GUIDE.md",
+   "entry": "ISO_FROM_DOCKER_GUIDE.md",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (ISO_FROM_DOCKER_GUIDE.md)."
+  },
+  {
+   "id": "emulation-catalog-known-emulators-json",
+   "name": "Known Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "emulation/catalog/known-emulators.json",
+   "entry": "emulation/catalog/known-emulators.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (emulation/catalog/known-emulators.json)."
+  },
+  {
+   "id": "aurora-emulators-bin-launch-retro-sh",
+   "name": "Launch Retro",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/bin/launch-retro.sh",
+   "entry": "aurora/emulators/bin/launch-retro.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/bin/launch-retro.sh)."
+  },
+  {
+   "id": "aurora-emulators-bin-launch-sakhr-ax170-sh",
+   "name": "Launch Sakhr Ax170",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/bin/launch-sakhr-ax170.sh",
+   "entry": "aurora/emulators/bin/launch-sakhr-ax170.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/bin/launch-sakhr-ax170.sh)."
+  },
+  {
+   "id": "aurora-emulators-bin-launch-sakhr-ax230-sh",
+   "name": "Launch Sakhr Ax230",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/bin/launch-sakhr-ax230.sh",
+   "entry": "aurora/emulators/bin/launch-sakhr-ax230.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/bin/launch-sakhr-ax230.sh)."
+  },
+  {
+   "id": "web-mame-web-runtime-js",
+   "name": "Mame Web Runtime",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/mame-web-runtime.js",
+   "entry": "web/mame-web-runtime.js",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/mame-web-runtime.js)."
+  },
+  {
+   "id": "config-aurora-playstation-json",
+   "name": "Playstation",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/playstation.json",
+   "entry": "config/aurora/playstation.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/playstation.json)."
+  },
+  {
+   "id": "web-playstation-emulators-html",
+   "name": "Playstation Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/playstation_emulators.html",
+   "entry": "web/playstation_emulators.html",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/playstation_emulators.html)."
+  },
+  {
+   "id": "web-playstation-emulators-js",
+   "name": "Playstation Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/playstation_emulators.js",
+   "entry": "web/playstation_emulators.js",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/playstation_emulators.js)."
+  },
+  {
+   "id": "web-playstation-emulators-json",
+   "name": "Playstation Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/playstation_emulators.json",
+   "entry": "web/playstation_emulators.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/playstation_emulators.json)."
+  },
+  {
+   "id": "tools-emulation-playstation-launcher-sh",
+   "name": "Playstation Launcher",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "tools/emulation/playstation-launcher.sh",
+   "entry": "tools/emulation/playstation-launcher.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (tools/emulation/playstation-launcher.sh)."
+  },
+  {
+   "id": "web-retro-emulators-html",
+   "name": "Retro Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/retro_emulators.html",
+   "entry": "web/retro_emulators.html",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/retro_emulators.html)."
+  },
+  {
+   "id": "web-retro-emulators-js",
+   "name": "Retro Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/retro_emulators.js",
+   "entry": "web/retro_emulators.js",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/retro_emulators.js)."
+  },
+  {
+   "id": "web-retro-emulators-json",
+   "name": "Retro Emulators",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "web/retro_emulators.json",
+   "entry": "web/retro_emulators.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (web/retro_emulators.json)."
+  },
+  {
+   "id": "emulation-retro-systems-json",
+   "name": "Retro Systems",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "emulation/retro_systems.json",
+   "entry": "emulation/retro_systems.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (emulation/retro_systems.json)."
+  },
+  {
+   "id": "config-aurora-rom-search-json",
+   "name": "Rom Search",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "config/aurora/rom-search.json",
+   "entry": "config/aurora/rom-search.json",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (config/aurora/rom-search.json)."
+  },
+  {
+   "id": "aurora-emulators-verify-sakhr-roms-sh",
+   "name": "Verify Sakhr Roms",
+   "category": "emulation",
+   "glyph": "\ud83d\udd79",
+   "path": "aurora/emulators/verify-sakhr-roms.sh",
+   "entry": "aurora/emulators/verify-sakhr-roms.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Emulation surface found in ChimeraIIOS (aurora/emulators/verify-sakhr-roms.sh)."
+  },
+  {
+   "id": "tools-dashboard-chimera-dashboard-py",
+   "name": "Chimera Dashboard",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "tools/dashboard/chimera_dashboard.py",
+   "entry": "tools/dashboard/chimera_dashboard.py",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (tools/dashboard/chimera_dashboard.py)."
+  },
+  {
+   "id": "tools-mobile-chimera-mobile-probe-sh",
+   "name": "Chimera Mobile Probe",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "tools/mobile/chimera-mobile-probe.sh",
+   "entry": "tools/mobile/chimera-mobile-probe.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (tools/mobile/chimera-mobile-probe.sh)."
+  },
+  {
+   "id": "tools-chimera-process-monitor-sh",
+   "name": "Chimera Process Monitor",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "tools/chimera-process-monitor.sh",
+   "entry": "tools/chimera-process-monitor.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (tools/chimera-process-monitor.sh)."
+  },
+  {
+   "id": "src-dashboard-dashboard-cpp",
+   "name": "Dashboard",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "src/dashboard/dashboard.cpp",
+   "entry": "src/dashboard/dashboard.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (src/dashboard/dashboard.cpp)."
+  },
+  {
+   "id": "desktop-aurora-dashboard-json",
+   "name": "Dashboard",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "desktop/aurora/dashboard.json",
+   "entry": "desktop/aurora/dashboard.json",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (desktop/aurora/dashboard.json)."
+  },
+  {
+   "id": "dashboard-edition-profiles-json",
+   "name": "Edition Profiles",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "dashboard/edition_profiles.json",
+   "entry": "dashboard/edition_profiles.json",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (dashboard/edition_profiles.json)."
+  },
+  {
+   "id": "web-health-html",
+   "name": "Health",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "web/health.html",
+   "entry": "web/health.html",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (web/health.html)."
+  },
+  {
+   "id": "desktop-aurora-health-dashboard-json",
+   "name": "Health Dashboard",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "desktop/aurora/health_dashboard.json",
+   "entry": "desktop/aurora/health_dashboard.json",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (desktop/aurora/health_dashboard.json)."
+  },
+  {
+   "id": "dashboard-kpis-json",
+   "name": "Kpis",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "dashboard/kpis.json",
+   "entry": "dashboard/kpis.json",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (dashboard/kpis.json)."
+  },
+  {
+   "id": "src-memory-memory-bus-probe-cpp",
+   "name": "Memory Bus Probe",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "src/memory/memory_bus_probe.cpp",
+   "entry": "src/memory/memory_bus_probe.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (src/memory/memory_bus_probe.cpp)."
+  },
+  {
+   "id": "web-network-monitor-html",
+   "name": "Network Monitor",
+   "category": "monitoring",
+   "glyph": "\ud83d\udcc8",
+   "path": "web/network_monitor.html",
+   "entry": "web/network_monitor.html",
+   "repo": "ChimeraIIOS",
+   "description": "Monitoring surface found in ChimeraIIOS (web/network_monitor.html)."
+  },
+  {
+   "id": "p2p-python-chimera-p2p-py",
+   "name": "Chimera P2p",
+   "category": "p2p",
+   "glyph": "\ud83d\udd78",
+   "path": "p2p/python/chimera_p2p.py",
+   "entry": "p2p/python/chimera_p2p.py",
+   "repo": "ChimeraIIOS",
+   "description": "P2p surface found in ChimeraIIOS (p2p/python/chimera_p2p.py)."
+  },
+  {
+   "id": "p2p-schema-chimera-p2p-envelope-schema-json",
+   "name": "Chimera P2p Envelope.schema",
+   "category": "p2p",
+   "glyph": "\ud83d\udd78",
+   "path": "p2p/schema/chimera-p2p-envelope.schema.json",
+   "entry": "p2p/schema/chimera-p2p-envelope.schema.json",
+   "repo": "ChimeraIIOS",
+   "description": "P2p surface found in ChimeraIIOS (p2p/schema/chimera-p2p-envelope.schema.json)."
+  },
+  {
+   "id": "data-network-peers-json",
+   "name": "Peers",
+   "category": "p2p",
+   "glyph": "\ud83d\udd78",
+   "path": "data/network/peers.json",
+   "entry": "data/network/peers.json",
+   "repo": "ChimeraIIOS",
+   "description": "P2p surface found in ChimeraIIOS (data/network/peers.json)."
+  },
+  {
+   "id": "system-security-apache-sandbox-json",
+   "name": "Apache Sandbox",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/apache-sandbox.json",
+   "entry": "system/security/apache-sandbox.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/apache-sandbox.json)."
+  },
+  {
+   "id": "tools-web-ui-audit-py",
+   "name": "Audit",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/web-ui/audit.py",
+   "entry": "tools/web-ui/audit.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/web-ui/audit.py)."
+  },
+  {
+   "id": "system-security-aurora-landlock-profiles-json",
+   "name": "Aurora Landlock Profiles",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/aurora-landlock-profiles.json",
+   "entry": "system/security/aurora-landlock-profiles.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/aurora-landlock-profiles.json)."
+  },
+  {
+   "id": "src-security-biometric-auth-cpp",
+   "name": "Biometric Auth",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "src/security/biometric_auth.cpp",
+   "entry": "src/security/biometric_auth.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (src/security/biometric_auth.cpp)."
+  },
+  {
+   "id": "system-security-chimera-account-manager-cpp",
+   "name": "Chimera Account Manager",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_account_manager.cpp",
+   "entry": "system/security/chimera_account_manager.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_account_manager.cpp)."
+  },
+  {
+   "id": "system-security-chimera-ad-config-json",
+   "name": "Chimera Ad Config",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_ad_config.json",
+   "entry": "system/security/chimera_ad_config.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_ad_config.json)."
+  },
+  {
+   "id": "system-security-chimera-ad-manager-cpp",
+   "name": "Chimera Ad Manager",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_ad_manager.cpp",
+   "entry": "system/security/chimera_ad_manager.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_ad_manager.cpp)."
+  },
+  {
+   "id": "platform-pam-chimera-auth-conf",
+   "name": "Chimera Auth",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "platform/pam/chimera-auth.conf",
+   "entry": "platform/pam/chimera-auth.conf",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (platform/pam/chimera-auth.conf)."
+  },
+  {
+   "id": "system-security-chimera-auth-policy-json",
+   "name": "Chimera Auth Policy",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_auth_policy.json",
+   "entry": "system/security/chimera_auth_policy.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_auth_policy.json)."
+  },
+  {
+   "id": "tools-runtime-chimera-biometric-auth-py",
+   "name": "Chimera Biometric Auth",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/runtime/chimera-biometric-auth.py",
+   "entry": "tools/runtime/chimera-biometric-auth.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/runtime/chimera-biometric-auth.py)."
+  },
+  {
+   "id": "tools-mobile-chimera-device-port-scan-py",
+   "name": "Chimera Device Port Scan",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/mobile/chimera-device-port-scan.py",
+   "entry": "tools/mobile/chimera-device-port-scan.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/mobile/chimera-device-port-scan.py)."
+  },
+  {
+   "id": "system-security-chimera-filesystem-security-json",
+   "name": "Chimera Filesystem Security",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_filesystem_security.json",
+   "entry": "system/security/chimera_filesystem_security.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_filesystem_security.json)."
+  },
+  {
+   "id": "tools-security-chimera-firewall-py",
+   "name": "Chimera Firewall",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/security/chimera_firewall.py",
+   "entry": "tools/security/chimera_firewall.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/security/chimera_firewall.py)."
+  },
+  {
+   "id": "system-services-chimera-firewall-service",
+   "name": "Chimera Firewall",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/services/chimera-firewall.service",
+   "entry": "system/services/chimera-firewall.service",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/services/chimera-firewall.service)."
+  },
+  {
+   "id": "system-services-chimera-gpu-driver-autoscan-service",
+   "name": "Chimera Gpu Driver Autoscan",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/services/chimera-gpu-driver-autoscan.service",
+   "entry": "system/services/chimera-gpu-driver-autoscan.service",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/services/chimera-gpu-driver-autoscan.service)."
+  },
+  {
+   "id": "system-security-chimera-group-cpp",
+   "name": "Chimera Group",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_group.cpp",
+   "entry": "system/security/chimera_group.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_group.cpp)."
+  },
+  {
+   "id": "system-security-chimera-group-mod-cpp",
+   "name": "Chimera Group Mod",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_group_mod.cpp",
+   "entry": "system/security/chimera_group_mod.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_group_mod.cpp)."
+  },
+  {
+   "id": "system-services-chimera-hardware-driver-autoscan-service",
+   "name": "Chimera Hardware Driver Autoscan",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/services/chimera-hardware-driver-autoscan.service",
+   "entry": "system/services/chimera-hardware-driver-autoscan.service",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/services/chimera-hardware-driver-autoscan.service)."
+  },
+  {
+   "id": "system-security-chimera-identity-service-json",
+   "name": "Chimera Identity.service",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera-identity.service.json",
+   "entry": "system/security/chimera-identity.service.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera-identity.service.json)."
+  },
+  {
+   "id": "system-security-chimera-passwd-cpp",
+   "name": "Chimera Passwd",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_passwd.cpp",
+   "entry": "system/security/chimera_passwd.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_passwd.cpp)."
+  },
+  {
+   "id": "system-security-chimera-permissions-cpp",
+   "name": "Chimera Permissions",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_permissions.cpp",
+   "entry": "system/security/chimera_permissions.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_permissions.cpp)."
+  },
+  {
+   "id": "tools-security-chimera-rnn-security-py",
+   "name": "Chimera Rnn Security",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/security/chimera_rnn_security.py",
+   "entry": "tools/security/chimera_rnn_security.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/security/chimera_rnn_security.py)."
+  },
+  {
+   "id": "security-chimera-security-catalog-json",
+   "name": "Chimera Security Catalog",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "security/chimera_security_catalog.json",
+   "entry": "security/chimera_security_catalog.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (security/chimera_security_catalog.json)."
+  },
+  {
+   "id": "system-security-chimera-security-selftest-cpp",
+   "name": "Chimera Security Selftest",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_security_selftest.cpp",
+   "entry": "system/security/chimera_security_selftest.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_security_selftest.cpp)."
+  },
+  {
+   "id": "tools-security-chimera-security-update-py",
+   "name": "Chimera Security Update",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/security/chimera_security_update.py",
+   "entry": "tools/security/chimera_security_update.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/security/chimera_security_update.py)."
+  },
+  {
+   "id": "system-services-chimera-security-update-service",
+   "name": "Chimera Security Update",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/services/chimera-security-update.service",
+   "entry": "system/services/chimera-security-update.service",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/services/chimera-security-update.service)."
+  },
+  {
+   "id": "tools-security-chimera-securityd-py",
+   "name": "Chimera Securityd",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/security/chimera_securityd.py",
+   "entry": "tools/security/chimera_securityd.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/security/chimera_securityd.py)."
+  },
+  {
+   "id": "system-services-chimera-securityd-service",
+   "name": "Chimera Securityd",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/services/chimera-securityd.service",
+   "entry": "system/services/chimera-securityd.service",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/services/chimera-securityd.service)."
+  },
+  {
+   "id": "tools-security-chimera-sentinel-py",
+   "name": "Chimera Sentinel",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "tools/security/chimera_sentinel.py",
+   "entry": "tools/security/chimera_sentinel.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (tools/security/chimera_sentinel.py)."
+  },
+  {
+   "id": "system-security-chimera-user-mod-cpp",
+   "name": "Chimera User Mod",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_user_mod.cpp",
+   "entry": "system/security/chimera_user_mod.cpp",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_user_mod.cpp)."
+  },
+  {
+   "id": "security-vulnerability-chimera-vuln-scan-py",
+   "name": "Chimera Vuln Scan",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "security/vulnerability/chimera-vuln-scan.py",
+   "entry": "security/vulnerability/chimera-vuln-scan.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (security/vulnerability/chimera-vuln-scan.py)."
+  },
+  {
+   "id": "system-security-chimera-web-policy-json",
+   "name": "Chimera Web Policy",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/chimera_web_policy.json",
+   "entry": "system/security/chimera_web_policy.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/chimera_web_policy.json)."
+  },
+  {
+   "id": "system-security-firewall-policy-json",
+   "name": "Firewall Policy",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/firewall-policy.json",
+   "entry": "system/security/firewall-policy.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/firewall-policy.json)."
+  },
+  {
+   "id": "hardware-host-scanner-py",
+   "name": "Host Scanner",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "hardware/host_scanner.py",
+   "entry": "hardware/host_scanner.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (hardware/host_scanner.py)."
+  },
+  {
+   "id": "system-security-kali-integration-policy-json",
+   "name": "Kali Integration Policy",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/kali_integration_policy.json",
+   "entry": "system/security/kali_integration_policy.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/kali_integration_policy.json)."
+  },
+  {
+   "id": "system-security-kali-tools-catalog-json",
+   "name": "Kali Tools Catalog",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/kali_tools_catalog.json",
+   "entry": "system/security/kali_tools_catalog.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/kali_tools_catalog.json)."
+  },
+  {
+   "id": "security-reverse-engineering-tool-policy-json",
+   "name": "Reverse Engineering Tool Policy",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "security/reverse_engineering_tool_policy.json",
+   "entry": "security/reverse_engineering_tool_policy.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (security/reverse_engineering_tool_policy.json)."
+  },
+  {
+   "id": "mobile-flash-rom-security-discovery-md",
+   "name": "ROM SECURITY DISCOVERY",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "mobile/flash/ROM-SECURITY-DISCOVERY.md",
+   "entry": "mobile/flash/ROM-SECURITY-DISCOVERY.md",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (mobile/flash/ROM-SECURITY-DISCOVERY.md)."
+  },
+  {
+   "id": "hardware-host-agents-macos-scan-hardware-sh",
+   "name": "Scan Hardware",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "hardware/host-agents/macos/scan-hardware.sh",
+   "entry": "hardware/host-agents/macos/scan-hardware.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (hardware/host-agents/macos/scan-hardware.sh)."
+  },
+  {
+   "id": "security-md",
+   "name": "SECURITY",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "SECURITY.md",
+   "entry": "SECURITY.md",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (SECURITY.md)."
+  },
+  {
+   "id": "security-security-integration-json",
+   "name": "Security Integration",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "security/security-integration.json",
+   "entry": "security/security-integration.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (security/security-integration.json)."
+  },
+  {
+   "id": "system-security-security-intelligence-json",
+   "name": "Security Intelligence",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/security-intelligence.json",
+   "entry": "system/security/security-intelligence.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/security-intelligence.json)."
+  },
+  {
+   "id": "config-services-security-policies-json",
+   "name": "Security Policies",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "config/services/security-policies.json",
+   "entry": "config/services/security-policies.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (config/services/security-policies.json)."
+  },
+  {
+   "id": "system-security-security-update-json",
+   "name": "Security Update",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/security-update.json",
+   "entry": "system/security/security-update.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/security-update.json)."
+  },
+  {
+   "id": "iso-tool-python-iso-tool-tree-scanner-py",
+   "name": "Tree Scanner",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "ISO-Tool/python/iso_tool/tree_scanner.py",
+   "entry": "ISO-Tool/python/iso_tool/tree_scanner.py",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (ISO-Tool/python/iso_tool/tree_scanner.py)."
+  },
+  {
+   "id": "system-security-vulnerability-manager-json",
+   "name": "Vulnerability Manager",
+   "category": "security",
+   "glyph": "\ud83d\udee1",
+   "path": "system/security/vulnerability-manager.json",
+   "entry": "system/security/vulnerability-manager.json",
+   "repo": "ChimeraIIOS",
+   "description": "Security surface found in ChimeraIIOS (system/security/vulnerability-manager.json)."
+  },
+  {
+   "id": "rootfs-usr-share-chimera-commands-chimera-cpu-mode-py",
+   "name": "Chimera Cpu Mode",
+   "category": "transfer",
+   "glyph": "\u21c5",
+   "path": "rootfs/usr/share/chimera/commands/chimera-cpu-mode.py",
+   "entry": "rootfs/usr/share/chimera/commands/chimera-cpu-mode.py",
+   "repo": "ChimeraIIOS",
+   "description": "Transfer surface found in ChimeraIIOS (rootfs/usr/share/chimera/commands/chimera-cpu-mode.py)."
+  },
+  {
+   "id": "tools-mobile-chimera-mobile-build-upload-sh",
+   "name": "Chimera Mobile Build Upload",
+   "category": "transfer",
+   "glyph": "\u21c5",
+   "path": "tools/mobile/chimera-mobile-build-upload.sh",
+   "entry": "tools/mobile/chimera-mobile-build-upload.sh",
+   "repo": "ChimeraIIOS",
+   "description": "Transfer surface found in ChimeraIIOS (tools/mobile/chimera-mobile-build-upload.sh)."
+  }
+ ]
+}

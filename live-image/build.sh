@@ -23,7 +23,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
 BASE="$BUILD/rootfs-base"
-WORK="$BUILD/rootfs-$ED"
+WORK="${WORK_DIR:-$BUILD/rootfs-$ED}"
 ISODIR="$BUILD/iso-$ED"
 OUT="${OUT_DIR:-$BUILD/out}"
 ART="$HERE/artwork"
@@ -38,7 +38,7 @@ case "$ED" in
     TITLE="Chimera II OS"
     SHORT="chimera-ii"
     VOLID="CHIMERA_II_OS"
-    ENTRY="desktop/index.html"
+    ENTRY="desktop/aurora-shell/index.html"
     DESKTOP_COPY="web"
     ISO_NAME="chimera-ii-os-live-amd64.iso"
     ;;
@@ -46,7 +46,7 @@ case "$ED" in
     TITLE="OctavianOS"
     SHORT="octavian"
     VOLID="OCTAVIAN_OS"
-    ENTRY="desktop/aurora-wayland-glass/index.html"
+    ENTRY="desktop/aurora-shell/index.html"
     DESKTOP_COPY="desktop"
     ISO_NAME="octavian-os-live-amd64.iso"
     ;;
@@ -116,8 +116,11 @@ fi
 # ------------------------------------------------------------- rootfs copy
 log "staging rootfs"
 rm -rf "$WORK"; mkdir -p "$WORK"
-tar -C "$BASE" -cf - --exclude=./proc --exclude=./sys --exclude=./dev --exclude=./run . \
-  2>/dev/null | tar -C "$WORK" -xf - 2>/dev/null
+# cp -a keeps ownership/modes and is markedly faster than a tar pipe on this
+# tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
+# /sys are rebuilt empty (the initramfs mounts their filesystems).
+cp -a "$BASE/." "$WORK/" 2>/dev/null || true
+rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
 # ------------------------------------------------------------- payload
@@ -125,6 +128,12 @@ log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+
+# Aurora desktop shell (multi-profile window manager + apps) for every edition.
+if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
+  mkdir -p "$PAY/desktop"
+  cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
 python3 - "$ART" "$PAY" <<'PY'
@@ -202,7 +211,9 @@ manifest = {
 print("application catalogs:", len(files), "first-party source:", manifest["native_app_source"])
 PY
 
-python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
+if [ "${ENTRY#desktop/aurora-shell/}" = "$ENTRY" ]; then
+  python3 "$HERE/lib/patch_html.py" "$PAY/$ENTRY" "$PAY" wp01.jpg
+fi
 
 cat > "$PAY/PROJECT.md" <<EOF
 # $TITLE live image payload
@@ -240,56 +251,14 @@ EOF
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
 
-cat > "$WORK/usr/local/bin/aurora-session" <<'EOF'
-#!/bin/bash
-# Session entry point started from the tty1 autologin.
-export LIBGL_ALWAYS_SOFTWARE=1
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
-export GDK_BACKEND=x11
-export XDG_RUNTIME_DIR=/tmp/runtime-live
-mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR"
-xsetroot -solid "#071a2b" 2>/dev/null || true
-xset -dpms 2>/dev/null || true
-xset s off 2>/dev/null || true
-if grep -q "session=classic" /proc/cmdline 2>/dev/null; then
-  for w in /usr/share/backgrounds/*/wp01.jpg; do [ -f "$w" ] && feh --bg-fill "$w"; done
-  exec openbox
+# Linux-style userspace: systemd units, sysusers/tmpfiles, D-Bus policy and helpers.
+if [ -d "$REPO_DIR/userspace" ] && [ -f "$REPO_DIR/userspace/Makefile" ]; then
+  make -C "$REPO_DIR/userspace" install DESTDIR="$WORK" >/dev/null
+  echo "  userspace units installed (aurora-shell.target, jasper/gates/aurora targets)"
 fi
-
-# GTK's fullscreen request is an EWMH message. Without a window manager the
-# request is ignored and the undecorated WebView remains at GTK's small default
-# size in the upper-left corner in the live session.
-if ! command -v openbox >/dev/null 2>&1 || ! command -v xprop >/dev/null 2>&1; then
-  echo "[Aurora][FATAL] Openbox and xprop are required for fullscreen desktop mode." >&2
-  exit 1
-fi
-openbox --sm-disable >/tmp/aurora-openbox.log 2>&1 &
-wm_pid=$!
-wm_ready=0
-for attempt in $(seq 1 50); do
-  if xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null | grep -Eq 'window id # 0x[[:xdigit:]]+'; then
-    wm_ready=1
-    break
-  fi
-  if ! kill -0 "$wm_pid" 2>/dev/null; then
-    cat /tmp/aurora-openbox.log >&2 || true
-    echo "[Aurora][FATAL] Openbox exited before registering as the window manager." >&2
-    exit 1
-  fi
-  sleep 0.1
-done
-if [ "$wm_ready" -ne 1 ]; then
-  cat /tmp/aurora-openbox.log >&2 || true
-  echo "[Aurora][FATAL] Openbox did not become ready; refusing to start a windowed desktop." >&2
-  kill "$wm_pid" 2>/dev/null || true
-  exit 1
-fi
-echo "[Aurora] Openbox window manager ready; starting fullscreen desktop."
-exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py
-EOF
-echo "export AURORA_DESKTOP_URI=file:///opt/aurora/$ENTRY" >> "$WORK/usr/local/bin/aurora-session"
-chmod 755 "$WORK/usr/local/bin/aurora-session"
+install -d "$WORK/etc/aurora"
+printf 'AURORA_DESKTOP_URI=file:///opt/aurora/%s\n' "$ENTRY" > "$WORK/etc/aurora/session.conf"
+printf '%s\n' "${PROFILE:-aurora}" > "$WORK/etc/aurora/profile"
 
 printf '#!/bin/sh\nexec /usr/local/bin/aurora-session\n' > "$WORK/etc/xinitrc"
 chmod 755 "$WORK/etc/xinitrc"
@@ -352,6 +321,14 @@ chroot "$WORK" /bin/bash -c "update-initramfs -u -k all" >/dev/null
 umount_chroot "$WORK"
 
 # ------------------------------------------------------------- shrink
+# Compile every SDK/toolchain project the host supports; ship the honest report.
+if [ -x "$REPO_DIR/tools/build-sdks.sh" ]; then
+  log "sdk build"
+  mkdir -p "$PAY/reports"
+  bash "$REPO_DIR/tools/build-sdks.sh" --out "$PAY/reports/sdk-build-report.json" \
+    --max 12 --timeout 180 || true
+fi
+
 log "trimming"
 rm -rf "$WORK"/usr/share/doc/* "$WORK"/usr/share/man/* "$WORK"/usr/share/info/* 2>/dev/null || true
 rm -rf "$WORK"/usr/share/fonts/truetype/noto "$WORK"/usr/share/fonts/opentype/noto* 2>/dev/null || true
@@ -390,6 +367,18 @@ menuentry "$TITLE $VERSION — Live desktop" {
   linux /live/vmlinuz boot=live components hostname=$SHORT username=live console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
 }
+menuentry "$TITLE $VERSION — Jasper desktop (Windows 12 style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=jasper console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Gates desktop (macOS style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=gates console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
+menuentry "$TITLE $VERSION — Aurora desktop (Linux 7.x style)" {
+  linux /live/vmlinuz boot=live components hostname=$SHORT username=live aurora.profile=aurora console=tty0 console=ttyS0,115200n8 quiet loglevel=3
+  initrd /live/initrd.img
+}
 menuentry "$TITLE $VERSION — Classic X session (openbox)" {
   linux /live/vmlinuz boot=live components hostname=$SHORT username=live session=classic console=tty0 console=ttyS0,115200n8 quiet loglevel=3
   initrd /live/initrd.img
@@ -406,8 +395,34 @@ menuentry "Reboot" { reboot }
 menuentry "Power off" { halt }
 EOF
 
+# Native Koronos kernel: built with the Linux-style kbuild workflow and staged as a
+# multiboot2 payload. It is a diagnostic target: the microkernel does not reach a
+# verified userspace handoff, so the Linux live entries remain the default.
+log "koronos kernel"
+if [ -f "$REPO_DIR/kernel/Makefile" ] && command -v nasm >/dev/null 2>&1; then
+  ( cd "$REPO_DIR" && make -C kernel defconfig all >/tmp/koronos-build.log 2>&1 ) || \
+    echo "  [warn] Koronos build failed, see /tmp/koronos-build.log"
+  koronos_elf="$REPO_DIR/build/koronos/x86_64/koronos.elf"
+  if [ -s "$koronos_elf" ]; then
+    install -Dm644 "$koronos_elf" "$ISODIR/boot/koronos/koronos.elf"
+    install -Dm644 "$REPO_DIR/build/koronos/x86_64/System.map" "$ISODIR/boot/koronos/System.map" 2>/dev/null || true
+    echo "  staged $(du -h "$koronos_elf" | cut -f1) koronos.elf"
+  fi
+fi
+
 log "iso"
 rm -f "$OUT/$ISO_NAME"
+if [ -f "$ISODIR/boot/koronos/koronos.elf" ]; then
+  cat >> "$ISODIR/boot/grub/grub.cfg" <<'KORONOS'
+
+menuentry "Koronos native microkernel (diagnostic console — no graphical userspace)" {
+  echo "Loading Koronos microkernel (multiboot2)…"
+  multiboot2 /boot/koronos/koronos.elf
+  boot
+}
+KORONOS
+fi
+
 grub-mkrescue --compress=xz -o "$OUT/$ISO_NAME" "$ISODIR" -- -volid "$VOLID"
 ( cd "$OUT" && sha256sum "$ISO_NAME" > "$ISO_NAME.sha256" )
 ls -lh "$OUT/$ISO_NAME"
