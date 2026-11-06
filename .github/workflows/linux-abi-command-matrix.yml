@@ -28,11 +28,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: Install seven-target cross compilers and QEMU user emulators
+      - name: Install eight-target cross compilers and QEMU user emulators
         run: |
           sudo apt-get update
           sudo apt-get install --yes \
-            gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf \
+            gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf \
             gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu \
             binutils qemu-user-static
       - name: Build static Linux ABI command binaries and verify ELF machine fields
@@ -47,7 +47,7 @@ jobs:
       - name: Upload Linux ABI binaries, aliases and runtime manifest
         uses: actions/upload-artifact@v4
         with:
-          name: linux-abi-command-binaries-seven-targets
+          name: linux-abi-command-binaries-eight-targets
           path: build/linux-abi-command-matrix/
           if-no-files-found: error
           retention-days: 30
