@@ -49,6 +49,44 @@ jobs:
           path: build/koronos/ports/
           if-no-files-found: ignore
           retention-days: 14
+      - name: Generate architecture runtime and release eligibility report
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          matrix = json.loads(Path("architecture/support-matrix.json").read_text(encoding="utf-8"))
+          targets = matrix.get("targets", [])
+          report = {
+              "policy": matrix.get("policy"),
+              "targets": [
+                  {
+                      "id": item.get("id"),
+                      "native_kernel": item.get("native_kernel"),
+                      "qemu": item.get("qemu"),
+                      "userspace": item.get("userspace"),
+                      "release_supported": item.get("release_supported", False),
+                      "evidence_required": item.get("evidence_required", []),
+                  }
+                  for item in targets
+              ],
+              "release_supported_architectures": [item.get("id") for item in targets if item.get("release_supported") is True],
+              "blocked_architectures": [item.get("id") for item in targets if item.get("release_supported") is not True],
+              "compile_only_is_runtime_support": False,
+          }
+          Path("architecture-support-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(report, indent=2))
+          if report["blocked_architectures"]:
+              print("::warning::Production release remains blocked for architectures without native boot and userspace acceptance.")
+          PY
+      - name: Upload architecture support report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-architecture-runtime-support-report
+          path: architecture-support-report.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Verify available cross-toolchain inventory without claiming boot support
         shell: bash
         run: |
