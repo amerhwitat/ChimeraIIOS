@@ -121,6 +121,9 @@ jobs:
           }
           require_path executable "$root/usr/bin/openbox"
           require_path executable "$root/usr/bin/xprop"
+          require_path nonempty "$root/usr/share/chimera/commands/command-runtime-capabilities.json"
+          require_path nonempty "$root/usr/share/chimera/commands/command-provider-coverage.json"
+          require_path nonempty "$root/usr/share/chimera/aurora/terminal-shell-staging.json"
           require_path executable "$root/usr/local/bin/aurora-session"
           require_path nonempty "$root/opt/aurora/application-bundle.json"
           require_path directory "$root/opt/aurora/app-catalogs"
@@ -142,6 +145,13 @@ jobs:
                   json.loads(path.read_text())
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
+          commands = json.loads((root.parent.parent / "usr/share/chimera/commands/command-provider-coverage.json").read_text())
+          assert commands["catalog_count"] >= 800, commands.get("catalog_count")
+          terminals = json.loads((root.parent.parent / "usr/share/chimera/aurora/terminal-shell-staging.json").read_text())
+          assert terminals["schema"] == "AURORA-TERMINAL-SHELL-STAGING-2"
+          assert len(terminals["entries"]) == 18
+          print("Command provider coverage:", commands["catalog_count"], commands["counts"])
+          print("Open-source shell/terminal providers:", len(terminals["entries"]), "catalogued; missing providers remain explicit.")
           PY
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
