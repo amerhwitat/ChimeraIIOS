@@ -57,8 +57,10 @@ jobs:
           import json,sys
           d=json.load(open(sys.argv[1]))
           assert d["schema"] == "AURORA-TERMINAL-SHELL-STAGING-2"
-          assert len(d["entries"]) == 18
-          print("Verified provider entries:", sum(x["status"] == "verified-elf-provider" for x in d["entries"]), "/ 18")
+          assert len(d["entries"]) == 26
+          assert sum(x["kind"] == "shell" for x in d["entries"]) == 8
+          assert sum(x["kind"] == "terminal" for x in d["entries"]) == 18
+          print("Verified provider entries:", sum(x["status"] == "verified-elf-provider" for x in d["entries"]), "/ 26")
           for x in d["entries"]:
               print(x["id"], x["status"], x["runtime_status"], x.get("elf_machine",""))
           PY
