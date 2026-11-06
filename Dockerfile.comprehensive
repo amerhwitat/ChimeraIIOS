@@ -441,20 +441,19 @@ RUN install -m 0644 /build/repos/ChimeraIIOS/system/services/chimera-securityd.s
 # Create initialization and startup scripts
 # =============================================================================
 RUN mkdir -p $INSTALL_DIR/scripts && \
-    cat > $INSTALL_DIR/scripts/init-chimera.sh << 'INIT_SCRIPT'
-#!/bin/bash
-echo "=================================================="
-echo "CHIMERA II OS - Comprehensive Environment"
-echo "created by Amer Abdullah Suleiman Hwitat"
-echo "عامر الحويطات - Amman 11814/Jordan"
-echo "contact: amer.hwitat@proton.me"
-echo "=================================================="
-echo ""
-echo "[INFO] Installed Applications:"
-ls -1 /opt/chimera/applications 2>/dev/null | head -10
-echo ""
-echo "[SUCCESS] Chimera II OS ready!"
-INIT_SCRIPT
+    printf '%s\n' \
+        '#!/bin/bash' \
+        'echo "=================================================="' \
+        'echo "CHIMERA II OS - Comprehensive Environment"' \
+        'echo "created by Amer Abdullah Suleiman Hwitat"' \
+        'echo "عامر الحويطات - Amman 11814/Jordan"' \
+        'echo "contact: amer.hwitat@proton.me"' \
+        'echo "=================================================="' \
+        'echo ""' \
+        'echo "[INFO] Installed Applications:"' \
+        'ls -1 /opt/chimera/applications 2>/dev/null | head -10' \
+        'echo ""' \
+        'echo "[SUCCESS] Chimera II OS ready!"' > $INSTALL_DIR/scripts/init-chimera.sh
 RUN chmod +x $INSTALL_DIR/scripts/init-chimera.sh
 
 # =============================================================================
