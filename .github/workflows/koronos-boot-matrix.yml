@@ -6,6 +6,12 @@ on:
     paths:
       - "kernel/**"
       - "boot/iso/**"
+      - "boot/jasper/**"
+      - "boot/spitfire/**"
+      - "boot/installation/**"
+      - "boot/loader-menu.cfg"
+      - "tools/boot/verify-menu-timeouts.py"
+      - "tools/build-chimera-iso.sh"
       - "desktop/**"
       - "tools/build-koronos-targets.sh"
       - "tools/build-desktop-binaries.sh"
@@ -35,6 +41,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Validate all interactive boot menu timeouts
+        run: python3 tools/boot/verify-menu-timeouts.py --root .
       - name: Build Koronos
         run: |
           chmod +x kernel/build-koronos.sh tools/build-desktop-binaries.sh tools/build-koronos-targets.sh
