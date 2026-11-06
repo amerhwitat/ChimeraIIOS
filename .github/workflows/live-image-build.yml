@@ -155,9 +155,9 @@ jobs:
           test -s "$root/usr/share/icons/chimera-aurora/index.theme"
           test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
           test -s "$root/usr/share/chimera/aurora/media/manifest.json"
-          test -s "$root/usr/lib/chimera/commands/native/x86_64/chimera-cmd"
-          test -s "$root/usr/lib/chimera/commands/native/aarch64/chimera-cmd"
-          test -s "$root/usr/lib/chimera/commands/native/riscv64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/linux-abi/x86_64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/linux-abi/aarch64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/linux-abi/riscv64/chimera-cmd"
           python3 - "$root" <<'PY'
           import json,sys
           from pathlib import Path
