@@ -60,11 +60,12 @@ jobs:
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
-          if [[ "chimera" == "chimera" ]]; then
-            python3 -m json.tool applications/catalog.json >/dev/null
-            python3 -m json.tool appcenter/catalog/apps.json >/dev/null
-          else
+          python3 -m json.tool applications/catalog.json >/dev/null
+          python3 -m json.tool appcenter/catalog/apps.json >/dev/null
+          if [[ -f apps/desktop-application-catalog.json ]]; then
             python3 -m json.tool apps/desktop-application-catalog.json >/dev/null
+          fi
+          if [[ -f vendor/chimera-ii-os/source/desktop/optional_apps_catalog.json ]]; then
             python3 -m json.tool vendor/chimera-ii-os/source/desktop/optional_apps_catalog.json >/dev/null
           fi
 
@@ -111,6 +112,8 @@ jobs:
             test -x "$root/usr/bin/openbox"
             test -x "$root/usr/bin/xprop"
             test -x "$root/usr/local/bin/aurora-session"
+            test -s "$root/opt/aurora/desktop/aurora-shell/index.html"
+            test ! -e "$root/opt/aurora/desktop/aurora-shell/aurora-shell/index.html"
             test -s "$root/opt/aurora/application-bundle.json"
             test -d "$root/opt/aurora/app-catalogs"
             test -d "$root/opt/aurora/apps/native/aurora"
