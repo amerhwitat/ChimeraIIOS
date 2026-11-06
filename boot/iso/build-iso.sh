@@ -122,8 +122,10 @@ if set(rows)!=expected: raise SystemExit(f"wrong native command target set: {sor
 for arch,row in rows.items():
     if row.get("binary_status")!="cross-compiled-and-elf-machine-validated":
         raise SystemExit(f"{arch} command binary not ELF-validated: {row}")
-    if row.get("runtime_status")!="not-tested-cross-build-only":
-        raise SystemExit(f"{arch} runtime status must remain explicitly untested")
+    if row.get("runtime_status") not in {"native-linux-abi-smoke-tested","qemu-user-linux-abi-smoke-tested"}:
+        raise SystemExit(f"{arch} Linux ABI smoke test missing: {row}")
+if "Koronos remains untested" not in manifest.get("runtime_scope",""):
+    raise SystemExit("manifest must distinguish Linux ABI smoke tests from Koronos runtime acceptance")
 print("Native command ELF matrix validated; runtime execution remains untested.")
 PY
 
