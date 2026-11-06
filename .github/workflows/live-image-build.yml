@@ -5,6 +5,8 @@ on:
     branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
     paths:
       - 'live-image/**'
+      - 'tools/commands/**'
+      - 'system/commands/**'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -16,6 +18,8 @@ on:
   pull_request:
     paths:
       - 'live-image/**'
+      - 'tools/commands/**'
+      - 'system/commands/**'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -51,9 +55,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes \
-            debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            debootstrap binutils xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 \
+            build-essential autoconf automake bison flex gettext git pkg-config cmake ninja-build meson \
+            cargo rustc golang-go zig libncurses-dev libreadline-dev libpcre2-dev libssl-dev libicu-dev \
+            libx11-dev libxext-dev libxrender-dev libxft-dev libxcb1-dev libxkbcommon-dev libxkbcommon-x11-dev \
+            libwayland-dev libfreetype6-dev libfontconfig1-dev libgtk-3-dev libvte-2.91-dev \
+            libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev
 
       - name: Validate desktop source and application catalogs
         run: |
@@ -103,15 +112,36 @@ jobs:
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
-          unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
+          unsquashfs -no-xattrs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
-          test -x "$root/usr/bin/openbox"
-          test -x "$root/usr/bin/xprop"
-          test -x "$root/usr/local/bin/aurora-session"
-          test -s "$root/opt/aurora/application-bundle.json"
-          test -d "$root/opt/aurora/app-catalogs"
-          test -d "$root/opt/aurora/apps/native/aurora"
-          grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
+          require_path() {
+            local kind="$1" path="$2"
+            if [[ "$kind" == "executable" && ! -x "$path" ]] ||
+               [[ "$kind" == "nonempty" && ! -s "$path" ]] ||
+               [[ "$kind" == "directory" && ! -d "$path" ]] ||
+               [[ "$kind" == "file" && ! -f "$path" ]]; then
+              echo "::error::Live rootfs validation missing $kind: $path" >&2
+              ls -ld "$path" 2>&1 || true
+              echo "Nearby staged paths:" >&2
+              find "$root/opt/aurora" "$root/usr/local/bin" -maxdepth 3 -print 2>/dev/null | head -200 >&2 || true
+              return 1
+            fi
+            echo "Validated $kind: $path"
+          }
+          require_path executable "$root/usr/bin/openbox"
+          require_path executable "$root/usr/bin/xprop"
+          require_path nonempty "$root/usr/share/chimera/commands/command-runtime-capabilities.json"
+          require_path nonempty "$root/usr/share/chimera/commands/command-provider-coverage.json"
+          require_path nonempty "$root/usr/share/chimera/aurora/terminal-shell-staging.json"
+          require_path executable "$root/usr/local/bin/aurora-session"
+          require_path nonempty "$root/opt/aurora/application-bundle.json"
+          require_path directory "$root/opt/aurora/app-catalogs"
+          require_path directory "$root/opt/aurora/apps/native/aurora"
+          if ! grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"; then
+            echo "::error::Aurora session launcher is missing the Openbox readiness marker" >&2
+            sed -n '1,220p' "$root/usr/local/bin/aurora-session" >&2
+            exit 1
+          fi
           python3 - "$root/opt/aurora" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -124,6 +154,13 @@ jobs:
                   json.loads(path.read_text())
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
+          commands = json.loads((root.parent.parent / "usr/share/chimera/commands/command-provider-coverage.json").read_text())
+          assert commands["catalog_count"] >= 800, commands.get("catalog_count")
+          terminals = json.loads((root.parent.parent / "usr/share/chimera/aurora/terminal-shell-staging.json").read_text())
+          assert terminals["schema"] == "AURORA-TERMINAL-SHELL-STAGING-2"
+          assert len(terminals["entries"]) == 18
+          print("Command provider coverage:", commands["catalog_count"], commands["counts"])
+          print("Open-source shell/terminal providers:", len(terminals["entries"]), "catalogued; missing providers remain explicit.")
           PY
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"

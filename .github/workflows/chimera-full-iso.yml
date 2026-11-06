@@ -98,6 +98,9 @@ jobs:
           extract /install/installer/installation.img "$tmp/installation.img"
           extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
           extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          extract /system/commands/command-runtime-capabilities.json "$tmp/command-runtime-capabilities.json"
+          extract /system/catalogues/runtime-command-isa-contract.json "$tmp/runtime-command-isa-contract.json"
+          extract /system/isa/catalog.json "$tmp/isa-catalog.json"
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
@@ -112,6 +115,10 @@ jobs:
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          extract /desktop/aurora/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json "$tmp/terminal-shell-staging.json"
+          xorriso -osirrox on -indev "$iso" -extract /desktop/aurora/terminal-shell-rootfs/usr "$tmp/terminal-rootfs-usr" >/dev/null
+          test -d "$tmp/terminal-rootfs-usr/bin"
+
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -119,9 +126,40 @@ jobs:
                        "installation-manifest.json", "installer-contract.json",
                        "chimera-artwork-manifest.json"):
               json.loads((root / name).read_text())
+          capabilities = json.loads((root / "command-runtime-capabilities.json").read_text())
+          contract = json.loads((root / "runtime-command-isa-contract.json").read_text())
+          isa = json.loads((root / "isa-catalog.json").read_text())
+          if capabilities.get("command_count", 0) < 800:
+              raise SystemExit("embedded command runtime manifest is incomplete")
+          if capabilities.get("mode_counts", {}).get("native") != 15:
+              raise SystemExit("native command multicall manifest does not match its 15-command source contract")
+          if contract.get("schema") != "CHIMERA-RUNTIME-CATALOGUE-CONTRACT-1" or not isa:
+              raise SystemExit("embedded command/ISA catalogue contract is invalid")
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          terminal = json.loads((root / "terminal-shell-staging.json").read_text())
+          if terminal.get("schema") != "AURORA-TERMINAL-SHELL-STAGING-1":
+              raise SystemExit("terminal/shell staging manifest schema mismatch")
+          terminal_root = root / "terminal-rootfs-usr"
+          for item in terminal.get("entries", []):
+              if item.get("status") == "binary-present":
+                  relative = item["path"].removeprefix("/usr/")
+                  binary = terminal_root / relative
+                  if not binary.is_file():
+                      raise SystemExit(f"terminal provider missing from ISO payload: {item['id']}")
+                  import hashlib
+                  if hashlib.sha256(binary.read_bytes()).hexdigest() != item.get("sha256"):
+                      raise SystemExit(f"terminal provider hash mismatch: {item['id']}")
+                  if item.get("kind") == "terminal":
+                      entry = terminal_root / "share/applications" / f"chimera-terminal-{item['id']}.desktop"
+                      if item.get("runtime_status") == "version-smoke-pass" and not entry.is_file():
+                          raise SystemExit(f"smoke-tested terminal provider lacks desktop entry: {item['id']}")
+                      if item.get("runtime_status") != "version-smoke-pass" and entry.exists():
+                          raise SystemExit(f"terminal launcher emitted without a passing version smoke test: {item['id']}")
+              elif item.get("status") == "wrong-architecture":
+                  print(f"Terminal provider not usable on this ISO architecture: {item['id']}")
+
           if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
           grub = (root / "grub.cfg").read_text()
@@ -133,20 +171,62 @@ jobs:
 
       - name: QEMU headless Koronos boot smoke test
         run: |
-          set +e
+          set -euo pipefail
+          rm -f /tmp/chimera-qemu-debugcon.log /tmp/chimera-qemu-serial.log /tmp/chimera-qmp.sock
           timeout 20s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
-            -display none -serial none -monitor none \
+            -display none -serial file:/tmp/chimera-qemu-serial.log -monitor none \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
-            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
-          qemu_rc=$?
-          set -e
-          cat /tmp/chimera-qemu.log
-          if [ -f /tmp/chimera-qemu-debugcon.log ]; then
-            python3 - <<'PY'
+            -global isa-debugcon.iobase=0xe9 \
+            -qmp unix:/tmp/chimera-qmp.sock,server=on,wait=off \
+            >/tmp/chimera-qemu.log 2>&1 &
+          qemu_pid=$!
+          # The boot menu intentionally waits for a person. CI selects the
+          # configured default through QMP instead of shortening that timeout.
+          python3 - <<'PY'
           from pathlib import Path
-          data = Path("/tmp/chimera-qemu-debugcon.log").read_bytes().decode("latin1")
+          import socket, time
+          client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+          for _ in range(100):
+              try:
+                  client.connect("/tmp/chimera-qmp.sock")
+                  break
+              except (FileNotFoundError, ConnectionRefusedError):
+                  time.sleep(0.05)
+          else:
+              raise SystemExit("QEMU QMP socket did not become ready")
+          client.settimeout(2)
+          if b"QMP" not in client.recv(4096):
+              raise SystemExit("QEMU QMP greeting missing")
+          client.sendall(b'{"execute":"qmp_capabilities"}\r\n')
+          time.sleep(0.05)
+          client.recv(4096)
+          # Wait until GRUB has actually rendered the menu before typing.
+          deadline = time.monotonic() + 12
+          while time.monotonic() < deadline:
+              serial = Path("/tmp/chimera-qemu-serial.log")
+              if serial.exists():
+                  rendered = serial.read_text(errors="replace")
+                  if "Live Aurora" in rendered or "Chimera II OS" in rendered:
+                      break
+              time.sleep(0.1)
+          else:
+              raise SystemExit("GRUB menu did not appear on the QEMU serial console")
+          client.sendall(b'{"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":"ret"}]}}\r\n')
+          time.sleep(0.1)
+          response = client.recv(4096)
+          if b'"error"' in response:
+              raise SystemExit(f"QEMU rejected Enter key injection: {response!r}")
+          client.close()
+          print("Injected Enter through QMP to select the configured GRUB default.")
+          PY
+          wait "$qemu_pid" || qemu_rc=$?
+          cat /tmp/chimera-qemu.log
+          cat /tmp/chimera-qemu-serial.log || true
+          python3 - <<'PY'
+          from pathlib import Path
+          data = Path("/tmp/chimera-qemu-debugcon.log").read_bytes().decode("latin1") if Path("/tmp/chimera-qemu-debugcon.log").exists() else ""
           markers = "ELBC"
           cursor = 0
           for marker in markers:
@@ -156,10 +236,6 @@ jobs:
               cursor = found + 1
           print("QEMU reached x86 entry, long mode, Koronos handoff and post-init markers (ELBC).")
           PY
-          else
-            echo "QEMU produced no debugcon output (exit $qemu_rc)" >&2
-            exit 1
-          fi
 
       - name: Verify actual Live, Installer, and Recovery userspace handoff
         id: userspace_gate

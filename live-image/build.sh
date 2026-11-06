@@ -20,6 +20,13 @@ case "$ED" in
 esac
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+COMMAND_SOURCE="$REPO_DIR"
+if [[ -f "$REPO_DIR/vendor/chimera-ii-os/source/tools/commands/generate_runtime_manifest.py" ]]; then
+  COMMAND_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source"
+fi
+python3 "$COMMAND_SOURCE/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$COMMAND_SOURCE/system/commands/command-runtime-capabilities.json" >/dev/null
+
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
 BASE="$BUILD/rootfs-base"
@@ -86,9 +93,10 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
+if [ ! -f "$BASE/.packages-installed-v2" ]; then
   log "installing shared package set (one-off)"
   mount_chroot "$BASE"
+  cp "$COMMAND_SOURCE/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
     export DEBIAN_FRONTEND=noninteractive
@@ -106,11 +114,33 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    # Optional open-source shells and terminal emulators: install only packages
+    # available from the signed Debian repositories. Missing packages remain
+    # visible in the staging manifest instead of producing placeholder launchers.
+    # Install every catalogued shell and terminal for both hosted editions.
+    # Packages unavailable in this Ubuntu suite remain visible in the runtime manifest;
+    # no desktop launcher is generated unless its real executable passes verification.
+    for pkg in bash zsh fish dash mksh yash elvish nushell \
+      xterm gnome-terminal gnome-console konsole xfce4-terminal foot kitty ptyxis \
+      alacritty wezterm ghostty contour terminator tilix mate-terminal qterminal \
+      sakura terminology lxterminal blackbox-terminal; do
+      if apt-cache show "$pkg" >/dev/null 2>&1; then
+        apt-get install -y -qq --no-install-recommends "$pkg" || echo "[AURORA-TERMINALS] package install failed: $pkg"
+      else
+        echo "[AURORA-TERMINALS] no Debian package candidate: $pkg"
+      fi
+    done
+    bash /tmp/chimera-install-command-providers.sh
+    rm -f /tmp/chimera-install-command-providers.sh
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$BASE" x86_64
+  install -D -m 0644 "$COMMAND_SOURCE/system/commands/command-runtime-capabilities.json" "$BASE/usr/share/chimera/commands/command-runtime-capabilities.json"
+  install -D -m 0644 "$COMMAND_SOURCE/tools/commands/os-command-runtime.json" "$BASE/usr/share/chimera/commands/os-command-runtime.json"
+  python3 "$COMMAND_SOURCE/tools/commands/verify-command-provider-coverage.py" "$BASE" "$COMMAND_SOURCE/system/commands/command-runtime-capabilities.json" x86_64
+  touch "$BASE/.packages-installed-v2"
 fi
 
 # ------------------------------------------------------------- rootfs copy
@@ -120,6 +150,15 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 # tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
 # /sys are rebuilt empty (the initramfs mounts their filesystems).
 cp -a "$BASE/." "$WORK/" 2>/dev/null || true
+# Compile/stage the same real terminal and shell providers in both hosted editions.
+# The hook only creates desktop launchers for binaries present in this target rootfs.
+CHIMERA_ROOTFS_DIR="$WORK" \
+CHIMERA_BUILD_DIR="$BUILD" \
+CHIMERA_TERMINAL_CACHE="$BUILD/terminal-cache" \
+CHIMERA_SHELL_CACHE="$BUILD/shell-cache" \
+CHIMERA_TERMINAL_REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-1}" \
+bash "$COMMAND_SOURCE/scripts/chimera-iso-terminal-shell-hook.sh"
+CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 

@@ -27,7 +27,7 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/a
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-install_existing(){ local b="$1"; if have "$b"; then cp -L "$(command -v "$b")" "$PREFIX/bin/$b" 2>/dev/null || true; return 0; fi; return 1; }
+install_existing(){ local b="$1"; if [[ -x "$PREFIX/bin/$b" || -x "$DEST/usr/local/bin/$b" || -x "$DEST/bin/$b" ]]; then log "$b already exists in target rootfs"; else log "$b: host executable not copied; require target package or source build"; fi; }
 source_build(){
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
@@ -35,7 +35,16 @@ source_build(){
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm); cp "$src/target/release/wezterm" "$PREFIX/bin/" ;;
     contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
-    ghostty) have zig || return 1; (cd "$src" && zig build -Doptimize=ReleaseFast); cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+    ghostty)
+      have python3 || return 1
+      local zigver venv
+      zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+      [[ -n "$zigver" ]] || return 1
+      venv="$CACHE/zig-venv"
+      python3 -m venv "$venv"
+      "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
+      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
+      cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
     zsh) (cd "$src" && ./Util/preconfig || autoconf && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/Src/zsh" "$PREFIX/bin/" ;;
     bash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/bash" "$PREFIX/bin/" ;;
@@ -47,7 +56,7 @@ source_build(){
   esac
 }
 # Prefer distro-provided binaries for desktop terminals; source builds are enabled for projects with reliable recipes.
-for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" && log "Imported existing $b" || log "$b will be provided by the target package/build environment"; done
+for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do log "$b: build from source or stage a verified target package; host binaries are never copied"; done
 if [[ "$MODE" != "binary-only" ]]; then
   source_build alacritty https://github.com/alacritty/alacritty.git || log "Alacritty source build unavailable; package/binary fallback required"
   source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"

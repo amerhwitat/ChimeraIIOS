@@ -1457,6 +1457,8 @@ PYISA
   fi
   log_info "Reconciling native, shell-builtin, and compatibility-provider command inventory"
   python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py" || { log_error "Command capability manifest generation failed"; return 1; }
+  python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py"
+  python3 -m json.tool "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" >/dev/null
   [[ -s "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" ]] || { log_error "Command capability manifest missing"; return 1; }
   python3 - "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" <<'PYCOMMANDS'
 import json,sys
@@ -1486,6 +1488,9 @@ build_command_runtime(){
   CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" bash "$SCRIPT_DIR/tools/build-chimera-command-compat.sh"
   [[ -x "$ROOTFS_DIR/usr/bin/chimera-cmd" ]] || { log_error "Native command binary was not generated"; return 1; }
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
+  log_info "Building/staging the registered open-source shells and terminal emulators"
+  CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_TERMINAL_REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-1}" bash "$SCRIPT_DIR/scripts/chimera-iso-terminal-shell-hook.sh"
+  [[ -s "$ROOTFS_DIR/usr/share/chimera/aurora/terminal-shell-staging.json" ]] || { log_error "Terminal/shell staging manifest missing"; return 1; }
 }
 
 main(){

@@ -53,6 +53,8 @@ DRIVERS="$ROOT/build/drivers"
 
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$ROOT/system/commands/command-runtime-capabilities.json" >/dev/null
 
 for tool in build-desktop-binaries.sh build-koronos-targets.sh build-toolchain-bundle.sh build-network-toolkit.sh fetch-driver-payloads.sh fetch-foreign-runtimes.sh build-mobile-edition.sh build-compatibility-binaries.sh build-live-boot-binaries.sh; do
   chmod +x "$ROOT/tools/$tool"
@@ -111,6 +113,28 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
+# Bundle real open-source terminal/shell provider packages for inspection and
+# later target integration. This payload is not asserted to be Koronos-native:
+# the current kernel/user-mode acceptance gate still requires real CPL3 init.
+mkdir -p "$STAGE/desktop/aurora"
+CHIMERA_ROOTFS_DIR="$STAGE/desktop/aurora/terminal-shell-rootfs" \
+CHIMERA_BUILD_DIR="$BUILD" \
+CHIMERA_TERMINAL_MODE=binary-only CHIMERA_SHELL_MODE=binary-only \
+CHIMERA_TERMINAL_REQUIRE_ALL=0 \
+  bash "$ROOT/scripts/chimera-iso-terminal-shell-hook.sh"
+test -s "$STAGE/desktop/aurora/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json"
+
+# Embed a verified open-source terminal/shell provider rootfs bundle.
+# This is an ISO payload inventory, not a claim that Koronos currently supports
+# the Linux ELF ABI; the native user-mode launch gate remains fail-closed.
+mkdir -p "$STAGE/desktop/aurora"
+CHIMERA_ROOTFS_DIR="$STAGE/desktop/aurora/terminal-shell-rootfs" \
+CHIMERA_BUILD_DIR="$BUILD" \
+CHIMERA_TERMINAL_MODE=binary-only CHIMERA_SHELL_MODE=binary-only \
+CHIMERA_TERMINAL_REQUIRE_ALL=0 \
+  bash "$ROOT/scripts/chimera-iso-terminal-shell-hook.sh"
+test -s "$STAGE/desktop/aurora/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json"
+
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
@@ -151,6 +175,11 @@ cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/system/security" "$STAGE/system/security"
+mkdir -p "$STAGE/system/commands" "$STAGE/system/isa" "$STAGE/system/catalogues"
+cp -a "$ROOT/system/commands/." "$STAGE/system/commands/"
+cp -a "$ROOT/isa/." "$STAGE/system/isa/"
+cp -a "$ROOT/catalogues/." "$STAGE/system/catalogues/"
+
 cp -a "$ROOT/tools/initialize-accounts.sh" "$STAGE/install/initialize-accounts.sh"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"

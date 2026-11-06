@@ -28,6 +28,8 @@ export CHIMERA_TERMINAL_CACHE="${CHIMERA_TERMINAL_CACHE:-${BUILD_DIR:-$ROOT/buil
 export CHIMERA_SHELL_CACHE="${CHIMERA_SHELL_CACHE:-${BUILD_DIR:-$ROOT/build}/shell-cache}"
 mkdir -p "$CHIMERA_ROOTFS_DIR"
 bash "$ROOT/scripts/import-aurora-terminal-shell-suite.sh"
+bash "$ROOT/scripts/import-aurora-shell-suite.sh"
+CHIMERA_BUILD_DIR="${CHIMERA_BUILD_DIR:-${BUILD_DIR:-$ROOT/build}}" bash "$ROOT/tools/terminals/stage-open-source-terminal-shells.sh"
 bash "$ROOT/aurora/terminals/install-desktop-entries.sh"
 # Copy the shell launcher into the image.
 install -Dm0755 "$ROOT/aurora/shells/launch-shell.sh" "$CHIMERA_ROOTFS_DIR/usr/lib/chimera/aurora/launch-shell.sh"

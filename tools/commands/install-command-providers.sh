@@ -25,7 +25,7 @@ fi
 set -u
 
 PACKAGES=(
-  coreutils util-linux findutils grep sed gawk mawk diffutils file
+  coreutils util-linux findutils grep sed gawk mawk diffutils file busybox-static
   procps psmisc iproute2 iputils-ping net-tools dnsutils traceroute
   openssh-client openssh-server rsync curl wget ca-certificates
   openssl gnupg jq ripgrep fd-find tree less most nano vim-tiny
@@ -38,7 +38,10 @@ PACKAGES=(
   p7zip-full rar unrar-free cifs-utils nfs-common
   lvm2 mdadm smartmontools parted gdisk dosfstools exfatprogs
   squashfs-tools xorriso mtools
-  shellcheck dosbox dosbox-x
+  shellcheck dosbox dosbox-x qemu-user-static
+  build-essential clang cmake ninja-build python3 python3-pip python3-venv
+  nodejs npm default-jdk golang-go rustc cargo php-cli ruby sqlite3
+  postgresql-client mariadb-client
 )
 
 if ! command -v apt-get >/dev/null 2>&1; then
