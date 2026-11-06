@@ -103,7 +103,7 @@ for target in live installer recovery; do
 done
 
 # Stage cross-built Linux ABI command multicall binaries for all currently
-# supported Linux command ABIs. Cross-build validation is not runtime acceptance.
+# supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
 printf '%s\\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
@@ -135,7 +135,7 @@ for arch,row in rows.items():
         raise SystemExit(f"{arch} Linux ABI smoke test missing: {row}")
 if "does not validate Koronos" not in manifest.get("runtime_scope",""):
     raise SystemExit("manifest must distinguish Linux ABI smoke tests from Koronos runtime acceptance")
-print("Native command ELF matrix validated; runtime execution remains untested.")
+print("Linux ABI smoke tests passed; Koronos kernel/userspace execution remains untested.")
 PY
 
 # Stage the AI knowledge database. The kernel classifies it as
