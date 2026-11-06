@@ -14,6 +14,11 @@ def main():
     chain=manifest.get("boot_chain",{})
     require(all(k in chain for k in expected),"boot chain is missing a required stage")
     require(menu.get("kernel")=="Koronos" and menu.get("primary_loader")=="Spit Fire","boot menu identity mismatch")
+    policy=menu.get("menu_policy",{})
+    require(policy.get("timeout_seconds")==60,"boot menu timeout must be 60 seconds")
+    require(policy.get("timeout_style")=="menu","boot menu must remain visible while waiting")
+    gates=json.loads((ROOT/"desktop/aurora/gates_menu.json").read_text())
+    require(gates.get("boot_contract",{}).get("menu_policy")==policy,"Gates and boot menu timeout policies diverge")
     handoff=menu.get("handoff","")
     for stage in ["Spit Fire","Jasper","Koronos","Aurora"]:
         require(stage in handoff,f"canonical handoff omits {stage}")
@@ -49,11 +54,14 @@ def main():
             # This raster is intentionally materialized from the tracked .b64 source during ISO staging.
             continue
         require(p.is_file(),f"declared artwork source missing: {rel}")
-    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/jasper/jasper.cfg","boot/iso/grub.cfg","boot/jasper/live.cfg","boot/jasper/install.cfg"]:
+    for rel in ["boot/spitfire/spitfire-menu.cfg","boot/jasper/jasper.cfg","boot/iso/grub.cfg","boot/jasper/live.cfg","boot/jasper/install.cfg","boot/jasper/recovery.cfg","boot/jasper/diagnostics.cfg","boot/jasper/retro.cfg","boot/jasper/safe-mode.cfg","boot/jasper/last-known-good.cfg","boot/installation/menu.cfg"]:
         p=ROOT/rel
         require(p.is_file(),f"boot menu source missing: {rel}")
         text=p.read_text(errors="replace")
         require("menuentry" in text,f"boot menu has no selectable entries: {rel}")
+        timeout=re.search(r"(?m)^\\s*set timeout=(\\d+)\\s*$",text)
+        require(timeout is not None and int(timeout.group(1))>=60,f"boot menu timeout is too short or missing: {rel}")
+        require(re.search(r"(?m)^\\s*set timeout_style=menu\\s*$",text) is not None,f"boot menu must remain visible: {rel}")
     # Each stage's static progress contract must be monotonic; progress strings
     # may have textual substeps but cannot go backwards in the canonical map.
     values=[]
