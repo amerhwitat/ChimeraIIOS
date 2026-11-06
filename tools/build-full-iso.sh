@@ -111,6 +111,17 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
+# Bundle real open-source terminal/shell provider packages for inspection and
+# later target integration. This payload is not asserted to be Koronos-native:
+# the current kernel/user-mode acceptance gate still requires real CPL3 init.
+mkdir -p "$STAGE/desktop/aurora"
+CHIMERA_ROOTFS_DIR="$STAGE/desktop/aurora/terminal-shell-rootfs" \
+CHIMERA_BUILD_DIR="$BUILD" \
+CHIMERA_TERMINAL_MODE=binary-only CHIMERA_SHELL_MODE=binary-only \
+CHIMERA_TERMINAL_REQUIRE_ALL=0 \
+  bash "$ROOT/scripts/chimera-iso-terminal-shell-hook.sh"
+test -s "$STAGE/desktop/aurora/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json"
+
 # Embed a verified open-source terminal/shell provider rootfs bundle.
 # This is an ISO payload inventory, not a claim that Koronos currently supports
 # the Linux ELF ABI; the native user-mode launch gate remains fail-closed.
