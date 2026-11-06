@@ -126,7 +126,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       sudo login passwd file tree plocate lsof strace bc acl \
       aptitude aspell at bsdextrautils dos2unix ddrescue iw mtr-tiny netcat-openbsd \
       nftables pv ripgrep rename screen sharutils sysstat tmux unrar-free vim-tiny \
-      wl-clipboard xclip xxd zstd openjdk-21-jre-headless python3-tk pkexec x11-xserver-utils \
+      wl-clipboard xclip xxd zstd openjdk-21-jre-headless python3-tk pkexec x11-xserver-utils libstdc++6 \
       libgtk-4-1 libadwaita-1-0 \
       libxkbcommon0 libwayland-client0 libwayland-cursor0 libx11-6 libxcb1 libfontconfig1 \
       libfreetype6 libharfbuzz0b libvulkan1 libdbus-1-3 libssl3t64 libasound2t64 libpulse0 \
