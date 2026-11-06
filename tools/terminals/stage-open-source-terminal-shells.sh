@@ -39,7 +39,8 @@ for id in "${!APT_PACKAGE[@]}"; do
   fi
 done
 if (("${#AVAILABLE[@]}")); then
-  apt-get install --download-only --reinstall --no-install-recommends -y \
+  chmod 0777 "$WORK/archives"
+  "${APT[@]}" install --download-only --reinstall --no-install-recommends -y \
     -o "Dir::Cache::archives=$WORK/archives" "${AVAILABLE[@]}"
   for deb in "$WORK"/archives/*.deb; do
     [[ -f "$deb" ]] || continue
