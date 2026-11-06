@@ -67,6 +67,11 @@ while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != "busybox" ]] || continue
   ln -sf busybox "$INIT/bin/$applet"
 done < <("$BUSYBOX" --list)
+# Embed the complete command and ISA catalogues in both live and recovery media.
+mkdir -p "$INIT/etc/chimera/catalogs"
+for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json isa/catalog.json ISA.csv data/isa/online-isa-index.json; do
+  [[ -s "$ROOT/$rel" ]] && install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"
+done
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
