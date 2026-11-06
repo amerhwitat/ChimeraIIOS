@@ -158,6 +158,26 @@ python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
 install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/usr/local/bin/chimera-verify-opengl"
+# Install the optional Aurora event sound player and start cue after sound.target.
+install -D -m 0755 "$REPO_DIR/desktop/aurora/aurora-event-sound.sh" "$WORK/usr/local/bin/aurora-event-sound"
+install -d "$WORK/etc/systemd/system/multi-user.target.wants"
+cat > "$WORK/etc/systemd/system/aurora-startup-sound.service" <<'UNIT'
+[Unit]
+Description=Aurora desktop startup sound
+After=sound.target
+Wants=sound.target
+
+[Service]
+Type=oneshot
+User=live
+Environment=CHIMERA_SOUND_DIR=/usr/share/chimera/aurora/sounds
+Environment=CHIMERA_SOUND_VOLUME=0.55
+ExecStart=/usr/local/bin/aurora-event-sound startup
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.target.wants/aurora-startup-sound.service"
 
 # ------------------------------------------------------------- payload
 log "staging payload"
