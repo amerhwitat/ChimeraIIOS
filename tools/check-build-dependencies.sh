@@ -31,6 +31,7 @@ declare -a REQUIRED_COMMANDS=(
   bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
+  cargo rustc go
   i686-linux-gnu-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc
   qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static qemu-ppc64le-static qemu-s390x-static
   unsquashfs mksquashfs rsvg-convert nasm
@@ -52,6 +53,7 @@ declare -A COMMAND_PACKAGE=(
   [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
   [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
+  [cargo]=cargo [rustc]=rustc [go]=golang-go
 )
 
 # Additional packages used by the build scripts and generated applications.
@@ -64,6 +66,10 @@ declare -a BUILD_PACKAGES=(
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
   libncurses-dev libboost-dev gawk sed grep coreutils findutils util-linux
+  libgtk-3-dev libgtk-4-dev libadwaita-1-dev libvte-2.91-dev libvte-2.91-gtk4-dev
+  libwayland-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libxcb1-dev
+  libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev libfontconfig1-dev libfreetype6-dev libharfbuzz-dev
+  qt6-base-dev qt6-declarative-dev libyaml-cpp-dev libutf8proc-dev libpcre2-dev libicu-dev
 )
 
 declare -a OPTIONAL_PACKAGES=(
