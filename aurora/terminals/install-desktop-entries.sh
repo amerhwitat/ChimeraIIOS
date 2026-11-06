@@ -12,7 +12,7 @@ APPS="$ROOTFS/usr/share/applications"
 mkdir -p "$APPS"
 has_binary() {
   local bin="$1"
-  [[ -x "$ROOTFS/usr/bin/$bin" || -x "$ROOTFS/bin/$bin" ]]
+  [[ -x "$ROOTFS/usr/local/bin/$bin" || -x "$ROOTFS/usr/bin/$bin" || -x "$ROOTFS/bin/$bin" ]]
 }
 # Do not publish a desktop launcher for a catalogue-only or missing executable.
 terminals=(
