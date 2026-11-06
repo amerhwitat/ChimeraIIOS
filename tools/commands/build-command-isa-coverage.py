@@ -58,8 +58,19 @@ def main():
         name=row["command"]
         if "linux-bash" in row["platforms"]:
             target_path=rootfs_executable(target_rootfs,name)
-            if name in busybox:
-                row.update(provider="busybox-applet",path="/bin/"+name)
+            if name in busybox and target_path:
+                candidate=target_rootfs/target_path.lstrip("/")
+                busybox_path=target_rootfs/"bin/busybox"
+                try:
+                    is_busybox_link=candidate.is_symlink() and candidate.resolve()==busybox_path.resolve()
+                except OSError:
+                    is_busybox_link=False
+                if is_busybox_link:
+                    row.update(provider="busybox-applet",path=target_path)
+                else:
+                    row.update(provider="target-rootfs-executable",path=target_path)
+            elif name in busybox:
+                row.update(provider="busybox-applet-dispatch-only",path="/bin/busybox "+name)
             elif name in SHELL_BUILTINS:
                 row.update(provider="shell-builtin",path="/bin/sh")
             elif target_path:
