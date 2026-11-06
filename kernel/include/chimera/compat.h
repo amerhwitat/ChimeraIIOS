@@ -10,6 +10,8 @@ extern "C" {
 #define CHIMERA_COMPAT_ABI 1u
 #define CHIMERA_COMPAT_MAX 10u
 #define CHIMERA_COMPAT_MAX_SYSCALLS 96u
+#define CHM_USER_ABI_NATIVE 1u
+#define CHM_USER_ABI_LINUX 2u
 
 typedef enum chimera_compat_os {
     CHM_OS_NATIVE = 0,
@@ -108,6 +110,7 @@ int chimera_compat_probe(void);
 int chimera_compat_get_snapshot(chimera_compat_snapshot *out);
 const chimera_compat_profile *chimera_compat_profile_at(uint32_t index);
 int chimera_compat_recognize_syscall(uint32_t entry, uint32_t bitness, uint32_t number, chimera_syscall_identity *out);
+int chimera_compat_resolve_user_syscall(uint32_t user_abi, uint32_t entry, uint32_t bitness, uint32_t number, uint32_t *canonical);
 int chimera_compat_recognize_interrupt(uint32_t vector, chimera_interrupt_identity *out);
 int chimera_compat_memory_profile(uint32_t os, chimera_memory_model *model, uint64_t *user_high, uint64_t *kernel_low);
 int chimera_compat_validate_address(uint32_t os, uint64_t address, uint32_t kernel_space);
