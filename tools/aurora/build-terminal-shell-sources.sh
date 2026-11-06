@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOTFS="${1:?usage: build-terminal-shell-sources.sh ROOTFS SOURCE_BUILD_DIR}"
+OUT="${2:?usage: build-terminal-shell-sources.sh ROOTFS SOURCE_BUILD_DIR}"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+MISSING="$ROOTFS/usr/share/chimera/aurora/terminal-shell-source-required.tsv"
+INSTALLED="$ROOTFS/usr/share/chimera/aurora/terminal-shell-installed.tsv"
+[[ -s "$MISSING" ]] || { echo "No source-build-required terminal/shell providers."; exit 0; }
+mkdir -p "$OUT/src" "$OUT/stage/usr/local/bin"
+require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing source-build dependency: $1" >&2; exit 2; }; }
+require git
+build_yash() {
+  require make
+  local src="$OUT/src/yash"
+  git clone --depth 1 https://github.com/magicant/yash.git "$src"
+  (cd "$src" && ./configure --prefix=/usr/local && make -j"${JOBS:-2}" && make install DESTDIR="$OUT/stage")
+  install -D -m 0755 "$OUT/stage/usr/local/bin/yash" "$ROOTFS/usr/local/bin/yash"
+}
+build_nushell() {
+  require cargo
+  local src="$OUT/src/nushell"
+  git clone --depth 1 https://github.com/nushell/nushell.git "$src"
+  (cd "$src" && cargo build --release --locked)
+  install -D -m 0755 "$src/target/release/nu" "$ROOTFS/usr/local/bin/nu"
+}
+build_wezterm() {
+  require cargo
+  local src="$OUT/src/wezterm"
+  git clone --depth 1 https://github.com/wez/wezterm.git "$src"
+  (cd "$src" && cargo build --release --locked -p wezterm-gui)
+  install -D -m 0755 "$src/target/release/wezterm-gui" "$ROOTFS/usr/local/bin/wezterm"
+}
+build_ghostty() {
+  require python3
+  local src="$OUT/src/ghostty" zigver venv
+  git clone --depth 1 https://github.com/ghostty-org/ghostty.git "$src"
+  zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+  [[ -n "$zigver" ]] || { echo "Ghostty source has no pinned .zig-version" >&2; exit 2; }
+  venv="$OUT/zig-venv"
+  python3 -m venv "$venv"
+  "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
+  (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
+  install -D -m 0755 "$src/zig-out/bin/ghostty" "$ROOTFS/usr/local/bin/ghostty"
+}
+build_contour() {
+  require cmake; require ninja
+  local src="$OUT/src/contour"
+  git clone --depth 1 https://github.com/contour-terminal/contour.git "$src"
+  cmake -S "$src" -B "$src/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+  cmake --build "$src/build" --parallel "${JOBS:-2}"
+  cmake --install "$src/build" --prefix "$OUT/stage/usr/local"
+  local binary
+  binary="$(find "$OUT/stage/usr/local" "$src/build" -type f -name contour -perm -111 -print -quit)"
+  [[ -n "$binary" ]] || { echo "Contour build produced no executable" >&2; exit 2; }
+  install -D -m 0755 "$binary" "$ROOTFS/usr/local/bin/contour"
+}
+tmp="$OUT/providers-built.tsv"
+: > "$tmp"
+while IFS='|' read -r package binary status; do
+  [[ -n "$binary" ]] || continue
+  case "$binary" in
+    yash) build_yash ;;
+    nu) build_nushell ;;
+    wezterm) build_wezterm ;;
+    ghostty) build_ghostty ;;
+    contour) build_contour ;;
+    *) echo "No genuine source-build recipe for missing provider $package ($binary): $status" >&2; exit 2 ;;
+  esac
+  test -x "$ROOTFS/usr/local/bin/$binary" || { echo "Source build did not install $binary" >&2; exit 2; }
+  case "$binary" in
+    yash) commit="$(git -C "$OUT/src/yash" rev-parse HEAD)" ;;
+    nu) commit="$(git -C "$OUT/src/nushell" rev-parse HEAD)" ;;
+    wezterm) commit="$(git -C "$OUT/src/wezterm" rev-parse HEAD)" ;;
+    ghostty) commit="$(git -C "$OUT/src/ghostty" rev-parse HEAD)" ;;
+    contour) commit="$(git -C "$OUT/src/contour" rev-parse HEAD)" ;;
+  esac
+  printf '%s|%s|source-built|%s\n' "$package" "$binary" "$commit" >> "$tmp"
+done < "$MISSING"
+cat "$tmp" >> "$INSTALLED"
+: > "$MISSING"
+sha256sum "$INSTALLED" "$tmp" > "$ROOTFS/usr/share/chimera/aurora/terminal-shell-build.SHA256SUMS"
+echo "Source-built missing shell and terminal providers; verified executable files and recorded upstream commits."
