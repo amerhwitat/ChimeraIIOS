@@ -20,6 +20,7 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[2])
     ap.add_argument("--busybox",type=Path,required=True)
+    ap.add_argument("--native-matrix",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     args=ap.parse_args()
     root=args.root.resolve()
@@ -56,7 +57,7 @@ def main():
         else:
             row.update(provider="compatibility-provider-required",path=None)
         row["platforms"].sort()
-    matrix_path=root/"build/native-command-isa/manifest.json"
+    matrix_path=args.native_matrix or (root/"build/native-command-isa/manifest.json")
     native_matrix=None
     native_targets={}
     if matrix_path.exists():
