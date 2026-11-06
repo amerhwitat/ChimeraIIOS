@@ -11,6 +11,11 @@ on:
       - "scripts/import-aurora-shell-suite.sh"
       - "tools/terminals/**"
       - "live-image/verify-terminal-shell-suite.sh"
+      - "live-image/build.sh"
+      - "tools/commands/install-command-providers.sh"
+      - "tools/commands/generate_runtime_manifest.py"
+      - "tools/commands/verify-command-provider-coverage.py"
+      - "system/terminal/shell_adapters.json"
       - ".github/workflows/terminal-shell-provider-ci.yml"
   push:
     branches: [main]
@@ -22,6 +27,11 @@ on:
       - "scripts/import-aurora-shell-suite.sh"
       - "tools/terminals/**"
       - "live-image/verify-terminal-shell-suite.sh"
+      - "live-image/build.sh"
+      - "tools/commands/install-command-providers.sh"
+      - "tools/commands/generate_runtime_manifest.py"
+      - "tools/commands/verify-command-provider-coverage.py"
+      - "system/terminal/shell_adapters.json"
       - ".github/workflows/terminal-shell-provider-ci.yml"
 
 permissions:
@@ -36,14 +46,14 @@ jobs:
       - name: Install source build toolchains and libraries
         run: |
           sudo apt-get update
-          sudo apt-get install --yes build-essential autoconf automake bison flex gettext git curl pkg-config cmake ninja-build meson cargo rustc golang-go zig libncurses-dev libreadline-dev libpcre2-dev libssl-dev libicu-dev libx11-dev libxext-dev libxrender-dev libxft-dev libxcb1-dev libxkbcommon-dev libxkbcommon-x11-dev libwayland-dev libfreetype6-dev libfontconfig1-dev libgtk-3-dev libvte-2.91-dev libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev
+          sudo apt-get install --yes build-essential autoconf automake bison flex gettext git curl pkg-config cmake ninja-build meson cargo rustc golang-go zig libncurses-dev libreadline-dev libpcre2-dev libssl-dev libicu-dev libx11-dev libxext-dev libxrender-dev libxft-dev libxcb1-dev libxkbcommon-dev libxkbcommon-x11-dev libwayland-dev libfreetype6-dev libfontconfig1-dev libgtk-3-dev libvte-2.91-dev libvte-2.91-gtk4-dev libgtk-4-dev libadwaita-1-dev python3-venv libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev qt6-base-dev qt6-declarative-dev libqt6svg6-dev libqt6shadertools6-dev libyaml-cpp-dev libutf8proc-dev
       - name: Compile open-source shells and terminal emulators, then stage signed package fallbacks
         env:
           CHIMERA_ROOTFS_DIR: ${{ runner.temp }}/terminal-shell-rootfs
           CHIMERA_BUILD_DIR: ${{ runner.temp }}/terminal-shell-build
           CHIMERA_TERMINAL_MODE: source-first
           CHIMERA_SHELL_MODE: source-first
-          CHIMERA_TERMINAL_REQUIRE_ALL: "0"
+          CHIMERA_TERMINAL_REQUIRE_ALL: "1"
           CHIMERA_TARGET_ARCH: x86_64
         run: |
           set -euo pipefail
@@ -60,7 +70,10 @@ jobs:
           assert len(d["entries"]) == 28
           assert sum(x["kind"] == "shell" for x in d["entries"]) == 8
           assert sum(x["kind"] == "terminal" for x in d["entries"]) == 20
-          print("Verified provider entries:", sum(x["status"] == "verified-elf-provider" for x in d["entries"]), "/ 28")
+          verified=sum(x["status"] == "verified-elf-provider" for x in d["entries"])
+          assert verified == 28, [x for x in d["entries"] if x["status"] != "verified-elf-provider"]
+          assert all(x["runtime_status"] in ("shell-command-smoke-pass", "version-smoke-pass") for x in d["entries"])
+          print("Verified and smoke-tested providers:", verified, "/ 28")
           for x in d["entries"]:
               print(x["id"], x["status"], x["runtime_status"], x.get("elf_machine",""))
           PY
