@@ -72,6 +72,9 @@ cmake --version | head -n1
 gcc --version | head -n1
 g++ --version | head -n1
 python3 --version
+say CHECK "Generating the full command capability catalogue"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$ROOT/system/commands/command-runtime-capabilities.json" >/dev/null
 say CHECK "Validating application catalog"
 python3 - "$ROOT/applications/catalog.json" "$ROOT" <<'PY'
 import json,sys
