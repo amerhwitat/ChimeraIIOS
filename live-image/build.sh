@@ -217,6 +217,25 @@ GTK
 cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$WORK/usr/share/chimera/aurora/"
 cp -a "$REPO_DIR/desktop/aurora/icons/icon_theme.json" "$WORK/usr/share/chimera/aurora/icons/"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+# Ship the complete 133-icon original artwork sprite and native hicolor icon files.
+mkdir -p "$PAY/desktop/app-icons"
+cp -f "$REPO_DIR/desktop/app-icons/catalog.svg" "$PAY/desktop/app-icons/catalog.svg"
+cp -f "$REPO_DIR/desktop/app-icons/manifest.json" "$PAY/desktop/app-icons/manifest.json"
+python3 "$REPO_DIR/tools/aurora/export-app-icon-theme.py" \
+  --sprite "$REPO_DIR/desktop/app-icons/catalog.svg" \
+  --manifest "$REPO_DIR/desktop/app-icons/manifest.json" \
+  --output "$WORK/usr/share/icons/hicolor/scalable/apps"
+cat > "$WORK/usr/share/icons/hicolor/index.theme" <<'THEME'
+[Icon Theme]
+Name=hicolor
+Comment=Fallback icon theme with Chimera Aurora app artwork
+Directories=scalable/apps
+[scalable/apps]
+Size=64
+Type=Scalable
+MinSize=16
+MaxSize=256
+THEME
 
 # Publish desktop launchers only for executables actually present in this rootfs.
 CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/aurora/terminals/install-desktop-entries.sh"
