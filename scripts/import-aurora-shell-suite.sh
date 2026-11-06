@@ -94,4 +94,12 @@ build_source mksh https://github.com/MirBSD/mksh.git || log "mksh source build u
 build_source elvish https://github.com/elves/elvish.git || log "Elvish source build unavailable; keeping system/package Elvish"
 build_source nushell https://github.com/nushell/nushell.git || log "Nushell source build unavailable; keeping system/package Nushell"
 build_source yash https://github.com/magicant/yash.git || log "Yash source build unavailable; keeping system/package Yash"
+# Do not let an unavailable package or failed source build masquerade as a
+# complete shell registry. Verify every registered shell against the target ELF.
+for item in "bash:bash" "zsh:zsh" "fish:fish" "dash:dash" "mksh:mksh" \
+            "elvish:elvish" "nushell:nu" "yash:yash"; do
+  id="${item%%:*}"; binary="${item#*:}"
+  copy_if_present "$binary" || { log "REQUIRED SHELL PROVIDER MISSING: $id ($binary)"; exit 2; }
+done
+log "All 8 registered shell providers are present and target-architecture verified."
 log "Shell registry staged at $PREFIX/share/chimera/aurora/shells/registry.json"
