@@ -41,6 +41,12 @@ build_nushell() {
   (cd "$src" && cargo build --release --locked)
   install -D -m 0755 "$src/target/release/nu" "$ROOTFS/usr/local/bin/nu"
 }
+build_elvish() {
+  require go
+  local src="$OUT/src/elvish"
+  git clone --depth 1 https://github.com/elves/elvish.git "$src"
+  (cd "$src" && go build -trimpath -o "$ROOTFS/usr/local/bin/elvish" ./cmd/elvish)
+}
 build_wezterm() {
   require cargo
   local src="$OUT/src/wezterm"
@@ -79,6 +85,7 @@ while IFS='|' read -r package binary status; do
   case "$binary" in
     yash) build_yash ;;
     nu) build_nushell ;;
+    elvish) build_elvish ;;
     wezterm) build_wezterm ;;
     ghostty) build_ghostty ;;
     contour) build_contour ;;
@@ -89,6 +96,7 @@ while IFS='|' read -r package binary status; do
   case "$binary" in
     yash) commit="$(git -C "$OUT/src/yash" rev-parse HEAD)" ;;
     nu) commit="$(git -C "$OUT/src/nushell" rev-parse HEAD)" ;;
+    elvish) commit="$(git -C "$OUT/src/elvish" rev-parse HEAD)" ;;
     wezterm) commit="$(git -C "$OUT/src/wezterm" rev-parse HEAD)" ;;
     ghostty) commit="$(git -C "$OUT/src/ghostty" rev-parse HEAD)" ;;
     contour) commit="$(git -C "$OUT/src/contour" rev-parse HEAD)" ;;
@@ -96,6 +104,7 @@ while IFS='|' read -r package binary status; do
   case "$binary" in
     yash) srcdir="$OUT/src/yash" ;;
     nu) srcdir="$OUT/src/nushell" ;;
+    elvish) srcdir="$OUT/src/elvish" ;;
     wezterm) srcdir="$OUT/src/wezterm" ;;
     ghostty) srcdir="$OUT/src/ghostty" ;;
     contour) srcdir="$OUT/src/contour" ;;
