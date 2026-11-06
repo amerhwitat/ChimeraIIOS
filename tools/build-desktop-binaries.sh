@@ -38,6 +38,7 @@ done
 if [[ -f "$ROOT/desktop/aurora/icons/chimera_icons.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/desktop/aurora/icons" -c "$ROOT/desktop/aurora/icons/chimera_icons.cpp" -o "$OUT/chimera_icons.o"
 fi
+python3 "$ROOT/tools/aurora/export-icon-theme.py" --source "$ROOT/desktop/aurora/icons/chimera_icons.cpp" --output "$OUT/share/icons/chimera-aurora"
 if [[ -f "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/neural/cpp" "$ROOT/desktop/aurora/apps/chimera_neural_chat.cpp" -o "$OUT/bin/chimera-neural-chat"
 fi
@@ -70,7 +71,7 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
   "native_objects": ["aurora_input.o","aurora_input_router.o","aurora_locale.o","aurora_utf.o","aurora_emoji.o","chimera_icons.o"],
   "source_tree": "aurora-source",
   "internationalization": ["UTF-8","Unicode","BCP-47","CLDR-oriented","RTL","LTR","combining-marks","variation-selectors","emoji","logical-start-end"],
-  "icons": {"provider":"native","fallback":"hardcoded-svg","emoji":true},
+  "icons": {"provider":"native","fallback":"hardcoded-svg","theme":"share/icons/chimera-aurora","emoji":true},
   "personalities": ["chimera","linux","unix","windows","macos","bsd"],
   "input": ["mouse","keyboard","touch","tablet","HID","IME","context-menu"],
   "note": "Compatibility personalities are clean-room models; no proprietary Windows or macOS implementation is copied."
