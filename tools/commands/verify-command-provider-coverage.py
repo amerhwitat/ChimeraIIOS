@@ -42,12 +42,17 @@ for item in caps.get("commands",[]):
     if mode=="language-feature":
         status="not-a-standalone-executable"
     elif mode=="native":
-        binary=executable("chimera-cmd")
-        if binary:
-            status="native-multicall-binary-present"
+        # The /usr/bin/chimera-cmd compatibility shim is a script and is NOT
+        # evidence that the C multicall implementation was built. Require the
+        # target ELF plus the per-command symlink used to select argv[0].
+        native_binary=ROOTFS/"usr/lib/chimera/chimera-cmd.native"
+        entry=ROOTFS/"usr/lib/chimera/native-bin"/name
+        if (native_binary.is_file() and os.access(native_binary,os.X_OK)
+                and entry.is_symlink() and entry.resolve()==native_binary.resolve()):
+            binary=native_binary
+            status="native-multicall-elf-and-entrypoint-present"
         else:
-            binary=executable(name)
-            status="external-provider-binary-present-native-implementation-not-staged" if binary else "native-implementation-not-staged"
+            status="native-implementation-not-staged"
     elif mode=="shell-builtin":
         binary=executable("bash") or executable("dash") or executable("sh")
         status="shell-runtime-present-builtin-not-separate-binary" if binary else "shell-runtime-missing"
