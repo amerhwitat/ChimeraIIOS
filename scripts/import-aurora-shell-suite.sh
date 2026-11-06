@@ -25,7 +25,7 @@ CACHE="${CHIMERA_SHELL_CACHE:-${ROOT}/build/shell-cache}"
 MODE="${CHIMERA_SHELL_MODE:-source-first}"
 mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/shells" "$CACHE"
 cp "$ROOT/aurora/shells/registry.json" "$PREFIX/share/chimera/aurora/shells/registry.json"
-log(){ printf '[AURORA-SHELL] %s\n' "$*"; }
+log(){ printf '[AURORA-SHELL] %s\n' "$*" >&2; }
 have(){ command -v "$1" >/dev/null 2>&1; }
 copy_if_present(){ local b="$1"; if have "$b"; then cp -L "$(command -v "$b")" "$PREFIX/bin/$b" 2>/dev/null || true; log "Imported existing $b"; return 0; fi; return 1; }
 clone(){ local id="$1" url="$2"; local src="$CACHE/src-$id"; if [[ ! -d "$src" ]]; then log "Cloning $id"; git clone --depth 1 "$url" "$src"; fi; printf '%s' "$src"; }
