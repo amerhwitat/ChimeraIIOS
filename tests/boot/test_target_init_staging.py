@@ -18,6 +18,7 @@ class TargetInitStagingTests(unittest.TestCase):
                 self.assertIn("target-init-$target.elf", content)
                 self.assertIn("boot/targets", content)
                 self.assertIn("Type:[[:space:]]+EXEC", content)
+                self.assertIn("readelf -lW", content)
 
     def test_canonical_grub_menu_requests_matching_init_modules(self):
         grub = (ROOT / "boot/iso/grub.cfg").read_text(encoding="utf-8")
