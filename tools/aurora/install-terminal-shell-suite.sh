@@ -11,7 +11,7 @@ chroot "$ROOTFS" /bin/sh -eu -c '
     pkg="$1"; bin="$2"
     if apt-cache show "$pkg" >/dev/null 2>&1; then
       if ! apt-get install -y --no-install-recommends "$pkg"; then
-        missing="${missing}${pkg}|${bin}|package-install-failed-source-build-required\\n"
+        missing="${missing}${pkg}|${bin}|package-install-failed-source-build-required\n"
         return 0
       fi
       if command -v "$bin" >/dev/null 2>&1; then
