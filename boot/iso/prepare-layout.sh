@@ -199,7 +199,6 @@ cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
 set timeout=120
 set timeout_style=menu
 set default=0
-set default=0
 insmod normal
 insmod gfxterm
 insmod png
