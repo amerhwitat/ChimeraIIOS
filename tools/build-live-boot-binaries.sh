@@ -59,6 +59,14 @@ done
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
+# Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
+while IFS= read -r applet; do
+  [[ -n "$applet" ]] || continue
+  [[ "$applet" == */* ]] && continue
+  ln -sf busybox "$INIT/bin/$applet"
+done < <("$BUSYBOX" --list)
+# Keep compatibility aliases required by the init scripts even if a BusyBox
+# build omits an optional applet.
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
