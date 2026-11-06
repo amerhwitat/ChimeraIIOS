@@ -4,7 +4,8 @@ if [[ "$(id -u)" -ne 0 ]]; then echo "must run as root (inside the target rootfs
 command -v apt-get >/dev/null && command -v apt-cache >/dev/null || { echo "APT is required for this provider installer" >&2; exit 2; }
 declare -a candidates=(
   # POSIX and Linux command providers
-  bash coreutils findutils grep sed gawk mawk diffutils patch util-linux procps psmisc
+  hicolor-icon-theme coreutils findutils grep sed gawk mawk diffutils patch util-linux procps psmisc
+  bash
   busybox-static file less nano vim-tiny tree bc bsdextrautils debianutils
   iproute2 iputils-ping net-tools dnsutils curl wget openssh-client rsync
   lsof strace screen tmux whois traceroute mtr-tiny jq sqlite3 git
@@ -15,7 +16,7 @@ declare -a candidates=(
   # Open-source terminal emulators from the Aurora terminal registry
   xterm gnome-terminal konsole xfce4-terminal foot kitty alacritty wezterm ghostty contour-terminal
   # Multi-architecture user/system emulation providers for the ISA catalogue
-  qemu-user-static qemu-system-x86 qemu-system-arm qemu-system-mips
+  qemu-user-static qemu-user qemu-system-x86 qemu-system-arm qemu-system-mips
   qemu-system-ppc qemu-system-misc
 )
 declare -a available=() missing=()
