@@ -3,8 +3,8 @@
 | Field | Value |
 | --- | --- |
 | File | `chimera-ii-native-amd64.iso` |
-| Size | 192880640 bytes (183 MiB) |
-| SHA-256 | `725f4e84344b4a39028f2e5f0603842437ccc859bc6d45c1441328dade4526e0` |
+| Size | 193198080 bytes (184 MiB) |
+| SHA-256 | `c1ca781eb092f8ec6221be44de6cf0ed5331690c4c2a8f2f693995c15fdf2312` |
 | Kernel | Koronos (Multiboot2 ELF64) + 373-entry embedded knowledge database |
 | Boot | GRUB 2.12 hybrid BIOS + UEFI, menu waits 300 s for input |
 | Targets | Live, Installer, Recovery (ring-3 init each) |
