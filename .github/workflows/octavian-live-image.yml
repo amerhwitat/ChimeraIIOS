@@ -120,8 +120,11 @@ jobs:
           t=json.loads((r/"usr/share/chimera/aurora/terminal-shell-provider-audit.json").read_text())
           i=json.loads((r/"usr/share/chimera/catalogs/isa-emulator-provider-audit.json").read_text())
           assert c["unique_command_names"] == 853, c["unique_command_names"]
-          assert len(t["entries"]) == 18, len(t["entries"])
+          assert c["namespaces"]["linux_bash"]["provider_present"] == 301, c["namespaces"]["linux_bash"]
+          assert t["summary"]["terminal"]["verified_elf"] == 10, t["summary"]["terminal"]
+          assert t["summary"]["shell"]["verified_elf"] == 8, t["summary"]["shell"]
           assert i["catalogued_families"] == 11
+          assert sum(x["status"].startswith("emulator-binary-present") for x in i["families"]) == 11, i["families"]
           print("Audits enumerated all catalogue entries; missing providers remain explicit.")
           PY
           cp "$iso" "$OUT_DIR/octavian-os-live-desktop-fixed.iso"
