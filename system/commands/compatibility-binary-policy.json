@@ -47,7 +47,15 @@
     "source": "src/chimera-command-compat/chimera-cmd.c",
     "compiler": "CC environment override, otherwise cc/gcc/clang",
     "output": "rootfs/usr/bin/chimera-cmd",
-    "target_linux_abis": ["x86_64", "i686", "aarch64", "armv7", "riscv64", "ppc64le", "s390x"],
+    "target_linux_abis": [
+      "x86_64",
+      "i686",
+      "aarch64",
+      "armv7",
+      "riscv64",
+      "ppc64le",
+      "s390x"
+    ],
     "multicall_aliases": [
       "pwd",
       "echo",
@@ -65,7 +73,9 @@
       "true",
       "false"
     ],
-    "policy": "Only commands implemented in the native source are marked native. Other catalogued commands must resolve to a staged provider or remain explicitly unavailable; catalog membership never implies an executable exists."
+    "policy": "Only commands implemented in the native source are marked native. Other catalogued commands must resolve to a staged provider or remain explicitly unavailable; catalog membership never implies an executable exists.",
+    "artifact_abi": "Linux userspace ELF; not executable by Koronos until a compatible Linux syscall layer is implemented.",
+    "target_scope": "Seven Linux userspace ABI cross-build candidates with native/QEMU-user smoke tests; not seven Koronos kernel ports."
   },
   "isa_execution": {
     "catalog_source": "isa/catalog.json",
