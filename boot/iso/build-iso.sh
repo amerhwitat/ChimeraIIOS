@@ -129,7 +129,7 @@ PY
 
 # Stage the AI knowledge database. The kernel classifies it as
 # CHIMERA_MODULE_AI_KNOWLEDGE_DB and reports its entry count on the boot trace.
-printf '%s\n' '[3c/7] Stage AI knowledge database'
+printf '%s\n' '[3d/7] Stage AI knowledge database'
 KB_SRC="$ROOT/config/ai/knowledge-db.json"
 test -s "$KB_SRC" || { echo "ERROR: knowledge database missing: $KB_SRC (run tools/ai/knowledge_db.py build)" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/ai"
