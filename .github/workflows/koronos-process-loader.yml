@@ -4,6 +4,16 @@ on:
   push:
     branches: [main]
     paths:
+      - 'kernel/core/syscall.cpp'
+      - 'kernel/core/compat.cpp'
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/target_launch.cpp'
+      - 'kernel/include/chimera/compat.h'
+      - 'kernel/include/chimera/syscall.h'
+      - 'kernel/include/chimera/target_launch.h'
+      - 'kernel/targets/**'
+      - 'kernel/tests/user_init_smoke.c'
+      - 'tests/kernel/compat_syscall_translation_test.cpp'
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
@@ -16,6 +26,16 @@ on:
       - '.github/workflows/koronos-process-loader.yml'
   pull_request:
     paths:
+      - 'kernel/core/syscall.cpp'
+      - 'kernel/core/compat.cpp'
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/target_launch.cpp'
+      - 'kernel/include/chimera/compat.h'
+      - 'kernel/include/chimera/syscall.h'
+      - 'kernel/include/chimera/target_launch.h'
+      - 'kernel/targets/**'
+      - 'kernel/tests/user_init_smoke.c'
+      - 'tests/kernel/compat_syscall_translation_test.cpp'
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
@@ -41,6 +61,10 @@ jobs:
           /tmp/chimera-multiboot-modules-test
       - name: Test fail-closed userspace handoff marker verifier
         run: python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
+      - name: Test native versus Linux syscall ABI translation
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include tests/kernel/compat_syscall_translation_test.cpp kernel/core/compat.cpp -o /tmp/chimera-syscall-abi-test
+          /tmp/chimera-syscall-abi-test
       - name: Compile and validate freestanding Koronos
         run: |
           sudo apt-get update
