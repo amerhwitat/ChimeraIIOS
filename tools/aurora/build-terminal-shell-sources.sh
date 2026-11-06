@@ -8,6 +8,24 @@ INSTALLED="$ROOTFS/usr/share/chimera/aurora/terminal-shell-installed.tsv"
 [[ -s "$MISSING" ]] || { echo "No source-build-required terminal/shell providers."; exit 0; }
 mkdir -p "$OUT/src" "$OUT/stage/usr/local/bin"
 require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing source-build dependency: $1" >&2; exit 2; }; }
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+verify_target_elf() {
+  local binary="$1" machine expected
+  require readelf
+  case "$TARGET_ARCH" in
+    x86_64|amd64) expected="Advanced Micro Devices X86-64" ;;
+    aarch64|arm64) expected="AArch64" ;;
+    armv7|armv7l|armhf) expected="ARM" ;;
+    riscv64) expected="RISC-V" ;;
+    i686|i386) expected="Intel 80386" ;;
+    *) echo "Unsupported CHIMERA_TARGET_ARCH=$TARGET_ARCH; refusing unverified provider" >&2; exit 2 ;;
+  esac
+  machine="$(readelf -h "$binary" | awk -F: '/^[[:space:]]*Machine:/ {sub(/^[[:space:]]+/, "", $2); print $2}')"
+  [[ -n "$machine" && "$machine" == *"$expected"* ]] || {
+    echo "Provider architecture mismatch: $binary target=$TARGET_ARCH ELF machine=${machine:-unknown}" >&2
+    exit 2
+  }
+}
 require git
 build_yash() {
   require make
@@ -67,6 +85,7 @@ while IFS='|' read -r package binary status; do
     *) echo "No genuine source-build recipe for missing provider $package ($binary): $status" >&2; exit 2 ;;
   esac
   test -x "$ROOTFS/usr/local/bin/$binary" || { echo "Source build did not install $binary" >&2; exit 2; }
+  verify_target_elf "$ROOTFS/usr/local/bin/$binary"
   case "$binary" in
     yash) commit="$(git -C "$OUT/src/yash" rev-parse HEAD)" ;;
     nu) commit="$(git -C "$OUT/src/nushell" rev-parse HEAD)" ;;
