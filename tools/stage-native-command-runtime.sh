@@ -38,7 +38,13 @@ if [ -z "$command" ]; then
   exit 2
 fi
 shift
-exec "/usr/lib/chimera/native-bin/$command" "$@"
+prefix="${CHIMERA_ROOT_PREFIX:-}"
+if [ -n "$prefix" ]; then
+  native_bin="$prefix/usr/lib/chimera/native-bin"
+else
+  native_bin="/usr/lib/chimera/native-bin"
+fi
+exec "$native_bin/$command" "$@"
 WRAPPER
 chmod 0755 "$DEST_ROOT/usr/bin/chimera-native"
 if [[ "$(readlink -f "$DEST_ROOT/bin")" != "$(readlink -f "$DEST_ROOT/usr/bin")" ]]; then
@@ -77,6 +83,7 @@ DISPATCH
 fi
 
 "$NATIVE_BIN/echo" "Chimera native command runtime staged" >/dev/null
+CHIMERA_ROOT_PREFIX="$DEST_ROOT" "$DEST_ROOT/usr/bin/chimera-native" echo "Chimera native wrapper staged" >/dev/null
 printf 'CHIMERA_NATIVE_COMMANDS=%s\nCHIMERA_COMMAND_LINK_MODE=%s\nCHIMERA_DISPATCHER=%s\n' \
   "${#NATIVE_COMMANDS[@]}" "${CHIMERA_COMMAND_LINK_MODE:-dynamic}" "${CHIMERA_INSTALL_DISPATCHER:-1}" \
   > "$DEST_ROOT/usr/share/chimera/runtime-stage.env"
