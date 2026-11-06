@@ -1,4 +1,4 @@
-name: Native command cross-build matrix
+name: Linux ABI command cross-build matrix
 on:
   push:
     paths:
@@ -38,7 +38,7 @@ jobs:
       - name: Upload target command binaries and machine-verification manifest
         uses: actions/upload-artifact@v4
         with:
-          name: native-command-binaries-seven-linux-abis
+          name: linux-abi-command-binaries-seven-targets
           path: build/native-command-isa/
           if-no-files-found: error
           retention-days: 30
