@@ -149,6 +149,7 @@ for spec in \
 done
 
 bash "$ROOT/tools/generate-aurora-media.sh" "$OUT"
+python3 "$ROOT/tools/aurora/export-icon-theme.py" --source "$ROOT/desktop/aurora/icons/chimera_icons.cpp" --output "$OUT/icons/chimera-aurora"
 
 cat > "$OUT/progress/stages.json" <<'EOF'
 {"schema":"CHIMERA-AURORA-PROGRESS-2","visual_contract":"aurora-progress-v2","stages":[
@@ -170,6 +171,6 @@ cat > "$OUT/progress/style.json" <<'EOF'
 {"schema":"CHIMERA-AURORA-PROGRESS-2","style":"glass-neon","height_px":14,"radius_px":7,"track_alpha":0.24,"fill_alpha":0.94,"glow":true,"indeterminate":false,"show_percent":true,"show_stage":true,"bilingual":true,"animation_ms":420}
 EOF
 cat > "$OUT/manifest.json" <<EOF
-{"schema":"CHIMERA-AURORA-MEDIA-3","init_video":"Init.mp4","progress_state":"progress/state.json","progress_stages":"progress/stages.json","progress_style":"progress/style.json","artwork_generated_fallback":true,"assets":{"boot":"backgrounds/boot.png","desktop":"backgrounds/desktop.png","showcase":"backgrounds/showcase.png","menus":"menus/default.png","splash":"splash/aurora-splash.png","installer":"installer/aurora-installer.png","recovery":"recovery/aurora-recovery.png","diagnostics":"diagnostics/aurora-diagnostics.png","live":"live/aurora-live.png","mobile":"mobile/aurora-mobile.png"}}
+{"schema":"CHIMERA-AURORA-MEDIA-3","init_video":"Init.mp4","progress_state":"progress/state.json","progress_stages":"progress/stages.json","progress_style":"progress/style.json","artwork_generated_fallback":true,"assets":{"icons":"icons/chimera-aurora","boot":"backgrounds/boot.png","desktop":"backgrounds/desktop.png","showcase":"backgrounds/showcase.png","menus":"menus/default.png","splash":"splash/aurora-splash.png","installer":"installer/aurora-installer.png","recovery":"recovery/aurora-recovery.png","diagnostics":"diagnostics/aurora-diagnostics.png","live":"live/aurora-live.png","mobile":"mobile/aurora-mobile.png"}}
 EOF
 printf '[INFO] Aurora visual assets generated in %s\n' "$OUT"
