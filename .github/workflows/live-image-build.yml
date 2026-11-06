@@ -103,7 +103,9 @@ jobs:
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
-          unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
+          # SquashFS stores security.capability xattrs for privileged executables.
+          # Extract as root so the acceptance check validates the actual image metadata.
+          sudo unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
           test -x "$root/usr/bin/openbox"
           test -x "$root/usr/bin/xprop"
