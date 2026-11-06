@@ -196,7 +196,8 @@ cp "$ROOT/boot/livecd/live-manifest.json" "$DIST/boot/live-manifest.json"
 if [[ -d "$ROOT/build/live-boot/boot/live" ]]; then cp -a "$ROOT/build/live-boot/boot/live" "$DIST/boot/"; fi
 
 cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
-set timeout=5
+set timeout=60
+set timeout_style=menu
 set default=0
 insmod normal
 insmod gfxterm
