@@ -91,7 +91,7 @@ install(PROGRAMS tools/build-emulator-stack.sh DESTINATION bin)
 # Aurora native emulator window runtime. These launchers are installed into the
 # same userspace tree consumed by aurora-session.sh so Jasper-selected emulators
 # cannot fall back to headless/background execution.
-install(PROGRAMS desktop/aurora/aurora-session.sh DESTINATION share/chimera/aurora)
+install(PROGRAMS desktop/aurora/aurora-session.sh desktop/aurora/aurora-session-select.sh DESTINATION share/chimera/aurora)
 install(PROGRAMS
   aurora/emulators/bin/aurora-emulator-window.sh
   aurora/emulators/bin/launch-retro.sh
