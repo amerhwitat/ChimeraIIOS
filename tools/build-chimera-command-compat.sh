@@ -179,9 +179,9 @@ backup_once() {
 
 # Compile one real multicall executable. Command names are symlinks to this
 # binary; unimplemented names remain compatibility-provider lookups.
-"$CHIMERA_CC" -std=c11 -O2 -Wall -Wextra -Werror "$SRC/chimera-cmd.c" -o $NATIVE_BIN/chimera-cmd
+"$CHIMERA_CC" -std=c11 -O2 -Wall -Wextra -Werror "$SRC/chimera-cmd.c" -o "$NATIVE_BIN/chimera-cmd"
 
-chmod 0755 $NATIVE_BIN/chimera-cmd
+chmod 0755 "$NATIVE_BIN/chimera-cmd"
 
 ###############################################################################
 # 3. Install native command names
@@ -901,7 +901,7 @@ bash -n "$OUT/etc/profile.d/chimera-command-compat.sh"
 
 log "Testing native command binary..."
 
-$NATIVE_BIN/chimera-cmd
+"$NATIVE_BIN/chimera-cmd"
 
 for command in "${NATIVE_COMMANDS[@]}"; do
     [[ -x "$NATIVE_BIN/$command" ]] || die \
