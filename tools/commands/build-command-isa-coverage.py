@@ -94,8 +94,9 @@ def main():
             built=[arch for arch,entry in native_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
             row["native_binary_targets"]=sorted(built)
             row["native_runtime_status"]=native_targets.get(built[0],{}).get("runtime_status","cross-build-only") if built else "not-built-or-not-verified"
+            row["native_koronos_status"]="not-tested-koronos-abi"
             if "linux-bash" not in row["platforms"]:
-                row["provider"]="native-multicall-crossbuilt" if built else row["provider"]
+                row["provider"]="linux-abi-multicall-crossbuilt" if built else row["provider"]
                 row["path"]=None
 
     csv_path=root/"ISA.csv"
@@ -145,7 +146,7 @@ def main():
       "catalogued_command_count":len(command_rows),
       "commands":command_rows,
       "command_summary":counts,
-      "native_command_build_matrix":native_matrix or {"status":"not-run","targets":[]},
+      "linux_abi_command_build_matrix":native_matrix or {"status":"not-run","targets":[]},
       "isa_source":"ISA.csv",
       "isa_architectures":matrix,
       "isa_candidate_definition_count":candidate_count,
