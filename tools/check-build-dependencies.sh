@@ -31,7 +31,7 @@ declare -a REQUIRED_COMMANDS=(
   bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
-  aarch64-linux-gnu-gcc riscv64-linux-gnu-gcc
+  i686-linux-gnu-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc
   unsquashfs mksquashfs rsvg-convert nasm
 )
 
@@ -45,7 +45,9 @@ declare -A COMMAND_PACKAGE=(
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
   [mcopy]=mtools [mformat]=mtools [grub-mkimage]=grub-common
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
-  [aarch64-linux-gnu-gcc]=gcc-aarch64-linux-gnu [riscv64-linux-gnu-gcc]=gcc-riscv64-linux-gnu
+  [i686-linux-gnu-gcc]=gcc-i686-linux-gnu [aarch64-linux-gnu-gcc]=gcc-aarch64-linux-gnu
+  [arm-linux-gnueabihf-gcc]=gcc-arm-linux-gnueabihf [riscv64-linux-gnu-gcc]=gcc-riscv64-linux-gnu
+  [powerpc64le-linux-gnu-gcc]=gcc-powerpc64le-linux-gnu [s390x-linux-gnu-gcc]=gcc-s390x-linux-gnu
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
 )
 
@@ -54,7 +56,7 @@ declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ make cmake ninja-build pkg-config
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox-static
-  gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+  gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
