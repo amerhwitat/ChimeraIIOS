@@ -111,7 +111,7 @@ jobs:
           test -s "$root/opt/aurora/application-bundle.json"
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
-          grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
+          grep -Fq 'Openbox ready' "$root/usr/local/bin/aurora-session"
           python3 - "$root/opt/aurora" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
