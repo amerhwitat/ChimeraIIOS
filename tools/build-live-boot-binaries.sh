@@ -78,6 +78,7 @@ install -d "$INIT/etc/chimera/catalogs"
 for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
   if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"; fi
 done
+bash "$ROOT/tools/commands/install-busybox-applets.sh" "$INIT"
 python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
   --root "$ROOT" --busybox "$BUSYBOX" --rootfs "$INIT" \
   --output "$INIT/etc/chimera/catalogs/command-isa-coverage.json"
