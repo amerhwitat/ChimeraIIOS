@@ -59,9 +59,9 @@ def main():
         require(p.is_file(),f"boot menu source missing: {rel}")
         text=p.read_text(errors="replace")
         require("menuentry" in text,f"boot menu has no selectable entries: {rel}")
-        timeout=re.search(r"(?m)^\\s*set timeout=(\\d+)\\s*$",text)
-        require(timeout is not None and int(timeout.group(1))>=60,f"boot menu timeout is too short or missing: {rel}")
-        require(re.search(r"(?m)^\\s*set timeout_style=menu\\s*$",text) is not None,f"boot menu must remain visible: {rel}")
+        settings=[line.strip() for line in text.splitlines()]
+        require("set timeout=60" in settings,f"boot menu timeout is too short or missing: {rel}")
+        require("set timeout_style=menu" in settings,f"boot menu must remain visible: {rel}")
     # Each stage's static progress contract must be monotonic; progress strings
     # may have textual substeps but cannot go backwards in the canonical map.
     values=[]
