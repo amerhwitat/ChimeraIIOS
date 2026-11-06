@@ -27,7 +27,7 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/a
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-TARGET_ARCH="\${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
 normalize_arch() {
   case "$1" in
     amd64|x86_64) printf x86_64 ;;
