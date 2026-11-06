@@ -63,14 +63,15 @@ jobs:
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils \
+            gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils \
             gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
 
       - name: Validate desktop source and application catalogs
         run: |
           set -euo pipefail
-          python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py tools/aurora/export-icon-theme.py tools/commands/build-command-isa-coverage.py tools/boot/verify-menu-timeouts.py
+          python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py tools/aurora/export-icon-theme.py tools/commands/build-command-isa-coverage.py tools/commands/build_native_command_matrix.py tools/boot/verify-menu-timeouts.py
           python3 tests/desktop/test_aurora_sound_contract.py
+          python3 tests/desktop/test_terminal_shell_suite_contract.py
           python3 tools/boot/verify-menu-timeouts.py --root .
           python3 tools/aurora/export-icon-theme.py --output "$RUNNER_TEMP/aurora-icon-export"
           python3 - "$RUNNER_TEMP/aurora-icon-export/manifest.json" <<'PY'
@@ -140,6 +141,9 @@ jobs:
           test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
           test -s "$root/usr/share/chimera/aurora/sounds/menu-select.wav"
           test -s "$root/etc/systemd/system/aurora-startup-sound.service"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-source-required.tsv"
+          while IFS='|' read -r pkg bin; do test -x "$root/usr/bin/$bin" || test -x "$root/bin/$bin" || test -x "$root/usr/local/bin/$bin"; done < "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
           test -s "$root/opt/aurora/application-bundle.json"
           test -d "$root/opt/aurora/app-catalogs"
           test -d "$root/opt/aurora/apps/native/aurora"
@@ -184,7 +188,7 @@ jobs:
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
             gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 \
-            gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils
+            gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils
       - name: Validate shared Aurora runtime sources
         run: |
           set -euo pipefail
