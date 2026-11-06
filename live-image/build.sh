@@ -104,7 +104,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       libgbm1 libgl1-mesa-dri mesa-utils \
       openbox xterm feh \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
-      coreutils findutils grep sed gawk util-linux procps psmisc \
+      busybox-static coreutils findutils grep sed gawk util-linux procps psmisc \
       iproute2 iputils-ping net-tools dnsutils traceroute openssh-client \
       sudo login passwd file tree plocate lsof strace bc acl \
       ca-certificates curl wget less nano htop jq git rsync \
