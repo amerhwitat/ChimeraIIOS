@@ -116,6 +116,9 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       busybox-static coreutils findutils grep sed gawk util-linux procps psmisc \
       iproute2 iputils-ping net-tools dnsutils traceroute openssh-client \
       sudo login passwd file tree plocate lsof strace bc acl \
+      aptitude aspell at bsdextrautils dos2unix ddrescue iw mtr-tiny netcat-openbsd \
+      nftables pv ripgrep rename screen sharutils sysstat tmux unrar-free vim-tiny \
+      wl-clipboard xclip xxd zstd \
       ca-certificates curl wget less nano htop jq git rsync \
       tar gzip bzip2 xz-utils zip unzip man-db manpages \
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
