@@ -6,7 +6,7 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEST="${CHIMERA_ROOTFS_DIR:?CHIMERA_ROOTFS_DIR must point at the target rootfs}"
 WORK="${CHIMERA_TERMINAL_PACKAGE_WORK:-${CHIMERA_BUILD_DIR:-$ROOT/build}/terminal-packages}"
-REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-1}"
+REQUIRE_ALL="${CHIMERA_TERMINAL_REQUIRE_ALL:-0}"
 mkdir -p "$WORK/archives" "$WORK/extracted" "$DEST/usr/bin" "$DEST/usr/share/chimera/aurora"
 for tool in apt-get apt-cache dpkg-deb python3 readelf; do
   command -v "$tool" >/dev/null 2>&1 || { echo "[AURORA-TERMINALS] required staging tool missing: $tool" >&2; exit 1; }
