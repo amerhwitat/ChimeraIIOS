@@ -140,6 +140,22 @@ test -x "$WORK/usr/bin/chimera-native" || { echo "ERROR: native command launcher
 test -x "$WORK/usr/bin/chimera" || { echo "ERROR: compatibility dispatcher was not staged" >&2; exit 2; }
 test -s "$WORK/usr/share/chimera/commands/catalogs/chimera-command-list.json" || { echo "ERROR: command catalogue was not staged" >&2; exit 2; }
 test -s "$WORK/usr/share/chimera/isa/generated/universal-instruction-catalog.json" || { echo "ERROR: universal ISA catalogue was not staged" >&2; exit 2; }
+if [ "${INSTALL_COMMAND_PROVIDERS:-1}" = "1" ]; then
+  provider_installer="$COMMAND_SOURCE/tools/commands/install-command-providers.sh"
+  [ -s "$provider_installer" ] || { echo "ERROR: command provider installer missing: $provider_installer" >&2; exit 2; }
+  install -Dm0755 "$provider_installer" "$WORK/usr/local/sbin/chimera-install-command-providers.sh"
+  provider_log="$BUILD/command-provider-install-$ED.log"
+  mkdir -p "$(dirname "$provider_log")"
+  log "installing Linux command providers from the SS64 compatibility catalogue"
+  mount_chroot "$WORK"
+  if ! DEBIAN_FRONTEND=noninteractive chroot "$WORK" /bin/bash /usr/local/sbin/chimera-install-command-providers.sh >"$provider_log" 2>&1; then
+    umount_chroot "$WORK"
+    echo "ERROR: command provider installation failed; see $provider_log" >&2
+    exit 2
+  fi
+  umount_chroot "$WORK"
+  cp -f "$provider_log" "$WORK/usr/share/chimera/commands/provider-install-report.txt"
+fi
 if [ -L "$WORK/usr/bin/ls" ] && [ "$(readlink "$WORK/usr/bin/ls")" = "chimera-cmd" ]; then echo "ERROR: native staging replaced the system ls provider" >&2; exit 2; fi
 
 # ------------------------------------------------------------- payload
