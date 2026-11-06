@@ -5,6 +5,9 @@
     "capability_catalog": "system/commands/command-runtime-capabilities.json",
     "policy": "system/commands/compatibility-binary-policy.json",
     "native_multicall_source": "src/chimera-command-compat/chimera-cmd.c",
+      "native_multicall_binary": "/usr/lib/chimera/chimera-cmd.native",
+      "native_multicall_entrypoints": "/usr/lib/chimera/native-bin",
+      "native_multicall_verification": "compiled ELF plus argv[0] symlinks and host smoke tests; never the /usr/bin/chimera-cmd compatibility script",
     "native_multicall_allowlist": [
       "pwd",
       "echo",
