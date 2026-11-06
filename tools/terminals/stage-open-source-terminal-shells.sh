@@ -69,7 +69,7 @@ rows=[
  ("sakura","terminal","sakura"),("terminology","terminal","terminology"),("lxterminal","terminal","lxterminal"),("blackbox-terminal","terminal","blackbox")]
 manifest=[]
 for ident,kind,binary in rows:
-    candidates=[dest/"usr/bin"/binary,dest/"bin"/binary]
+    candidates=[dest/"usr/local/bin"/binary,dest/"usr/bin"/binary,dest/"bin"/binary]
     path=next((p for p in candidates if p.is_file() and p.stat().st_mode&0o111),None)
     row={"id":ident,"kind":kind,"binary":binary,"status":"unavailable","runtime_status":"not-runtime-tested"}
     if path:
