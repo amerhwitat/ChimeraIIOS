@@ -31,11 +31,6 @@ if [[ "$(id -u)" -eq 0 ]]; then APT=(apt-get); else command -v sudo >/dev/null 2
 AVAILABLE=()
 for id in "${!APT_PACKAGE[@]}"; do
   pkg="${APT_PACKAGE[$id]}"
-  binary="${PACKAGE_BIN[$id]}"
-  if [[ -x "$DEST/usr/bin/$binary" || -x "$DEST/bin/$binary" ]]; then
-    echo "[AURORA-TERMINALS] source-built executable already staged: $id"
-    continue
-  fi
   candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}' || true)"
   if [[ -n "$candidate" && "$candidate" != "(none)" ]]; then
     AVAILABLE+=("$pkg")
