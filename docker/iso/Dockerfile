@@ -11,7 +11,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash ca-certificates git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
     grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin xorriso mtools dosfstools \
-    python3 python3-pytest python3-cairosvg qemu-system-x86 ovmf file cpio busybox-static librsvg2-bin rsync xz-utils gzip bzip2 zstd \
+    python3 python3-pytest python3-cairosvg qemu-system-x86 qemu-user-static ovmf file cpio busybox-static librsvg2-bin rsync xz-utils gzip bzip2 zstd \
+    gcc-i686-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu \
     ffmpeg imagemagick unzip \
     && rm -rf /var/lib/apt/lists/*
 
