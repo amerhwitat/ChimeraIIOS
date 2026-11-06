@@ -44,7 +44,7 @@ if [[ -n "$BB" ]]; then
     command -v "$applet" >/dev/null 2>&1 && continue
     ln -sfn "$BB" "$APPLET_DIR/$applet"
   done < <("$BB" --list)
-  printf 'export PATH=%s:$PATH\\n' "$APPLET_DIR" > /etc/profile.d/90-chimera-busybox-path.sh
+  printf 'export PATH=%s:$PATH\n' "$APPLET_DIR" > /etc/profile.d/90-chimera-busybox-path.sh
 fi
 mkdir -p /usr/share/chimera/runtime
 python3 - "${available[*]}" "${missing[*]}" "${busybox_applets[*]}" <<'PY'
