@@ -352,7 +352,7 @@ convert "$ART/wp03.jpg" -resize 1920x1080^ -gravity center -extent 1920x1080 \
 
 cat > "$ISODIR/boot/grub/grub.cfg" <<EOF
 set default=0
-set timeout=10
+set timeout=30
 insmod all_video
 insmod gfxterm
 insmod png
