@@ -120,7 +120,7 @@ done
 "$ROOT/tools/build-mobile-edition.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
 say BUILD "Cross-building Linux ABI Chimera command candidates for x86_64, AArch64 and RV64"
-python3 "$ROOT/tools/commands/build_native_command_matrix.py" \
+python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
   --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
   --output "$ROOT/build/native-command-isa" \
