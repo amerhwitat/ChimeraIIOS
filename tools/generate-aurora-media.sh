@@ -32,14 +32,16 @@ INIT_VIDEO="${CHIMERA_AURORA_INIT_VIDEO:-}"
 mkdir -p "$OUT/sounds" "$OUT/progress"
 
 if [ -z "$INIT_VIDEO" ]; then
+  # Order matters: the tracked repository asset is authoritative. Output/staging
+  # copies come last so stale build artefacts can never shadow the source video.
   for candidate in \
-    "$OUT/Init.mp4" \
-    "$ROOT/desktop/aurora/assets/library/Init.mp4" \
     "$ROOT/desktop/aurora/assets/Init.mp4" \
+    "$ROOT/desktop/aurora/assets/library/Init.mp4" \
+    "$ROOT/Init.mp4" \
     "$ROOT/build/aurora-media/Init.mp4" \
     "$ROOT/build/iso/usr/share/chimera/aurora/Init.mp4" \
     "$ROOT/boot/jasper/Init.mp4" \
-    "$ROOT/Init.mp4"; do
+    "$OUT/Init.mp4"; do
     if [ -s "$candidate" ]; then
       INIT_VIDEO="$candidate"
       break
