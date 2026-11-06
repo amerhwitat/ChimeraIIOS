@@ -115,7 +115,8 @@ RUN chmod +x $INSTALL_DIR/scripts/vmware-optimize.sh
 RUN cat > $INSTALL_DIR/scripts/grub-vmware.cfg << 'GRUB_VMWARE'
 # VMware-optimized GRUB configuration
 set default=0
-set timeout=5
+set timeout=60
+set timeout_style=menu
 
 # VMware CPU options
 set vmware_cpu_options="noacpi acpi=off nolapic noamd clocksource=tsc processor.ignore_ppc=1"
