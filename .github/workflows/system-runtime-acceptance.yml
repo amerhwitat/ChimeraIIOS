@@ -1,0 +1,233 @@
+name: Chimera System Runtime Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "CMakeLists.txt"
+      - "cmake/**"
+      - "kernel/**"
+      - "boot/**"
+      - "userland/**"
+      - "desktop/**"
+      - "installer/**"
+      - "architecture/**"
+      - "tools/build-koronos-targets.sh"
+      - "tools/build-desktop-binaries.sh"
+      - ".github/workflows/system-runtime-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "CMakeLists.txt"
+      - "cmake/**"
+      - "kernel/**"
+      - "boot/**"
+      - "userland/**"
+      - "desktop/**"
+      - "installer/**"
+      - "architecture/**"
+      - "tools/build-koronos-targets.sh"
+      - "tools/build-desktop-binaries.sh"
+      - ".github/workflows/system-runtime-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: system-runtime-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  editions:
+    name: Build and test ${{ matrix.edition }} edition
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [desktop, server, mobile, edge, iot, cvel]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ gcc python3
+      - name: Configure edition
+        run: cmake -S . -B "build/${{ matrix.edition }}" -G Ninja -DCHIMERA_EDITION=${{ matrix.edition }} -DCMAKE_BUILD_TYPE=Release
+      - name: Compile edition
+        run: cmake --build "build/${{ matrix.edition }}" --parallel 2
+      - name: Run edition tests
+        run: ctest --test-dir "build/${{ matrix.edition }}" --output-on-failure
+      - name: Stage edition
+        run: cmake --install "build/${{ matrix.edition }}" --prefix "build/${{ matrix.edition }}/stage"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-${{ matrix.edition }}-staging
+          path: build/${{ matrix.edition }}/stage
+          if-no-files-found: error
+          retention-days: 14
+
+  koronos-x86_64:
+    name: Koronos x86_64 kernel, desktop and QEMU boot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native boot and desktop dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ gcc nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file cmake ninja-build python3 libgtk-4-dev xvfb
+      - name: Build native Koronos
+        run: |
+          bash kernel/build-koronos.sh
+          grub-file --is-x86-multiboot2 build/koronos/x86_64/koronos.elf
+          file build/koronos/x86_64/koronos.elf
+          test -s build/koronos/x86_64/koronos.elf
+      - name: Build Aurora native components
+        env:
+          CHIMERA_DESKTOP_BUILD_DIR: ${{ runner.temp }}/chimera-desktop
+        run: |
+          bash tools/build-desktop-binaries.sh
+          test -x "$CHIMERA_DESKTOP_BUILD_DIR/bin/aurora-utf-selftest"
+          "$CHIMERA_DESKTOP_BUILD_DIR/bin/aurora-utf-selftest"
+      - name: Build and run ELF64 admission regression
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
+            tests/kernel/elf64_admission_test.cpp kernel/core/elf64.cpp kernel/core/process.cpp \
+            -o /tmp/chimera-elf64-admission
+          /tmp/chimera-elf64-admission
+      - name: Build and run scheduler regression
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Ikernel/include \
+            tests/kernel/scheduler_runtime_test.cpp kernel/core/scheduler.cpp \
+            -o /tmp/chimera-scheduler-runtime
+          /tmp/chimera-scheduler-runtime
+      - name: Build minimal Koronos boot ISO
+        run: |
+          set -euo pipefail
+          mkdir -p build/qemu-iso/boot/grub
+          install -m 0644 build/koronos/x86_64/koronos.elf build/qemu-iso/boot/koronos.elf
+          cat > build/qemu-iso/boot/grub/grub.cfg <<'GRUB'
+          set timeout=0
+          set default=0
+          insmod serial
+          serial --unit=0 --speed=115200
+          terminal_input serial
+          terminal_output serial
+          menuentry "Koronos acceptance" {
+            multiboot2 /boot/koronos.elf
+            boot
+          }
+          GRUB
+          grub-mkrescue -o build/koronos-acceptance.iso build/qemu-iso
+      - name: QEMU boot acceptance
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          timeout 20s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+            -cdrom build/koronos-acceptance.iso -boot d -display none -serial none -monitor none \
+            -no-reboot -no-shutdown -debugcon file:qemu-debug.log \
+            -global isa-debugcon.iobase=0xe9
+          rc=$?
+          set -e
+          [[ "$rc" -eq 0 || "$rc" -eq 124 ]]
+          grep -Fq "[KRN ] KORONOS READY" qemu-debug.log
+          grep -Fq "[RUN ] Entering Koronos scheduler loop" qemu-debug.log
+      - name: Upload x86_64 runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-x86_64-runtime-evidence
+          path: |
+            build/koronos/x86_64/koronos.elf
+            build/koronos-acceptance.iso
+            qemu-debug.log
+            ${{ runner.temp }}/chimera-desktop/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  cross-architecture-compile:
+    name: Compile ${{ matrix.arch }} Koronos architecture probe
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+            package: g++-aarch64-linux-gnu
+            compiler: aarch64-linux-gnu-g++
+            artifact: aarch64-arch-init.o
+          - arch: riscv64
+            package: g++-riscv64-linux-gnu
+            compiler: riscv64-linux-gnu-g++
+            artifact: riscv64-arch-init.o
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.package }}
+      - name: Compile architecture-specific probe
+        env:
+          AARCH64_CC: aarch64-linux-gnu-g++
+          RISCV64_CC: riscv64-linux-gnu-g++
+        run: |
+          bash tools/build-koronos-targets.sh
+          test -s "build/koronos/ports/${{ matrix.artifact }}"
+          file "build/koronos/ports/${{ matrix.artifact }}"
+      - name: Upload compile-only evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-${{ matrix.arch }}-compile-only
+          path: build/koronos/ports/${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 14
+
+  release-eligibility:
+    name: Evidence-gated release eligibility report
+    runs-on: ubuntu-24.04
+    needs: [editions, koronos-x86_64, cross-architecture-compile]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evaluate target release evidence
+        env:
+          EDITIONS_RESULT: ${{ needs.editions.result }}
+          X86_RESULT: ${{ needs.koronos-x86_64.result }}
+          CROSS_RESULT: ${{ needs.cross-architecture-compile.result }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          matrix = json.loads(Path("architecture/support-matrix.json").read_text())
+          targets = matrix.get("targets", [])
+          unsupported = [t["id"] for t in targets if not t.get("release_supported", False)]
+          results = {
+              "schema": "CHIMERA-RELEASE-ELIGIBILITY-1",
+              "commit": os.environ.get("GITHUB_SHA"),
+              "edition_build": os.environ["EDITIONS_RESULT"],
+              "x86_64_kernel_desktop_qemu": os.environ["X86_RESULT"],
+              "cross_architecture_compile_only": os.environ["CROSS_RESULT"],
+              "release_supported_architectures": [t["id"] for t in targets if t.get("release_supported", False)],
+              "blocked_architectures": unsupported,
+              "production_release_eligible": (
+                  not unsupported
+                  and os.environ["EDITIONS_RESULT"] == "success"
+                  and os.environ["X86_RESULT"] == "success"
+                  and os.environ["CROSS_RESULT"] == "success"
+              ),
+              "policy": "Compile-only evidence never upgrades an architecture to booted, userspace-ready, or release-supported."
+          }
+          Path("release-eligibility.json").write_text(json.dumps(results, indent=2) + "\n")
+          print(json.dumps(results, indent=2))
+          if not results["production_release_eligible"]:
+              print("::warning::Production release blocked: one or more architecture targets lack complete boot/userspace/install/recovery/SMP evidence.")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-release-eligibility-report
+          path: release-eligibility.json
+          if-no-files-found: error
+          retention-days: 30
