@@ -119,7 +119,7 @@ done
 "$ROOT/tools/build-compatibility-binaries.sh"
 "$ROOT/tools/build-mobile-edition.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
-say BUILD "Cross-building Linux ABI Chimera command candidates for x86_64, AArch64 and RV64"
+say BUILD "Cross-building Linux ABI Chimera command candidates for eight architectures (x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE, s390x)"
 python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
   --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
