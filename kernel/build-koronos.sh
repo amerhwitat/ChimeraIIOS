@@ -143,4 +143,18 @@ if [[ -d "$ROOT/kernel/targets" ]]; then
   printf 'Built production target inits: %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
 fi
 
+# Separate interactive shell payload: selected only by the explicit Koronos
+# Interactive Console menu entry; normal Live/Installer/Recovery remain smoke-tested.
+"$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
+  -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
+  -fno-asynchronous-unwind-tables -fno-unwind-tables \
+  -D"CHIMERA_TARGET_NAME=\"live\"" \
+  -c "$ROOT/kernel/targets/live_shell.c" -o "$BUILD/target-live-shell.o"
+"$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
+  -T "$ROOT/kernel/targets/target_init.ld" \
+  "$BUILD/target-live-shell.o" -o "$BUILD/target-live-shell.elf"
+readelf -h "$BUILD/target-live-shell.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: Koronos live shell is not ET_EXEC" >&2; exit 1; }
+readelf -lW "$BUILD/target-live-shell.elf" | grep -Eq 'LOAD.*R E' || { echo "ERROR: Koronos live shell has no executable PT_LOAD" >&2; exit 1; }
+printf 'Built native Koronos interactive shell: %s/target-live-shell.elf\n' "$BUILD"
+
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
