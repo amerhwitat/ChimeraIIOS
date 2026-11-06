@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import re
 import unittest
 
@@ -22,6 +23,16 @@ class BootMenuTimeoutTests(unittest.TestCase):
                 text = (ROOT / relative).read_text(encoding="utf-8")
                 self.assertRegex(text, r"(?m)^set timeout=30$")
                 self.assertRegex(text, r"(?m)^set timeout_style=menu$")
+
+    def test_boot_contract_declares_the_same_timeout(self):
+        contract = json.loads((ROOT / "boot/boot-menu-contract.json").read_text(encoding="utf-8"))
+        self.assertEqual(contract.get("menu_timeout_seconds"), 30)
+        self.assertEqual(contract.get("timeout_style"), "menu")
+
+    def test_gates_requires_explicit_selection(self):
+        gates = json.loads((ROOT / "desktop/aurora/gates_menu.json").read_text(encoding="utf-8"))
+        self.assertTrue(gates["input_policy"]["requires_explicit_user_selection"])
+        self.assertFalse(gates["input_policy"]["auto_select_default"])
 
     def test_generated_recovery_menu_keeps_the_same_timeout(self):
         script = (ROOT / "boot/iso/prepare-layout.sh").read_text(encoding="utf-8")
