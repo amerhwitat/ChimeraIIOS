@@ -102,7 +102,7 @@ for target in live installer recovery; do
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
 
-# Stage the cross-built native command multicall binaries for all currently
+# Stage cross-built Linux ABI command multicall binaries for all currently
 # supported Linux command ABIs. Cross-build validation is not runtime acceptance.
 printf '%s\\n' '[3c] Stage native command binaries for x86_64, i686, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
@@ -111,8 +111,8 @@ for arch in x86_64 i686 aarch64 armv7 riscv64 ppc64le s390x; do
   test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: native command binary missing for $arch" >&2; exit 2; }
   test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: native command aliases missing for $arch" >&2; exit 2; }
 done
-mkdir -p "$DIST/iso/system/commands/native"
-cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/native/"
+mkdir -p "$DIST/iso/system/commands/linux-abi"
+cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
 python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
 import json,sys
 manifest=json.load(open(sys.argv[1],encoding="utf-8"))
