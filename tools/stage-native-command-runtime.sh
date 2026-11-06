@@ -65,6 +65,7 @@ if [[ "${CHIMERA_INSTALL_DISPATCHER:-1}" == "1" ]]; then
   mkdir -p "$DEST_ROOT/usr/share/chimera/commands"
   install -m 0755 "$SOURCE_ROOT/tools/commands/chimera-run" "$DEST_ROOT/usr/share/chimera/commands/chimera-run"
   install -m 0644 "$SOURCE_ROOT/tools/commands/os-command-runtime.json" "$DEST_ROOT/usr/share/chimera/commands/os-command-runtime.json"
+  ln -sfn ../share/chimera/commands/chimera-run "$DEST_ROOT/usr/bin/chimera-run"
   cat > "$DEST_ROOT/usr/bin/chimera" <<'DISPATCH'
 #!/bin/sh
 set -eu
