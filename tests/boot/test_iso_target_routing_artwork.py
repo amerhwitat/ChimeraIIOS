@@ -72,5 +72,25 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("Aurora desktop readiness is separate", builder)
 
 
+    def test_all_boot_menus_wait_sixty_seconds_before_default(self):
+        menu_paths = (
+            "boot/iso/grub.cfg",
+            "boot/jasper/jasper.cfg",
+            "boot/spitfire/spitfire-menu.cfg",
+            "boot/jasper/diagnostics.cfg",
+            "boot/jasper/install.cfg",
+            "boot/jasper/last-known-good.cfg",
+            "boot/jasper/live.cfg",
+            "boot/jasper/recovery.cfg",
+            "boot/jasper/safe-mode.cfg",
+            "boot/installation/services.cfg",
+        )
+        for relative in menu_paths:
+            text = (ROOT / relative).read_text(encoding="utf-8")
+            self.assertRegex(text, r"(?m)^set timeout_style=menu\\s*$", relative)
+            self.assertRegex(text, r"(?m)^set timeout=60\\s*$", relative)
+            self.assertRegex(text, r"(?m)^set default=0\\s*$", relative)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
