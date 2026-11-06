@@ -42,4 +42,7 @@ chroot "$ROOTFS" /bin/sh -eu -c '
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 install -D -m 0755 "$REPO_DIR/aurora/terminals/aurora-terminal-center.sh" "$ROOTFS/usr/local/bin/aurora-terminal-center"
 install -D -m 0755 "$REPO_DIR/aurora/shells/aurora-shell-center.sh" "$ROOTFS/usr/local/bin/aurora-shell-center"
+ln -sfn /usr/local/bin/aurora-terminal-center "$ROOTFS/usr/local/bin/chimera-terminal"
+ln -sfn /usr/local/bin/aurora-terminal-center "$ROOTFS/usr/local/bin/chimera-terminals"
+ln -sfn /usr/local/bin/aurora-shell-center "$ROOTFS/usr/local/bin/chimera-shell-ar"
 printf 'Terminal/shell package acquisition completed; inspect target manifest for source-build-required entries.\n'
