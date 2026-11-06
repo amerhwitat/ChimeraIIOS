@@ -5,6 +5,7 @@ OUT="$(realpath -m "${1:-$ROOT/build/native-command-isa}")"
 declare -A EMULATORS=(
   [x86_64]=""
   [i686]="qemu-i386-static"
+  [armel]="qemu-arm-static"
   [aarch64]="qemu-aarch64-static"
   [armv7]="qemu-arm-static"
   [riscv64]="qemu-riscv64-static"
@@ -13,7 +14,7 @@ declare -A EMULATORS=(
 )
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-for arch in x86_64 i686 aarch64 armv7 riscv64 ppc64le s390x; do
+for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   bin="$OUT/$arch/chimera-cmd"
   [[ -s "$bin" ]] || { echo "missing binary for $arch" >&2; exit 2; }
   emulator="${EMULATORS[$arch]}"
