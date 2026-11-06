@@ -26,7 +26,7 @@ declare -A APT_PACKAGE=(
   [alacritty]=alacritty [wezterm]=wezterm [ghostty]=ghostty [contour]=contour
 )
 echo "[AURORA-TERMINALS] Updating signed APT metadata"
-apt-get update -o Acquire::Retries=5
+if [[ "$(id -u)" -eq 0 ]]; then APT=(apt-get); else command -v sudo >/dev/null 2>&1 || { echo "[AURORA-TERMINALS] sudo required for signed package metadata/downloads" >&2; exit 1; }; APT=(sudo apt-get); fi\n"${APT[@]}" update -o Acquire::Retries=5
 AVAILABLE=()
 for id in "${!APT_PACKAGE[@]}"; do
   pkg="${APT_PACKAGE[$id]}"
