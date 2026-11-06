@@ -1,22 +1,17 @@
 # Unified application icon set
 
-This directory contains an original, scalable SVG symbol sprite and a JSON manifest for **127 unique application IDs** found in the ChimeraIIOS application catalog and the shared optional-application catalog used by ChimeraIIOS and OctavianOS.
+This directory contains an original SVG symbol sprite and JSON manifest for catalogued applications plus Aurora's built-in desktop shortcuts.
 
 ## Use
 
-Reference a symbol by application ID:
-
 ```html
-<svg width="64" height="64" role="img" aria-label="Firefox">
-  <use href="/assets/app-icons/catalog.svg#app-firefox"></use>
+<svg width="64" height="64" role="img" aria-label="Terminal">
+  <use href="../app-icons/catalog.svg#app-terminal"></use>
 </svg>
 ```
 
-The sprite uses generic, original icon artwork and monogram marks. It does not copy upstream product trademarks. `manifest.json` records each app's catalog provenance and explicitly marks installation status as unverified. Catalog presence must never be shown as proof that an app is installed, ported, licensed for redistribution, or launchable.
+The desktop shell uses the same sprite for its default shortcuts. Generic original artwork and monograms are used rather than copied upstream logos. The manifest distinguishes catalog entries from native shell shortcuts and records installation status as unverified for external applications.
 
-## Validation
-
-- Unique IDs: 127
-- Duplicate IDs: none (deduplicated by application ID)
-- Sprite symbols: 127
-- Each symbol uses a 64×64 viewBox.
+- 133 symbols total.
+- One 64×64 viewBox per symbol.
+- App catalog presence does not imply installation, porting, redistribution rights, or launchability.
