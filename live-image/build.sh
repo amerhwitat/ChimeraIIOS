@@ -129,6 +129,33 @@ cp -a "$BASE/." "$WORK/" 2>/dev/null || true
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
+# Install every BusyBox applet as a real multicall command where no native
+# package binary already exists. Never replace a GNU/coreutils implementation.
+BB_IN_ROOT=""
+for candidate in /bin/busybox /usr/bin/busybox; do
+  if [[ -x "$WORK$candidate" ]]; then BB_IN_ROOT="$candidate"; break; fi
+done
+if [[ -z "$BB_IN_ROOT" ]]; then
+  echo "[ERROR] busybox-static was not installed in the live rootfs" >&2
+  exit 2
+fi
+while IFS= read -r applet; do
+  [[ -n "$applet" && "$applet" != */* ]] || continue
+  if [[ ! -e "$WORK/usr/bin/$applet" && ! -e "$WORK/bin/$applet" ]]; then
+    ln -s /bin/busybox "$WORK/usr/bin/$applet"
+  fi
+done < <("$WORK$BB_IN_ROOT" --list)
+
+# Put the complete command/ISA catalogues and the actual provider coverage
+# report in both desktop editions; catalog-only entries remain explicitly marked.
+install -d "$WORK/usr/share/chimera/catalogs"
+for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+  if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
+done
+python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
+  --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
+  --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
+
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
 install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/usr/local/bin/chimera-verify-opengl"
 
