@@ -75,6 +75,7 @@ install(FILES config/aurora/emulators.json config/aurora/free-roms.json config/a
 install(FILES docs/aurora-emulation.md docs/kernel-desktop-implementation.md DESTINATION share/chimera/aurora/docs)
 install(FILES config/chimera/kernel-desktop-parity.json config/chimera/platform-feature-policy.json DESTINATION share/chimera/config)
 install(FILES config/drivers/driver-repositories.json config/drivers/driver-policy.json DESTINATION share/chimera/drivers)
+install(FILES graphics/graphics-runtime.json DESTINATION share/chimera/graphics)
 install(FILES config/drivers/driver-repositories.json config/drivers/driver-policy.json config/crash/chimera-crash-policy.json DESTINATION etc/chimera)
 install(FILES config/logging/chimera-logging.json DESTINATION etc/chimera)
 install(FILES system/kore/chimera-runtime-services.json DESTINATION share/chimera/kore)
@@ -118,6 +119,8 @@ install(FILES system/aurora/chimera-hosted-bridge.desktop DESTINATION ${CMAKE_IN
 install(PROGRAMS tools/runtime/chimera-hosted.py DESTINATION bin RENAME chimera-hosted)
 install(FILES system/hosted/compatibility-matrix.json DESTINATION share/chimera/hosted)
 if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_graphics_runtime_manifest
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_graphics_runtime_manifest.py)
   add_test(NAME chimera_hosted_runtime
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/unit/test_hosted_runtime.py)
 endif()
