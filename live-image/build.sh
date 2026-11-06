@@ -140,6 +140,7 @@ test -x "$WORK/usr/bin/chimera-native" || { echo "ERROR: native command launcher
 test -x "$WORK/usr/bin/chimera" || { echo "ERROR: compatibility dispatcher was not staged" >&2; exit 2; }
 test -s "$WORK/usr/share/chimera/commands/catalogs/chimera-command-list.json" || { echo "ERROR: command catalogue was not staged" >&2; exit 2; }
 test -s "$WORK/usr/share/chimera/isa/generated/universal-instruction-catalog.json" || { echo "ERROR: universal ISA catalogue was not staged" >&2; exit 2; }
+if [ -L "$WORK/usr/bin/ls" ] && [ "$(readlink "$WORK/usr/bin/ls")" = "chimera-cmd" ]; then echo "ERROR: native staging replaced the system ls provider" >&2; exit 2; fi
 
 # ------------------------------------------------------------- payload
 log "staging payload"
