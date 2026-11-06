@@ -193,6 +193,7 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 # Install real, package-manager-verified open-source shells and terminals in both editions.
 log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
+bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
 
 # ------------------------------------------------------------- payload
 log "staging payload"
