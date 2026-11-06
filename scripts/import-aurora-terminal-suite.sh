@@ -94,4 +94,11 @@ if [[ "$MODE" != "binary-only" ]]; then
   source_build contour https://github.com/contour-terminal/contour.git || log "Contour source build unavailable; package/binary fallback required"
   source_build ghostty https://github.com/ghostty-org/ghostty.git || log "Ghostty source build unavailable; package/binary fallback required"
 fi
+# The desktop registry is only complete when every entry resolves to a real
+# executable for this target architecture. Missing providers stop ISO staging.
+for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty \
+              alacritty wezterm ghostty contour; do
+  install_existing "$binary" || { log "REQUIRED TERMINAL PROVIDER MISSING: $binary"; exit 2; }
+done
+log "All 10 registered terminal providers are present and target-architecture verified."
 log "Terminal registry staged at $PREFIX/share/chimera/aurora/terminals/registry.json"
