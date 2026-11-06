@@ -177,6 +177,7 @@ for rel in system/commands/chimera-command-list.json config/linux-command-regist
 done
 install -d "$WORK/usr/lib/chimera/commands/linux-abi"
 cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
+bash "$REPO_DIR/tools/commands/install-busybox-applets.sh" "$WORK"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
   --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
