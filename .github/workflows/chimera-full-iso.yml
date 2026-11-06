@@ -98,6 +98,9 @@ jobs:
           extract /install/installer/installation.img "$tmp/installation.img"
           extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
           extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          extract /system/commands/command-runtime-capabilities.json "$tmp/command-runtime-capabilities.json"
+          extract /system/catalogues/runtime-command-isa-contract.json "$tmp/runtime-command-isa-contract.json"
+          extract /system/isa/catalog.json "$tmp/isa-catalog.json"
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
@@ -123,6 +126,15 @@ jobs:
                        "installation-manifest.json", "installer-contract.json",
                        "chimera-artwork-manifest.json"):
               json.loads((root / name).read_text())
+          capabilities = json.loads((root / "command-runtime-capabilities.json").read_text())
+          contract = json.loads((root / "runtime-command-isa-contract.json").read_text())
+          isa = json.loads((root / "isa-catalog.json").read_text())
+          if capabilities.get("command_count", 0) < 800:
+              raise SystemExit("embedded command runtime manifest is incomplete")
+          if capabilities.get("mode_counts", {}).get("native") != 15:
+              raise SystemExit("native command multicall manifest does not match its 15-command source contract")
+          if contract.get("schema") != "CHIMERA-RUNTIME-CATALOGUE-CONTRACT-1" or not isa:
+              raise SystemExit("embedded command/ISA catalogue contract is invalid")
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
