@@ -47,7 +47,7 @@ source_build(){
   esac
 }
 # Prefer distro-provided binaries for desktop terminals; source builds are enabled for projects with reliable recipes.
-for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" && log "Imported existing $b" || log "$b will be provided by the target package/build environment"; done
+for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do log "$b: build from source or stage a verified target package; host binaries are never copied"; done
 if [[ "$MODE" != "binary-only" ]]; then
   source_build alacritty https://github.com/alacritty/alacritty.git || log "Alacritty source build unavailable; package/binary fallback required"
   source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"
