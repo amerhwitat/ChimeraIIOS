@@ -5,6 +5,10 @@ on:
     branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
     paths:
       - 'live-image/**'
+      - 'tests/unit/**'
+      - 'kernel/**'
+      - 'boot/**'
+      - 'graphics/**'
       - 'userspace/**'
       - 'tests/live-image/**'
       - 'web/**'
@@ -17,6 +21,10 @@ on:
   pull_request:
     paths:
       - 'live-image/**'
+      - 'tests/unit/**'
+      - 'kernel/**'
+      - 'boot/**'
+      - 'graphics/**'
       - 'userspace/**'
       - 'tests/live-image/**'
       - 'web/**'
@@ -62,6 +70,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Validate target OpenGL and WebGL package staging
+        run: python3 tests/unit/test_graphics_runtime_manifest.py
 
       - name: Install host ISO and graphical smoke-test dependencies
         run: |
