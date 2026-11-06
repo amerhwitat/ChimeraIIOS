@@ -92,55 +92,54 @@ extern "C" {
 volatile uint64_t koronos_user_exit_code = 0;
 }
 extern "C" uint32_t koronos_target_active_pid(void);
+extern "C" uint32_t koronos_target_syscall_abi(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
-    /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
-     * from a native SYSCALL context/dispatch failure without manufacturing
-     * any userspace readiness marker. */
-    koronos_target_log("[SYSC] entered native user syscall dispatcher");
-    /* SYSCALL does not preserve caller CS. It may serve the active process,
-     * but it cannot produce the CPL3 acceptance acknowledgement. That proof
-     * is emitted only by the DPL3 INT 0x80 gate after checking saved CS.RPL. */
     if (!koronos_target_validate_syscall_context(frame->rcx)) {
         koronos_target_log("[SYSC] rejected user syscall context (RIP/CR3/PID mismatch)");
         return static_cast<uint64_t>(-38ll);
     }
-    koronos_target_log("[SYSC] accepted user syscall context");
 
-    /* Octavian's init is linked against musl and enters through the Linux
-     * x86-64 syscall ABI. Translate the raw Linux syscall number into the
-     * stable Chimera semantic ABI before dispatch. Do not interpret Linux
-     * syscall 1 (write) as native CHM_SYS_EXIT (also 1). */
-    chimera_syscall_identity identity{};
-    if (chimera_compat_recognize_syscall(
-            CHM_ENTRY_X86_SYSCALL, 64u,
-            static_cast<uint32_t>(frame->rax), &identity) != 0 ||
-        identity.canonical == 0xFFFFFFFFu) {
-        koronos_target_log("[SYSC] rejected unknown Linux syscall number");
+    uint32_t canonical = 0xFFFFFFFFu;
+    const uint32_t abi = koronos_target_syscall_abi();
+    if (abi == KORONOS_USER_ABI_CHIMERA) {
+        /* Native Koronos target ELFs use the stable Chimera syscall numbers
+         * declared in kernel/include/chimera/syscall.h. They must not be
+         * interpreted as Linux syscall numbers (for example native EXIT=1
+         * and Linux WRITE=1 are intentionally different operations). */
+        if (frame->rax <= UINT32_MAX) canonical = static_cast<uint32_t>(frame->rax);
+    } else if (abi == KORONOS_USER_ABI_LINUX) {
+        chimera_syscall_identity identity{};
+        if (chimera_compat_recognize_syscall(
+                CHM_ENTRY_X86_SYSCALL, 64u,
+                static_cast<uint32_t>(frame->rax), &identity) == 0) {
+            canonical = identity.canonical;
+        }
+    } else {
         return static_cast<uint64_t>(-38ll);
     }
 
-    switch (identity.canonical) {
+    switch (canonical) {
         case CHM_SYS_GETPID: {
-            /* PID comes from the active kernel-owned process record. Never
-             * fabricate PID 1 when no target process is actually running. */
             const uint32_t pid = koronos_target_active_pid();
-            if (!pid) {
-                koronos_target_log("[SYSC] GETPID rejected: active process PID missing");
-                return static_cast<uint64_t>(-38ll);
-            }
-            return static_cast<uint64_t>(pid);
+            return pid ? static_cast<uint64_t>(pid) : static_cast<uint64_t>(-38ll);
         }
         case CHM_SYS_YIELD:
-            // The bootstrap user entry is single-process until the scheduler owns
-            // address-space context switches; yielding is currently a safe no-op.
-            return 0;
+            return 0; /* Single init process; a later scheduler owns preemption. */
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
+        case CHM_SYS_READ: {
+            const uint64_t fd = frame->rdi;
+            const uint64_t address = frame->rsi;
+            const uint64_t length = frame->rdx;
+            if (fd != 0u || length > 4096u) return static_cast<uint64_t>(-22ll);
+            return static_cast<uint64_t>(koronos_console_read_user(address, length));
+        }
         case CHM_SYS_WRITE: {
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
