@@ -1488,6 +1488,15 @@ build_command_runtime(){
   log_info "Native command binary staged at $ROOTFS_DIR/usr/bin/chimera-cmd"
 }
 
+stage_terminal_shell_suite(){
+  log_info "Staging Aurora terminal and shell providers for target architecture ${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+  CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}" \
+    bash "$SCRIPT_DIR/scripts/chimera-iso-terminal-shell-hook.sh"
+  [[ -s "$ROOTFS_DIR/usr/share/chimera/aurora/terminals/registry.json" ]] || { log_error "Aurora terminal registry was not staged"; return 1; }
+  [[ -s "$ROOTFS_DIR/usr/share/chimera/aurora/shells/registry.json" ]] || { log_error "Aurora shell registry was not staged"; return 1; }
+  log_info "Terminal/shell catalogues staged; only architecture-verified providers are accepted"
+}
+
 main(){
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
   if [[ "$BUILD_ISO" == 0 ]]; then
@@ -1528,7 +1537,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+  for stage in docker rootfs commands terminals-shells docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -1537,6 +1546,7 @@ main(){
       docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
       commands) run_stage commands build_command_runtime;;
+      terminals-shells) run_stage terminals-shells stage_terminal_shell_suite;;
       boot) run_stage boot create_boot_menu;;
       installer) run_stage installer create_installer;;
       branding) run_stage branding prepare_branding;;
