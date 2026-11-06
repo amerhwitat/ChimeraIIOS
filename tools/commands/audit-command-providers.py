@@ -35,11 +35,11 @@ def main():
                 provider=linux_provider(name);status="provider-present-not-command-runtime-tested" if provider else status
             elif ns=="macos_core": status="foreign-darwin-runtime-not-available"
             elif ns=="windows_cmd_core":
-                status="wine-cmd-provider-present-not-command-tested" if (root/"usr/bin/wine").exists() else "windows-cmd-runtime-not-available"
+                status="wine-runtime-present-command-coverage-not-tested" if any((root/d/x).exists() for d in ("usr/bin","usr/local/bin") for x in ("wine","wine64")) else "windows-cmd-runtime-not-available"
             elif ns=="powershell_core":
                 status="powershell-provider-present-not-command-tested" if any((root/d/"pwsh").exists() for d in ("usr/bin","usr/local/bin")) else "powershell-runtime-not-available"
             elif ns=="vbscript_core":
-                status="vbscript-host-not-available"
+                status="wine-vbscript-host-unverified" if any((root/d/x).exists() for d in ("usr/bin","usr/local/bin") for x in ("wine","wine64")) else "vbscript-host-not-available"
             elif ns=="sql_server_core":
                 status="sql-server-engine-not-available"
             elif ns=="native_chimera":
