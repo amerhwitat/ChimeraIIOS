@@ -19,6 +19,7 @@ static volatile uint32_t active_target = TARGET_NONE;
 static volatile uint32_t ready_seen = 0;
 static uint32_t active_pid = 0;
 static uint64_t active_root = 0;
+static volatile uint32_t active_syscall_abi = KORONOS_USER_ABI_CHIMERA;
 static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 
@@ -121,6 +122,9 @@ extern "C" uint32_t koronos_target_userspace_ready(void) { return ready_seen; }
 extern "C" uint32_t koronos_target_active_pid(void) {
     return active_target != TARGET_NONE ? active_pid : 0u;
 }
+extern "C" uint32_t koronos_target_syscall_abi(void) {
+    return active_target != TARGET_NONE ? active_syscall_abi : KORONOS_USER_ABI_CHIMERA;
+}
 static uint32_t validate_active_user_context(uint64_t user_rip) {
     if (active_target == TARGET_NONE || !active_pid || !active_root) return 0u;
     if (user_rip < 0x0000000100000000ull || user_rip >= 0x0000800000000000ull) return 0u;
@@ -217,6 +221,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         return -7;
     }
     active_target=target;
+    active_syscall_abi=token(selected->cmdline,"abi=linux") ? KORONOS_USER_ABI_LINUX : KORONOS_USER_ABI_CHIMERA;
     active_pid=static_cast<uint32_t>(pid);
     active_root=root;
     syscall_ack_seen=0;
