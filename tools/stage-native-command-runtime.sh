@@ -63,7 +63,12 @@ if [[ "${CHIMERA_STAGE_CATALOGS:-1}" == "1" ]]; then
   cp -a "$SOURCE_ROOT/src/isa/." "$DEST_ROOT/usr/share/chimera/source/isa/"
   cp -a "$SOURCE_ROOT/tools/commands/." "$DEST_ROOT/usr/share/chimera/source/command-tools/"
   cp -a "$SOURCE_ROOT/tools/isa/." "$DEST_ROOT/usr/share/chimera/source/isa-tools/"
-  [[ ! -f "$SOURCE_ROOT/include/chimera/isa8192.hpp" ]] || cp -f "$SOURCE_ROOT/include/chimera/isa8192.hpp" "$DEST_ROOT/usr/share/chimera/source/include/chimera/"
+  if [[ -d "$SOURCE_ROOT/include/chimera" ]]; then
+    cp -a "$SOURCE_ROOT/include/chimera/." "$DEST_ROOT/usr/share/chimera/source/include/chimera/"
+  fi
+  mkdir -p "$DEST_ROOT/usr/share/chimera/source/kernel-isa"
+  [[ ! -f "$SOURCE_ROOT/kernel/core/isa_registry.cpp" ]] || cp -f "$SOURCE_ROOT/kernel/core/isa_registry.cpp" "$DEST_ROOT/usr/share/chimera/source/kernel-isa/"
+  [[ ! -f "$SOURCE_ROOT/kernel/include/chimera/isa_registry.h" ]] || cp -f "$SOURCE_ROOT/kernel/include/chimera/isa_registry.h" "$DEST_ROOT/usr/share/chimera/source/kernel-isa/"
 fi
 
 if [[ "${CHIMERA_INSTALL_DISPATCHER:-1}" == "1" ]]; then
