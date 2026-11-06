@@ -148,6 +148,7 @@ jobs:
           # configured default through QMP instead of shortening that timeout.
           python3 - <<'PY'
           from pathlib import Path
+          from pathlib import Path
           import socket, time
           client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
           for _ in range(100):
@@ -161,11 +162,22 @@ jobs:
           client.settimeout(2)
           if b"QMP" not in client.recv(4096):
               raise SystemExit("QEMU QMP greeting missing")
-          client.sendall(b'{"execute":"qmp_capabilities"}\\r\\n')
+          client.sendall(b'{"execute":"qmp_capabilities"}\r\n')
           time.sleep(0.05)
           client.recv(4096)
-          client.sendall(b'{"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":"ret"}]}}\\r\\n')
-          time.sleep(0.05)
+          # Wait until GRUB has actually rendered the menu before typing.
+          deadline = time.monotonic() + 12
+          while time.monotonic() < deadline:
+              serial = Path("/tmp/chimera-qemu-serial.log")
+              if serial.exists():
+                  rendered = serial.read_text(errors="replace")
+                  if "Live Aurora" in rendered or "Chimera II OS" in rendered:
+                      break
+              time.sleep(0.1)
+          else:
+              raise SystemExit("GRUB menu did not appear on the QEMU serial console")
+          client.sendall(b'{"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":"ret"}]}}\r\n')
+          time.sleep(0.1)
           response = client.recv(4096)
           if b'"error"' in response:
               raise SystemExit(f"QEMU rejected Enter key injection: {response!r}")
