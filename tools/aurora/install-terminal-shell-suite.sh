@@ -29,7 +29,7 @@ chroot "$ROOTFS" /bin/sh -eu -c '
       if command -v "$bin" >/dev/null 2>&1; then
         binary_path="$(command -v "$bin")"
         machine="$(readelf -h "$binary_path" | awk -F: '/^[[:space:]]*Machine:/ {sub(/^[[:space:]]+/, "", $2); print $2}')"
-        if [ -n "$machine" ] && [ "$machine" != "$expected_machine" ]; then
+        if [ -z "$machine" ] || [ "$machine" != "$expected_machine" ]; then
           missing="${missing}${pkg}|${bin}|package-elf-machine-mismatch-source-build-required:${machine}\\n"
         else
           installed="${installed}${pkg}|${bin}|${machine}\\n"
