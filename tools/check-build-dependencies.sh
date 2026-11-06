@@ -38,7 +38,7 @@ declare -A COMMAND_PACKAGE=(
   [bash]=bash [python3]=python3 [cmake]=cmake [gcc]=gcc [g++]=g++
   [ld]=binutils [as]=binutils [make]=make [pkg-config]=pkg-config
   [git]=git [curl]=curl [wget]=wget [file]=file [rsync]=rsync
-  [cpio]=cpio [gzip]=gzip [xz]=xz-utils [tar]=tar [busybox]=busybox
+  [cpio]=cpio [gzip]=gzip [xz]=xz-utils [tar]=tar [busybox]=busybox-static
   [awk]=gawk [sed]=sed [grep]=grep [sha256sum]=coreutils [numfmt]=coreutils
   [stat]=coreutils [find]=findutils [sort]=coreutils
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
@@ -51,7 +51,7 @@ declare -A COMMAND_PACKAGE=(
 declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ make cmake ninja-build pkg-config
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
-  git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
+  git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox-static
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
