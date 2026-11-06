@@ -123,6 +123,26 @@ cp -a "$BASE/." "$WORK/" 2>/dev/null || true
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
+# ------------------------------------------------------------- native command + ISA runtime
+COMMAND_SOURCE="$REPO_DIR"
+if [ "$ED" = "octavian" ]; then
+  COMMAND_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source"
+fi
+[ -x "$COMMAND_SOURCE/tools/build-chimera-command-compat.sh" ] || {
+  echo "ERROR: command/ISA runtime builder missing: $COMMAND_SOURCE/tools/build-chimera-command-compat.sh" >&2
+  exit 2
+}
+log "installing native command runtime and offline command/ISA catalogues"
+CHIMERA_ROOT="$COMMAND_SOURCE" CHIMERA_ROOTFS_DIR="$WORK" \
+  bash "$COMMAND_SOURCE/tools/build-chimera-command-compat.sh"
+mkdir -p "$WORK/usr/share/chimera/commands" "$WORK/usr/share/chimera/isa"
+cp -a "$COMMAND_SOURCE/system/commands/." "$WORK/usr/share/chimera/commands/"
+cp -a "$COMMAND_SOURCE/isa/." "$WORK/usr/share/chimera/isa/"
+test -x "$WORK/usr/bin/chimera-cmd" || { echo "ERROR: native command binary was not installed" >&2; exit 2; }
+test -x "$WORK/usr/bin/ls" || { echo "ERROR: native ls command was not installed" >&2; exit 2; }
+test -s "$WORK/usr/share/chimera/commands/chimera-command-list.json" || { echo "ERROR: command catalogue was not staged" >&2; exit 2; }
+test -s "$WORK/usr/share/chimera/isa/generated/universal-instruction-catalog.json" || { echo "ERROR: universal ISA catalogue was not staged" >&2; exit 2; }
+
 # ------------------------------------------------------------- payload
 log "staging payload"
 PAY="$WORK/opt/aurora"
