@@ -227,17 +227,19 @@ extern "C" int koronos_launch_selected_userspace(void) {
     syscall_ack_seen=0;
     ready_seen=0;
     (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_RUNNING);
-    // 100 Hz PIT deadline: 1,000 ticks gives user init ten seconds to return
-    // and emit readiness. This is enforced by IRQ0 inside the kernel, not by
-    // the outer QEMU test timeout.
-    if (koronos_user_timeout_arm(1000u) != 0) {
+    // Normal target probes have a 10-second deadline. The explicitly selected
+    // interactive console gets a 10-hour safety deadline so a user can work at
+    // the prompt; IRQ0 still reclaims a wedged process inside the kernel.
+    const bool interactive_shell = token(selected->cmdline, "shell=interactive");
+    const uint32_t deadline_ticks = interactive_shell ? 3600000u : 1000u;
+    if (koronos_user_timeout_arm(deadline_ticks) != 0) {
         ops->destroy_address_space(nullptr,loaded.address_space);
         (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
         active_target=TARGET_NONE;
         koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
         return -10;
     }
-    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
+    koronos_target_log(interactive_shell ? "[RUN ] Dispatching interactive ring-3 shell with 10-hour kernel deadline" : "[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
     /* _start is a freestanding C entry, not a CRT process-entry shim.
      * Give it the SysV function-entry stack alignment (RSP % 16 == 8).
      * The full final stack page is already mapped by the ELF loader. */
