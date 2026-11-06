@@ -26,6 +26,7 @@ MODE="${CHIMERA_SHELL_MODE:-source-first}"
 mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/shells" "$CACHE"
 cp "$ROOT/aurora/shells/registry.json" "$PREFIX/share/chimera/aurora/shells/registry.json"
 log(){ printf '[AURORA-SHELL] %s\n' "$*"; }
+have(){ command -v "$1" >/dev/null 2>&1; }
 TARGET_ARCH="\${CHIMERA_TARGET_ARCH:-$(uname -m)}"
 normalize_arch() {
   case "$1" in
