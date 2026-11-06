@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Produce per-entry command-provider evidence without inventing executables."""
+"""Produce per-entry command-provider evidence without inventing executables or conflating Linux ELF with the Koronos ABI."""
 from __future__ import annotations
 import argparse,json,shutil,subprocess
 from pathlib import Path
@@ -7,11 +7,11 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument("--rootfs",type=Path,required=True);ap.add_argument("--repo",type=Path,default=Path(__file__).resolve().parents[2]);ap.add_argument("--native-matrix",type=Path);ap.add_argument("--output",type=Path);a=ap.parse_args()
     root=a.rootfs.resolve();cat=json.loads((a.repo/"system/commands/chimera-command-list.json").read_text())
     matrix={}
-    if a.native_matrix and a.native_matrix.exists():
+    if a.linux_abi_matrix and a.linux_abi_matrix.exists():
         try:
-            m=json.loads(a.native_matrix.read_text())
+            m=json.loads(a.linux_abi_matrix.read_text())
             for t in m.get("targets",[]):
-                if t.get("binary_status")=="cross-compiled-and-elf-machine-validated":
+                if t.get("binary_status")=="linux-abi-cross-compiled-and-elf-machine-validated":
                     for alias in t.get("aliases",[]): matrix.setdefault(alias,[]).append({"target":t["target"],"runtime_status":t.get("runtime_status")})
         except (OSError,json.JSONDecodeError): pass
     bash=root/"bin/bash"
@@ -44,9 +44,9 @@ def main():
                 status="sql-server-engine-not-available"
             elif ns=="native_chimera":
                 if name in matrix:
-                    provider="cross-built-native-multicall"
-                    status="cross-built-elf-runtime-not-tested"
-            rows.append({"command":name,"status":status,"provider":provider,"native_targets":matrix.get(name,[])})
+                    provider="linux-abi-cross-built-multicall"
+                    status="linux-abi-cross-built-not-koronos-native-runtime-not-tested"
+            rows.append({"command":name,"status":status,"provider":provider,"linux_abi_targets":matrix.get(name,[])})
         namespaces[ns]={"catalogued":len(names),"provider_present":sum(bool(x["provider"]) for x in rows),"rows":rows}
     unique=set()
     for ns in namespaces.values():
