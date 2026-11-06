@@ -74,7 +74,7 @@ grep -aF '[KORE] Service orchestration online' "$BUILD/koronos.elf" >/dev/null |
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
 
 auto_banner=''
-printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + SMP-safe scheduler + syscall/interrupt compatibility + parallel dispatch linked.'
+printf '%s\n' 'Protected-process admission/load-plan boundary + Native OOP object model + callback scheduler linked; AP startup and parallel execution remain blocked.'
 cp "$BUILD/koronos.elf" "$BUILD/koronos.elf64"
 mkdir -p "$BUILD/nbit"
 for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
@@ -82,7 +82,7 @@ for bits in 8 16 32 64 128 256 512 1024 2048 4096 8192; do
   "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" "$BUILD/nbit-note-$bits.o" -o "$BUILD/nbit/koronos-nbit-$bits.elf"
 done
 printf 'Koronos ELF64: %s\n' "$BUILD/koronos.elf"
-printf 'Koronos + native Kore + OOP object model + SMP-safe scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked.\n'
+printf 'Koronos + native Kore + OOP object model + callback scheduler + hardware/firmware + drivers + syscall/interrupt compatibility + N-bit runtime linked; AP startup and parallel execution remain blocked.\n'
 
 # Build target-specific, high-address ring-3 acceptance probes. These are test
 # payloads, not production shells or installer implementations.
