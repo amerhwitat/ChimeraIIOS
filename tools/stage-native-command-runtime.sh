@@ -10,7 +10,7 @@ DEST_ROOT="${2:-}"
   exit 2
 }
 SOURCE_ROOT="$(cd -- "$SOURCE_ROOT" && pwd)"
-mkdir -p "$DEST_ROOT/bin" "$DEST_ROOT/usr/bin" "$DEST_ROOT/usr/lib/chimera/native-bin"
+mkdir -p "$DEST_ROOT/bin" "$DEST_ROOT/usr/bin" "$DEST_ROOT/usr/lib/chimera/native-bin" "$DEST_ROOT/usr/share/chimera"
 NATIVE_BIN="$DEST_ROOT/usr/lib/chimera/native-bin"
 CC="${CC:-gcc}"
 command -v "$CC" >/dev/null 2>&1 || { echo "ERROR: C compiler not found: $CC" >&2; exit 2; }
@@ -29,7 +29,7 @@ for command in "${NATIVE_COMMANDS[@]}"; do
   ln -sfn chimera-cmd "$NATIVE_BIN/$command"
 done
 
-cat > "$DEST_ROOT/bin/chimera-native" <<'WRAPPER'
+cat > "$DEST_ROOT/usr/bin/chimera-native" <<'WRAPPER'
 #!/bin/sh
 set -eu
 command="${1:-}"
@@ -40,8 +40,10 @@ fi
 shift
 exec "/usr/lib/chimera/native-bin/$command" "$@"
 WRAPPER
-chmod 0755 "$DEST_ROOT/bin/chimera-native"
-cp -f "$DEST_ROOT/bin/chimera-native" "$DEST_ROOT/usr/bin/chimera-native"
+chmod 0755 "$DEST_ROOT/usr/bin/chimera-native"
+if [[ "$(readlink -f "$DEST_ROOT/bin")" != "$(readlink -f "$DEST_ROOT/usr/bin")" ]]; then
+  ln -sfn ../usr/bin/chimera-native "$DEST_ROOT/bin/chimera-native"
+fi
 
 if [[ "${CHIMERA_STAGE_CATALOGS:-1}" == "1" ]]; then
   mkdir -p "$DEST_ROOT/usr/share/chimera/commands/catalogs" "$DEST_ROOT/usr/share/chimera/isa" \
