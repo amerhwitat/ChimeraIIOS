@@ -94,7 +94,6 @@ if [ ! -f "$BASE/.packages-installed-runtime-v2" ]; then
     set -e
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
-    /usr/local/sbin/chimera-install-runtime-packages
     apt-get install -y -qq --no-install-recommends \
       linux-image-amd64 initramfs-tools live-boot live-boot-initramfs-tools \
       systemd systemd-sysv dbus dbus-x11 udev kbd console-setup \
@@ -108,6 +107,7 @@ if [ ! -f "$BASE/.packages-installed-runtime-v2" ]; then
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    /usr/local/sbin/chimera-install-runtime-packages
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
