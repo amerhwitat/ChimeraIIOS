@@ -13,13 +13,13 @@ PLATFORMS={
     "sql_server_core":"sql-server",
     "native_chimera":"chimera-native",
 }
-NATIVE_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
+LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
 def rootfs_executable(rootfs: Path | None, name: str):
     if rootfs is None:
         return None
-    for directory in ("usr/local/bin", "usr/local/sbin", "usr/bin", "usr/sbin", "bin", "sbin"):
+    for directory in ("usr/local/bin", "usr/local/sbin", "usr/bin", "usr/sbin", "bin", "sbin", "usr/lib/chimera/commands/linux-abi/x86_64"):
         candidate=rootfs/directory/name
         try:
             if candidate.is_file() and (candidate.stat().st_mode & (stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)):
@@ -80,9 +80,7 @@ def main():
                 row.update(provider="catalogued-provider-required",path=None)
         elif "chimera-native" in row["platforms"]:
             target_path=rootfs_executable(target_rootfs,name)
-            if name.casefold() in NATIVE_IMPLEMENTED:
-                row.update(provider="native-command-source-present",path=None)
-            elif target_path:
+            if target_path:
                 row.update(provider="hosted-linux-rootfs-executable",path=target_path,
                            native_koronos_status="not-implemented-by-linux-provider")
             else:
