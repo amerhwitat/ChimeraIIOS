@@ -105,13 +105,31 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
           unsquashfs -no-xattrs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
-          test -x "$root/usr/bin/openbox"
-          test -x "$root/usr/bin/xprop"
-          test -x "$root/usr/local/bin/aurora-session"
-          test -s "$root/opt/aurora/application-bundle.json"
-          test -d "$root/opt/aurora/app-catalogs"
-          test -d "$root/opt/aurora/apps/native/aurora"
-          grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
+          require_path() {
+            local kind="$1" path="$2"
+            if [[ "$kind" == "executable" && ! -x "$path" ]] ||
+               [[ "$kind" == "nonempty" && ! -s "$path" ]] ||
+               [[ "$kind" == "directory" && ! -d "$path" ]] ||
+               [[ "$kind" == "file" && ! -f "$path" ]]; then
+              echo "::error::Live rootfs validation missing $kind: $path" >&2
+              ls -ld "$path" 2>&1 || true
+              echo "Nearby staged paths:" >&2
+              find "$root/opt/aurora" "$root/usr/local/bin" -maxdepth 3 -print 2>/dev/null | head -200 >&2 || true
+              return 1
+            fi
+            echo "Validated $kind: $path"
+          }
+          require_path executable "$root/usr/bin/openbox"
+          require_path executable "$root/usr/bin/xprop"
+          require_path executable "$root/usr/local/bin/aurora-session"
+          require_path nonempty "$root/opt/aurora/application-bundle.json"
+          require_path directory "$root/opt/aurora/app-catalogs"
+          require_path directory "$root/opt/aurora/apps/native/aurora"
+          if ! grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"; then
+            echo "::error::Aurora session launcher is missing the Openbox readiness marker" >&2
+            sed -n '1,220p' "$root/usr/local/bin/aurora-session" >&2
+            exit 1
+          fi
           python3 - "$root/opt/aurora" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
