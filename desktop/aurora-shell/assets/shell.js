@@ -22,15 +22,17 @@
     const host = el("span", className || "glyph", fallback || "▣");
     const resolved = APP_ICON_ALIASES[id] || id;
     if (!resolved || !APP_ICON_IDS.has(resolved)) return host;
-    const svg = document.createElementNS(SVG_NS, "svg");
-    svg.setAttribute("class", "app-icon-art");
-    svg.setAttribute("viewBox", "0 0 64 64");
-    svg.setAttribute("aria-hidden", "true");
-    const use = document.createElementNS(SVG_NS, "use");
-    use.setAttribute("href", new URL("../app-icons/catalog.svg#app-" + resolved, document.baseURI).href);
-    svg.appendChild(use);
+    const image = document.createElement("img");
+    image.className = "app-icon-art";
+    image.alt = "";
+    image.decoding = "async";
+    image.src = new URL("../app-icons/icons/chimera-" + resolved + ".svg", document.baseURI).href;
+    image.addEventListener("error", () => {
+      host.classList.remove("has-art");
+      host.textContent = fallback || "▣";
+    }, { once: true });
     host.textContent = "";
-    host.appendChild(svg);
+    host.appendChild(image);
     host.classList.add("has-art");
     return host;
   }
