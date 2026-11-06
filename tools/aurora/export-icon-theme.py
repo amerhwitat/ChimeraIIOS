@@ -17,7 +17,7 @@ def main():
     (root/"index.theme").write_text("""[Icon Theme]
 Name=Chimera Aurora
 Comment=Chimera II OS Aurora SVG icon theme
-Inherits=hicolor
+Inherits=Adwaita,hicolor
 Directories=scalable/apps
 
 [scalable/apps]
