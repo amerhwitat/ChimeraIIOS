@@ -189,6 +189,10 @@ WantedBy=multi-user.target
 UNIT
 ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.target.wants/aurora-startup-sound.service"
 
+# Install real, package-manager-verified open-source shells and terminals in both editions.
+log "installing Aurora terminal and shell suite"
+bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
+
 # ------------------------------------------------------------- payload
 log "staging payload"
 PAY="$WORK/opt/aurora"
@@ -213,6 +217,9 @@ GTK
 cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$WORK/usr/share/chimera/aurora/"
 cp -a "$REPO_DIR/desktop/aurora/icons/icon_theme.json" "$WORK/usr/share/chimera/aurora/icons/"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+
+# Publish desktop launchers only for executables actually present in this rootfs.
+CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/aurora/terminals/install-desktop-entries.sh"
 
 # Aurora desktop shell (multi-profile window manager + apps) for every edition.
 if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
