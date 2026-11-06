@@ -20,6 +20,15 @@ on:
       - 'data/isa/online-isa-index.json'
       - 'tools/tests/test-iso-resume-and-aurora.sh'
       - 'build-chimera-iso.sh'
+      - 'tools/aurora/**'
+      - 'tools/commands/**'
+      - 'tools/isa/**'
+      - 'scripts/import-aurora-*-suite.sh'
+      - 'aurora/terminals/**'
+      - 'aurora/shells/**'
+      - 'system/commands/**'
+      - 'isa/catalog.json'
+      - 'desktop/aurora/gates_menu.json'
       - '.github/workflows/boot-iso-validation.yml'
   pull_request:
     paths:
@@ -38,6 +47,15 @@ on:
       - 'system/commands/chimera-arabic.json'
       - 'system/commands/online-command-catalog.json'
       - 'data/isa/online-isa-index.json'
+      - 'tools/aurora/**'
+      - 'tools/commands/**'
+      - 'tools/isa/**'
+      - 'scripts/import-aurora-*-suite.sh'
+      - 'aurora/terminals/**'
+      - 'aurora/shells/**'
+      - 'system/commands/**'
+      - 'isa/catalog.json'
+      - 'desktop/aurora/gates_menu.json'
       - '.github/workflows/boot-iso-validation.yml'
   workflow_dispatch:
 
@@ -62,6 +80,7 @@ jobs:
           bash -n tools/branding/chimera-set-desktop-background.sh
           bash tests/boot/test-boot-artifact-regressions.sh
           bash tools/tests/test-iso-resume-and-aurora.sh
+          python3 tools/boot/verify-menu-timeouts.py --root .
           python3 tools/boot/validate_boot_pipeline.py
           python3 -m unittest discover -s tests/boot -p 'test_native_boot_pipeline.py' -v
           bash -n boot/iso/build-iso.sh
