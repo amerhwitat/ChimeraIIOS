@@ -52,6 +52,7 @@ declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ make cmake ninja-build pkg-config
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox-static
+  gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
@@ -63,8 +64,6 @@ declare -a OPTIONAL_PACKAGES=(
   nodejs npm ruby perl php lua5.4 golang-go rustc cargo
   openjdk-21-jdk default-jdk openjdk-17-jdk qemu-system-x86
   dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
-  gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-  gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
 )
 
 missing=()
