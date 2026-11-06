@@ -163,19 +163,35 @@ if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
 fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
-python3 - "$ART" "$PAY" <<'PY'
-import json, os, subprocess, sys
-src, pay = sys.argv[1], sys.argv[2]
-manifest = json.load(open(os.path.join(src, "manifest.json")))
+python3 - "$ART" "$PAY" "$AURORA_MEDIA" <<'PY'
+import json, os, shutil, subprocess, sys
+src, pay, media = sys.argv[1:4]
+wallpapers = os.path.join(pay, "wallpapers")
+manifest = json.load(open(os.path.join(src, "manifest.json"), encoding="utf-8"))
 out = []
 for item in manifest:
-    dst = os.path.join(pay, "wallpapers", item["file"])
+    dst = os.path.join(wallpapers, item["file"])
     subprocess.run(["convert", os.path.join(src, item["file"]),
                     "-resize", "2560x2560>", "-strip", "-quality", "88", dst], check=True)
     out.append({"name": item["name"], "file": item["file"], "url": item["file"],
                 "source": item.get("source", "")})
-json.dump(out, open(os.path.join(pay, "wallpapers", "index.json"), "w"), indent=1)
-print("wallpapers:", len(out))
+# Add every generated Aurora screen/background to the desktop wallpaper picker.
+visual = json.load(open(os.path.join(media, "manifest.json"), encoding="utf-8"))
+for role, rel in visual.get("assets", {}).items():
+    source = os.path.join(media, rel)
+    if not os.path.isfile(source):
+        raise SystemExit(f"generated Aurora visual is missing: {source}")
+    filename = "aurora-" + os.path.basename(rel)
+    destination = os.path.join(wallpapers, filename)
+    shutil.copy2(source, destination)
+    out.append({"name": "Aurora " + role.replace("_", " ").title(),
+                "file": filename, "url": filename, "source": "generated:" + rel,
+                "role": role})
+video = os.path.join(media, "Init.mp4")
+if os.path.isfile(video):
+    shutil.copy2(video, os.path.join(wallpapers, "aurora-init.mp4"))
+json.dump(out, open(os.path.join(wallpapers, "index.json"), "w", encoding="utf-8"), indent=1)
+print("wallpapers:", len(out), "(repository + generated Aurora artwork)")
 PY
 
 # verbatim source snapshot for provenance (excluding build output)
