@@ -28,22 +28,22 @@ class InteractiveBootMenuTests(unittest.TestCase):
         for relative in MENU_FILES:
             with self.subTest(menu=relative):
                 content = (ROOT / relative).read_text(encoding="utf-8")
-                self.assertRegex(content, r"(?m)^set timeout=60\\s*$")
-                self.assertRegex(content, r"(?m)^set timeout_style=menu\\s*$")
-                self.assertRegex(content, r"(?m)^set default=0\\s*$")
+                self.assertRegex(content, r"(?m)^set timeout=60\s*$")
+                self.assertRegex(content, r"(?m)^set timeout_style=menu\s*$")
+                self.assertRegex(content, r"(?m)^set default=0\s*$")
 
     def test_generated_jasper_recovery_menu_keeps_timeout(self):
         script = (ROOT / "boot/iso/prepare-layout.sh").read_text(encoding="utf-8")
         match = re.search(
-            r'cat > "\\$DIST/boot/jasper/recovery\\.cfg" <<\'EOF\'\\n(.*?)\\nEOF',
+            r'cat > "\$DIST/boot/jasper/recovery\.cfg" <<\'EOF\'\n(.*?)\nEOF',
             script,
             re.DOTALL,
         )
         self.assertIsNotNone(match, "generated Jasper recovery config heredoc is missing")
         generated = match.group(1)
-        self.assertRegex(generated, r"(?m)^set timeout=60\\s*$")
-        self.assertRegex(generated, r"(?m)^set timeout_style=menu\\s*$")
-        self.assertRegex(generated, r"(?m)^set default=0\\s*$")
+        self.assertRegex(generated, r"(?m)^set timeout=60\s*$")
+        self.assertRegex(generated, r"(?m)^set timeout_style=menu\s*$")
+        self.assertRegex(generated, r"(?m)^set default=0\s*$")
 
     def test_gates_requires_explicit_selection_and_never_autoselects(self):
         gates = json.loads((ROOT / "desktop/aurora/gates_menu.json").read_text(encoding="utf-8"))
