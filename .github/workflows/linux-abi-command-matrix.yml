@@ -7,6 +7,13 @@ on:
       - 'system/commands/compatibility-binary-policy.json'
       - 'tools/commands/build_linux_abi_command_matrix.py'
       - 'tests/commands/test-native-command-matrix.sh'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/generate_runtime_manifest.py'
+      - 'tools/commands/verify-command-provider-coverage.py'
+      - 'tools/aurora/install-terminal-shell-suite.sh'
+      - 'tools/aurora/build-terminal-shell-sources.sh'
+      - 'tools/check-build-dependencies.sh'
+      - 'live-image/build.sh'
       - '.github/workflows/linux-abi-command-matrix.yml'
   pull_request:
     paths:
@@ -14,6 +21,13 @@ on:
       - 'system/commands/compatibility-binary-policy.json'
       - 'tools/commands/build_linux_abi_command_matrix.py'
       - 'tests/commands/test-native-command-matrix.sh'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/generate_runtime_manifest.py'
+      - 'tools/commands/verify-command-provider-coverage.py'
+      - 'tools/aurora/install-terminal-shell-suite.sh'
+      - 'tools/aurora/build-terminal-shell-sources.sh'
+      - 'tools/check-build-dependencies.sh'
+      - 'live-image/build.sh'
       - '.github/workflows/linux-abi-command-matrix.yml'
   workflow_dispatch:
 permissions:
@@ -44,6 +58,18 @@ jobs:
             --require-all
       - name: Run native and QEMU user-mode command behavior tests
         run: bash tests/commands/test-native-command-matrix.sh build/linux-abi-command-matrix
+      - name: Assert all eight ELF targets and smoke-test evidence
+        run: |
+          python3 - build/linux-abi-command-matrix/manifest.json <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding='utf-8'))
+          expected={'x86_64','i686','armel','aarch64','armv7','riscv64','ppc64le','s390x'}
+          rows={x['target']:x for x in d['targets']}
+          assert set(rows)==expected, sorted(rows)
+          assert all(x['binary_status']=='cross-compiled-and-elf-machine-validated' for x in rows.values())
+          assert all('smoke-tested' in x['runtime_status'] for x in rows.values())
+          print('Eight Linux ABI binaries built, ELF-validated and smoke-tested.')
+          PY
       - name: Upload Linux ABI binaries, aliases and runtime manifest
         uses: actions/upload-artifact@v4
         with:
