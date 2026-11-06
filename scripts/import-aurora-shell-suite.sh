@@ -54,4 +54,18 @@ build_source mksh https://github.com/MirBSD/mksh.git || log "mksh source build u
 build_source elvish https://github.com/elves/elvish.git || log "Elvish source build unavailable; keeping system/package Elvish"
 build_source nushell https://github.com/nushell/nushell.git || log "Nushell source build unavailable; keeping system/package Nushell"
 build_source yash https://github.com/magicant/yash.git || log "Yash source build unavailable; keeping system/package Yash"
+python3 - "$ROOT" "$PREFIX" "$CACHE" <<'PY'
+import hashlib,json,sys,subprocess
+from pathlib import Path
+root,prefix,cache=map(Path,sys.argv[1:]); reg=json.loads((root/"aurora/shells/registry.json").read_text()); rows=[]
+for item in reg["entries"]:
+ b=prefix/"bin"/item["binary"]; src=cache/("src-"+item["id"]); commit=None
+ if (src/".git").exists():
+  try: commit=subprocess.check_output(["git","-C",str(src),"rev-parse","HEAD"],text=True).strip()
+  except Exception: pass
+ digest=hashlib.sha256(b.read_bytes()).hexdigest() if b.is_file() else None
+ rows.append({"id":item["id"],"binary":item["binary"],"status":"built-or-provider-present" if b.is_file() and b.stat().st_mode&0o111 else "provider-missing","source_commit":commit,"sha256":digest})
+out=prefix/"share/chimera/aurora/shells/shell-build-report.json";out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps({"schema":"CHM-SHELL-BUILD-REPORT-1","entries":rows},indent=2)+"\\n")
+print("Shell source/provider report:",sum(x["status"]=="built-or-provider-present" for x in rows),"/",len(rows))
+PY
 log "Shell registry staged at $PREFIX/share/chimera/aurora/shells/registry.json"
