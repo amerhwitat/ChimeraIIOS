@@ -128,19 +128,17 @@ COMMAND_SOURCE="$REPO_DIR"
 if [ "$ED" = "octavian" ]; then
   COMMAND_SOURCE="$REPO_DIR/vendor/chimera-ii-os/source"
 fi
-[ -x "$COMMAND_SOURCE/tools/build-chimera-command-compat.sh" ] || {
-  echo "ERROR: command/ISA runtime builder missing: $COMMAND_SOURCE/tools/build-chimera-command-compat.sh" >&2
+[ -s "$COMMAND_SOURCE/src/chimera-command-compat/chimera-cmd.c" ] || {
+  echo "ERROR: native command source missing: $COMMAND_SOURCE" >&2
   exit 2
 }
-log "installing native command runtime and offline command/ISA catalogues"
-CHIMERA_ROOT="$COMMAND_SOURCE" CHIMERA_ROOTFS_DIR="$WORK" \
-  bash "$COMMAND_SOURCE/tools/build-chimera-command-compat.sh"
-mkdir -p "$WORK/usr/share/chimera/commands" "$WORK/usr/share/chimera/isa"
-cp -a "$COMMAND_SOURCE/system/commands/." "$WORK/usr/share/chimera/commands/"
-cp -a "$COMMAND_SOURCE/isa/." "$WORK/usr/share/chimera/isa/"
-test -x "$WORK/usr/bin/chimera-cmd" || { echo "ERROR: native command binary was not installed" >&2; exit 2; }
-test -x "$WORK/usr/bin/ls" || { echo "ERROR: native ls command was not installed" >&2; exit 2; }
-test -s "$WORK/usr/share/chimera/commands/chimera-command-list.json" || { echo "ERROR: command catalogue was not staged" >&2; exit 2; }
+log "staging non-destructive native commands and offline command/ISA catalogues"
+CHIMERA_COMMAND_LINK_MODE=dynamic CHIMERA_INSTALL_DISPATCHER=1 CHIMERA_STAGE_CATALOGS=1 \
+  bash "$REPO_DIR/tools/stage-native-command-runtime.sh" "$COMMAND_SOURCE" "$WORK"
+test -x "$WORK/usr/lib/chimera/native-bin/chimera-cmd" || { echo "ERROR: native command binary was not staged" >&2; exit 2; }
+test -x "$WORK/usr/bin/chimera-native" || { echo "ERROR: native command launcher was not staged" >&2; exit 2; }
+test -x "$WORK/usr/bin/chimera" || { echo "ERROR: compatibility dispatcher was not staged" >&2; exit 2; }
+test -s "$WORK/usr/share/chimera/commands/catalogs/chimera-command-list.json" || { echo "ERROR: command catalogue was not staged" >&2; exit 2; }
 test -s "$WORK/usr/share/chimera/isa/generated/universal-instruction-catalog.json" || { echo "ERROR: universal ISA catalogue was not staged" >&2; exit 2; }
 
 # ------------------------------------------------------------- payload
