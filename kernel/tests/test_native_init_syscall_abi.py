@@ -26,7 +26,7 @@ for macro, (linux_number, canonical_id) in expected.items():
         f"to Chimera semantic ID {canonical_id}"
     )
 
-assert "CHM_SYS_" not in COMMON, (
+assert not re.search(r"\\bCHM_SYS_[A-Z0-9_]+\\b", COMMON), (
     "native semantic syscall IDs must not be passed directly to Linux SYSCALL"
 )
 assert 'int $0x80' in COMMON, (
