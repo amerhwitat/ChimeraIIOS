@@ -1,0 +1,50 @@
+{
+  "schema": "CHIMERA-RUNTIME-CATALOGUE-CONTRACT-1",
+  "commands": {
+    "discovery_catalog": "system/commands/native-command-candidates.json",
+    "capability_catalog": "system/commands/command-runtime-capabilities.json",
+    "policy": "system/commands/compatibility-binary-policy.json",
+    "native_multicall_source": "src/chimera-command-compat/chimera-cmd.c",
+    "native_multicall_allowlist": [
+      "pwd",
+      "echo",
+      "ls",
+      "cp",
+      "mv",
+      "touch",
+      "mkdir",
+      "rm",
+      "cat",
+      "clear",
+      "whoami",
+      "hostname",
+      "date",
+      "true",
+      "false"
+    ],
+    "rule": "Catalogue rows are discovery metadata, not proof of an executable. Only source-implemented commands successfully built for a target are binary-backed. Provider-backed and unavailable entries must remain distinct."
+  },
+  "isa": {
+    "source_catalogue": "isa/catalog.json",
+    "universal_catalogue": "isa/generated/universal-instruction-catalog.json",
+    "encoding_registry": "isa/generated/isa-encoding-registry.json",
+    "generated_kernel_registry": "kernel/generated/chimera_isa_registry.generated.h",
+    "rule": "ISA instructions and encodings are instruction definitions, not one executable binary per instruction. A target-specific assembler/decoder/emulator backend plus conformance tests is required before claiming execution support."
+  },
+  "architecture_builds": {
+    "workflow": ".github/workflows/command-arch-matrix.yml",
+    "targets": [
+      "x86_64",
+      "i686",
+      "aarch64",
+      "armv7",
+      "riscv64",
+      "ppc64le",
+      "s390x"
+    ],
+    "output": "build/command-arch-matrix/<arch>/chimera-cmd",
+    "artifact_abi": "Linux ELF cross-build artifact; not automatically a Koronos-native executable",
+    "runtime_gate": "Verify ELF ABI, loader/syscall compatibility, command behavior and BIOS/UEFI boot on the matching Koronos target before staging or release."
+  },
+  "current_kernel_runtime": "The current published native Koronos release is AMD64. Other architectures remain build candidates until kernel and userspace runtime acceptance passes."
+}
