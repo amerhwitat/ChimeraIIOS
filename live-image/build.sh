@@ -236,6 +236,7 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
 bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
+CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
 # Audit every command record against actual files in the final target rootfs.
 python3 "$REPO_DIR/tools/commands/verify-command-provider-coverage.py" \
   "$WORK" "$REPO_DIR/system/commands/command-runtime-capabilities.json" x86_64
