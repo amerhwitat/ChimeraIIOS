@@ -124,6 +124,9 @@ cp -a "$BASE/." "$WORK/" 2>/dev/null || true
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
+# Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
+install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/usr/local/bin/chimera-verify-opengl"
+
 # ------------------------------------------------------------- payload
 log "staging payload"
 PAY="$WORK/opt/aurora"
