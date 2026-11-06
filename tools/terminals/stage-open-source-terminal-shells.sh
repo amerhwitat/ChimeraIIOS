@@ -14,16 +14,20 @@ done
 declare -A PACKAGE_BIN=(
   [bash]=bash [zsh]=zsh [fish]=fish [dash]=dash [mksh]=mksh
   [yash]=yash [elvish]=elvish [nushell]=nu
-  [xterm]=xterm [gnome-terminal]=gnome-terminal [konsole]=konsole
-  [xfce4-terminal]=xfce4-terminal [foot]=foot [kitty]=kitty
+  [xterm]=xterm [gnome-terminal]=gnome-terminal [gnome-console]=kgx [konsole]=konsole
+  [xfce4-terminal]=xfce4-terminal [foot]=foot [kitty]=kitty [ptyxis]=ptyxis
   [alacritty]=alacritty [wezterm]=wezterm [ghostty]=ghostty [contour]=contour
+  [terminator]=terminator [tilix]=tilix [mate-terminal]=mate-terminal [qterminal]=qterminal
+  [sakura]=sakura [terminology]=terminology [lxterminal]=lxterminal [blackbox-terminal]=blackbox
 )
 declare -A APT_PACKAGE=(
   [bash]=bash [zsh]=zsh [fish]=fish [dash]=dash [mksh]=mksh
   [yash]=yash [elvish]=elvish [nushell]=nushell
-  [xterm]=xterm [gnome-terminal]=gnome-terminal [konsole]=konsole
-  [xfce4-terminal]=xfce4-terminal [foot]=foot [kitty]=kitty
+  [xterm]=xterm [gnome-terminal]=gnome-terminal [gnome-console]=gnome-console [konsole]=konsole
+  [xfce4-terminal]=xfce4-terminal [foot]=foot [kitty]=kitty [ptyxis]=ptyxis
   [alacritty]=alacritty [wezterm]=wezterm [ghostty]=ghostty [contour]=contour
+  [terminator]=terminator [tilix]=tilix [mate-terminal]=mate-terminal [qterminal]=qterminal
+  [sakura]=sakura [terminology]=terminology [lxterminal]=lxterminal [blackbox-terminal]=blackbox-terminal
 )
 echo "[AURORA-TERMINALS] Updating signed APT metadata"
 if [[ "$(id -u)" -eq 0 ]]; then APT=(apt-get); else command -v sudo >/dev/null 2>&1 || { echo "[AURORA-TERMINALS] sudo required for signed package metadata/downloads" >&2; exit 1; }; APT=(sudo apt-get); fi
@@ -58,10 +62,11 @@ expected=machines.get(target,target)
 rows=[
  ("bash","shell","bash"),("zsh","shell","zsh"),("fish","shell","fish"),("dash","shell","dash"),
  ("mksh","shell","mksh"),("yash","shell","yash"),("elvish","shell","elvish"),("nushell","shell","nu"),
- ("xterm","terminal","xterm"),("gnome-terminal","terminal","gnome-terminal"),("konsole","terminal","konsole"),
- ("xfce4-terminal","terminal","xfce4-terminal"),("foot","terminal","foot"),("kitty","terminal","kitty"),
- ("alacritty","terminal","alacritty"),("wezterm","terminal","wezterm"),("ghostty","terminal","ghostty"),
- ("contour","terminal","contour")]
+ ("xterm","terminal","xterm"),("gnome-terminal","terminal","gnome-terminal"),("gnome-console","terminal","kgx"),("konsole","terminal","konsole"),
+ ("xfce4-terminal","terminal","xfce4-terminal"),("foot","terminal","foot"),("kitty","terminal","kitty"),("ptyxis","terminal","ptyxis"),
+ ("alacritty","terminal","alacritty"),("wezterm","terminal","wezterm"),("ghostty","terminal","ghostty"),("contour","terminal","contour"),
+ ("terminator","terminal","terminator"),("tilix","terminal","tilix"),("mate-terminal","terminal","mate-terminal"),("qterminal","terminal","qterminal"),
+ ("sakura","terminal","sakura"),("terminology","terminal","terminology"),("lxterminal","terminal","lxterminal"),("blackbox-terminal","terminal","blackbox")]
 manifest=[]
 for ident,kind,binary in rows:
     candidates=[dest/"usr/bin"/binary,dest/"bin"/binary]
