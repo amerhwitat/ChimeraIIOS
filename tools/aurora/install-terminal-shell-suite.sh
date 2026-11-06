@@ -5,6 +5,18 @@ ROOTFS="${1:?usage: install-terminal-shell-suite.sh ROOTFS}"
 chroot "$ROOTFS" /bin/sh -eu -c '
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
+  apt-get install -y --no-install-recommends binutils
+  target_arch="$(dpkg --print-architecture)"
+  case "$target_arch" in
+    amd64) expected_machine="Advanced Micro Devices X86-64" ;;
+    arm64) expected_machine="AArch64" ;;
+    armhf) expected_machine="ARM" ;;
+    i386) expected_machine="Intel 80386" ;;
+    riscv64) expected_machine="RISC-V" ;;
+    ppc64el) expected_machine="PowerPC64" ;;
+    s390x) expected_machine="IBM S/390" ;;
+    *) echo "Unsupported target dpkg architecture: $target_arch" >&2; exit 2 ;;
+  esac
   installed=""
   missing=""
   install_one() {
