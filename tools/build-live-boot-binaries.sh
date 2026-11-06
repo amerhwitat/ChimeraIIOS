@@ -68,6 +68,15 @@ done < <("$BUSYBOX" --list)
 # Keep compatibility aliases required by the init scripts even if a BusyBox
 # build omits an optional applet.
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
+
+# Embed the complete command/ISA catalogues and an evidence-based implementation map.
+install -d "$INIT/etc/chimera/catalogs"
+for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+  if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"; fi
+done
+python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
+  --root "$ROOT" --busybox "$BUSYBOX" \
+  --output "$INIT/etc/chimera/catalogs/command-isa-coverage.json"
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
