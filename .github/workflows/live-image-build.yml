@@ -53,11 +53,13 @@ jobs:
   build:
     name: Build Chimera II OS live ISO
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - name: Install current stable Rust toolchain for source-built shells and terminals
         uses: dtolnay/rust-toolchain@stable
+      - name: Cache Rust dependencies for terminal and shell builds
+        uses: Swatinem/rust-cache@v2
 
       - name: Install host ISO and graphical smoke-test dependencies
         run: |
@@ -259,11 +261,13 @@ jobs:
   octavian:
     name: Build OctavianOS live ISO
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - name: Install current stable Rust toolchain for source-built shells and terminals
         uses: dtolnay/rust-toolchain@stable
+      - name: Cache Rust dependencies for terminal and shell builds
+        uses: Swatinem/rust-cache@v2
       - name: Install host ISO and cross-build dependencies
         run: |
           sudo apt-get update
