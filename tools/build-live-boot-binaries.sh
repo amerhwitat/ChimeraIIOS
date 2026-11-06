@@ -38,6 +38,7 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
 # Always inherit the canonical build directory selected by build-chimera-iso.sh.
 # CHIMERA_LIVE_BOOT_DIR remains an explicit override for standalone builds.
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
