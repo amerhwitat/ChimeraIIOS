@@ -49,7 +49,7 @@ def main():
                 row.update(provider="catalogued-provider-required",path=None)
         elif "chimera-native" in row["platforms"]:
             if name.casefold() in NATIVE_IMPLEMENTED:
-                row.update(provider="native-multicall-source",path="/usr/bin/chimera-cmd (built during native command stage)")
+                row.update(provider="native-command-source-present",path=None)
             else:
                 row.update(provider="native-candidate-not-yet-implemented",path=None)
         else:
