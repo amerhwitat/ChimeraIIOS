@@ -53,12 +53,33 @@ names={"xterm":"XTerm","gnome-terminal":"GNOME Terminal","gnome-console":"GNOME 
        "terminator":"Terminator","tilix":"Tilix","mate-terminal":"MATE Terminal","qterminal":"QTerminal",
        "sakura":"Sakura","terminology":"Terminology","lxterminal":"LXTerminal","blackbox-terminal":"Black Box Terminal"}
 for row in entries:
-    if row["kind"]=="terminal" and row["status"]=="verified-elf-provider" and row["runtime_status"]=="version-smoke-pass":
-        ident=row["id"]; binary=row["binary"]
-        (root/"usr/share/applications"/f"chimera-terminal-{ident}.desktop").write_text(
-          "[Desktop Entry]\nType=Application\nName="+names.get(ident,ident)+"\nExec=/"+str(path.relative_to(root))+
-          "\nTerminal=false\nCategories=System;TerminalEmulator;\nX-Chimera-Aurora=true\n")
+    ident=row["id"]
+    if row["kind"]=="terminal":
+        desktop=root/"usr/share/applications"/f"chimera-terminal-{ident}.desktop"
+        if row["status"]=="verified-elf-provider" and row["runtime_status"]=="version-smoke-pass":
+            desktop.write_text("[Desktop Entry]\\nType=Application\\nName="+names.get(ident,ident)+"\\nExec=/"+row["path"].lstrip("/")+
+              "\\nTerminal=false\\nCategories=System;TerminalEmulator;\\nX-Chimera-Aurora=true\\n")
+        else:
+            desktop.unlink(missing_ok=True)
+    elif row["kind"]=="shell":
+        desktop=root/"usr/share/applications"/f"chimera-shell-{ident}.desktop"
+        launcher=root/"usr/lib/chimera/aurora/launch-shell.sh"
+        if row["status"]=="verified-elf-provider" and row["runtime_status"]=="shell-command-smoke-pass" and launcher.is_file():
+            desktop.write_text("[Desktop Entry]\\nType=Application\\nName=Aurora Shell — "+ident+"\\nExec=/usr/lib/chimera/aurora/launch-shell.sh "+ident+
+              "\\nTerminal=true\\nCategories=System;TerminalEmulator;Development;\\nX-Chimera-Aurora=true\\n")
+        else:
+            desktop.unlink(missing_ok=True)
 missing=[e["id"] for e in entries if e["status"]!="verified-elf-provider"]
 bad=[e["id"] for e in entries if e["runtime_status"].endswith("-fail")]
 print(f"[AURORA-TERMINALS] verified={len(entries)-len(missing)}/{len(entries)} missing_or_wrong_arch={','.join(missing) or 'none'} smoke_fail={','.join(bad) or 'none'}")
 PY
+if [[ "${CHIMERA_TERMINAL_REQUIRE_ALL:-0}" == "1" ]]; then
+  python3 - "$OUT" <<'PY'
+import json,sys
+report=json.load(open(sys.argv[1],encoding="utf-8"))
+failed=[row for row in report["entries"] if row["status"]!="verified-elf-provider" or row["runtime_status"] not in ("shell-command-smoke-pass","version-smoke-pass")]
+if failed:
+    raise SystemExit("terminal/shell acceptance failed: "+", ".join(f"{x['id']}={x['status']}/{x['runtime_status']}" for x in failed))
+print("All 20 terminals and 8 shells passed ELF and executable smoke checks.")
+PY
+fi
