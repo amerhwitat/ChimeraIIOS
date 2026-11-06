@@ -150,6 +150,7 @@ jobs:
           cat > "$tree/boot/grub/grub.cfg" <<'GRUB'
           set timeout=0
           set default=0
+          insmod multiboot2
           terminal_output console
           menuentry "Koronos CI kernel smoke test" {
             multiboot2 /boot/koronos/koronos.elf chm.log=verbose chm.progress=events
