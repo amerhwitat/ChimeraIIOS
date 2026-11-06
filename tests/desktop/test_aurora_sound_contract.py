@@ -36,5 +36,10 @@ def main():
     for control in ["mbQuick","tbStart","tbSearch","tbTrayNet","tbTrayVoice"]:
         assert f'id="{control}"' in page, f"missing desktop control: {control}"
     assert "../aurora/assets/sounds/" in source
+    sound_service=(ROOT/"desktop/aurora/aurora-event-sound.sh").read_text(encoding="utf-8")
+    assert 'CHIMERA_SOUND_DIR:-$ROOT/assets/sounds' in sound_service
+    live_builder=(ROOT/"live-image/build.sh").read_text(encoding="utf-8")
+    assert "aurora-startup-sound.service" in live_builder
+    assert "ExecStart=/usr/local/bin/aurora-event-sound startup" in live_builder
     print("Aurora audio contract: PASS (9 mapped sound events, local assets, button/focus hooks)")
 if __name__=="__main__": main()
