@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Audit real terminal/shell executables staged in a target root filesystem."""
 from __future__ import annotations
-import argparse,json,struct
+import argparse,hashlib,json,struct,subprocess,shutil
 from pathlib import Path
 def elf_machine(p):
     try:
@@ -29,7 +29,7 @@ def main():
                     machine=elf_machine(resolved)
                     status="verified-elf-provider" if machine is not None and resolved.stat().st_mode & 0o111 else "present-but-not-verified-elf"
                 except (OSError,ValueError): status="unsafe-or-broken-path"
-            rows.append({"id":item["id"],"name":item["name"],"kind":group,"binary":binary,"source":item.get("source"),"status":status,"elf_machine":machine,"path":str(found.relative_to(root)) if found else None})
+            rows.append({"id":item["id"],"name":item["name"],"kind":group,"binary":binary,"source":item.get("source"),"status":status,"elf_machine":machine,"sha256":hashlib.sha256(resolved.read_bytes()).hexdigest() if resolved else None,"path":str(found.relative_to(root)) if found else None})
     result={"schema":"CHM-AURORA-TERMINAL-SHELL-AUDIT-1","architecture":"derived-from-ELF-machine","summary":{},"entries":rows,"policy":"Registry entries are not treated as installed until a real executable ELF provider is found inside the target rootfs."}
     for kind in ("terminal","shell"):
         subset=[x for x in rows if x["kind"]==kind]
