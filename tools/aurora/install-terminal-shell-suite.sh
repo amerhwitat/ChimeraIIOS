@@ -36,4 +36,7 @@ chroot "$ROOTFS" /bin/sh -eu -c '
   apt-get clean
   rm -rf /var/lib/apt/lists/*
 '
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+install -D -m 0755 "$REPO_DIR/aurora/terminals/aurora-terminal-center.sh" "$ROOTFS/usr/local/bin/aurora-terminal-center"
+install -D -m 0755 "$REPO_DIR/aurora/shells/aurora-shell-center.sh" "$ROOTFS/usr/local/bin/aurora-shell-center"
 printf 'Terminal/shell package acquisition completed; inspect target manifest for source-build-required entries.\n'
