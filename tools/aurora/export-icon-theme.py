@@ -11,7 +11,7 @@ def main():
     ap.add_argument("--output",type=Path,required=True)
     args=ap.parse_args()
     source=args.source.read_text(encoding="utf-8")
-    pattern=re.compile(r'\{"([a-z0-9_-]+)","(<svg\b.*?</svg>)"\}',re.S)
+    pattern=re.compile(r'\{"([^"]+)","(<svg[\s\S]*?</svg>)"\}')
     icons=pattern.findall(source)
     if not icons:
         raise SystemExit("no embedded Aurora SVG icons found; refusing to emit an empty theme")
