@@ -76,5 +76,5 @@ if [ "$wm_ready" -ne 1 ]; then
   kill "$wm_pid" 2>/dev/null || true
   exit 1
 fi
-echo "[Aurora] Openbox ready; starting fullscreen desktop (profile: $profile)."
+echo "[Aurora] Openbox window manager ready; starting fullscreen desktop (profile: $profile)."
 exec /usr/bin/python3 /usr/local/bin/aurora-kiosk.py "$uri"
