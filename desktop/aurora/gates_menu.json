@@ -139,5 +139,11 @@
       "PS4",
       "PS5"
     ]
+  },
+  "menu_behavior": {
+    "timeout_seconds": 300,
+    "timeout_mode": "interactive",
+    "default_item": 0,
+    "description": "Wait five minutes for user input before selecting the default menu item."
   }
 }
