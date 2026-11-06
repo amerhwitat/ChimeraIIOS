@@ -27,7 +27,7 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/shells" "$CACHE"
 cp "$ROOT/aurora/shells/registry.json" "$PREFIX/share/chimera/aurora/shells/registry.json"
 log(){ printf '[AURORA-SHELL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-TARGET_ARCH="\${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
 normalize_arch() {
   case "$1" in
     amd64|x86_64) printf x86_64 ;;
@@ -39,9 +39,6 @@ normalize_arch() {
     s390x) printf s390x ;;
     *) return 1 ;;
   esac
-  local built
-  case "$id" in nushell) built="$PREFIX/bin/nu";; *) built="$PREFIX/bin/$id";; esac
-  verify_target_binary "$built" || { rm -f "$built"; return 1; }
 }
 verify_target_binary() {
   local binary="$1" arch machine expected
@@ -83,6 +80,9 @@ build_source(){
     yash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); find "$src" -type f -name yash -perm -111 -exec cp {} "$PREFIX/bin/yash" \; -quit ;;
     *) return 1 ;;
   esac
+  local built
+  case "$id" in nushell) built="$PREFIX/bin/nu";; *) built="$PREFIX/bin/$id";; esac
+  verify_target_binary "$built" || { rm -f "$built"; return 1; }
 }
 for b in bash zsh fish dash mksh elvish nu yash; do copy_if_present "$b" || true; done
 [[ "$MODE" == "binary-only" ]] && { log "Binary-only mode selected; using packages/prebuilt artifacts already present"; exit 0; }
