@@ -151,8 +151,12 @@ jobs:
                   import hashlib
                   if hashlib.sha256(binary.read_bytes()).hexdigest() != item.get("sha256"):
                       raise SystemExit(f"terminal provider hash mismatch: {item['id']}")
-                  if item.get("kind") == "terminal" and not (terminal_root / "share/applications" / f"chimera-terminal-{item['id']}.desktop").is_file():
-                      raise SystemExit(f"present terminal provider lacks desktop entry: {item['id']}")
+                  if item.get("kind") == "terminal":
+                      entry = terminal_root / "share/applications" / f"chimera-terminal-{item['id']}.desktop"
+                      if item.get("runtime_status") == "version-smoke-pass" and not entry.is_file():
+                          raise SystemExit(f"smoke-tested terminal provider lacks desktop entry: {item['id']}")
+                      if item.get("runtime_status") != "version-smoke-pass" and entry.exists():
+                          raise SystemExit(f"terminal launcher emitted without a passing version smoke test: {item['id']}")
               elif item.get("status") == "wrong-architecture":
                   print(f"Terminal provider not usable on this ISO architecture: {item['id']}")
 
