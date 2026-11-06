@@ -10,6 +10,7 @@ class BootMenuTimeoutTests(unittest.TestCase):
     def test_published_menu_configs_wait_sixty_seconds(self):
         paths = [
             "boot/iso/grub.cfg",
+            "boot/loader-menu.cfg",
             "boot/jasper/jasper.cfg",
             "boot/jasper/live.cfg",
             "boot/jasper/install.cfg",
@@ -41,11 +42,11 @@ class BootMenuTimeoutTests(unittest.TestCase):
 
     def test_gates_defaults_only_after_sixty_second_wait(self):
         gates = json.loads(Path("desktop/aurora/gates_menu.json").read_text())
-        policy = gates["input_policy"]
+        policy = gates["boot_menu_policy"]
         self.assertEqual(policy["timeout_seconds"], 60)
         self.assertEqual(policy["timeout_style"], "menu")
-        self.assertEqual(policy["on_timeout"], "launch_configured_default")
-        self.assertTrue(policy["auto_select_default"])
+        self.assertEqual(policy["on_timeout"], "boot_configured_default")
+        self.assertEqual(policy["default_index"], 0)
 
     def test_userspace_tmpfiles_declaration_is_installed(self):
         source = Path("userspace/tmpfiles/aurora.conf")
