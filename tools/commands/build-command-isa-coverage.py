@@ -56,6 +56,25 @@ def main():
         else:
             row.update(provider="compatibility-provider-required",path=None)
         row["platforms"].sort()
+    matrix_path=root/"build/native-command-isa/manifest.json"
+    native_matrix=None
+    native_targets={}
+    if matrix_path.exists():
+        try:
+            native_matrix=json.loads(matrix_path.read_text(encoding="utf-8"))
+            native_targets={row.get("target"):row for row in native_matrix.get("targets",[])}
+        except (OSError,json.JSONDecodeError):
+            native_matrix=None
+            native_targets={}
+    for row in rows.values():
+        if "chimera-native" in row["platforms"]:
+            built=[arch for arch,entry in native_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
+            row["native_binary_targets"]=sorted(built)
+            row["native_runtime_status"]="not-tested-cross-build-only" if built else "not-built-or-not-verified"
+            if "linux-bash" not in row["platforms"]:
+                row["provider"]="native-multicall-crossbuilt" if built else row["provider"]
+                row["path"]=None
+
     csv_path=root/"ISA.csv"
     isa={}
     if csv_path.exists():
@@ -77,8 +96,13 @@ def main():
             status="host ISA detection only; no complete Koronos kernel target"
         else:
             status="catalogue-only; no executable Koronos backend declared"
+        target_key={"x86-64":"x86_64","x86_64":"x86_64","aarch64":"aarch64","riscv64":"riscv64"}.get(key)
+        cmd_row=native_targets.get(target_key,{}) if target_key else {}
+        command_status=cmd_row.get("binary_status","not-built")
         matrix.append({"architecture":arch,"instruction_forms":info["instruction_forms"],
-                       "unique_mnemonics":len(info["mnemonics"]),"backend_status":status})
+                       "unique_mnemonics":len(info["mnemonics"]),"backend_status":status,
+                       "native_command_binary_status":command_status,
+                       "native_command_runtime_status":cmd_row.get("runtime_status","not-tested")})
     online=root/"data/isa/online-isa-index.json"
     candidate_count=None
     if online.exists():
@@ -96,6 +120,7 @@ def main():
       "catalogued_command_count":len(command_rows),
       "commands":command_rows,
       "command_summary":counts,
+      "native_command_build_matrix":native_matrix or {"status":"not-run","targets":[]},
       "isa_source":"ISA.csv",
       "isa_architectures":matrix,
       "isa_candidate_definition_count":candidate_count,
