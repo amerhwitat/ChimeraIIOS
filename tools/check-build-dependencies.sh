@@ -58,7 +58,7 @@ declare -A COMMAND_PACKAGE=(
 
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
-  build-essential binutils gcc g++ make cmake ninja-build pkg-config
+  build-essential binutils gcc g++ make cmake ninja-build pkg-config cargo rustc golang-go
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox-static
   gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu qemu-user-static
