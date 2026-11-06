@@ -31,6 +31,9 @@ class BootMenuTimeoutTests(unittest.TestCase):
             "boot/jasper/retro.cfg",
             "boot/spitfire/spitfire-menu.cfg",
             "boot/installation/menu.cfg",
+            "boot/installation/services.cfg",
+            "boot/jasper/safe-mode.cfg",
+            "boot/jasper/last-known-good.cfg",
         ):
             with self.subTest(path=path):
                 self.assert_menu_policy(path, 120)
@@ -83,6 +86,20 @@ class BootMenuTimeoutTests(unittest.TestCase):
         script = Path("live-image/build.sh").read_text()
         self.assertIn('cp -a "$REPO_DIR/desktop/aurora-shell/." "$PAY/desktop/aurora-shell/"', script)
         self.assertNotIn('cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"', script)
+
+    def test_legacy_iso_generators_keep_the_primary_menu_visible_for_five_minutes(self):
+        for path in (
+            "Dockerfile.vmware",
+            "Dockerfile.iso-builder",
+            "generate-all-iso-editions.sh",
+            "complete-build-system.sh",
+            "generate-iso-from-docker.sh",
+        ):
+            with self.subTest(path=path):
+                text = Path(path).read_text()
+                self.assertIn("set default=0", text)
+                self.assertIn("set timeout=300", text)
+                self.assertIn("set timeout_style=menu", text)
 
 
 if __name__ == "__main__":
