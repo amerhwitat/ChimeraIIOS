@@ -144,6 +144,27 @@ jobs:
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
           unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
           root="$tmp/root"
+          test -s "$root/usr/share/chimera/catalogs/command-provider-audit.json"
+          test -s "$root/usr/share/chimera/catalogs/isa-emulator-provider-audit.json"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-provider-audit.json"
+          test -s "$root/usr/share/icons/chimera-aurora/index.theme"
+          test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
+          test -s "$root/usr/share/chimera/aurora/media/manifest.json"
+          test -s "$root/usr/lib/chimera/commands/native/x86_64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/native/aarch64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/native/riscv64/chimera-cmd"
+          python3 - "$root" <<'PY'
+          import json,sys
+          from pathlib import Path
+          r=Path(sys.argv[1])
+          commands=json.loads((r/"usr/share/chimera/catalogs/command-provider-audit.json").read_text())
+          terminals=json.loads((r/"usr/share/chimera/aurora/terminal-shell-provider-audit.json").read_text())
+          isa=json.loads((r/"usr/share/chimera/catalogs/isa-emulator-provider-audit.json").read_text())
+          assert commands["unique_command_names"] == 853, commands["unique_command_names"]
+          assert len(terminals["entries"]) == 18, len(terminals["entries"])
+          assert isa["catalogued_families"] == 11
+          print("Provider audit reports validated; unsupported commands/families remain explicit.")
+          PY
           test -x "$root/usr/bin/openbox"
           test -x "$root/usr/bin/xprop"
           test -x "$root/usr/local/bin/aurora-session"
