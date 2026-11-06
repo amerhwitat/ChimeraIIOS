@@ -131,9 +131,6 @@ jobs:
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"{edition}: embedded {len(manifest['catalog_files'])} offline application catalogs.")
           PY
-            fixed="$edition-live-desktop-fixed.iso"
-            cp "$iso" "$OUT_DIR/$fixed"
-            cp "$iso.sha256" "$OUT_DIR/$fixed.sha256"
             rm -rf "$tmp"
           done
 
@@ -142,10 +139,10 @@ jobs:
         with:
           name: chimera-and-octavian-live-isos
           path: |
-            ${{ runner.temp }}/aurora-live-output/chimera-ii-live-desktop-fixed.iso
-            ${{ runner.temp }}/aurora-live-output/chimera-ii-live-desktop-fixed.iso.sha256
-            ${{ runner.temp }}/aurora-live-output/octavian-live-desktop-fixed.iso
-            ${{ runner.temp }}/aurora-live-output/octavian-live-desktop-fixed.iso.sha256
+            ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
+            ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
+            ${{ runner.temp }}/aurora-live-output/octavian-os-live-amd64.iso
+            ${{ runner.temp }}/aurora-live-output/octavian-os-live-amd64.iso.sha256
             ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT-chimera.txt
             ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT-octavian.txt
           if-no-files-found: error
