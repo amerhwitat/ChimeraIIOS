@@ -27,12 +27,17 @@ def main():
             if p.exists() and p.is_file() and p.stat().st_mode & 0o111:return "executable-present"
         return None
     namespaces={}
+    bash_syntax_tokens={"&","!!"}
     for ns in ("linux_bash","macos_core","windows_cmd_core","powershell_core","vbscript_core","sql_server_core","native_chimera"):
         names=cat.get(ns,[]); rows=[]
         for name in names:
             provider=None;status="provider-missing"
             if ns=="linux_bash":
-                provider=linux_provider(name);status="provider-present-not-command-runtime-tested" if provider else status
+                if name in bash_syntax_tokens:
+                    provider="bash-syntax"
+                    status="bash-syntax-token-not-standalone-executable"
+                else:
+                    provider=linux_provider(name);status="provider-present-not-command-runtime-tested" if provider else status
             elif ns=="macos_core": status="foreign-darwin-runtime-not-available"
             elif ns=="windows_cmd_core":
                 status="wine-runtime-present-command-coverage-not-tested" if any((root/d/x).exists() for d in ("usr/bin","usr/local/bin") for x in ("wine","wine64")) else "windows-cmd-runtime-not-available"
