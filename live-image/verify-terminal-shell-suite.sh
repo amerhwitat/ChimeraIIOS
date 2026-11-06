@@ -57,16 +57,16 @@ for row in entries:
     if row["kind"]=="terminal":
         desktop=root/"usr/share/applications"/f"chimera-terminal-{ident}.desktop"
         if row["status"]=="verified-elf-provider" and row["runtime_status"]=="version-smoke-pass":
-            desktop.write_text("[Desktop Entry]\\nType=Application\\nName="+names.get(ident,ident)+"\\nExec=/"+row["path"].lstrip("/")+
-              "\\nTerminal=false\\nCategories=System;TerminalEmulator;\\nX-Chimera-Aurora=true\\n")
+            desktop.write_text("[Desktop Entry]\nType=Application\nName="+names.get(ident,ident)+"\nExec=/"+row["path"].lstrip("/")+
+              "\nTerminal=false\nCategories=System;TerminalEmulator;\nX-Chimera-Aurora=true\n")
         else:
             desktop.unlink(missing_ok=True)
     elif row["kind"]=="shell":
         desktop=root/"usr/share/applications"/f"chimera-shell-{ident}.desktop"
         launcher=root/"usr/lib/chimera/aurora/launch-shell.sh"
         if row["status"]=="verified-elf-provider" and row["runtime_status"]=="shell-command-smoke-pass" and launcher.is_file():
-            desktop.write_text("[Desktop Entry]\\nType=Application\\nName=Aurora Shell — "+ident+"\\nExec=/usr/lib/chimera/aurora/launch-shell.sh "+ident+
-              "\\nTerminal=true\\nCategories=System;TerminalEmulator;Development;\\nX-Chimera-Aurora=true\\n")
+            desktop.write_text("[Desktop Entry]\nType=Application\nName=Aurora Shell — "+ident+"\nExec=/usr/lib/chimera/aurora/launch-shell.sh "+ident+
+              "\nTerminal=true\nCategories=System;TerminalEmulator;Development;\nX-Chimera-Aurora=true\n")
         else:
             desktop.unlink(missing_ok=True)
 missing=[e["id"] for e in entries if e["status"]!="verified-elf-provider"]
