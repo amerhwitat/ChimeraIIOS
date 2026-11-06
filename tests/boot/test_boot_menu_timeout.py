@@ -32,6 +32,12 @@ class InteractiveBootMenuTests(unittest.TestCase):
                 self.assertRegex(content, r"(?m)^set timeout_style=menu\s*$")
                 self.assertRegex(content, r"(?m)^set default=0\s*$")
 
+    def test_both_live_image_editions_share_sixty_second_grub_timeout(self):
+        script = (ROOT / "live-image/build.sh").read_text(encoding="utf-8")
+        self.assertRegex(script, r"(?m)^set timeout=60\\s*$")
+        self.assertRegex(script, r"(?m)^set timeout_style=menu\\s*$")
+        self.assertRegex(script, r"(?m)^set default=0\\s*$")
+
     def test_generated_jasper_recovery_menu_keeps_timeout(self):
         script = (ROOT / "boot/iso/prepare-layout.sh").read_text(encoding="utf-8")
         match = re.search(
