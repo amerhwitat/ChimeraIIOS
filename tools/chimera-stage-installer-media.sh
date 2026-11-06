@@ -37,6 +37,15 @@ done < <("$BUSYBOX" --list)
 # Keep compatibility aliases required by the init scripts even if a BusyBox
 # build omits an optional applet.
 for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head ip udhcpc nslookup gzip; do ln -sf busybox "$P/bin/$x"; done
+
+# Embed the complete command/ISA catalogues and an evidence-based implementation map.
+install -d "$P/etc/chimera/catalogs"
+for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+  if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"; fi
+done
+python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
+  --root "$ROOT" --busybox "$BB" \
+  --output "$P/etc/chimera/catalogs/command-isa-coverage.json"
 if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/chimera-installer-runtime.sh" "$P/bin/"; chmod +x "$P/bin/chimera-installer-runtime.sh"; fi
 for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
 cat > "$P/init" <<'EOF'
