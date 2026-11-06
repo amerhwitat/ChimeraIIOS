@@ -53,6 +53,8 @@ DRIVERS="$ROOT/build/drivers"
 
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$ROOT/system/commands/command-runtime-capabilities.json" >/dev/null
 
 for tool in build-desktop-binaries.sh build-koronos-targets.sh build-toolchain-bundle.sh build-network-toolkit.sh fetch-driver-payloads.sh fetch-foreign-runtimes.sh build-mobile-edition.sh build-compatibility-binaries.sh build-live-boot-binaries.sh; do
   chmod +x "$ROOT/tools/$tool"
@@ -173,6 +175,11 @@ cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/system/security" "$STAGE/system/security"
+mkdir -p "$STAGE/system/commands" "$STAGE/system/isa" "$STAGE/system/catalogues"
+cp -a "$ROOT/system/commands/." "$STAGE/system/commands/"
+cp -a "$ROOT/isa/." "$STAGE/system/isa/"
+cp -a "$ROOT/catalogues/." "$STAGE/system/catalogues/"
+
 cp -a "$ROOT/tools/initialize-accounts.sh" "$STAGE/install/initialize-accounts.sh"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"
