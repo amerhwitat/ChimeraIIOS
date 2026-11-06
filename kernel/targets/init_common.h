@@ -49,7 +49,7 @@ static long init_syscall3(long number, long arg1, long arg2, long arg3) {
 static long init_getpid(void) { return init_syscall1(CHM_SYS_GETPID); }
 static void init_yield(void) { (void)init_syscall1(CHM_SYS_YIELD); }
 static long init_time_ticks(void) { return init_syscall1(CHM_SYS_TIME_TICKS); }
-static long init_read(long fd, char *buffer, long length) {
+static long __attribute__((unused)) init_read(long fd, char *buffer, long length) {
     return init_syscall3(CHM_SYS_READ, fd, (long)buffer, length);
 }
 static long init_write(long fd, const char *buffer, long length) {
