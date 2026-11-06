@@ -122,6 +122,10 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 # tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
 # /sys are rebuilt empty (the initramfs mounts their filesystems).
 cp -a "$BASE/." "$WORK/" 2>/dev/null || true
+# Compile source-first Aurora terminal and shell projects when a target package
+# is unavailable. The importers retain the official package binary as fallback.
+CHIMERA_ROOTFS_DIR="$WORK" CHIMERA_TERMINAL_CACHE="$BUILD/terminal-cache" CHIMERA_TERMINAL_MODE=source-first bash "$REPO_DIR/scripts/import-aurora-terminal-suite.sh"
+CHIMERA_ROOTFS_DIR="$WORK" CHIMERA_SHELL_CACHE="$BUILD/shell-cache" CHIMERA_SHELL_MODE=source-first bash "$REPO_DIR/scripts/import-aurora-shell-suite.sh"
 # Audit the actual staged binaries, not registry declarations. These reports are
 # carried in both hosted editions and are also consumed by CI validation.
 python3 "$REPO_DIR/tools/aurora/audit-terminal-shell-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
