@@ -27,7 +27,7 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/a
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-install_existing(){ local b="$1"; if [[ -x "$PREFIX/bin/$b" ]]; then return 0; fi; if have "$b"; then install -m 0755 "$(command -v "$b")" "$PREFIX/bin/$b" 2>/dev/null || true; return 0; fi; return 1; }
+install_existing(){ local b="$1"; [[ -x "$PREFIX/bin/$b" ]]; }
 source_build(){
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   local binary="$id"
