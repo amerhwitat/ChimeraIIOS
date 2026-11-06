@@ -64,7 +64,10 @@
       "true",
       "false"
     ],
-    "policy": "Only commands implemented in the native source are marked native. Other catalogued commands must resolve to a staged provider or remain explicitly unavailable; catalog membership never implies an executable exists."
+    "policy": "Only commands implemented in the native source are marked native. Other catalogued commands must resolve to a staged provider or remain explicitly unavailable; catalog membership never implies an executable exists.",
+    "abi": "Linux ELF userspace ABI only; these binaries are not Koronos-native ring-3 programs.",
+    "runtime_acceptance": "Cross-compilation and ELF machine inspection only; runtime execution is not tested.",
+    "scope": "15 POSIX-style multicall aliases implemented in src/chimera-command-compat/chimera-cmd.c; other catalogued commands require verified providers or remain unavailable."
   },
   "isa_execution": {
     "catalog_source": "isa/catalog.json",
@@ -76,6 +79,6 @@
       "chimera_isa_find_sample"
     ],
     "scope": "The sample lookup API exposes worked binary/hex encodings. It is not a complete ISA decoder, encoder, emulator, JIT, or hardware execution backend.",
-    "foreign_execution": "Requires a validated architecture-specific decoder/lowering backend or a compatible emulation runtime; unsupported instructions must fail closed."
+    "foreign_execution": "QEMU providers in hosted editions may execute supported foreign Linux guests; this does not prove Koronos ports or per-opcode conformance. VAX remains unsupported unless a real backend is supplied."
   }
 }
