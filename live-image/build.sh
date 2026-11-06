@@ -93,6 +93,8 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     set -e
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
+    install -D -m 0755 "$REPO_DIR/tools/aurora/install-runtime-packages.sh" /usr/local/sbin/chimera-install-runtime-packages
+    /usr/local/sbin/chimera-install-runtime-packages
     apt-get install -y -qq --no-install-recommends \
       linux-image-amd64 initramfs-tools live-boot live-boot-initramfs-tools \
       systemd systemd-sysv dbus dbus-x11 udev kbd console-setup \
@@ -120,6 +122,12 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 # tree; device nodes cannot be recreated without CAP_MKNOD, so /dev, /proc and
 # /sys are rebuilt empty (the initramfs mounts their filesystems).
 cp -a "$BASE/." "$WORK/" 2>/dev/null || true
+# Audit the actual staged binaries, not registry declarations. These reports are
+# carried in both hosted editions and are also consumed by CI validation.
+python3 "$REPO_DIR/tools/aurora/audit-terminal-shell-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
+python3 "$REPO_DIR/tools/commands/audit-command-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
+python3 "$REPO_DIR/tools/isa/audit-isa-emulation-providers.py" --rootfs "$WORK" --repo "$REPO_DIR"
+CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/aurora/terminals/install-desktop-entries.sh"
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
