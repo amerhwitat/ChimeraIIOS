@@ -167,7 +167,7 @@ install -d "$WORK/usr/lib/chimera/commands/native"
 cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/native/"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
-  --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" \
+  --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
