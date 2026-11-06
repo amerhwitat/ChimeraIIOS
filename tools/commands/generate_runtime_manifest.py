@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build an auditable native/shell/compatibility capability manifest for catalogued commands."""
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,6 +23,25 @@ def names(value):
             yield item.strip()
         elif isinstance(item, dict) and item.get("name"):
             yield str(item["name"]).strip()
+def catalogue_kind(name, platforms, source_urls):
+    """Separate executable commands from language tokens, syntax and API members."""
+    value = str(name).strip()
+    identifier = bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*", value))
+    urls = " ".join(str(u).casefold() for u in source_urls)
+    if "sql_server" in platforms or "access" in platforms:
+        return "language-feature"
+    if "vbscript" in platforms and (value.startswith(".") or not identifier):
+        return "language-feature"
+    if "powershell" in platforms and (value.startswith("$") or value.startswith("-") or "syntax" in urls):
+        return "language-feature"
+    if "windows_cmd" in platforms and (not identifier or any(token in value for token in ("%","&&","||","::"))):
+        return "shell-syntax"
+    if "linux_bash" in platforms and ("syntax" in urls or value.startswith(".") or value.isdigit()):
+        return "shell-syntax"
+    if not identifier and any(token in platforms for token in ("linux_bash","macos","windows_cmd","powershell")):
+        return "language-feature"
+    return "executable-command"
+
 def main():
     source=json.loads(BASE.read_text(encoding="utf-8"))
     rows={}
@@ -79,8 +99,11 @@ def main():
             print(f"warning: ignoring invalid command runtime registry: {exc}")
     commands=[]
     for key,row in sorted(rows.items()):
+        kind=catalogue_kind(row["name"], row["platforms"], row["source_urls"])
         if key in NATIVE: mode="native"; provider="chimera-cmd"
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
+        elif kind in ("language-feature", "shell-syntax"):
+            mode="language-feature"; provider="shell-interpreter-or-language-runtime"
         elif key in registry_modes:
             declared, runtime=registry_modes[key]
             # Only entries in NATIVE above are implemented by the compiled multicall.
@@ -100,6 +123,7 @@ def main():
         if isinstance(label,dict): label=label.get("label")
         commands.append({
             "name":row["name"],"platforms":sorted(row["platforms"]),"mode":mode,
+            "entry_kind":kind,
             "provider":provider,"arabic_label":label,
             "source_urls":sorted(set(row["source_urls"]))
         })
@@ -108,6 +132,9 @@ def main():
         "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
         "native_binary":"rootfs/usr/bin/chimera-cmd",
         "command_count":len(commands),
+        "executable_command_count":sum(c["entry_kind"]=="executable-command" for c in commands),
+        "language_feature_count":sum(c["entry_kind"] in ("language-feature","shell-syntax") for c in commands),
+        "shell_builtin_count":sum(c["mode"]=="shell-builtin" for c in commands),
         "mode_counts":{mode:sum(c["mode"]==mode for c in commands) for mode in sorted({c["mode"] for c in commands})},
         "commands":commands
     },ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
