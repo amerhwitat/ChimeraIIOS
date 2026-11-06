@@ -1457,6 +1457,8 @@ PYISA
   fi
   log_info "Reconciling native, shell-builtin, and compatibility-provider command inventory"
   python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py" || { log_error "Command capability manifest generation failed"; return 1; }
+  python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py"
+  python3 -m json.tool "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" >/dev/null
   [[ -s "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" ]] || { log_error "Command capability manifest missing"; return 1; }
   python3 - "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" <<'PYCOMMANDS'
 import json,sys
