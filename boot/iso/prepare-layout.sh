@@ -172,6 +172,25 @@ KERNEL="$ROOT/build/koronos/x86_64/koronos.elf"
 [[ -s "$KERNEL" ]] || { echo "Koronos kernel ELF missing: $KERNEL" >&2; exit 1; }
 chimera_copy_if_distinct "$KERNEL" "$DIST/boot/koronos/koronos.elf"
 
+# Every published target must have its corresponding ring-3 init module.
+mkdir -p "$DIST/boot/targets"
+for target in live installer recovery; do
+  target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  [[ -s "$target_elf" ]] || {
+    echo "Native target init missing: $target_elf" >&2
+    exit 2
+  }
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "Native target init is not ET_EXEC: $target_elf" >&2
+    exit 2
+  }
+  readelf -lW "$target_elf" | grep -Eq 'LOAD.*R E' || {
+    echo "Native target init has no executable PT_LOAD: $target_elf" >&2
+    exit 2
+  }
+  cp -f "$target_elf" "$DIST/boot/targets/"
+done
+
 # Bootloader source/artifacts and Jasper recovery configuration.
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
