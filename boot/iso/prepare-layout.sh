@@ -197,6 +197,8 @@ if [[ -d "$ROOT/build/live-boot/boot/live" ]]; then cp -a "$ROOT/build/live-boot
 
 cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
 set timeout=60
+set timeout_style=menu
+set default=0
 set default=0
 insmod normal
 insmod gfxterm
