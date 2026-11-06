@@ -48,9 +48,9 @@ if (("${#AVAILABLE[@]}")); then
   # its package libraries, resources, desktop files and other dependencies.
   cp -an "$WORK/extracted/." "$DEST/"
 fi
-python3 - "$DEST" "$REQUIRE_ALL" <<'PY'
+python3 - "$DEST" "$REQUIRE_ALL" "${CHIMERA_TARGET_ARCH:-$(uname -m)}" <<'PY'
 import hashlib,json,pathlib,shutil,subprocess,sys
-dest=pathlib.Path(sys.argv[1]); require_all=sys.argv[2]=="1"; readelf=shutil.which("readelf")
+dest=pathlib.Path(sys.argv[1]); require_all=sys.argv[2]=="1"; target=sys.argv[3]; readelf=shutil.which("readelf")\nmachines={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devices X86-64","aarch64":"AArch64","arm64":"AArch64","i686":"Intel 80386","i386":"Intel 80386","riscv64":"RISC-V","ppc64le":"PowerPC64","s390x":"IBM S/390"}\nexpected=machines.get(target,target)
 rows=[
  ("bash","shell","bash"),("zsh","shell","zsh"),("fish","shell","fish"),("dash","shell","dash"),
  ("mksh","shell","mksh"),("yash","shell","yash"),("elvish","shell","elvish"),("nushell","shell","nu"),
@@ -69,7 +69,7 @@ for ident,kind,binary in rows:
             proc=subprocess.run([readelf,"-h",str(path)],text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
             machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
             if proc.returncode or not machine: row["status"]="present-but-not-valid-ELF"
-            else: row["elf_machine"]=machine
+            elif expected not in machine and machine not in expected: row["status"]="wrong-architecture"\n            else: row["elf_machine"]=machine
         else: row["status"]="present-hash-only"
     manifest.append(row)
 out={"schema":"AURORA-TERMINAL-SHELL-STAGING-1","policy":"Only real executable files are listed; SHA-256 identifies exact bytes; staging does not imply runtime compatibility.","entries":manifest}
