@@ -8,7 +8,20 @@ INSTALLED="$ROOTFS/usr/share/chimera/aurora/terminal-shell-installed.tsv"
 [[ -s "$MISSING" ]] || { echo "No source-build-required terminal/shell providers."; exit 0; }
 mkdir -p "$OUT/src" "$OUT/stage/usr/local/bin"
 require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing source-build dependency: $1" >&2; exit 2; }; }
-TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-}"
+if [[ -z "$TARGET_ARCH" ]]; then
+  target_dpkg="$(chroot "$ROOTFS" dpkg --print-architecture 2>/dev/null || true)"
+  case "$target_dpkg" in
+    amd64) TARGET_ARCH=x86_64 ;; i386) TARGET_ARCH=i686 ;; armel) TARGET_ARCH=armel ;;
+    armhf) TARGET_ARCH=armv7 ;; arm64) TARGET_ARCH=aarch64 ;; riscv64) TARGET_ARCH=riscv64 ;;
+    ppc64el) TARGET_ARCH=ppc64le ;; s390x) TARGET_ARCH=s390x ;; *) TARGET_ARCH="$(uname -m)" ;;
+  esac
+fi
+host_arch="$(uname -m)"
+if [[ "$TARGET_ARCH" != "$host_arch" ]]; then
+  echo "Source terminal builds are native-host only (host=$host_arch target=$TARGET_ARCH); install target-architecture packages or provide an explicit cross-build recipe." >&2
+  exit 2
+fi
 verify_target_elf() {
   local binary="$1" machine expected
   require readelf
