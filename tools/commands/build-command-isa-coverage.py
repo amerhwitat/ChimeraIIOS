@@ -31,6 +31,7 @@ def main():
             name=raw.get("name") if isinstance(raw,dict) else raw
             if not isinstance(name,str) or not name.strip() or "/" in name: continue
             name=name.strip()
+            if not any(char.isalnum() or char == "_" for char in name): continue
             row=rows.setdefault(name.casefold(),{"command":name,"platforms":[]})
             if platform not in row["platforms"]: row["platforms"].append(platform)
     registry=json.loads((root/"config/linux-command-registry.json").read_text(encoding="utf-8"))
