@@ -171,6 +171,14 @@ jobs:
           test -s "$root/usr/share/chimera/catalogs/ISA.csv"
           test -s "$root/usr/share/chimera/catalogs/online-isa-index.json"
           test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+          python3 - "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json" <<'PY'
+          import json,sys
+          matrix=json.load(open(sys.argv[1],encoding="utf-8"))
+          targets=matrix.get("targets",[])
+          assert len(targets)==7, f"expected seven Linux ABI targets, got {len(targets)}"
+          assert all(row.get("runtime_status")=="linux-abi-smoke-tested" for row in targets), targets
+          print("All seven Linux ABI command targets passed their native/QEMU-user smoke tests.")
+          PY
           test -s "$root/usr/share/chimera/catalogs/terminals-registry.json"
           test -s "$root/usr/share/chimera/catalogs/shells-registry.json"
           test -s "$root/usr/share/chimera/commands/hosted-tools.tsv"
