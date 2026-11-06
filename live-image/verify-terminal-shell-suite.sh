@@ -12,10 +12,11 @@ root=pathlib.Path(sys.argv[1]); target=sys.argv[2]; output=pathlib.Path(sys.argv
 rows=[
  ("bash","shell","bash"),("zsh","shell","zsh"),("fish","shell","fish"),("dash","shell","dash"),
  ("mksh","shell","mksh"),("yash","shell","yash"),("elvish","shell","elvish"),("nushell","shell","nu"),
- ("xterm","terminal","xterm"),("gnome-terminal","terminal","gnome-terminal"),("konsole","terminal","konsole"),
- ("xfce4-terminal","terminal","xfce4-terminal"),("foot","terminal","foot"),("kitty","terminal","kitty"),
- ("alacritty","terminal","alacritty"),("wezterm","terminal","wezterm"),("ghostty","terminal","ghostty"),
- ("contour","terminal","contour")]
+ ("xterm","terminal","xterm"),("gnome-terminal","terminal","gnome-terminal"),("gnome-console","terminal","kgx"),("konsole","terminal","konsole"),
+ ("xfce4-terminal","terminal","xfce4-terminal"),("foot","terminal","foot"),("kitty","terminal","kitty"),("ptyxis","terminal","ptyxis"),
+ ("alacritty","terminal","alacritty"),("wezterm","terminal","wezterm"),("ghostty","terminal","ghostty"),("contour","terminal","contour"),
+ ("terminator","terminal","terminator"),("tilix","terminal","tilix"),("mate-terminal","terminal","mate-terminal"),("qterminal","terminal","qterminal"),
+ ("sakura","terminal","sakura"),("terminology","terminal","terminology"),("lxterminal","terminal","lxterminal"),("blackbox-terminal","terminal","blackbox")]
 machines={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devices X86-64",
  "aarch64":"AArch64","arm64":"AArch64","i686":"Intel 80386","i386":"Intel 80386",
  "riscv64":"RISC-V","ppc64le":"PowerPC64","s390x":"IBM S/390"}
@@ -43,8 +44,10 @@ for ident,kind,binary in rows:
 manifest={"schema":"AURORA-TERMINAL-SHELL-STAGING-2","target_architecture":target,
  "policy":"Hashes and basic executable smoke tests only; this Linux image is not proof of Koronos syscall/ABI compatibility.","entries":entries}
 output.write_text(json.dumps(manifest,indent=2)+"\n")
-names={"xterm":"XTerm","gnome-terminal":"GNOME Terminal","konsole":"Konsole","xfce4-terminal":"XFCE Terminal",
-       "foot":"Foot","kitty":"Kitty","alacritty":"Alacritty","wezterm":"WezTerm","ghostty":"Ghostty","contour":"Contour"}
+names={"xterm":"XTerm","gnome-terminal":"GNOME Terminal","gnome-console":"GNOME Console","konsole":"Konsole","xfce4-terminal":"XFCE Terminal",
+       "foot":"Foot","kitty":"Kitty","ptyxis":"Ptyxis","alacritty":"Alacritty","wezterm":"WezTerm","ghostty":"Ghostty","contour":"Contour",
+       "terminator":"Terminator","tilix":"Tilix","mate-terminal":"MATE Terminal","qterminal":"QTerminal",
+       "sakura":"Sakura","terminology":"Terminology","lxterminal":"LXTerminal","blackbox-terminal":"Black Box Terminal"}
 for row in entries:
     if row["kind"]=="terminal" and row["status"]=="verified-elf-provider" and row["runtime_status"]=="version-smoke-pass":
         ident=row["id"]; binary=row["binary"]
