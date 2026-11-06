@@ -163,29 +163,106 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  octavian:
+    name: Build OctavianOS live ISO
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install host ISO and cross-build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 \
+            gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils
+      - name: Validate shared Aurora runtime sources
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/aurora/export-icon-theme.py tools/commands/build-command-isa-coverage.py tools/commands/build_native_command_matrix.py tools/boot/verify-menu-timeouts.py
+          python3 tests/desktop/test_aurora_sound_contract.py
+          python3 tools/boot/verify-menu-timeouts.py --root .
+      - name: Verify Octavian Aurora desktop fullscreen
+        run: |
+          xvfb-run -a -s "-screen 0 1280x720x24" \
+            tests/live-image/test-aurora-fullscreen.sh "file://${GITHUB_WORKSPACE}/desktop/aurora-shell/index.html"
+      - name: Build OctavianOS live ISO
+        env:
+          BUILD_ROOT: ${{ runner.temp }}/octavian-live-build
+          OUT_DIR: ${{ runner.temp }}/octavian-live-output
+        run: |
+          set -euo pipefail
+          sudo -E bash live-image/build.sh octavian
+          sudo chown -R "$(id -u):$(id -g)" "$OUT_DIR"
+          iso="$OUT_DIR/octavian-os-live-amd64.iso"
+          test -s "$iso"
+          (cd "$OUT_DIR" && sha256sum --check octavian-os-live-amd64.iso.sha256)
+          xorriso -indev "$iso" -report_el_torito plain -report_system_area plain > "$OUT_DIR/ISO-BOOT-REPORT.txt"
+      - name: Validate Octavian graphics, commands, icons and Aurora audio payloads
+        env:
+          OUT_DIR: ${{ runner.temp }}/octavian-live-output
+        run: |
+          set -euo pipefail
+          iso="$OUT_DIR/octavian-os-live-amd64.iso"
+          tmp="$(mktemp -d)"
+          trap 'sudo rm -rf "$tmp"' EXIT
+          xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
+          sudo unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
+          root="$tmp/root"
+          test -x "$root/usr/bin/openbox"
+          test -x "$root/usr/local/bin/aurora-session"
+          test -x "$root/usr/local/bin/chimera-verify-opengl"
+          test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          test -s "$root/usr/lib/chimera/commands/native/x86_64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/native/aarch64/chimera-cmd"
+          test -s "$root/usr/lib/chimera/commands/native/riscv64/chimera-cmd"
+          test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
+          test -s "$root/usr/share/chimera/aurora/sounds/menu-select.wav"
+          test -s "$root/etc/systemd/system/aurora-startup-sound.service"
+          cp "$iso" "$OUT_DIR/octavian-os-live-desktop-fixed.iso"
+          cp "$iso.sha256" "$OUT_DIR/octavian-os-live-desktop-fixed.iso.sha256"
+      - name: Upload verified OctavianOS live ISO candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: octavian-os-live-desktop-fixed
+          path: |
+            ${{ runner.temp }}/octavian-live-output/octavian-os-live-amd64.iso
+            ${{ runner.temp }}/octavian-live-output/octavian-os-live-amd64.iso.sha256
+            ${{ runner.temp }}/octavian-live-output/ISO-BOOT-REPORT.txt
+          if-no-files-found: error
+          retention-days: 30
+
   publish:
-    name: Publish verified Chimera II OS live ISO
-    needs: [build]
+    name: Publish verified Chimera II OS and OctavianOS hosted live ISOs
+    needs: [build, octavian]
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: chimera-ii-os-live-desktop-fixed
-          path: release-assets
+          path: release-assets/chimera
+      - uses: actions/download-artifact@v4
+        with:
+          name: octavian-os-live-desktop-fixed
+          path: release-assets/octavian
       - name: Create versioned GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          iso="$(find release-assets -maxdepth 1 -type f -name '*.iso' ! -name '*.sha256' -print -quit)"
-          checksum="$(find release-assets -maxdepth 1 -type f -name '*.iso.sha256' -print -quit)"
-          report="$(find release-assets -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
-          test -s "$iso" && test -s "$checksum" && test -s "$report"
+          chimera_iso="$(find release-assets/chimera -maxdepth 1 -type f -name 'chimera-ii-os-live-desktop-fixed.iso' -print -quit)"
+          chimera_sum="$(find release-assets/chimera -maxdepth 1 -type f -name 'chimera-ii-os-live-desktop-fixed.iso.sha256' -print -quit)"
+          octavian_iso="$(find release-assets/octavian -maxdepth 1 -type f -name 'octavian-os-live-desktop-fixed.iso' -print -quit)"
+          octavian_sum="$(find release-assets/octavian -maxdepth 1 -type f -name 'octavian-os-live-desktop-fixed.iso.sha256' -print -quit)"
+          chimera_report="$(find release-assets/chimera -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
+          octavian_report="$(find release-assets/octavian -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
+          test -s "$chimera_iso" && test -s "$chimera_sum" && test -s "$octavian_iso" && test -s "$octavian_sum" && test -s "$chimera_report" && test -s "$octavian_report"
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
-          tag="chimera-ii-os-live-${version}-desktop-${short}"
-          gh release create "$tag" "$iso" "$checksum" "$report" \
+          tag="chimera-octavian-live-${version}-desktop-${short}"
+          gh release create "$tag" "$chimera_iso" "$chimera_sum" "$chimera_report" "$octavian_iso" "$octavian_sum" "$octavian_report" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Chimera II OS ${version} — fullscreen desktop fix" \
-            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
+            --title "Chimera II OS + OctavianOS ${version} — hosted desktop images" \
+            --notes "Rebuilt from commit ${GITHUB_SHA}. Both hosted desktop editions are built and validated with Aurora WebGL/OpenGL userspace, command providers, cross-built native command artifacts and desktop assets. These are Debian/Linux-backed hosted live images; they are not Koronos-native production releases. The native Koronos ISO remains gated on its separate kernel, QEMU, live, installer and recovery runtime acceptance."
