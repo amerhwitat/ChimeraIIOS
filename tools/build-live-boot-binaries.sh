@@ -59,7 +59,14 @@ done
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
-for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
+# Link every applet actually compiled into this BusyBox binary. This makes the
+# native live/recovery payloads expose a real, inspectable command provider set.
+mkdir -p "$INIT/etc/chimera"
+"$BUSYBOX" --list | python3 -c 'import json,sys; json.dump({"schema":"CHM-BUSYBOX-APPLETS-1","provider":"busybox-static","applets":[x.strip() for x in sys.stdin if x.strip()]},open(sys.argv[1],"w"),indent=2); open(sys.argv[1],"a").write("\\n")' "$INIT/etc/chimera/busybox-applets.json"
+while IFS= read -r applet; do
+  [[ -n "$applet" && "$applet" != "busybox" ]] || continue
+  ln -sf busybox "$INIT/bin/$applet"
+done < <("$BUSYBOX" --list)
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
