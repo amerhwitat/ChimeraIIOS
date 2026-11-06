@@ -13,6 +13,43 @@
     return node;
   };
 
+  // Local, optional UI feedback. Missing devices/autoplay permission must never
+  // break the desktop controls; the native OS sound service remains independent.
+  const SOUND_FILES = {
+    startup: "startup.wav", menu_open: "menu-open.wav", menu_focus: "menu-focus.wav",
+    menu_select: "menu-select.wav", menu_back: "menu-back.wav", cancel: "cancel.wav",
+    warning: "warning.wav", error: "error.wav", success: "success.wav"
+  };
+  let lastFocusSound = 0;
+  function playSound(eventName) {
+    if (window.CHIMERA_SOUND_ENABLED === false) return;
+    const file = SOUND_FILES[eventName];
+    if (!file || typeof Audio !== "function") return;
+    const base = new URL("../aurora/assets/sounds/", document.baseURI);
+    const audio = new Audio(new URL(file, base).href);
+    const volume = Number(load("soundVolume", 0.55));
+    audio.volume = Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 0.55;
+    const result = audio.play();
+    if (result && typeof result.catch === "function") result.catch(() => {});
+  }
+  function installSoundFeedback() {
+    if (document.documentElement.dataset.auroraSoundsInstalled === "true") return;
+    document.documentElement.dataset.auroraSoundsInstalled = "true";
+    document.addEventListener("click", (event) => {
+      const button = event.target && event.target.closest ? event.target.closest("button") : null;
+      if (!button || button.disabled || button.dataset.sound === "off") return;
+      playSound(button.matches("#mbMenus button") ? "menu_open" : "menu_select");
+    }, true);
+    document.addEventListener("focusin", (event) => {
+      const target = event.target;
+      if (!target || !target.matches || !target.matches("button,[role=button]")) return;
+      const now = Date.now();
+      if (now - lastFocusSound < 90) return;
+      lastFocusSound = now;
+      playSound("menu_focus");
+    }, true);
+  }
+
   const PROFILES = {
     jasper: { name: "Jasper", skin: "Windows 12", glyph: "⊞", family: "windows" },
     gates: { name: "Gates", skin: "macOS", glyph: "", family: "mac" },
@@ -869,6 +906,7 @@
     applyProfile(requested, false);
     applyIconSize(load("iconSize", 56), false);
     applyWallpaper(load("wallpaper", ""), false);
+    installSoundFeedback();
     wire();
     startClock();
     renderIcons();
