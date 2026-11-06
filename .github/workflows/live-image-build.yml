@@ -12,6 +12,14 @@ on:
       - 'applications/**'
       - 'appcenter/**'
       - 'iso/manifests/**'
+      - 'tools/aurora/**'
+      - 'tools/commands/**'
+      - 'tools/isa/**'
+      - 'scripts/import-aurora-*-suite.sh'
+      - 'aurora/terminals/**'
+      - 'aurora/shells/**'
+      - 'system/commands/**'
+      - 'isa/catalog.json'
       - '.github/workflows/live-image-build.yml'
   pull_request:
     paths:
@@ -54,6 +62,29 @@ jobs:
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
             gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+          # Best-effort source-build toolchains/dependencies for the open-source
+          # terminal/shell matrix. Unavailable packages are reported by the importer.
+          packages=(build-essential cmake meson ninja-build pkg-config autoconf automake libtool \
+            rustc cargo golang-go zig gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils \
+            libx11-dev libxext-dev libxrender-dev libxft-dev libfontconfig1-dev libfreetype-dev \
+            libxcb1-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl-dev \
+            libdbus-1-dev libsystemd-dev libgtk-3-dev libgtk-4-dev libadwaita-1-dev \
+            libvte-2.91-gtk4-dev libpcre2-dev libxml2-dev libglib2.0-dev)
+          available=()
+          for pkg in "${packages[@]}"; do apt-cache show "$pkg" >/dev/null 2>&1 && available+=("$pkg") || true; done
+          if (("${#available[@]}")); then sudo apt-get install --yes "${available[@]}"; fi
+
+      - name: Validate provider build tools and registries
+        run: |
+          set -euo pipefail
+          bash -n tools/aurora/install-runtime-packages.sh
+          bash -n scripts/import-aurora-terminal-suite.sh
+          bash -n scripts/import-aurora-shell-suite.sh
+          python3 -m py_compile tools/aurora/audit-terminal-shell-providers.py tools/aurora/export-icon-theme.py tools/commands/audit-command-providers.py tools/commands/build_native_command_matrix.py tools/isa/audit-isa-emulation-providers.py
+          python3 -m json.tool aurora/terminals/registry.json >/dev/null
+          python3 -m json.tool aurora/shells/registry.json >/dev/null
+          python3 -m json.tool system/commands/chimera-command-list.json >/dev/null
+          python3 -m json.tool isa/catalog.json >/dev/null
 
       - name: Validate desktop source and application catalogs
         run: |
