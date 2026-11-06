@@ -40,7 +40,11 @@ for item in caps.get("commands",[]):
     binary=None
     if mode=="native":
         binary=executable("chimera-cmd")
-        status="native-multicall-binary-present" if binary else "native-implementation-not-staged"
+        if binary:
+            status="native-multicall-binary-present"
+        else:
+            binary=executable(name)
+            status="external-provider-binary-present-native-implementation-not-staged" if binary else "native-implementation-not-staged"
     elif mode=="shell-builtin":
         binary=executable("bash") or executable("dash") or executable("sh")
         status="shell-runtime-present-builtin-not-separate-binary" if binary else "shell-runtime-missing"
