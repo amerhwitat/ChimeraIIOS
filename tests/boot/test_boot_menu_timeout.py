@@ -38,6 +38,20 @@ class InteractiveBootMenuTests(unittest.TestCase):
         self.assertRegex(script, r"(?m)^set timeout_style=menu\s*$")
         self.assertRegex(script, r"(?m)^set default=0\s*$")
 
+    def test_all_alternate_iso_builders_generate_sixty_second_menus(self):
+        for relative in (
+            "complete-build-system.sh",
+            "generate-iso-from-docker.sh",
+            "generate-all-iso-editions.sh",
+            "Dockerfile.iso-builder",
+            "Dockerfile.vmware",
+        ):
+            with self.subTest(builder=relative):
+                content = (ROOT / relative).read_text(encoding="utf-8")
+                self.assertRegex(content, r"(?m)^set timeout=60\\s*$")
+                self.assertRegex(content, r"(?m)^set timeout_style=menu\\s*$")
+                self.assertRegex(content, r"(?m)^set default=0\\s*$")
+
     def test_generated_jasper_recovery_menu_keeps_timeout(self):
         script = (ROOT / "boot/iso/prepare-layout.sh").read_text(encoding="utf-8")
         match = re.search(
