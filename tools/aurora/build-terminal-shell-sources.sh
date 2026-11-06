@@ -74,9 +74,24 @@ while IFS='|' read -r package binary status; do
     ghostty) commit="$(git -C "$OUT/src/ghostty" rev-parse HEAD)" ;;
     contour) commit="$(git -C "$OUT/src/contour" rev-parse HEAD)" ;;
   esac
-  printf '%s|%s|source-built|%s\n' "$package" "$binary" "$commit" >> "$tmp"
+  case "$binary" in
+    yash) srcdir="$OUT/src/yash" ;;
+    nu) srcdir="$OUT/src/nushell" ;;
+    wezterm) srcdir="$OUT/src/wezterm" ;;
+    ghostty) srcdir="$OUT/src/ghostty" ;;
+    contour) srcdir="$OUT/src/contour" ;;
+  esac
+  install -d "$ROOTFS/usr/share/doc/chimera-terminal-shells/$binary"
+  for license in LICENSE COPYING LICENSE.md LICENSE.txt; do
+    [[ -s "$srcdir/$license" ]] && install -m 0644 "$srcdir/$license" "$ROOTFS/usr/share/doc/chimera-terminal-shells/$binary/$license"
+  done
+  digest="$(sha256sum "$ROOTFS/usr/local/bin/$binary" | awk '{print $1}')"
+  printf '%s|%s|source-built|%s|%s\n' "$package" "$binary" "$commit" "$digest" >> "$tmp"
 done < "$MISSING"
 cat "$tmp" >> "$INSTALLED"
 : > "$MISSING"
 sha256sum "$INSTALLED" "$tmp" > "$ROOTFS/usr/share/chimera/aurora/terminal-shell-build.SHA256SUMS"
+while IFS='|' read -r package binary status commit digest; do
+  [[ -x "$ROOTFS/usr/local/bin/$binary" ]] && sha256sum "$ROOTFS/usr/local/bin/$binary" >> "$ROOTFS/usr/share/chimera/aurora/terminal-shell-build.SHA256SUMS"
+done < "$tmp"
 echo "Source-built missing shell and terminal providers; verified executable files and recorded upstream commits."
