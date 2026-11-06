@@ -72,6 +72,17 @@ class InteractiveBootMenuTests(unittest.TestCase):
         self.assertIs(policy["auto_select_default"], False)
         self.assertEqual(policy["idle_timeout_action"], "remain_on_menu")
 
+    def test_gates_desktop_does_not_auto_open_or_launch_on_idle(self):
+        shell = (ROOT / "desktop/aurora-shell/assets/shell.js").read_text(encoding="utf-8")
+        state = re.search(r"const state = \\{(.*?)\\};", shell, re.DOTALL)
+        self.assertIsNotNone(state)
+        self.assertRegex(state.group(1), r"selected:\\s*null")
+        boot = re.search(r"function boot\\(\\) \\{(.*?)\\n  \\}", shell, re.DOTALL)
+        self.assertIsNotNone(boot)
+        self.assertNotRegex(boot.group(1), r"\\b(openApp|toggleStart)\\s*\\(")
+        self.assertIn('start.addEventListener("click"', shell)
+        self.assertIn('document.addEventListener("keydown", shortcutHandler)', shell)
+
     def test_boot_contract_documents_menu_policy(self):
         contract = json.loads((ROOT / "boot/boot-menu-contract.json").read_text(encoding="utf-8"))
         self.assertEqual(contract["menu_timeout_seconds"], 60)
