@@ -104,8 +104,12 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       libgbm1 libgl1-mesa-dri mesa-utils \
       openbox xterm feh \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
-      sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
-      iproute2 iputils-ping netbase procps psmisc rsync \
+      coreutils findutils grep sed gawk util-linux procps psmisc \
+      iproute2 iputils-ping net-tools dnsutils traceroute openssh-client \
+      sudo login passwd file tree plocate lsof strace bc acl \
+      ca-certificates curl wget less nano htop jq git rsync \
+      tar gzip bzip2 xz-utils zip unzip man-db manpages \
+      gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
     apt-get clean
     rm -rf /var/lib/apt/lists/*
@@ -131,6 +135,19 @@ install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/us
 log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
+
+# Build and install every generated Aurora visual asset for both OS editions.
+AURORA_MEDIA="$BUILD/aurora-media-$ED"
+bash "$REPO_DIR/tools/aurora/build-visual-assets.sh" "$AURORA_MEDIA"
+install -d "$WORK/usr/share/chimera/aurora/media" "$WORK/usr/share/chimera/aurora/icons"
+cp -a "$AURORA_MEDIA/." "$WORK/usr/share/chimera/aurora/media/"
+python3 "$REPO_DIR/tools/aurora/export-icon-theme.py" \
+  --output "$BUILD/aurora-icons-$ED"
+install -d "$WORK/usr/share/icons/hicolor/scalable/apps" "$WORK/usr/share/icons/chimera-aurora"
+cp -a "$BUILD/aurora-icons-$ED/." "$WORK/usr/share/icons/chimera-aurora/"
+cp -a "$BUILD/aurora-icons-$ED/chimera-"*.svg "$WORK/usr/share/icons/hicolor/scalable/apps/"
+cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$WORK/usr/share/chimera/aurora/"
+cp -a "$REPO_DIR/desktop/aurora/icons/icon_theme.json" "$WORK/usr/share/chimera/aurora/icons/"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
 
 # Aurora desktop shell (multi-profile window manager + apps) for every edition.
