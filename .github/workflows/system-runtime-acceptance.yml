@@ -169,6 +169,7 @@ jobs:
             package: g++-aarch64-linux-gnu
             compiler: aarch64-linux-gnu-g++
             assembler: aarch64-linux-gnu-gcc
+            asm_flags: -march=armv8-a
             entry: kernel/arch/aarch64/entry.S
             priv: kernel/arch/aarch64/priv.S
             artifact: aarch64-arch-init.o
@@ -176,6 +177,7 @@ jobs:
             package: g++-riscv64-linux-gnu
             compiler: riscv64-linux-gnu-g++
             assembler: riscv64-linux-gnu-gcc
+            asm_flags: -march=rv64gc -mabi=lp64d
             entry: kernel/arch/riscv64/entry.S
             priv: kernel/arch/riscv64/priv.S
             artifact: riscv64-arch-init.o
@@ -189,11 +191,12 @@ jobs:
         env:
           AARCH64_CC: aarch64-linux-gnu-g++
           RISCV64_CC: riscv64-linux-gnu-g++
+          CROSS_ASM_FLAGS: ${{ matrix.asm_flags }}
         run: |
           bash tools/build-koronos-targets.sh
           test -s "build/koronos/ports/${{ matrix.artifact }}"
           mkdir -p build/koronos/ports/entry
-          "${{ matrix.assembler }}" -ffreestanding -c "${{ matrix.entry }}" -o "build/koronos/ports/entry/${{ matrix.arch }}-entry.o"
+          "${{ matrix.assembler }}" $CROSS_ASM_FLAGS -ffreestanding -c "${{ matrix.entry }}" -o "build/koronos/ports/entry/${{ matrix.arch }}-entry.o"
           "${{ matrix.assembler }}" -ffreestanding -c "${{ matrix.priv }}" -o "build/koronos/ports/entry/${{ matrix.arch }}-priv.o"
           file "build/koronos/ports/${{ matrix.artifact }}" "build/koronos/ports/entry/${{ matrix.arch }}-entry.o" "build/koronos/ports/entry/${{ matrix.arch }}-priv.o"
       - name: Upload compile-only evidence
