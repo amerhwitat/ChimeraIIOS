@@ -104,10 +104,10 @@ done
 
 # Stage the cross-built native command multicall binaries for all currently
 # supported Linux command ABIs. Cross-build validation is not runtime acceptance.
-printf '%s\\n' '[3c] Stage native command binaries for x86_64, AArch64 and RV64'
+printf '%s\\n' '[3c] Stage native command binaries for x86_64, i686, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
-for arch in x86_64 aarch64 riscv64; do
+for arch in x86_64 i686 aarch64 armv7 riscv64 ppc64le s390x; do
   test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: native command binary missing for $arch" >&2; exit 2; }
   test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: native command aliases missing for $arch" >&2; exit 2; }
 done
@@ -116,7 +116,7 @@ cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/native/"
 python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
 import json,sys
 manifest=json.load(open(sys.argv[1],encoding="utf-8"))
-expected={"x86_64","aarch64","riscv64"}
+expected={"x86_64","i686","aarch64","armv7","riscv64","ppc64le","s390x"}
 rows={row["target"]:row for row in manifest.get("targets",[])}
 if set(rows)!=expected: raise SystemExit(f"wrong native command target set: {sorted(rows)}")
 for arch,row in rows.items():
