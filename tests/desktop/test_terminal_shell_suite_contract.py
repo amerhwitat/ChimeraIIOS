@@ -17,4 +17,9 @@ assert "apt-get install -y --no-install-recommends" in script
 assert "command -v" in script and "source-build-required" in script
 assert 'chroot "$ROOTFS" /bin/sh -c "command -v' in launcher
 assert "continue" in launcher
+source_builder=(root/"tools/aurora/build-terminal-shell-sources.sh").read_text()
+for binary in ("yash","nu","wezterm","ghostty","contour"):
+    assert binary in source_builder, f"missing source build recipe for {binary}"
+assert "git clone --depth 1" in source_builder
+assert "rev-parse HEAD" in source_builder
 print("PASS: 10 terminal and 8 shell providers are package-checked; launchers require installed executables")
