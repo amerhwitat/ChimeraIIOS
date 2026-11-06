@@ -114,8 +114,8 @@ progress() {
     n=$((n + 1))
   done
   line="[LIVE] [${bar}] ${pct}% ${phase}: ${message}"
-  printf '%s\\n' "$line" >> /var/log/mesgs
-  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf '%s\n' "$line" >> /var/log/mesgs
+  printf '%s\n' "$line" > /dev/console 2>/dev/null || printf '%s\n' "$line"
   printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
 }
 progress 0 "Initramfs" "Starting early userspace"
@@ -182,8 +182,8 @@ recovery_progress() {
     n=$((n + 1))
   done
   line="[RECOVERY] [${bar}] ${pct}% ${phase}: ${message}"
-  printf '%s\\n' "$line" >> /var/log/mesgs
-  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf '%s\n' "$line" >> /var/log/mesgs
+  printf '%s\n' "$line" > /dev/console 2>/dev/null || printf '%s\n' "$line"
   printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
 }
 recovery_progress 0 "Initramfs" "Starting Jasper recovery userspace"
