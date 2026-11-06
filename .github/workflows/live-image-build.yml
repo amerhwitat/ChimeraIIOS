@@ -31,6 +31,14 @@ on:
       - 'applications/**'
       - 'appcenter/**'
       - 'iso/manifests/**'
+      - 'tools/aurora/**'
+      - 'tools/commands/**'
+      - 'tools/isa/**'
+      - 'scripts/import-aurora-*-suite.sh'
+      - 'aurora/terminals/**'
+      - 'aurora/shells/**'
+      - 'system/commands/**'
+      - 'isa/catalog.json'
       - '.github/workflows/live-image-build.yml'
   workflow_dispatch:
     inputs:
