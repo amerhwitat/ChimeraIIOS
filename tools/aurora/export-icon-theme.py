@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse,json,re
 from pathlib import Path
-PATTERN=re.compile(r'\{"([a-zA-Z0-9_-]+)","(<svg[\\s\\S]*?</svg>)"\}')
+PATTERN=re.compile(r'\{"([a-zA-Z0-9_-]+)","(<svg[\s\S]*?</svg>)"\}')
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--source",type=Path,default=Path("desktop/aurora/icons/chimera_icons.cpp"));ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()
     text=a.source.read_text(encoding="utf-8");found=PATTERN.findall(text)
