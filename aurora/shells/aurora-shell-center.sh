@@ -11,4 +11,4 @@ for i in "${!entries[@]}"; do printf ' %2d) %s\n' "$((i+1))" "${entries[$i]#*|}"
 read -r -p "Select shell [1-${#entries[@]}]: " choice
 [[ "$choice" =~ ^[0-9]+$ ]] && ((choice>=1 && choice<=${#entries[@]})) || { echo "Invalid selection." >&2; exit 2; }
 bin="${entries[$((choice-1))]#*|}"
-exec "$bin" -i
+exec "$bin"
