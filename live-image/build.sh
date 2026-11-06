@@ -109,7 +109,7 @@ if [ ! -f "$BASE/.packages-installed" ]; then
     # Optional open-source shells and terminal emulators: install only packages
     # available from the signed Debian repositories. Missing packages remain
     # visible in the staging manifest instead of producing placeholder launchers.
-    for pkg in zsh fish dash mksh yash elvish nushell gnome-terminal konsole xfce4-terminal foot kitty alacritty wezterm ghostty contour; do
+    for pkg in bash zsh fish dash mksh yash elvish nushell gnome-terminal konsole xfce4-terminal foot kitty alacritty wezterm ghostty contour; do
       if apt-cache show "$pkg" >/dev/null 2>&1; then
         apt-get install -y -qq --no-install-recommends "$pkg" || echo "[AURORA-TERMINALS] package install failed: $pkg"
       else
