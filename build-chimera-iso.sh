@@ -1064,6 +1064,46 @@ stage_features(){
     install -m 0755 "$SCRIPT_DIR/tools/commands/chimera-run" "$ROOTFS_DIR/usr/bin/chimera-run"
     python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-run"
   fi
+
+  # Build and stage the actual C multicall implementation. The /usr/bin
+  # chimera-cmd script above is only an alias/compatibility dispatcher; it is
+  # never counted as native implementation evidence.
+  python3 "$SCRIPT_DIR/tools/commands/generate_runtime_manifest.py"
+  cp -f "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" \
+    "$ROOTFS_DIR/usr/share/chimera/commands/command-runtime-capabilities.json"
+  cp -f "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" \
+    "$ISO_DIR/system/commands/command-runtime-capabilities.json"
+  local native_cmd="$ROOTFS_DIR/usr/lib/chimera/chimera-cmd.native"
+  local native_bin_dir="$ROOTFS_DIR/usr/lib/chimera/native-bin"
+  mkdir -p "$(dirname "$native_cmd")" "$native_bin_dir" "$ROOTFS_DIR/etc/profile.d"
+  local native_cc="${CHIMERA_NATIVE_CC:-${CC:-cc}}"
+  command -v "$native_cc" >/dev/null 2>&1 || {
+    log_error "Native command compiler is unavailable: $native_cc"
+    return 1
+  }
+  "$native_cc" -std=c11 -O2 -Wall -Wextra -Werror \
+    "$SCRIPT_DIR/src/chimera-command-compat/chimera-cmd.c" -o "$native_cmd"
+  chmod 0755 "$native_cmd"
+  for name in pwd echo ls cp mv touch mkdir rm cat clear whoami hostname date true false; do
+    ln -sfn ../chimera-cmd.native "$native_bin_dir/$name"
+  done
+  cat > "$ROOTFS_DIR/etc/profile.d/chimera-native-commands.sh" <<'EOF_NATIVE_PATH'
+# Prefer the explicitly tested Chimera C multicall entrypoints in user shells.
+export PATH="/usr/lib/chimera/native-bin:$PATH"
+EOF_NATIVE_PATH
+  python3 "$SCRIPT_DIR/tools/commands/verify-command-provider-coverage.py" \
+    "$ROOTFS_DIR" "$SCRIPT_DIR/system/commands/command-runtime-capabilities.json" "$TARGET_ARCH"
+  python3 - "$ROOTFS_DIR/usr/share/chimera/commands/command-provider-coverage.json" <<'PY_NATIVE_GATE'
+import json, pathlib, sys
+report=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+native=[row for row in report["commands"] if row.get("mode")=="native"]
+bad=[row["name"] for row in native if row.get("status")!="native-multicall-elf-and-entrypoint-present"]
+if len(native)!=15 or bad:
+    raise SystemExit(f"native command implementation gate failed: expected 15, found {len(native)}, missing={bad}")
+print(f"Verified {len(native)} compiled native command entrypoints; external providers remain separately classified.")
+PY_NATIVE_GATE
+  cp -f "$ROOTFS_DIR/usr/share/chimera/commands/command-provider-coverage.json" \
+    "$ISO_DIR/system/commands/command-provider-coverage.json"
   [[ -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" ]] && cp -f "$SCRIPT_DIR/system/kore/chimera-unified-runtime-model.json" "$ROOTFS_DIR/usr/share/chimera/chimera-unified-runtime-model.json"
   [[ -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" ]] && cp -f "$SCRIPT_DIR/system/shell/chimera-shell.sh" "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh" && chmod +x "$ROOTFS_DIR/usr/share/chimera/chimera-shell.sh"
   mkdir -p "$ROOTFS_DIR/etc/chimera" "$ROOTFS_DIR/usr/share/chimera"
