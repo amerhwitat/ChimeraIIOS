@@ -29,13 +29,13 @@ BB="$(command -v busybox || true)"
 if [[ -z "$BB" ]]; then echo "ERROR: busybox is required to build installation.img" >&2; exit 2; fi
 cp "$BB" "$P/bin/busybox"
 mkdir -p "$P/etc/chimera"
-"$BB" --list | python3 -c 'import json,sys; json.dump({"schema":"CHM-BUSYBOX-APPLETS-1","provider":"busybox-static","applets":[x.strip() for x in sys.stdin if x.strip()]},open(sys.argv[1],"w"),indent=2); open(sys.argv[1],"a").write("\\n")' "$P/etc/chimera/busybox-applets.json"
+"$BB" --list | python3 -c 'import json,sys; json.dump({"schema":"CHM-BUSYBOX-APPLETS-1","provider":"busybox-static","applets":[x.strip() for x in sys.stdin if x.strip()]},open(sys.argv[1],"w"),indent=2); open(sys.argv[1],"a").write("\n")' "$P/etc/chimera/busybox-applets.json"
 while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != "busybox" ]] || continue
   ln -sf busybox "$P/bin/$applet"
 done < <("$BB" --list)
 if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/chimera-installer-runtime.sh" "$P/bin/"; chmod +x "$P/bin/chimera-installer-runtime.sh"; fi
-for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$P/etc/chimera/busybox-applets.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
+for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
 cat > "$P/init" <<'EOF'
 #!/bin/sh
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
