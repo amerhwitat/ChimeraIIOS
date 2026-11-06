@@ -1,8 +1,9 @@
 #pragma once
 /* Freestanding ring-3 init payload helpers for native Koronos targets.
  *
- * These payloads run at CPL 3 and may only use the stable Chimera syscall ABI:
- *   EXIT=1, GETPID=2, YIELD=3, TIME_TICKS=4, WRITE=9 (to fd=1).
+ * The entry uses Linux x86-64 syscall numbers translated by Koronos:
+ *   read=0, write=1, getpid=39, sched_yield=24, exit=60.
+ * TIME_TICKS uses the private Chimera extension 0x43484D04.
  * No libc, no builtins, no stack protector, no CRT shim.
  *
  * The DPL3 INT 0x80 gate is entered first so the kernel can prove the call
@@ -14,11 +15,12 @@
 #error "CHIMERA_TARGET_NAME must be defined (live|installer|recovery)"
 #endif
 
-#define CHM_SYS_EXIT 1
-#define CHM_SYS_GETPID 2
-#define CHM_SYS_YIELD 3
-#define CHM_SYS_TIME_TICKS 4
-#define CHM_SYS_WRITE 9
+#define CHM_LINUX_SYS_READ 0
+#define CHM_LINUX_SYS_WRITE 1
+#define CHM_LINUX_SYS_GETPID 39
+#define CHM_LINUX_SYS_YIELD 24
+#define CHM_CHIMERA_SYS_TIME_TICKS 0x43484D04u
+#define CHM_LINUX_SYS_EXIT 60
 
 static void init_int80(void) {
     __asm__ volatile("int $0x80" ::: "memory");
@@ -45,11 +47,11 @@ static long init_syscall3(long number, long arg1, long arg2, long arg3) {
     return rax;
 }
 
-static long init_getpid(void) { return init_syscall1(CHM_SYS_GETPID); }
-static void init_yield(void) { (void)init_syscall1(CHM_SYS_YIELD); }
-static long init_time_ticks(void) { return init_syscall1(CHM_SYS_TIME_TICKS); }
+static long init_getpid(void) { return init_syscall1(CHM_LINUX_SYS_GETPID); }
+static void init_yield(void) { (void)init_syscall1(CHM_LINUX_SYS_YIELD); }
+static long init_time_ticks(void) { return init_syscall1(CHM_CHIMERA_SYS_TIME_TICKS); }
 static long init_write(long fd, const char *buffer, long length) {
-    return init_syscall3(CHM_SYS_WRITE, fd, (long)buffer, length);
+    return init_syscall3(CHM_LINUX_SYS_WRITE, fd, (long)buffer, length);
 }
 __attribute__((noreturn)) static void init_exit(long code) {
     register long rax __asm__("rax") = CHM_SYS_EXIT;
