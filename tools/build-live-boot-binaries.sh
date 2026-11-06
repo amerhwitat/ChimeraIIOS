@@ -62,7 +62,7 @@ cp -f "$BUSYBOX" "$INIT/bin/busybox"
 # Link every applet actually compiled into this BusyBox binary. This makes the
 # native live/recovery payloads expose a real, inspectable command provider set.
 mkdir -p "$INIT/etc/chimera"
-"$BUSYBOX" --list | python3 -c 'import json,sys; json.dump({"schema":"CHM-BUSYBOX-APPLETS-1","provider":"busybox-static","applets":[x.strip() for x in sys.stdin if x.strip()]},open(sys.argv[1],"w"),indent=2); open(sys.argv[1],"a").write("\\n")' "$INIT/etc/chimera/busybox-applets.json"
+"$BUSYBOX" --list | python3 -c 'import json,sys; json.dump({"schema":"CHM-BUSYBOX-APPLETS-1","provider":"busybox-static","applets":[x.strip() for x in sys.stdin if x.strip()]},open(sys.argv[1],"w"),indent=2); open(sys.argv[1],"a").write("\n")' "$INIT/etc/chimera/busybox-applets.json"
 while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != "busybox" ]] || continue
   ln -sf busybox "$INIT/bin/$applet"
