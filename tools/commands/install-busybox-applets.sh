@@ -12,7 +12,11 @@ manifest="$ROOTFS/usr/share/chimera/commands/busybox-applets.tsv"
 : > "$manifest"
 while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != */* ]] || continue
-  if chroot "$ROOTFS" /bin/sh -c "command -v '$applet' >/dev/null 2>&1"; then
+  existing="$(chroot "$ROOTFS" /bin/sh -c "command -v '$applet' 2>/dev/null || true")"
+  if [[ -n "$existing" ]]; then
+    if [[ "$(readlink -f "$ROOTFS$existing" 2>/dev/null || true)" == "$(readlink -f "$ROOTFS$BB")" ]]; then
+      printf '%s|%s|busybox-static\n' "$applet" "$existing" >> "$manifest"
+    fi
     continue
   fi
   link="$ROOTFS/usr/local/bin/$applet"
