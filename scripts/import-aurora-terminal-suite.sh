@@ -40,7 +40,7 @@ source_build(){
       local zigver venv
       zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
       [[ -n "$zigver" ]] || return 1
-      venv="$BUILD/zig-venv"
+      venv="$CACHE/zig-venv"
       python3 -m venv "$venv"
       "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
       (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
