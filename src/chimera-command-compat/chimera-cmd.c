@@ -409,9 +409,9 @@ static int cmd_false(void)
 
 static int cmd_chimera_native(void)
 {
-    puts("Chimera II native command runtime");
-    puts("ABI: native");
-    puts("Status: operational");
+    puts("Chimera II POSIX command multicall");
+    puts("ABI: Linux userspace ELF");
+    puts("Koronos native syscall compatibility: not verified");
     return 0;
 }
 
