@@ -22,6 +22,12 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         condition = next(line for line in release.splitlines() if line.strip().startswith("if:"))
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
+        self.assertIn("steps.architecture_gate.outputs.accepted == 'true'", condition)
+
+    def test_native_release_requires_architecture_support_matrix(self):
+        self.assertIn("id: architecture_gate", self.text)
+        self.assertIn("architecture/support-matrix.json", self.text)
+        self.assertIn('target.get("release_supported") is True', self.text)
 
     def test_unverified_handoff_keeps_build_reviewable_but_blocks_release(self):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
