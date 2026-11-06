@@ -38,8 +38,8 @@ jobs:
           aarch64-linux-gnu-gcc -march=armv8-a -ffreestanding -c kernel/arch/aarch64/priv.S -o build/koronos/ports/entry/aarch64-priv.o
           riscv64-linux-gnu-gcc -march=rv64gc -mabi=lp64d -ffreestanding -c kernel/arch/riscv64/entry.S -o build/koronos/ports/entry/riscv64-entry.o
           riscv64-linux-gnu-gcc -march=rv64gc -mabi=lp64d -ffreestanding -c kernel/arch/riscv64/priv.S -o build/koronos/ports/entry/riscv64-priv.o
-          readelf -h build/koronos/ports/entry/aarch64-entry.o | grep -F "Machine:                           AArch64"
-          readelf -h build/koronos/ports/entry/riscv64-entry.o | grep -F "Machine:                           RISC-V"
+          readelf -h build/koronos/ports/entry/aarch64-entry.o | grep -Eq "Machine:[[:space:]]+AArch64"
+          readelf -h build/koronos/ports/entry/riscv64-entry.o | grep -Eq "Machine:[[:space:]]+RISC-V"
           file build/koronos/ports/aarch64-arch-init.o build/koronos/ports/riscv64-arch-init.o build/koronos/ports/entry/*.o
       - name: Upload cross-architecture compile-only evidence
         if: always()
