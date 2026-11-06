@@ -130,7 +130,7 @@ if [ ! -f "$BASE/.packages-installed-v2" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  bash "$ROOT/live-image/verify-terminal-shell-suite.sh" "$BASE" x86_64
+  bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$BASE" x86_64
   install -D -m 0644 "$COMMAND_SOURCE/system/commands/command-runtime-capabilities.json" "$BASE/usr/share/chimera/commands/command-runtime-capabilities.json"
   install -D -m 0644 "$COMMAND_SOURCE/tools/commands/os-command-runtime.json" "$BASE/usr/share/chimera/commands/os-command-runtime.json"
   python3 "$COMMAND_SOURCE/tools/commands/verify-command-provider-coverage.py" "$BASE" "$COMMAND_SOURCE/system/commands/command-runtime-capabilities.json" x86_64
