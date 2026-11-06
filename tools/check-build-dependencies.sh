@@ -31,6 +31,7 @@ declare -a REQUIRED_COMMANDS=(
   bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
+  aarch64-linux-gnu-gcc riscv64-linux-gnu-gcc
   unsquashfs mksquashfs rsvg-convert nasm
 )
 
@@ -44,6 +45,7 @@ declare -A COMMAND_PACKAGE=(
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
   [mcopy]=mtools [mformat]=mtools [grub-mkimage]=grub-common
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
+  [aarch64-linux-gnu-gcc]=gcc-aarch64-linux-gnu [riscv64-linux-gnu-gcc]=gcc-riscv64-linux-gnu
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
 )
 
