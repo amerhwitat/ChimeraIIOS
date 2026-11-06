@@ -101,6 +101,12 @@ for target in live installer recovery; do
   grep -q "target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_ROOT/grub.cfg" || {
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
+SHELL_ELF="$ROOT/build/koronos/x86_64/target-live-shell.elf"
+test -s "$SHELL_ELF" || { echo "ERROR: native Koronos interactive shell ELF missing: $SHELL_ELF" >&2; exit 2; }
+readelf -h "$SHELL_ELF" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: native Koronos shell is not ET_EXEC" >&2; exit 2; }
+cp -f "$SHELL_ELF" "$TARGETS_OUT/target-live-shell.elf"
+grep -q "target-live-shell.elf chimera-user-init-elf target=live abi=chimera shell=interactive" "$ISO_ROOT/grub.cfg" || {
+  echo "ERROR: GRUB menu does not reference the native interactive shell module" >&2; exit 2; }
 
 # Stage the AI knowledge database. The kernel classifies it as
 # CHIMERA_MODULE_AI_KNOWLEDGE_DB and reports its entry count on the boot trace.
