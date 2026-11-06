@@ -14,6 +14,17 @@ on:
       - "tools/build-full-iso.*"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "tools/aurora/**"
+      - "tools/commands/**"
+      - "tools/isa/**"
+      - "tools/boot/**"
+      - "scripts/import-aurora-*-suite.sh"
+      - "tools/build-live-boot-binaries.sh"
+      - "tools/chimera-stage-installer-media.sh"
+      - "system/commands/**"
+      - "isa/catalog.json"
+      - "aurora/terminals/**"
+      - "aurora/shells/**"
       - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
@@ -33,6 +44,17 @@ on:
       - "sdk/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "tools/aurora/**"
+      - "tools/commands/**"
+      - "tools/isa/**"
+      - "tools/boot/**"
+      - "scripts/import-aurora-*-suite.sh"
+      - "tools/build-live-boot-binaries.sh"
+      - "tools/chimera-stage-installer-media.sh"
+      - "system/commands/**"
+      - "isa/catalog.json"
+      - "aurora/terminals/**"
+      - "aurora/shells/**"
       - ".github/workflows/chimera-full-iso.yml"
 
 permissions:
@@ -57,6 +79,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
+      - name: Validate provider build scripts and interactive menu timeouts
+        run: |
+          set -euo pipefail
+          bash -n tools/build-live-boot-binaries.sh tools/chimera-stage-installer-media.sh tools/aurora/build-visual-assets.sh
+          bash -n scripts/import-aurora-terminal-suite.sh scripts/import-aurora-shell-suite.sh
+          python3 tools/boot/verify-menu-timeouts.py --root .
+          python3 -m py_compile tools/aurora/export-icon-theme.py tools/aurora/audit-terminal-shell-providers.py tools/commands/audit-command-providers.py tools/commands/build_native_command_matrix.py tools/isa/audit-isa-emulation-providers.py
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
 
@@ -101,11 +130,23 @@ jobs:
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
+          extract /boot/visual/aurora-media/manifest.json "$tmp/aurora-media-manifest.json"
+          extract /boot/visual/aurora-media/icons/chimera-aurora/index.theme "$tmp/aurora-icon-theme.index"
+          extract /boot/visual/aurora-media/icons/chimera-aurora/scalable/apps/chimera-settings.svg "$tmp/chimera-settings.svg"
           # Inspect the initramfs actually embedded in the ISO. This is a
           # payload-content check, not a substitute for target-specific QEMU.
           mkdir -p "$tmp/live-root" "$tmp/recovery-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
+          mkdir -p "$tmp/installer-root"
+          (cd "$tmp/installer-root" && gzip -dc "$tmp/installation.img" | cpio -id --quiet)
+          for rootfs in "$tmp/live-root" "$tmp/recovery-root" "$tmp/installer-root"; do
+            test -s "$rootfs/etc/chimera/busybox-applets.json"
+            test -s "$rootfs/etc/chimera/catalogs/chimera-command-list.json"
+            test -s "$rootfs/etc/chimera/catalogs/isa/catalog.json" || test -s "$rootfs/etc/chimera/catalogs/catalog.json"
+            test -L "$rootfs/bin/ls"
+            test -L "$rootfs/bin/grep"
+          done
           grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
           grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
           grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
