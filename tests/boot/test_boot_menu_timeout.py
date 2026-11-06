@@ -40,6 +40,14 @@ class BootMenuTimeoutTests(unittest.TestCase):
         self.assertIn("set timeout_style=menu", generated)
         self.assertIn("set default=0", generated)
 
+
+    def test_both_live_image_builds_generate_sixty_second_grub_menu(self):
+        script = Path("live-image/build.sh").read_text()
+        self.assertIn('cat > "$ISODIR/boot/grub/grub.cfg" <<EOF', script)
+        self.assertRegex(script, r"(?m)^set timeout=60$")
+        self.assertRegex(script, r"(?m)^set timeout_style=menu$")
+        self.assertRegex(script, r"(?m)^set default=0$")
+
     def test_gates_defaults_only_after_sixty_second_wait(self):
         gates = json.loads(Path("desktop/aurora/gates_menu.json").read_text())
         policy = gates["boot_menu_policy"]
