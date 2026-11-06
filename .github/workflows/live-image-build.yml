@@ -79,63 +79,72 @@ jobs:
           xvfb-run -a -s "-screen 0 1920x1080x24" \
             tests/live-image/test-aurora-fullscreen.sh "file://${GITHUB_WORKSPACE}/web/index.html"
 
-      - name: Build the complete live ISO from this repository revision
+      - name: Build both live OS images from this repository revision
         env:
           BUILD_ROOT: ${{ runner.temp }}/aurora-live-build
           OUT_DIR: ${{ runner.temp }}/aurora-live-output
         run: |
           set -euo pipefail
           sudo -E bash live-image/build.sh chimera
-          # The builder runs as root to configure the chroot; restore runner
-          # ownership so the validation and artifact-upload steps can read it.
+          sudo -E bash live-image/build.sh octavian
           sudo chown -R "$(id -u):$(id -g)" "$OUT_DIR"
           test -s "$OUT_DIR/chimera-ii-os-live-amd64.iso"
+          test -s "$OUT_DIR/octavian-os-live-amd64.iso"
 
-      - name: Validate ISO checksum, firmware boot entries and embedded application bundle
+      - name: Validate both ISO checksums, firmware boot entries and embedded application bundles
         env:
           OUT_DIR: ${{ runner.temp }}/aurora-live-output
-          ISO_NAME: chimera-ii-os-live-amd64.iso
         run: |
           set -euo pipefail
-          iso="$OUT_DIR/$ISO_NAME"
-          (cd "$OUT_DIR" && sha256sum --check "$ISO_NAME.sha256")
-          xorriso -indev "$iso" -report_el_torito plain -report_system_area plain -print '' | tee "$OUT_DIR/ISO-BOOT-REPORT.txt"
-          tmp="$(mktemp -d)"
-          trap 'rm -rf "$tmp"' EXIT
-          xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
-          unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
-          root="$tmp/root"
-          test -x "$root/usr/bin/openbox"
-          test -x "$root/usr/bin/xprop"
-          test -x "$root/usr/local/bin/aurora-session"
-          test -s "$root/opt/aurora/application-bundle.json"
-          test -d "$root/opt/aurora/app-catalogs"
-          test -d "$root/opt/aurora/apps/native/aurora"
-          grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
-          python3 - "$root/opt/aurora" <<'PY'
+          for spec in "chimera:chimera-ii-os-live-amd64.iso" "octavian:octavian-os-live-amd64.iso"; do
+            edition="${spec%%:*}"
+            iso_name="${spec#*:}"
+            iso="$OUT_DIR/$iso_name"
+            (cd "$OUT_DIR" && sha256sum --check "$iso_name.sha256")
+            xorriso -indev "$iso" -report_el_torito plain -report_system_area plain -print '' | tee "$OUT_DIR/ISO-BOOT-REPORT-$edition.txt"
+            tmp="$(mktemp -d)"
+            xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
+            unsquashfs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
+            root="$tmp/root"
+            test -x "$root/usr/bin/openbox"
+            test -x "$root/usr/bin/xprop"
+            test -x "$root/usr/local/bin/aurora-session"
+            test -s "$root/opt/aurora/desktop/aurora-shell/index.html"
+            test ! -e "$root/opt/aurora/desktop/aurora-shell/aurora-shell/index.html"
+            test -s "$root/opt/aurora/application-bundle.json"
+            test -d "$root/opt/aurora/app-catalogs"
+            test -d "$root/opt/aurora/apps/native/aurora"
+            test -s "$root/usr/lib/tmpfiles.d/aurora.conf"
+            grep -Fq 'Openbox ready; starting fullscreen desktop' "$root/usr/local/bin/aurora-session"
+            python3 - "$root/opt/aurora" "$edition" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
+          edition = sys.argv[2]
           manifest = json.loads((root / "application-bundle.json").read_text())
           assert manifest["schema"] == "aurora-offline-application-bundle-v1"
+          assert manifest["edition"] == edition, (manifest["edition"], edition)
           for relative in manifest["catalog_files"]:
               path = root / "app-catalogs" / relative
               assert path.is_file(), f"missing catalog: {relative}"
               if path.suffix == ".json":
                   json.loads(path.read_text())
           assert (root / "repo").is_dir(), "full source snapshot missing"
-          print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
+          print(f"{edition}: embedded {len(manifest['catalog_files'])} offline application catalogs.")
           PY
-          cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
-          cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
+            rm -rf "$tmp"
+          done
 
       - name: Upload verified live ISO candidate
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-ii-os-live-desktop-fixed
+          name: chimera-and-octavian-live-isos
           path: |
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
-            ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT.txt
+            ${{ runner.temp }}/aurora-live-output/octavian-os-live-amd64.iso
+            ${{ runner.temp }}/aurora-live-output/octavian-os-live-amd64.iso.sha256
+            ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT-chimera.txt
+            ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT-octavian.txt
           if-no-files-found: error
           retention-days: 30
 
@@ -147,21 +156,20 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: chimera-ii-os-live-desktop-fixed
+          name: chimera-and-octavian-live-isos
           path: release-assets
       - name: Create versioned GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          iso="$(find release-assets -maxdepth 1 -type f -name '*.iso' ! -name '*.sha256' -print -quit)"
-          checksum="$(find release-assets -maxdepth 1 -type f -name '*.iso.sha256' -print -quit)"
-          report="$(find release-assets -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
-          test -s "$iso" && test -s "$checksum" && test -s "$report"
+          shopt -s nullglob
+          assets=(release-assets/*.iso release-assets/*.iso.sha256 release-assets/ISO-BOOT-REPORT-*.txt)
+          test "${#assets[@]}" -ge 6
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
-          tag="chimera-ii-os-live-${version}-desktop-${short}"
-          gh release create "$tag" "$iso" "$checksum" "$report" \
+          tag="chimera-octavian-live-${version}-desktop-${short}"
+          gh release create "$tag" "${assets[@]}" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Chimera II OS ${version} — fullscreen desktop fix" \
-            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
+            --title "Chimera II OS + OctavianOS ${version} — live desktop images" \
+            --notes "Rebuilt both live desktop images from commit ${GITHUB_SHA}. Aurora fullscreen was verified under Openbox at 1280x720 and 1920x1080. Each ISO includes a repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. These images use the Linux kernel; they are not native Koronos production releases and do not establish architecture support beyond x86_64."
