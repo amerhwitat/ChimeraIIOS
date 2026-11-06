@@ -125,6 +125,13 @@ VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
 bash "$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
 MEDIA="$ROOT/build/aurora-media"
+# Export every native Aurora SVG icon for the desktop and the installed icon theme.
+ICON_OUT="$DIST/iso/desktop/aurora/icons/generated"
+python3 "$ROOT/tools/aurora/export-icon-theme.py" --output "$ROOT/build/aurora-icons"
+mkdir -p "$ICON_OUT" "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps"
+cp -a "$ROOT/build/aurora-icons/." "$ICON_OUT/"
+cp -a "$ROOT/build/aurora-icons/." "$DIST/iso/usr/share/icons/chimera-aurora/"
+cp -a "$ROOT/build/aurora-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps/"
 test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/visual/aurora-media"
 cp -a "$MEDIA/." "$DIST/iso/boot/visual/aurora-media/"
@@ -164,6 +171,7 @@ RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera
 if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
   mkdir -p "$RUNTIME_AURORA_ROOT"
   cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
+  cp -a "$ROOT/build/aurora-icons/." "$RUNTIME_AURORA_ROOT/icons/"
 fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
@@ -175,6 +183,7 @@ for visual in \
   test -s "$DIST/iso/boot/visual/$visual" || { echo "ERROR: Aurora visual asset missing: $visual" >&2; exit 2; }
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
+test -s "$ICON_OUT/manifest.json" || { echo "ERROR: generated Aurora icon manifest missing." >&2; exit 2; }
 for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/Init.mp4" || { echo "ERROR: Init.mp4 missing from $stage stage." >&2; exit 2; }
   test -s "$DIST/iso/boot/$stage/aurora-boot.png" || { echo "ERROR: Aurora artwork missing from $stage stage." >&2; exit 2; }
