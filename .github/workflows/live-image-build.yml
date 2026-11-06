@@ -5,6 +5,7 @@ on:
     branches: [main, 'fix/live-image-fullscreen-app-bundle-*']
     paths:
       - 'live-image/**'
+      - 'userspace/**'
       - 'tests/live-image/**'
       - 'web/**'
       - 'desktop/**'
@@ -41,7 +42,21 @@ concurrency:
 
 jobs:
   build:
-    name: Build Chimera II OS live ISO
+    name: Build ${{ matrix.edition }} live ISO
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - edition: chimera
+            iso_name: chimera-ii-os-live-amd64.iso
+            artifact_name: chimera-ii-os-live-desktop-fixed
+            release_prefix: chimera-ii-os-live
+            release_title: Chimera II OS
+          - edition: octavian
+            iso_name: octavian-os-live-amd64.iso
+            artifact_name: octavian-os-live-desktop-fixed
+            release_prefix: octavian-os-live
+            release_title: OctavianOS
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -60,12 +75,11 @@ jobs:
           set -euo pipefail
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py
           python3 -m json.tool desktop/optional_apps_catalog.json >/dev/null
-          if [[ "chimera" == "chimera" ]]; then
+          if [[ "${{ matrix.edition }}" == "chimera" ]]; then
             python3 -m json.tool applications/catalog.json >/dev/null
             python3 -m json.tool appcenter/catalog/apps.json >/dev/null
           else
             python3 -m json.tool apps/desktop-application-catalog.json >/dev/null
-            python3 -m json.tool vendor/chimera-ii-os/source/desktop/optional_apps_catalog.json >/dev/null
           fi
 
       - name: Verify kiosk fullscreen at 1280x720
@@ -85,16 +99,16 @@ jobs:
           OUT_DIR: ${{ runner.temp }}/aurora-live-output
         run: |
           set -euo pipefail
-          sudo -E bash live-image/build.sh chimera
+          sudo -E bash live-image/build.sh "${{ matrix.edition }}"
           # The builder runs as root to configure the chroot; restore runner
           # ownership so the validation and artifact-upload steps can read it.
           sudo chown -R "$(id -u):$(id -g)" "$OUT_DIR"
-          test -s "$OUT_DIR/chimera-ii-os-live-amd64.iso"
+          test -s "$OUT_DIR/${{ matrix.iso_name }}"
 
       - name: Validate ISO checksum, firmware boot entries and embedded application bundle
         env:
           OUT_DIR: ${{ runner.temp }}/aurora-live-output
-          ISO_NAME: chimera-ii-os-live-amd64.iso
+          ISO_NAME: ${{ matrix.iso_name }}
         run: |
           set -euo pipefail
           iso="$OUT_DIR/$ISO_NAME"
@@ -125,29 +139,41 @@ jobs:
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
           PY
-          cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
-          cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
+          cp "$iso" "$OUT_DIR/${{ matrix.artifact_name }}.iso"
+          cp "$iso.sha256" "$OUT_DIR/${{ matrix.artifact_name }}.iso.sha256"
 
       - name: Upload verified live ISO candidate
         uses: actions/upload-artifact@v4
         with:
-          name: chimera-ii-os-live-desktop-fixed
+          name: ${{ matrix.artifact_name }}
           path: |
-            ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
-            ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
+            ${{ runner.temp }}/aurora-live-output/${{ matrix.artifact_name }}.iso
+            ${{ runner.temp }}/aurora-live-output/${{ matrix.artifact_name }}.iso.sha256
             ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT.txt
           if-no-files-found: error
           retention-days: 30
 
   publish:
-    name: Publish verified Chimera II OS live ISO
+    name: Publish verified ${{ matrix.release_title }} live ISO
     needs: [build]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - edition: chimera
+            artifact_name: chimera-ii-os-live-desktop-fixed
+            release_prefix: chimera-ii-os-live
+            release_title: Chimera II OS
+          - edition: octavian
+            artifact_name: octavian-os-live-desktop-fixed
+            release_prefix: octavian-os-live
+            release_title: OctavianOS
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: chimera-ii-os-live-desktop-fixed
+          name: ${{ matrix.artifact_name }}
           path: release-assets
       - name: Create versioned GitHub Release
         env:
@@ -160,8 +186,8 @@ jobs:
           test -s "$iso" && test -s "$checksum" && test -s "$report"
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
-          tag="chimera-ii-os-live-${version}-desktop-${short}"
+          tag="${{ matrix.release_prefix }}-${version}-desktop-${short}"
           gh release create "$tag" "$iso" "$checksum" "$report" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Chimera II OS ${version} — fullscreen desktop fix" \
-            --notes "Rebuilt from commit ${GITHUB_SHA}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
+            --title "${{ matrix.release_title }} ${version} — fullscreen desktop build" \
+            --notes "Rebuilt from commit ${GITHUB_SHA} for ${{ matrix.edition }}. Aurora desktop fullscreen is verified under Openbox at 1280x720 and 1920x1080. The ISO includes the repository source snapshot, offline application catalogs, and first-party app source. Third-party catalog entries are not represented as installed or compatibility-certified applications. This live ISO uses the Linux kernel; it is not a native Koronos production release."
