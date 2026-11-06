@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -220,24 +221,31 @@ static int cmd_touch(int argc, char **argv)
     }
 
     int rc = 0;
-
     for (int i = 1; i < argc; ++i) {
-        int fd = open(
-            argv[i],
-            O_WRONLY | O_CREAT,
-            0666
-        );
+        /* Update an existing path without requiring write access to its data. */
+        if (utimensat(AT_FDCWD, argv[i], NULL, 0) == 0)
+            continue;
 
-        if (fd < 0) {
+        if (errno != ENOENT) {
             perror(argv[i]);
             rc = 1;
             continue;
         }
 
-        close(fd);
-
+        int fd = open(argv[i], O_WRONLY | O_CREAT | O_EXCL, 0666);
+        if (fd < 0) {
+            /* Another process may have created the path after the first check. */
+            if (errno == EEXIST && utimensat(AT_FDCWD, argv[i], NULL, 0) == 0)
+                continue;
+            perror(argv[i]);
+            rc = 1;
+            continue;
+        }
+        if (close(fd) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
     }
-
     return rc;
 }
 
@@ -351,13 +359,19 @@ static int cmd_clear(void)
 static int cmd_whoami(void)
 {
     const char *u = getenv("USER");
-
-    if (u) {
+    if (u != NULL && u[0] != '\0') {
         puts(u);
         return 0;
     }
 
-    return system("id -un");
+    struct passwd *entry = getpwuid(getuid());
+    if (entry != NULL && entry->pw_name != NULL && entry->pw_name[0] != '\0') {
+        puts(entry->pw_name);
+        return 0;
+    }
+
+    fprintf(stderr, "whoami: cannot resolve uid %lu\n", (unsigned long)getuid());
+    return 1;
 }
 
 static int cmd_hostname(void)
@@ -409,9 +423,8 @@ static int cmd_false(void)
 
 static int cmd_chimera_native(void)
 {
-    puts("Chimera II native command runtime");
-    puts("ABI: native");
-    puts("Status: operational");
+    puts("Chimera II command dispatcher");
+    puts("Readiness: not asserted; the kernel/userspace verifier owns readiness status.");
     return 0;
 }
 
