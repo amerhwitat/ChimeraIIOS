@@ -88,6 +88,7 @@ jobs:
           bash -n tools/aurora/install-runtime-packages.sh
           bash -n scripts/import-aurora-terminal-suite.sh
           bash -n scripts/import-aurora-shell-suite.sh
+          python3 tools/boot/verify-menu-timeouts.py --root .
           python3 -m py_compile tools/aurora/audit-terminal-shell-providers.py tools/aurora/export-icon-theme.py tools/commands/audit-command-providers.py tools/commands/build_native_command_matrix.py tools/isa/audit-isa-emulation-providers.py
           python3 -m json.tool aurora/terminals/registry.json >/dev/null
           python3 -m json.tool aurora/shells/registry.json >/dev/null
