@@ -276,8 +276,16 @@ static void task_live(void *) {
 }
 
 static void task_recovery(void *) {
-    const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
-    if (image) {
+    const chimera_boot_module *user_init =
+        chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    const chimera_boot_module *image =
+        chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
+    if (user_init) {
+        /* The selected target ELF is launched once by task_live through the
+         * shared bootstrap launcher. Do not emit a contradictory "withheld"
+         * message from this legacy initramfs-only service. */
+        console_write("[REC ] Native target init ELF present; ring-3 handoff is owned by the bootstrap launcher");
+    } else if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
         console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
     } else {
@@ -287,6 +295,14 @@ static void task_recovery(void *) {
 }
 
 static void task_installer(void *) {
+    if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+        /* A target-specific ring-3 init is dispatched by task_live. The
+         * legacy metadata-only installer path must not also report a fake
+         * graphical installer or installation completion. */
+        console_write("[INST] Native target init ELF present; installer handoff is owned by the bootstrap launcher");
+        chimera_sched_block();
+        return;
+    }
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
     const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
     const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
