@@ -106,6 +106,10 @@ install_iso_dependencies() {
   command -v xorriso >/dev/null 2>&1 || missing+=(xorriso)
   command -v busybox >/dev/null 2>&1 || missing+=(busybox)
   command -v cpio >/dev/null 2>&1 || missing+=(cpio)
+  command -v g++ >/dev/null 2>&1 || missing+=(g++)
+  command -v nasm >/dev/null 2>&1 || missing+=(nasm)
+  if ! command -v ld >/dev/null 2>&1 || ! command -v readelf >/dev/null 2>&1; then missing+=(binutils); fi
+  command -v python3 >/dev/null 2>&1 || missing+=(python3)
 
   if ((${#missing[@]} == 0)); then
     return 0
@@ -118,7 +122,7 @@ install_iso_dependencies() {
   fi
 
   if command -v apt-get >/dev/null 2>&1; then
-    local packages=(busybox cpio mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin)
+    local packages=(busybox cpio mtools xorriso grub-common grub-pc-bin grub-efi-amd64-bin g++ nasm binutils python3)
     if command -v sudo >/dev/null 2>&1; then
       sudo apt-get update
       sudo apt-get install -y "${packages[@]}"
