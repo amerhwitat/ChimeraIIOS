@@ -19,6 +19,7 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
+python3 "$ROOT/tools/boot/verify-menu-timeouts.py" --root "$ROOT"
 
 # Public system block-size contract for the primary ISO builder.
 # Default to 4096 bytes (4 KiB), accept the legacy alias, validate once,
