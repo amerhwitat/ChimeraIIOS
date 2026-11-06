@@ -46,14 +46,24 @@ EOF
 for spec in \
   'xterm|XTerm|xterm' \
   'gnome-terminal|GNOME Terminal|gnome-terminal' \
+  'gnome-console|GNOME Console|kgx' \
   'konsole|Konsole|konsole' \
   'xfce4-terminal|XFCE Terminal|xfce4-terminal' \
   'foot|Foot|foot' \
   'kitty|Kitty|kitty' \
+  'ptyxis|Ptyxis|ptyxis' \
   'alacritty|Alacritty|alacritty' \
   'wezterm|WezTerm|wezterm' \
   'ghostty|Ghostty|ghostty' \
-  'contour|Contour|contour'; do
+  'contour|Contour|contour' \
+  'terminator|Terminator|terminator' \
+  'tilix|Tilix|tilix' \
+  'mate-terminal|MATE Terminal|mate-terminal' \
+  'qterminal|QTerminal|qterminal' \
+  'sakura|Sakura|sakura' \
+  'terminology|Terminology|terminology' \
+  'lxterminal|LXTerminal|lxterminal' \
+  'blackbox-terminal|Black Box Terminal|blackbox'; do
   IFS='|' read -r id name bin <<< "$spec"
   if ! chroot "$ROOTFS" /bin/sh -c "command -v '$bin' >/dev/null 2>&1"; then
     printf '[Aurora] Not exposing %s: executable %s is not installed.\\n' "$id" "$bin" >&2
