@@ -126,6 +126,11 @@
       "label": "Aurora Flash Tool",
       "command": "aurora-flash-tool",
       "requires": "desktop"
+    },
+    "console": {
+      "label": "Koronos Native Interactive Console",
+      "command": "grub-reboot koronos-console",
+      "requires": "bootloader"
     }
   },
   "playstation_emulator_hub": {
