@@ -26,6 +26,7 @@ MODE="${CHIMERA_TERMINAL_MODE:-source-first}"
 mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/applications" "$CACHE"
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
+have(){ command -v "$1" >/dev/null 2>&1; }
 TARGET_ARCH="\${CHIMERA_TARGET_ARCH:-$(uname -m)}"
 normalize_arch() {
   case "$1" in
