@@ -15,7 +15,7 @@ verify_target_elf() {
   case "$TARGET_ARCH" in
     x86_64|amd64) expected="Advanced Micro Devices X86-64" ;;
     aarch64|arm64) expected="AArch64" ;;
-    armv7|armv7l|armhf) expected="ARM" ;;
+    armel|armv7|armv7l|armhf) expected="ARM" ;;
     riscv64) expected="RISC-V" ;;
     i686|i386) expected="Intel 80386" ;;
     *) echo "Unsupported CHIMERA_TARGET_ARCH=$TARGET_ARCH; refusing unverified provider" >&2; exit 2 ;;
