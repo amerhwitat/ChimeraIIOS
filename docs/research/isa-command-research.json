@@ -1,6 +1,6 @@
 {
   "schema": "CHIMERA-RESEARCH-CATALOG-1",
-  "generated_at": "2026-11-04T21:45:11.911172+00:00",
+  "generated_at": "2026-11-06T02:33:15.513514+00:00",
   "policy": {
     "discovery_only": true,
     "remote_code_execution": false,
@@ -1042,8 +1042,8 @@
     },
     {
       "path": "docs/research/isa-command-research.json",
-      "bytes": 255760,
-      "sha256": "8d5ea5cf48f3a7239b158e316c5ea3bf61f7ad75483a69e410a5acca690d532e"
+      "bytes": 255768,
+      "sha256": "4817a6fe2be99b5f628c09db23fa3176938ebb77ee77411a601335bdb44acb01"
     },
     {
       "path": "docs/research/ISA_CANDIDATE_EXECUTION.md",
@@ -1052,8 +1052,8 @@
     },
     {
       "path": "docs/research/ISA_COMMAND_RESEARCH.md",
-      "bytes": 52367,
-      "sha256": "f0dbb64a2de7d1713eabdeef85d5196d1ea3c794a1c8a499b31aeb9399ace6ee"
+      "bytes": 52448,
+      "sha256": "2db0f4af776eae82c657c9583c4bee0821cf6610327aaf3530f21f7693ed4d62"
     },
     {
       "path": "docs/toolchains/managed-and-apple-compatibility.md",
@@ -1427,7 +1427,7 @@
       "url": "https://docs.riscv.org/reference/isa/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:41:53.438078+00:00",
+      "checked_at": "2026-11-06T02:30:32.327535+00:00",
       "sha256": "f095c7c98f7bb5d8526f8b04206fd25aeb441b5b9cbad5d19b51d862a20e46b0",
       "snippet": "Redirecting to isa v20260120 \n   \n   \n     Redirecting to the latest version:  isa v20260120",
       "recursive_discovery": {
@@ -1581,7 +1581,7 @@
       "url": "https://docs.kernel.org/",
       "topic": "kernel",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:42:32.744907+00:00",
+      "checked_at": "2026-11-06T02:31:03.061793+00:00",
       "sha256": "9f832bc45efaa6f524e63013bf51ef44a3116628ad019c82fde8e9e30f77df60",
       "snippet": "The Linux Kernel documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development proc"
     },
@@ -1590,7 +1590,7 @@
       "url": "https://docs.kernel.org/arch/x86/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:42:33.119446+00:00",
+      "checked_at": "2026-11-06T02:31:03.370737+00:00",
       "sha256": "81fee1280b77002ba74f7d5a28c7ecfd9d28979849b249edb25e6ad8c7e62760",
       "snippet": "x86-specific Documentation &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development pr",
       "recursive_discovery": {
@@ -2106,7 +2106,7 @@
       "url": "https://docs.kernel.org/arch/arm64/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:01.445718+00:00",
+      "checked_at": "2026-11-06T02:31:27.570702+00:00",
       "sha256": "c45a334d1c23873a4a35a41f9c1c94c98d93575eb37c9bb722ecfadfc9133caf",
       "snippet": "ARM64 Architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n",
       "recursive_discovery": {
@@ -2622,7 +2622,7 @@
       "url": "https://docs.kernel.org/arch/riscv/",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:26.420753+00:00",
+      "checked_at": "2026-11-06T02:31:48.887093+00:00",
       "sha256": "ffce43f94e29601acf64685d36eef4a74f594fa211859dc94b49c2073c5d76c9",
       "snippet": "RISC-V architecture &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  ",
       "recursive_discovery": {
@@ -3138,7 +3138,7 @@
       "url": "https://docs.kernel.org/driver-api/",
       "topic": "drivers",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:52.830150+00:00",
+      "checked_at": "2026-11-06T02:32:11.521726+00:00",
       "sha256": "f7b60202c9283259b76323d33c45b197c23885e2837e201aa195df3425af7add",
       "snippet": "Driver implementer’s API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Developmen"
     },
@@ -3147,7 +3147,7 @@
       "url": "https://docs.kernel.org/scheduler/",
       "topic": "scheduler",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:53.106161+00:00",
+      "checked_at": "2026-11-06T02:32:11.805534+00:00",
       "sha256": "780c6669132b681659c50443a3bb5dcddf071baf328cd5b97250f30721949ac8",
       "snippet": "Scheduler &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Development process  \n  Submitt"
     },
@@ -3156,7 +3156,7 @@
       "url": "https://docs.kernel.org/userspace-api/",
       "topic": "syscalls",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:53.415018+00:00",
+      "checked_at": "2026-11-06T02:32:12.066721+00:00",
       "sha256": "743fa97a9fac38438538757f45ef57a7ee9752b31a05b8a7c86941d2d83f920f",
       "snippet": "The Linux kernel user-space API guide &#8212; The Linux Kernel  documentation \n     \n     \n      \n      \n      \n      \n      \n      \n     \n     \n     \n     \n     \n   \n   \n  \n\n  \n  \n\n    \n   \n    \n       \n         \n              \n               \n              \n  The Linux Kernel  \n\n\n\n 7.4.0-rc1 \n\n\n\n\n\n\n\n \n   Quick search \n     \n     \n       \n       \n     \n     \n \n document.getElementById('searchbox').style.display = \"block\" \n\n\n \n Contents \n \n  \n\n \n  Working with the development community  \n \n  Dev"
     },
@@ -3165,8 +3165,8 @@
       "url": "https://source.android.com/docs/core/architecture/kernel",
       "topic": "mobile-os",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:55.461410+00:00",
-      "sha256": "7e8bddb9658a415be16ae049e19019e7cd923ceadce3a6c1bb5f0b471b8404b9",
+      "checked_at": "2026-11-06T02:32:12.840795+00:00",
+      "sha256": "480b4f927f70b15dc5a341cd00497363c7dbfe08d321858bfc69efe691a3d9d9",
       "snippet": "Kernel overview &nbsp;|&nbsp; Android OS core topics &nbsp;|&nbsp; Android Open Source Project \n\n    \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"Article\",\n    \n    \"headline\": \"Kernel overview\"\n  }\n  \n  {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"BreadcrumbList\",\n    \"itemListElement\": [{\n      \"@type\": \"ListItem\",\n      \"position\": 1,\n      \"name\": \"Docs\",\n      \"item\": \"https://source.android.com/docs\"\n    },{\n      \"@type\": \"ListItem\",\n      \"position\": 2,\n      \"name\":"
     },
     {
@@ -3174,7 +3174,7 @@
       "url": "https://support.arm.com/documentation",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:56.571876+00:00",
+      "checked_at": "2026-11-06T02:32:13.276843+00:00",
       "sha256": "89b98c1a7f15377ac42bff86c0912004ecfe15c8d6e495da555166e0e695ef95",
       "snippet": "window.docsHubConfig={\"REACT_APP_2FA_ACR\":\"B2C_1A_HV.SIGN-IN-CONF.1.1.0\",\"REACT_APP_2FA_AUTHORITY\":\"https://account.arm.com/tfp/armb2c.onmicrosoft.com/B2C_1A_HV.SIGN-IN-CONF.1.1.0/v2.0/\",\"REACT_APP_2FA_CLIENT_ID\":\"da089d53-3538-4d3e-8ea0-73dfe483f321\",\"REACT_APP_2FA_SCOPE\":\"openid https://armb2c.onmicrosoft.com/docsHub/read\",\"REACT_APP_ADOBE_LAUNCH_URL\":\"https://support.arm.com/arm-tag-manager/support.arm.com/atm.js\",\"REACT_APP_AI_ASSISTANCE_ENABLED\":\"true\",\"REACT_APP_ARM_DOCUMENTATION_IMAGE_ASS",
       "recursive_discovery": {
@@ -3189,8 +3189,8 @@
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
       "topic": "isa",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:43:57.278836+00:00",
-      "sha256": "302ed5be338f204dc534753da086b0958e4aefe3f3beea1c38f9975fa64d0327",
+      "checked_at": "2026-11-06T02:32:14.242710+00:00",
+      "sha256": "76710dfac94107fb21dc0e17f1c6e33d38f2464ae2db81c6a270effa9f964935",
       "snippet": "Manuals for Intel® 64 and IA-32 Architectures \n    \n    \n    \n\n\n\n\n\n\n\n\n\n \n \n \n\n     \n     \n\n     \n     \n\n\n\n\n\n     \n      \n     \n      \n     \n      \n\n\n    \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    \n    \n        \n    \n\n\n\n\n    \n    \n    \n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n\n    \n    \n        \n    \n\n \n    var cq_tms = {\n        wa_emtcontenttype: \"emtcontenttype:designanddevelopmentreference/developerguide/developeruserguide,emtcontenttype:designanddevelopmentreference/developerguide,emtcontent",
       "recursive_discovery": {
         "pages_visited": 80,
@@ -3338,10 +3338,6 @@
           "https://www.intel.com/content/www/us/en/products/details/wireless/bluetooth-solutions.html",
           "https://www.intel.com/content/www/us/en/products/details/servers",
           "https://www.intel.com/content/www/us/en/products/details/network-io",
-          "https://www.intel.com/content/www/us/en/search.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-third-quarter-2026-financial-results.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-oracle-collaborate-on-enterprise-and-agentic-ai.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-reports-third-quarter-2026-financial-results.html",
           "https://www.intel.com/content/www/us/en/support/products/80939/graphics.html",
           "https://www.intel.com/content/www/us/en/support/products/873/processors.html",
           "https://www.intel.com/content/www/us/en/support/products/59485/wireless.html",
@@ -3358,9 +3354,11 @@
           "https://www.intel.com/content/www/us/en/support/services.html",
           "https://www.intel.com/content/www/us/en/support/articles/000088822.html",
           "https://www.intel.com/content/www/us/en/support/system-manufacturers.html",
-          "https://www.intel.com/content/www/us/en/government/public-sector-solutions-overview.html",
-          "https://www.intel.com/content/www/us/en/partner-alliance/help/overview.html",
           "https://www.intel.com/content/www/us/en/legal/dmca-notice-and-procedure.html",
+          "https://www.intel.com/content/www/us/en/search.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-third-quarter-2026-financial-results.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-oracle-collaborate-on-enterprise-and-agentic-ai.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-reports-third-quarter-2026-financial-results.html",
           "https://www.intel.com/content/www/us/en/products/docs/accelerator-engines/advanced-matrix-extensions/overview.html",
           "https://www.intel.com/content/www/us/en/developer/articles/guide/xeon-performance-tuning-and-solution-guides.html",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/xeon6-e-cores.html",
@@ -3420,8 +3418,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/foundation-pltw-expand-semiconductor-careers.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ai-infra-summit-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-outlines-architectures-for-agentic-ai-at-hot-chips-2026.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/6-in-10-leaders-bet-big-on-robots-only-4-in-10-are-ready.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/count-the-work-not-just-the-cores.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/6-in-10-leaders-bet-big-on-robots-only-4-in-10-are-ready.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-corporation-to-participate-in-upcoming-investor-conference-august-2026.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-upsize-and-pricing-of-20-billion-common-stock-offering.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-announces-proposed-15-billion-common-stock-offering.html",
@@ -3520,8 +3518,8 @@
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-the-ultimate-factory-tour.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-foundry-gathers-customers-partners-outlines-priorities.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/postcard-from-intel-foundry-direct-connect-chip-roams-intel-factories.html",
-          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/direct-connect-2025-keynote-livestream-replay.html",
           "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html",
+          "https://www.intel.com/content/www/us/en/newsroom/news/corporate/direct-connect-2025-keynote-livestream-replay.html",
           "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-ceo-lip-bu-tan-headline-intel-foundry-direct-connect.html",
           "https://www.intel.com/content/www/us/en/newsroom/opinion/how-intel-optimized-openclaw-runs-securely-cost-efficiently-intel-based-ai-pcs.html",
           "https://www.intel.com/content/www/us/en/newsroom/tech101/manufacturing/understanding-moores-law.html",
@@ -3573,7 +3571,6 @@
           "https://www.intel.com/content/www/us/en/policy/policy-connectivity.html",
           "https://www.intel.com/content/www/us/en/policy/policy-privacy.html",
           "https://www.intel.com/content/www/us/en/trademarks/trademarks.html",
-          "https://www.intel.com/content/www/us/en/partner-alliance/membership/benefits/partners-ai.html",
           "https://www.intel.com/content/www/us/en/privacy/worldwide-candidate-privacy-policy.html",
           "https://www.intel.com/content/www/us/en/privacy/intel-active-technology-vpro.html",
           "https://www.intel.com/content/www/us/en/privacy/privacy-notice-korea.html",
@@ -3590,6 +3587,8 @@
           "https://www.intel.com/content/www/us/en/corporate-responsibility/rebuild-puerto-rico-schools-video.html",
           "https://www.intel.com/content/www/us/en/corporate-responsibility/conflict-free-sourcing-microprocessors-video.html",
           "https://www.intel.com/content/www/us/en/corporate-responsibility/a-world-of-opportunity-video.html",
+          "https://www.intel.com/content/www/us/en/partner-alliance/help/overview.html",
+          "https://www.intel.com/content/www/us/en/partner-alliance/membership/benefits/partners-ai.html",
           "https://www.intel.com/content/www/us/en/forms/privacy-contact-us.html",
           "https://www.intel.com/content/dam/www/central-libraries/us/en/documents/policy-human-rights.pdf",
           "https://www.intel.com/content/www/us/en/products/details/processors/xeon/all.html",
@@ -3603,14 +3602,20 @@
           "https://www.intel.com/content/www/us/en/products/sku/245720/intel-core-ultra-5-processor-325-12m-cache-up-to-4-50-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245718/intel-core-ultra-5-processor-332-12m-cache-up-to-4-40-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245727/intel-core-ultra-5-processor-335-12m-cache-up-to-4-60-ghz/specifications.html",
+          "https://www.intel.com/content/www/us/en/products/sku/246182/intel-core-ultra-5-processor-335re-12m-cache-up-to-4-60-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245533/intel-core-ultra-5-processor-336h-18m-cache-up-to-4-60-ghz/specifications.html",
+          "https://www.intel.com/content/www/us/en/products/sku/246181/intel-core-ultra-5-processor-336hre-18m-cache-up-to-4-60-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245531/intel-core-ultra-5-processor-338h-18m-cache-up-to-4-70-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245722/intel-core-ultra-7-processor-355-12m-cache-up-to-4-70-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245532/intel-core-ultra-7-processor-356h-18m-cache-up-to-4-70-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245713/intel-core-ultra-7-processor-365-12m-cache-up-to-4-80-ghz/specifications.html",
+          "https://www.intel.com/content/www/us/en/products/sku/246183/intel-core-ultra-7-processor-365gre-12m-cache-up-to-4-80-ghz/specifications.html",
+          "https://www.intel.com/content/www/us/en/products/sku/246180/intel-core-ultra-7-processor-365re-12m-cache-up-to-4-80-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245530/intel-core-ultra-7-processor-366h-18m-cache-up-to-4-80-ghz/specifications.html",
+          "https://www.intel.com/content/www/us/en/products/sku/246184/intel-core-ultra-7-processor-366hre-18m-cache-up-to-4-80-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245529/intel-core-ultra-9-processor-386h-18m-cache-up-to-4-90-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245527/intel-core-ultra-x7-processor-358h-18m-cache-up-to-4-80-ghz/specifications.html",
+          "https://www.intel.com/content/www/us/en/products/sku/245998/intel-core-ultra-x7-processor-358hr-18m-cache-up-to-4-80-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245523/intel-core-ultra-x7-processor-368h-18m-cache-up-to-5-00-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/246128/intel-core-ultra-x9-processor-378h-18m-cache-up-to-5-00-ghz/specifications.html",
           "https://www.intel.com/content/www/us/en/products/sku/245526/intel-core-ultra-x9-processor-388h-18m-cache-up-to-5-10-ghz/specifications.html",
@@ -3691,12 +3696,7 @@
           "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-manageability/overview.html",
           "https://www.intel.com/content/www/us/en/architecture-and-technology/vpro/vpro-apps-and-accessories.html",
           "https://www.intel.com/content/www/us/en/content-details/892383/content.html",
-          "https://www.intel.com/content/www/us/en/content-details/915267/content.html",
-          "https://www.intel.com/content/www/us/en/developer/articles/tool/battery-life-diagnostic-tool.html",
-          "https://www.intel.com/content/www/us/en/products/details/wireless/connectivity-performance-suite.html",
-          "https://www.intel.com/content/www/us/en/content-details/914702/content.html",
-          "https://www.intel.com/content/www/us/en/content-details/914706/content.html",
-          "https://www.intel.com/content/www/us/en/content-details/914707/content.html"
+          "https://www.intel.com/content/www/us/en/content-details/915267/content.html"
         ]
       }
     },
@@ -3705,7 +3705,7 @@
       "url": "https://www.amd.com/en/search/documentation",
       "topic": "isa",
       "http_status": 0,
-      "checked_at": "2026-11-04T21:45:00.916212+00:00",
+      "checked_at": "2026-11-06T02:33:03.343222+00:00",
       "sha256": "0738e1d53e03cdde4e379859b024fb665340ccc62ac4ed215101772e5d81327b",
       "snippet": "HTTP Error 404: Not Found"
     },
@@ -3714,7 +3714,7 @@
       "url": "https://uefi.org/specifications",
       "topic": "firmware",
       "http_status": 0,
-      "checked_at": "2026-11-04T21:45:01.310149+00:00",
+      "checked_at": "2026-11-06T02:33:04.047187+00:00",
       "sha256": "2fbdaaa36a31ec4853f2062504fc20ecfc24512cfe648271bc840f246a542911",
       "snippet": "HTTP Error 403: Forbidden"
     },
@@ -3723,7 +3723,7 @@
       "url": "https://docs.freebsd.org/en/books/handbook/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:45:01.924670+00:00",
+      "checked_at": "2026-11-06T02:33:04.763179+00:00",
       "sha256": "109a95818d0d231bf26df6ab14366cb92c08d121416b71d4d2caddad6c2bcb3c",
       "snippet": "FreeBSD Handbook | FreeBSD Documentation Portal                     {\"@context\":\"http://schema.org\",\"@type\":\"Article\",\"url\":\"https:\\/\\/docs.freebsd.org\\/en\\/books\\/handbook\\/\",\"name\":\"FreeBSD Documentation Portal\",\"headline\":\"FreeBSD Documentation Portal\",\"description\":\"FreeBSD Documentation Portal\"}          \n           \n About\n      About    FreeBSD    FreeBSD Foundation    Code of Conduct      \n Get FreeBSD\n      Get FreeBSD    Release Information    Release Engineering    Security Advisories"
     },
@@ -3732,7 +3732,7 @@
       "url": "https://www.netbsd.org/docs/",
       "topic": "other-os",
       "http_status": 200,
-      "checked_at": "2026-11-04T21:45:02.444896+00:00",
+      "checked_at": "2026-11-06T02:33:06.295964+00:00",
       "sha256": "d49f5910fd91fff949453f73ed99cf904abeb91bbd6acee72b8a1f23c1db532b",
       "snippet": "NetBSD Documentation \n   \n \n  \n  Skip to main content.  \n          \n  \n     \n     \n  \n  \n \n\t  Navigation:\n\t  \n \n \n\t  Home  \n  \n\t    Recent changes  \n  \n\t    NetBSD blog  \n  \n\t    Presentations  \n \n \n \n \n\t  About  \n  \n\t    Developers  \n  \n\t    Gallery  \n  \n\t    Ports  \n  \n\t    Packages  \n \n \n \n \n\t  Documentation  \n  \n\t    FAQ &amp; HOWTOs  \n  \n\t    The Guide  \n  \n\t    Manual pages  \n  \n\t    Wiki  \n \n \n \n \n\t  Support  \n  \n\t    Community  \n  \n\t    Mailing lists  \n  \n\t    Bug reports  \n  \n\t    Secur"
     }
@@ -3811,14 +3811,14 @@
       "status": 200,
       "url": "https://api.github.com/search/repositories?q=android+common+kernel&sort=updated&order=desc&per_page=8",
       "repositories": [
+        "aosp-mirror-neo/kernel_common",
         "LineageOS/android_kernel_amlogic_common_drivers",
+        "SavoryBanana/sailfish-linux-6.18",
         "etnperlong/android_kernel_common-6.1",
         "GoRhanHee/android_kernel_samsung_sm8550_common",
         "ramabondanp/android_kernel_common-6.12",
         "at1600/android_kernel_xiaomi_common",
-        "duckyduckG/android_kernel_xiaomi_sm8150_419",
-        "YuzakiKokuban/android_kernel_oneplus_sm8850",
-        "LineageOS/android_kernel_ayn_common-modules"
+        "duckyduckG/android_kernel_xiaomi_sm8150_419"
       ]
     },
     {
@@ -3834,6 +3834,7 @@
       "status": 200,
       "url": "https://api.github.com/search/repositories?q=syscall+compatibility+layer&sort=updated&order=desc&per_page=8",
       "repositories": [
+        "ccclosed/pagh-api",
         "suhteevah/linux-compat-nostd",
         "jdhruv1503/LinuxCompatibilityLayer",
         "dyber-pqc/bsdulator",
@@ -3847,8 +3848,8 @@
       "url": "https://github.com/Jamesits/dropWPBT",
       "description": "Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.",
       "language": "C",
-      "stars": 447,
-      "updated_at": "2026-10-19T18:53:06Z",
+      "stars": 448,
+      "updated_at": "2026-11-05T18:22:46Z",
       "license": "BSD-2-Clause",
       "query": "uefi acpi firmware tables",
       "review_required": true
@@ -3986,6 +3987,17 @@
       "review_required": true
     },
     {
+      "name": "aosp-mirror-neo/kernel_common",
+      "url": "https://github.com/aosp-mirror-neo/kernel_common",
+      "description": "Common Android Kernel Tree",
+      "language": "C",
+      "stars": 1,
+      "updated_at": "2026-11-05T21:22:05Z",
+      "license": "NOASSERTION",
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
       "name": "at1600/android_kernel_xiaomi_common",
       "url": "https://github.com/at1600/android_kernel_xiaomi_common",
       "description": "",
@@ -3994,6 +4006,17 @@
       "updated_at": "2026-11-04T02:12:11Z",
       "license": "NOASSERTION",
       "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "ccclosed/pagh-api",
+      "url": "https://github.com/ccclosed/pagh-api",
+      "description": "libpagh: native userland API (syscalls, runtime, filesystem, allocator) for the pagh-riscv kernel — no Linux compatibility layer",
+      "language": "Rust",
+      "stars": 1,
+      "updated_at": "2026-11-05T19:38:46Z",
+      "license": null,
+      "query": "syscall compatibility layer",
       "review_required": true
     },
     {
@@ -4255,8 +4278,19 @@
       "description": "",
       "language": "C",
       "stars": 0,
-      "updated_at": "2026-11-04T21:04:48Z",
+      "updated_at": "2026-11-05T17:22:26Z",
       "license": null,
+      "query": "android common kernel",
+      "review_required": true
+    },
+    {
+      "name": "SavoryBanana/sailfish-linux-6.18",
+      "url": "https://github.com/SavoryBanana/sailfish-linux-6.18",
+      "description": "Android Common Kernel 6.18 (Android 17) port for Google Pixel (sailfish)",
+      "language": "C",
+      "stars": 0,
+      "updated_at": "2026-11-05T14:48:14Z",
+      "license": "NOASSERTION",
       "query": "android common kernel",
       "review_required": true
     },
@@ -4279,28 +4313,6 @@
       "stars": 0,
       "updated_at": "2026-11-03T16:46:24Z",
       "license": "NOASSERTION",
-      "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "YuzakiKokuban/android_kernel_oneplus_sm8850",
-      "url": "https://github.com/YuzakiKokuban/android_kernel_oneplus_sm8850",
-      "description": "OnePlus 15 Android 16 Linux 6.12.69 kernel, imported from cctv18/android_gki_kernel_common",
-      "language": "C",
-      "stars": 0,
-      "updated_at": "2026-11-02T10:13:31Z",
-      "license": "NOASSERTION",
-      "query": "android common kernel",
-      "review_required": true
-    },
-    {
-      "name": "LineageOS/android_kernel_ayn_common-modules",
-      "url": "https://github.com/LineageOS/android_kernel_ayn_common-modules",
-      "description": "",
-      "language": "C",
-      "stars": 0,
-      "updated_at": "2026-11-02T09:03:40Z",
-      "license": "GPL-2.0",
       "query": "android common kernel",
       "review_required": true
     },
