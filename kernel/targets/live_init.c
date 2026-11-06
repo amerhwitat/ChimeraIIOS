@@ -13,12 +13,9 @@ __attribute__((noreturn, used)) void _start(void) {
     init_writestr("LIVE: native console session banner\n");
     init_writestr("LIVE: ring-3 text console active (no graphical session)\n");
 
-    /* Demonstrate the yield/time ABI without depending on scheduler
-     * preemption: yielding is a safe no-op for this single init process. */
+    /* Exercise the mapped yield ABI without depending on preemption. */
     init_yield();
-    init_writestr("LIVE: scheduler tick count=");
-    init_write_uint((unsigned long)init_time_ticks());
-    init_writestr("\n");
+    init_writestr("LIVE: scheduler yield returned\n");
 
     init_exit(0);
 }
