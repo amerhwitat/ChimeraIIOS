@@ -49,4 +49,4 @@ test "$("$TMP/cat" "$TMP/source")" = "copy-payload"
 banner="$("$TMP/chimera-cmd")"
 grep -q "Readiness: not asserted" <<<"$banner"
 if grep -qi "Status: operational" <<<"$banner"; then echo "false readiness banner remains" >&2; exit 1; fi
-echo "PASS: all 15 registered native multicall command entry points passed host semantic smoke tests."
+echo "PASS: all 15 registered multicall command entry points passed basic host smoke tests."
