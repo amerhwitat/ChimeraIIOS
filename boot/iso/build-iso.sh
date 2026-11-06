@@ -105,7 +105,7 @@ done
 
 # Stage cross-built Linux ABI command multicall binaries for all currently
 # supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
-printf '%s\\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
+printf '%s\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
 for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
