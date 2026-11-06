@@ -168,10 +168,16 @@ jobs:
           - arch: aarch64
             package: g++-aarch64-linux-gnu
             compiler: aarch64-linux-gnu-g++
+            assembler: aarch64-linux-gnu-gcc
+            entry: kernel/arch/aarch64/entry.S
+            priv: kernel/arch/aarch64/priv.S
             artifact: aarch64-arch-init.o
           - arch: riscv64
             package: g++-riscv64-linux-gnu
             compiler: riscv64-linux-gnu-g++
+            assembler: riscv64-linux-gnu-gcc
+            entry: kernel/arch/riscv64/entry.S
+            priv: kernel/arch/riscv64/priv.S
             artifact: riscv64-arch-init.o
     steps:
       - uses: actions/checkout@v4
@@ -186,12 +192,18 @@ jobs:
         run: |
           bash tools/build-koronos-targets.sh
           test -s "build/koronos/ports/${{ matrix.artifact }}"
-          file "build/koronos/ports/${{ matrix.artifact }}"
+          mkdir -p build/koronos/ports/entry
+          "${{ matrix.assembler }}" -ffreestanding -c "${{ matrix.entry }}" -o "build/koronos/ports/entry/${{ matrix.arch }}-entry.o"
+          "${{ matrix.assembler }}" -ffreestanding -c "${{ matrix.priv }}" -o "build/koronos/ports/entry/${{ matrix.arch }}-priv.o"
+          file "build/koronos/ports/${{ matrix.artifact }}" "build/koronos/ports/entry/${{ matrix.arch }}-entry.o" "build/koronos/ports/entry/${{ matrix.arch }}-priv.o"
       - name: Upload compile-only evidence
         uses: actions/upload-artifact@v4
         with:
           name: koronos-${{ matrix.arch }}-compile-only
-          path: build/koronos/ports/${{ matrix.artifact }}
+          path: |
+            build/koronos/ports/${{ matrix.artifact }}
+            build/koronos/ports/entry/${{ matrix.arch }}-entry.o
+            build/koronos/ports/entry/${{ matrix.arch }}-priv.o
           if-no-files-found: error
           retention-days: 14
 
