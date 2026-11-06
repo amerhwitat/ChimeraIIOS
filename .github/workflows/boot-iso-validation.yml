@@ -77,6 +77,7 @@ jobs:
           python3 tools/boot/validate_boot_pipeline.py
           python3 -m unittest discover -s tests/boot -p 'test_native_boot_pipeline.py' -v
           python3 -m unittest discover -s tests/boot -p 'test_boot_menu_timeout.py' -v
+          python3 -m unittest discover -s tests/boot -p 'test_target_init_staging.py' -v
           bash -n boot/iso/build-iso.sh
           bash -n boot/iso/prepare-layout.sh
           bash -n boot/spitfire/build-spitfire.sh
