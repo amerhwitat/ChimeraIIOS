@@ -119,6 +119,12 @@ done
 "$ROOT/tools/build-compatibility-binaries.sh"
 "$ROOT/tools/build-mobile-edition.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
+say BUILD "Cross-building native Chimera command binaries for x86_64, AArch64 and RV64"
+python3 "$ROOT/tools/commands/build_native_command_matrix.py" \
+  --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
+  --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
+  --output "$ROOT/build/native-command-isa" \
+  --require-all
 "$ROOT/tools/build-live-boot-binaries.sh"
 say ISO "Generating BIOS/UEFI ISO"
 CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" "$ROOT/boot/iso/build-iso.sh"
