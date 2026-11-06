@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-build the real Chimera native multicall command for supported Linux ABIs."""
+"""Cross-build the POSIX command multicall for supported Linux userspace ABIs."""
 from __future__ import annotations
 import argparse, hashlib, json, shutil, subprocess, sys
 from pathlib import Path
