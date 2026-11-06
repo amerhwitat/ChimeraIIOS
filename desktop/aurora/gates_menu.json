@@ -139,5 +139,13 @@
       "PS4",
       "PS5"
     ]
+  },
+  "input_policy": {
+    "requires_explicit_user_selection": false,
+    "auto_select_default": true,
+    "timeout_seconds": 60,
+    "timeout_style": "menu",
+    "on_timeout": "launch_configured_default",
+    "description": "Wait 60 seconds for user input; if no selection is made, launch the configured default item."
   }
 }
