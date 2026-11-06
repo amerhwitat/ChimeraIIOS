@@ -74,12 +74,12 @@ class InteractiveBootMenuTests(unittest.TestCase):
 
     def test_gates_desktop_does_not_auto_open_or_launch_on_idle(self):
         shell = (ROOT / "desktop/aurora-shell/assets/shell.js").read_text(encoding="utf-8")
-        state = re.search(r"const state = \\{(.*?)\\};", shell, re.DOTALL)
+        state = re.search(r"const state = \{(.*?)\};", shell, re.DOTALL)
         self.assertIsNotNone(state)
-        self.assertRegex(state.group(1), r"selected:\\s*null")
-        boot = re.search(r"function boot\\(\\) \\{(.*?)\\n  \\}", shell, re.DOTALL)
+        self.assertRegex(state.group(1), r"selected:\s*null")
+        boot = re.search(r"function boot\(\) \{(.*?)\n  \}", shell, re.DOTALL)
         self.assertIsNotNone(boot)
-        self.assertNotRegex(boot.group(1), r"\\b(openApp|toggleStart)\\s*\\(")
+        self.assertNotRegex(boot.group(1), r"\b(openApp|toggleStart)\s*\(")
         self.assertIn('start.addEventListener("click"', shell)
         self.assertIn('document.addEventListener("keydown", shortcutHandler)', shell)
 
