@@ -162,10 +162,10 @@ jobs:
           greeting = client.recv(4096)
           if b"QMP" not in greeting:
               raise SystemExit(f"QEMU QMP greeting missing: {greeting!r}")
-          client.sendall(b'{"execute":"qmp_capabilities"}\\r\\n')
+          client.sendall(b'{"execute":"qmp_capabilities"}\r\n')
           time.sleep(0.05)
           client.recv(4096)
-          client.sendall(b'{"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":"ret"}]}}\\r\\n')
+          client.sendall(b'{"execute":"send-key","arguments":{"keys":[{"type":"qcode","data":"ret"}]}}\r\n')
           time.sleep(0.05)
           response = client.recv(4096)
           if b'"error"' in response:
