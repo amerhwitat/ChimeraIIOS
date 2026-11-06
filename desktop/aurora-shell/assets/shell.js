@@ -13,6 +13,42 @@
     return node;
   };
 
+  const APP_ICON_ALIASES = {
+    files: "file-manager", system: "system-monitor", media: "aurora-media-player"
+  };
+  const APP_ICON_IDS = new Set(["file-manager", "terminal", "voiceconnect", "network", "settings", "system-monitor", "aurora-media-player", "store", "about", "docs"]);
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  function iconVisual(id, fallback, className) {
+    const host = el("span", className || "glyph", fallback || "▣");
+    const resolved = APP_ICON_ALIASES[id] || id;
+    if (!resolved || !APP_ICON_IDS.has(resolved)) return host;
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", "app-icon-art");
+    svg.setAttribute("viewBox", "0 0 64 64");
+    svg.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS(SVG_NS, "use");
+    use.setAttribute("href", new URL("../app-icons/catalog.svg#app-" + resolved, document.baseURI).href);
+    svg.appendChild(use);
+    host.textContent = "";
+    host.appendChild(svg);
+    host.classList.add("has-art");
+    return host;
+  }
+  async function loadAppIconManifest() {
+    try {
+      const response = await fetch(new URL("../app-icons/manifest.json", document.baseURI));
+      if (!response.ok) return;
+      const manifest = await response.json();
+      const ids = (manifest.apps || []).map((item) => item && item.id).filter((id) => typeof id === "string");
+      if (ids.length) {
+        for (const id of ids) APP_ICON_IDS.add(id);
+        renderIcons();
+        renderDock();
+        renderTaskbar();
+      }
+    } catch (err) { /* emoji/glyph fallback remains available offline */ }
+  }
+
   // Local, optional UI feedback. Missing devices/autoplay permission must never
   // break the desktop controls; the native OS sound service remains independent.
   const SOUND_FILES = {
@@ -192,7 +228,7 @@
     const node = el("div", "icon");
     node.dataset.iconId = icon.id;
     node.tabIndex = 0;
-    const glyph = el("div", "glyph", icon.glyph || "▣");
+    const glyph = iconVisual(icon.id, icon.glyph || "▣", "glyph");
     glyph.style.setProperty("--tile-a", (icon.tile && icon.tile[0]) || "#2f7cf6");
     glyph.style.setProperty("--tile-b", (icon.tile && icon.tile[1]) || "#134a9e");
     const label = el("div", "label", icon.name);
@@ -612,7 +648,7 @@
       const icon = icons.find((item) => item.app === record.app);
       const button = el("button", "tb-task" + (record.minimized ? "" : " active"));
       button.type = "button";
-      button.append(el("span", "", icon ? icon.glyph : "▣"), el("span", "", record.title));
+      button.append(iconVisual(icon && icon.id, icon ? icon.glyph : "▣", "tb-icon"), el("span", "", record.title));
       button.addEventListener("click", () => {
         if (record.minimized) { focusWindow(record.id); } else { minimizeWindow(record.id); }
       });
@@ -626,9 +662,10 @@
     dock.replaceChildren();
     const pinned = desktopIcons().slice(0, 8);
     for (const icon of pinned) {
-      const button = el("button", "dock-btn" + (state.windows.some((win) => win.app === icon.app) ? " running" : ""), icon.glyph);
+      const button = el("button", "dock-btn" + (state.windows.some((win) => win.app === icon.app) ? " running" : ""));
       button.type = "button";
       button.title = icon.name;
+      button.appendChild(iconVisual(icon.id, icon.glyph, "dock-icon"));
       button.addEventListener("click", () => openApp(icon.app, { title: icon.name }));
       button.addEventListener("contextmenu", (event) => {
         event.preventDefault();
@@ -652,20 +689,20 @@
     panelsHost.replaceChildren();
     const icons = desktopIcons();
     for (const icon of icons) {
-      appsHost.appendChild(launcherButton(icon.glyph, icon.name, () => { hideStart(); openApp(icon.app, { title: icon.name }); }));
+      appsHost.appendChild(launcherButton(icon.glyph, icon.name, () => { hideStart(); openApp(icon.app, { title: icon.name }); }, icon.id));
     }
     for (const panel of state.panels) {
       panelsHost.appendChild(launcherButton(panel.glyph || "▤", panel.name, () => {
         hideStart();
         openApp("network", { title: panel.name, panel: panel.id });
-      }));
+      }, panel.id));
     }
   }
 
-  function launcherButton(glyph, name, onClick) {
+  function launcherButton(glyph, name, onClick, iconId) {
     const button = el("button", "sm-app");
     button.type = "button";
-    const icon = el("span", "glyph", glyph);
+    const icon = iconVisual(iconId, glyph, "sm-icon");
     button.append(icon, el("span", "", name));
     button.addEventListener("click", onClick);
     return button;
@@ -913,6 +950,7 @@
     renderIcons();
     renderDock();
     renderTaskbar();
+    loadAppIconManifest();
     loadWallpapers().then(() => {
       if (!state.wallpaper && state.wallpaperList.length) applyWallpaper(state.wallpaperList[0].url, false);
       document.dispatchEvent(new CustomEvent("aurora:wallpapers", { detail: state.wallpaperList }));
