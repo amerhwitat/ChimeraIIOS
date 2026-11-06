@@ -26,6 +26,12 @@ commands=sys.argv[4:]
 header=subprocess.run(["readelf","-h",str(binary)],check=True,text=True,stdout=subprocess.PIPE).stdout
 machine=next((line.split(":",1)[1].strip() for line in header.splitlines() if line.strip().startswith("Machine:")),None)
 if not machine: raise SystemExit("ELF machine metadata missing")
+expected={"x86_64":"Advanced Micro Devices X86-64","i686":"Intel 80386",
+          "aarch64":"AArch64","armv7":"ARM","riscv64":"RISC-V",
+          "ppc64le":"PowerPC64","s390x":"IBM S/390"}.get(arch)
+if expected is None: raise SystemExit(f"unsupported target architecture: {arch}")
+if expected not in machine and machine not in expected:
+    raise SystemExit(f"wrong-architecture ELF: target={arch} expected={expected!r} actual={machine!r}")
 digest=hashlib.sha256(binary.read_bytes()).hexdigest()
 rows=[]
 for name in commands:
