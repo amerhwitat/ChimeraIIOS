@@ -1,0 +1,23 @@
+{
+  "schema": "CHIMERA-DESKTOP-ARTWORK-CATALOG-1",
+  "wallpaper_source_manifest": "live-image/artwork/manifest.json",
+  "generated_wallpaper_glob": "live-image/artwork/wp*.jpg",
+  "generated_wallpaper_count": 28,
+  "desktop_wallpapers": [
+    "desktop/aurora/assets/chimera-infinite-research-horizon.svg",
+    "desktop/aurora/assets/chimera-infinite-research-horizon-3840x2160.svg",
+    "desktop/aurora/assets/aurora-wayland-glass.svg",
+    "desktop/aurora/assets/aurora-wayland-glass.png",
+    "desktop/aurora/assets/library/Aurora Wayland Desktop - boot background.jpg",
+    "desktop/aurora/assets/library/Aurora Wayland Desktop Showcase.png",
+    "desktop/aurora/assets/library/Aurora-Wayland-Glass-Desktop.png",
+    "desktop/aurora/assets/library/Aurora-Wayland-Glass-Desktop.png(1).jpg"
+  ],
+  "icon_theme": "desktop/aurora/icons/icon_theme.json",
+  "icon_sources": [
+    "desktop/aurora/icons/chimera_icons.cpp",
+    "desktop/aurora/icons/chimera_icons.hpp"
+  ],
+  "sound_manifest": "desktop/aurora/assets/sounds/manifest.json",
+  "packaging_rule": "Desktop and Live/Installer/Recovery builders must stage manifest-listed local assets and verify hashes. SVGs require raster fallbacks for GRUB/firmware display. Offline defaults must not depend on remote-only artwork."
+}
