@@ -44,7 +44,7 @@ build_source(){
     *) return 1 ;;
   esac
 }
-for b in bash zsh fish dash mksh elvish nu yash; do copy_if_present "$b" || true; done
+for b in bash zsh fish dash mksh elvish nu yash; do log "$b: build from source or stage a verified target package; host binaries are never copied"; done
 [[ "$MODE" == "binary-only" ]] && { log "Binary-only mode selected; using packages/prebuilt artifacts already present"; exit 0; }
 build_source bash https://git.savannah.gnu.org/git/bash.git || log "Bash source build unavailable; keeping system/package Bash"
 build_source zsh https://github.com/zsh-users/zsh.git || log "Zsh source build unavailable; keeping system/package Zsh"
