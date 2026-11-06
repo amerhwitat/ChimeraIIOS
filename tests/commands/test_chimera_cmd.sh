@@ -21,7 +21,9 @@ import subprocess,sys
 out=subprocess.check_output([sys.argv[1]])
 assert out == bytes([27])+b"[2J"+bytes([27])+b"[H", repr(out)
 PY
-test -n "$(env -u USER "$TMP/whoami")"
+expected_user="$(id -un)"
+test "$(env -u USER "$TMP/whoami")" = "$expected_user"
+test "$(env USER=spoofed "$TMP/whoami")" = "$expected_user"
 printf 'copy-payload' > "$TMP/source"
 "$TMP/cp" "$TMP/source" "$TMP/copied"
 test "$(cat "$TMP/copied")" = "copy-payload"
