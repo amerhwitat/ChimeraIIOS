@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static regressions for the x86-64 ISO menu routing and offline artwork contract."""
 from pathlib import Path
+import json
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -83,7 +84,10 @@ class IsoTargetRoutingTests(unittest.TestCase):
             "boot/jasper/live.cfg",
             "boot/jasper/recovery.cfg",
             "boot/jasper/safe-mode.cfg",
+            "boot/jasper/retro.cfg",
+            "boot/installation/menu.cfg",
             "boot/installation/services.cfg",
+            "boot/loader-menu.cfg",
         )
         for relative in menu_paths:
             text = (ROOT / relative).read_text(encoding="utf-8")
@@ -91,6 +95,14 @@ class IsoTargetRoutingTests(unittest.TestCase):
             self.assertRegex(text, r"(?m)^set timeout=60\s*$", relative)
             self.assertRegex(text, r"(?m)^set default=0\s*$", relative)
 
+
+
+    def test_gates_and_boot_contract_share_the_sixty_second_policy(self):
+        contract = json.loads((ROOT / "boot/boot-menu-contract.json").read_text(encoding="utf-8"))
+        gates = json.loads((ROOT / "desktop/aurora/gates_menu.json").read_text(encoding="utf-8"))
+        policy = {"timeout_seconds": 60, "timeout_style": "menu", "default_entry": "live", "on_timeout": "boot_default"}
+        self.assertEqual(contract.get("menu_policy"), policy)
+        self.assertEqual(gates.get("boot_contract", {}).get("menu_policy"), policy)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
