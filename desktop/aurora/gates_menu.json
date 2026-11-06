@@ -73,7 +73,10 @@
     "mouse": true,
     "double_click": true,
     "context_menu": true,
-    "properties": true
+    "properties": true,
+    "auto_launch_default": false,
+    "idle_default_timeout_seconds": 0,
+    "menu_remains_open_until_user_action": true
   },
   "boot_contract": {
     "kernel": "Koronos",
@@ -84,7 +87,10 @@
     "installation_entry": "/boot/installation/menu.cfg",
     "recovery_entry": "/boot/jasper/recovery.cfg",
     "diagnostics_entry": "/boot/jasper/diagnostics.cfg",
-    "vmlinuz": false
+    "vmlinuz": false,
+    "primary_menu_timeout_seconds": 300,
+    "submenu_timeout_seconds": 120,
+    "timeout_policy": "Boot selection waits for explicit input until the configured timeout; Gates desktop navigation never auto-launches a default application while idle."
   },
   "actions": {
     "live": {
