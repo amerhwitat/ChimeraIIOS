@@ -111,6 +111,17 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
+# Embed a verified open-source terminal/shell provider rootfs bundle.
+# This is an ISO payload inventory, not a claim that Koronos currently supports
+# the Linux ELF ABI; the native user-mode launch gate remains fail-closed.
+mkdir -p "$STAGE/desktop/aurora"
+CHIMERA_ROOTFS_DIR="$STAGE/desktop/aurora/terminal-shell-rootfs" \
+CHIMERA_BUILD_DIR="$BUILD" \
+CHIMERA_TERMINAL_MODE=binary-only CHIMERA_SHELL_MODE=binary-only \
+CHIMERA_TERMINAL_REQUIRE_ALL=0 \
+  bash "$ROOT/scripts/chimera-iso-terminal-shell-hook.sh"
+test -s "$STAGE/desktop/aurora/terminal-shell-rootfs/usr/share/chimera/aurora/terminal-shell-staging.json"
+
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
