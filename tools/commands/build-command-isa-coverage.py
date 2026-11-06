@@ -71,7 +71,7 @@ def main():
         if "chimera-native" in row["platforms"]:
             built=[arch for arch,entry in native_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
             row["native_binary_targets"]=sorted(built)
-            row["native_runtime_status"]="not-tested-cross-build-only" if built else "not-built-or-not-verified"
+            row["native_runtime_status"]=native_targets.get(built[0],{}).get("runtime_status","cross-build-only") if built else "not-built-or-not-verified"
             if "linux-bash" not in row["platforms"]:
                 row["provider"]="native-multicall-crossbuilt" if built else row["provider"]
                 row["path"]=None
