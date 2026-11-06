@@ -1,0 +1,49 @@
+name: Command binary architecture matrix
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/chimera-command-compat/**'
+      - 'tools/build-command-arch-matrix.sh'
+      - '.github/workflows/command-arch-matrix.yml'
+  pull_request:
+    paths:
+      - 'src/chimera-command-compat/**'
+      - 'tools/build-command-arch-matrix.sh'
+      - '.github/workflows/command-arch-matrix.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build command multicall (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: x86_64, package: '', compiler: cc }
+          - { arch: i686, package: gcc-i686-linux-gnu, compiler: i686-linux-gnu-gcc }
+          - { arch: aarch64, package: gcc-aarch64-linux-gnu, compiler: aarch64-linux-gnu-gcc }
+          - { arch: armv7, package: gcc-arm-linux-gnueabihf, compiler: arm-linux-gnueabihf-gcc }
+          - { arch: riscv64, package: gcc-riscv64-linux-gnu, compiler: riscv64-linux-gnu-gcc }
+          - { arch: ppc64le, package: gcc-powerpc64le-linux-gnu, compiler: powerpc64le-linux-gnu-gcc }
+          - { arch: s390x, package: gcc-s390x-linux-gnu, compiler: s390x-linux-gnu-gcc }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross compiler
+        if: matrix.package != ''
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ${{ matrix.package }} binutils
+      - name: Build architecture-specific command binary
+        env:
+          CC: ${{ matrix.compiler }}
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: bash tools/build-command-arch-matrix.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chimera-command-${{ matrix.arch }}
+          path: build/command-arch-matrix/${{ matrix.arch }}/
+          if-no-files-found: error
+          retention-days: 30
