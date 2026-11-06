@@ -21,7 +21,7 @@ declare -a candidates=(
   libgl1 libglx-mesa0 libegl1 libgles2 libgbm1 libgl1-mesa-dri mesa-utils libgl-dev libegl-dev libgles-dev
   # Multi-architecture user/system emulation providers for the ISA catalogue
   qemu-user-static qemu-system-x86 qemu-system-arm qemu-system-mips
-  qemu-system-ppc qemu-system-misc
+  qemu-system-ppc qemu-system-misc simh
 )
 declare -a available=() missing=()
 for pkg in "${candidates[@]}"; do
