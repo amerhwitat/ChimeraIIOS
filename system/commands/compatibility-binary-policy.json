@@ -47,6 +47,7 @@
     "source": "src/chimera-command-compat/chimera-cmd.c",
     "compiler": "CC environment override, otherwise cc/gcc/clang",
     "output": "rootfs/usr/bin/chimera-cmd",
+    "target_linux_abis": ["x86_64", "i686", "aarch64", "armv7", "riscv64", "ppc64le", "s390x"],
     "multicall_aliases": [
       "pwd",
       "echo",
