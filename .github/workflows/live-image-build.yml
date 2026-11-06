@@ -166,8 +166,11 @@ jobs:
           terminals=json.loads((r/"usr/share/chimera/aurora/terminal-shell-provider-audit.json").read_text())
           isa=json.loads((r/"usr/share/chimera/catalogs/isa-emulator-provider-audit.json").read_text())
           assert commands["unique_command_names"] == 853, commands["unique_command_names"]
-          assert len(terminals["entries"]) == 18, len(terminals["entries"])
+          assert commands["namespaces"]["linux_bash"]["provider_present"] == 301, commands["namespaces"]["linux_bash"]
+          assert terminals["summary"]["terminal"]["verified_elf"] == 10, terminals["summary"]["terminal"]
+          assert terminals["summary"]["shell"]["verified_elf"] == 8, terminals["summary"]["shell"]
           assert isa["catalogued_families"] == 11
+          assert sum(x["status"].startswith("emulator-binary-present") for x in isa["families"]) == 11, isa["families"]
           print("Provider audit reports validated; unsupported commands/families remain explicit.")
           PY
           test -x "$root/usr/bin/openbox"
