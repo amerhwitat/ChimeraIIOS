@@ -178,6 +178,10 @@ for target in live installer recovery; do
     echo "ERROR: target init is not ET_EXEC: $target_elf" >&2
     exit 2
   }
+  readelf -lW "$target_elf" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: target init has no executable PT_LOAD: $target_elf" >&2
+    exit 2
+  }
   cp -f "$target_elf" "$STAGE/boot/targets/"
 done
 
