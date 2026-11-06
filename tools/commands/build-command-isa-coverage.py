@@ -60,9 +60,10 @@ def main():
             target_path=rootfs_executable(target_rootfs,name)
             if name in busybox and target_path:
                 candidate=target_rootfs/target_path.lstrip("/")
-                busybox_path=target_rootfs/"bin/busybox"
+                busybox_paths=[target_rootfs/"bin/busybox",target_rootfs/"usr/bin/busybox"]
                 try:
-                    is_busybox_link=candidate.is_symlink() and candidate.resolve()==busybox_path.resolve()
+                    resolved_busybox={path.resolve() for path in busybox_paths if path.exists()}
+                    is_busybox_link=candidate.is_symlink() and candidate.resolve() in resolved_busybox
                 except OSError:
                     is_busybox_link=False
                 if is_busybox_link:
