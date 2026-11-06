@@ -156,6 +156,16 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert report["native_chimera_command_count"] == 90
+          assert report["native_chimera_provider_count"] == 0, "Linux binaries must not be misreported as Koronos-native providers"
+          assert report["hosted_linux_chimera_provider_count"] >= 8
+          assert report["linux_abi_multicall_alias_count"] == 15
+          assert report["isa_candidate_definition_count"] >= 7000
+          print("Verified catalogue coverage accounting and honest Koronos/Linux ABI separation.")
+          PY
           test -s "$root/usr/share/chimera/catalogs/chimera-command-list.json"
           test -s "$root/usr/share/chimera/catalogs/linux-command-registry.json"
           test -s "$root/usr/share/chimera/catalogs/ISA.csv"
