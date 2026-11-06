@@ -184,10 +184,11 @@ for rel in \
   system/commands/compatibility-binary-policy.json \
   config/linux-command-registry.json \
   tools/commands/os-command-runtime.json \
-  ISA.csv data/isa/online-isa-index.json \
-  aurora/terminals/registry.json aurora/shells/registry.json; do
+  ISA.csv data/isa/online-isa-index.json; do
   [[ -s "$REPO_DIR/$rel" ]] && install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
 done
+install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$WORK/usr/share/chimera/catalogs/terminals-registry.json"
+install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chimera/catalogs/shells-registry.json"
 install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$WORK/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
