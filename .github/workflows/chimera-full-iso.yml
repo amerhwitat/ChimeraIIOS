@@ -148,7 +148,6 @@ jobs:
           # configured default through QMP instead of shortening that timeout.
           python3 - <<'PY'
           from pathlib import Path
-          from pathlib import Path
           import socket, time
           client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
           for _ in range(100):
