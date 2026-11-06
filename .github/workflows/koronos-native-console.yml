@@ -1,0 +1,125 @@
+name: Koronos native ring-3 console and syscall ABI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'kernel/core/syscall.cpp'
+      - 'kernel/core/compat.cpp'
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/target_launch.cpp'
+      - 'kernel/include/chimera/**'
+      - 'kernel/targets/**'
+      - 'kernel/build-koronos.sh'
+      - '.github/workflows/koronos-native-console.yml'
+  pull_request:
+    paths:
+      - 'kernel/core/syscall.cpp'
+      - 'kernel/core/compat.cpp'
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/target_launch.cpp'
+      - 'kernel/include/chimera/**'
+      - 'kernel/targets/**'
+      - 'kernel/build-koronos.sh'
+      - '.github/workflows/koronos-native-console.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-console:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install freestanding build and QEMU test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes g++ gcc nasm binutils grub-pc-bin xorriso mtools qemu-system-x86
+      - name: Test native versus Linux syscall number resolution
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            tests/kernel/compat_syscall_translation_test.cpp kernel/core/compat.cpp \
+            -o /tmp/chimera-syscall-abi-test
+          /tmp/chimera-syscall-abi-test
+      - name: Build Koronos kernel and native console ELF
+        run: |
+          set -euo pipefail
+          bash kernel/build-koronos.sh
+          test -s build/koronos/x86_64/koronos.elf
+          test -s build/koronos/x86_64/target-live-shell.elf
+          readelf -h build/koronos/x86_64/target-live-shell.elf | grep -Eq 'Type:[[:space:]]+EXEC'
+          readelf -lW build/koronos/x86_64/target-live-shell.elf | grep -Eq 'LOAD.*R E'
+      - name: Build minimal interactive console ISO
+        run: |
+          set -euo pipefail
+          mkdir -p build/koronos-console-iso/boot/grub build/koronos-console-iso/boot/koronos build/koronos-console-iso/boot/targets
+          install -m 0644 build/koronos/x86_64/koronos.elf build/koronos-console-iso/boot/koronos/koronos.elf
+          install -m 0644 build/koronos/x86_64/target-live-shell.elf build/koronos-console-iso/boot/targets/target-live-shell.elf
+          cat > build/koronos-console-iso/boot/grub/grub.cfg <<'GRUB'
+          set timeout=0
+          set default=0
+          insmod serial
+          serial --unit=0 --speed=115200
+          terminal_input serial
+          terminal_output serial
+          menuentry "Koronos native console" {
+            multiboot2 /boot/koronos/koronos.elf chm.log=verbose chm.progress=events
+            module2 /boot/targets/target-live-shell.elf chimera-user-init-elf target=live abi=chimera shell=interactive
+            boot
+          }
+          GRUB
+          grub-mkrescue -o build/koronos-native-console.iso build/koronos-console-iso
+      - name: Boot and exercise the ring-3 shell through QEMU PS/2 keyboard input
+        run: |
+          set -euo pipefail
+          qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+            -cdrom build/koronos-native-console.iso -boot d \
+            -serial file:koronos-console-serial.log \
+            -debugcon file:koronos-console-debug.log -global isa-debugcon.iobase=0xe9 \
+            -monitor unix:/tmp/koronos-qemu-monitor.sock,server,nowait \
+            -display none -no-reboot -no-shutdown &
+          qemu_pid=$!
+          cleanup(){ kill "$qemu_pid" 2>/dev/null || true; wait "$qemu_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          python3 - <<'PY'
+          import socket,time,pathlib
+          monitor="/tmp/koronos-qemu-monitor.sock"
+          debug=pathlib.Path("koronos-console-debug.log")
+          deadline=time.time()+12
+          while time.time()<deadline and not pathlib.Path(monitor).exists(): time.sleep(.1)
+          if not pathlib.Path(monitor).exists(): raise SystemExit("QEMU monitor socket was not created")
+          s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.settimeout(2); s.connect(monitor)
+          time.sleep(.5)
+          try: s.recv(8192)
+          except Exception: pass
+          def key(name):
+              s.sendall(("sendkey "+name+"\n").encode())
+              time.sleep(.12)
+              try: s.recv(4096)
+              except Exception: pass
+          deadline=time.time()+12
+          while time.time()<deadline:
+              if debug.exists() and "koronos> " in debug.read_text(errors="ignore"): break
+              time.sleep(.1)
+          else: raise SystemExit("Koronos shell prompt not observed in debugcon")
+          for k in ["h","e","l","p","ret"]: key(k)
+          time.sleep(.5)
+          for k in ["e","x","i","t","ret"]: key(k)
+          time.sleep(1)
+          s.close()
+          PY
+          grep -Fq "Koronos native ring-3 shell" koronos-console-debug.log
+          grep -Fq "Built-ins: help, echo" koronos-console-debug.log
+          grep -Fq "Leaving Koronos interactive console" koronos-console-debug.log
+          grep -Fq "userspace exit syscall received" koronos-console-debug.log
+      - name: Upload native console diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-native-console-diagnostics
+          path: |
+            koronos-console-serial.log
+            koronos-console-debug.log
