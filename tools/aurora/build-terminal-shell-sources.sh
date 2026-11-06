@@ -92,6 +92,12 @@ while IFS='|' read -r package binary status; do
     *) echo "No genuine source-build recipe for missing provider $package ($binary): $status" >&2; exit 2 ;;
   esac
   test -x "$ROOTFS/usr/local/bin/$binary" || { echo "Source build did not install $binary" >&2; exit 2; }
+  # The terminal service adapters use stable /usr/bin paths even when the
+  # upstream source build installs under /usr/local/bin.
+  if [[ ! -e "$ROOTFS/usr/bin/$binary" ]]; then
+    install -d "$ROOTFS/usr/bin"
+    ln -s "/usr/local/bin/$binary" "$ROOTFS/usr/bin/$binary"
+  fi
   verify_target_elf "$ROOTFS/usr/local/bin/$binary"
   case "$binary" in
     yash) commit="$(git -C "$OUT/src/yash" rev-parse HEAD)" ;;
