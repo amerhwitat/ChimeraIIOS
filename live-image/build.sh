@@ -34,7 +34,7 @@ JOBS="${JOBS:-$(nproc)}"
 if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
 fi
-# Build target-specific native command binaries for both hosted desktop editions.
+# Build target-specific Linux ABI command binaries for both hosted desktop editions.
 python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
   --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
@@ -167,8 +167,8 @@ install -d "$WORK/usr/share/chimera/catalogs"
 for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
   if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
 done
-install -d "$WORK/usr/lib/chimera/commands/native"
-cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/native/"
+install -d "$WORK/usr/lib/chimera/commands/linux-abi"
+cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
   --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
