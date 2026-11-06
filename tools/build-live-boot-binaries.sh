@@ -61,7 +61,7 @@ BUSYBOX="$(command -v busybox || true)"
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
 # Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
 while IFS= read -r applet; do
-  [[ -n "$applet" ]] || continue
+  [[ -n "$applet" && "$applet" != "busybox" ]] || continue
   [[ "$applet" == */* ]] && continue
   ln -sf busybox "$INIT/bin/$applet"
 done < <("$BUSYBOX" --list)
