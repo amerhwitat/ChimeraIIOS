@@ -23,6 +23,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$REPO_DIR/tools/boot/verify-menu-timeouts.py" --root "$REPO_DIR"
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
+NATIVE_COMMAND_OUT="$BUILD/native-command-isa"
 BASE="$BUILD/rootfs-base"
 WORK="${WORK_DIR:-$BUILD/rootfs-$ED}"
 ISODIR="$BUILD/iso-$ED"
@@ -33,6 +34,12 @@ JOBS="${JOBS:-$(nproc)}"
 if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
 fi
+# Build target-specific native command binaries for both hosted desktop editions.
+python3 "$REPO_DIR/tools/commands/build_native_command_matrix.py" \
+  --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
+  --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
+  --output "$NATIVE_COMMAND_OUT" \
+  --require-all
 
 case "$ED" in
   chimera)
@@ -152,8 +159,11 @@ install -d "$WORK/usr/share/chimera/catalogs"
 for rel in system/commands/chimera-command-list.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
   if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
 done
+install -d "$WORK/usr/lib/chimera/commands/native"
+cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/native/"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
+  --native-matrix "$NATIVE_COMMAND_OUT/manifest.json" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
