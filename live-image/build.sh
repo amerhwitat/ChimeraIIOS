@@ -231,7 +231,7 @@ python3 - "$WORK/etc/chimera/terminal/auth.token" <<'PY'
 import secrets,sys
 from pathlib import Path
 p=Path(sys.argv[1]); p.parent.mkdir(parents=True,exist_ok=True)
-if not p.exists() or not p.read_text(encoding="utf-8").strip(): p.write_text(secrets.token_urlsafe(32)+"\\n",encoding="utf-8")
+if not p.exists() or not p.read_text(encoding="utf-8").strip(): p.write_text(secrets.token_urlsafe(32)+"\n",encoding="utf-8")
 PY
 chown root:chimera-terminal "$WORK/etc/chimera/terminal/auth.token"
 chmod 0640 "$WORK/etc/chimera/terminal/auth.token"
