@@ -95,21 +95,22 @@ extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_syscall_trace(const char *message);
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
     /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
      * from a native SYSCALL context/dispatch failure without manufacturing
      * any userspace readiness marker. */
-    koronos_target_log("[SYSC] entered native user syscall dispatcher");
+    koronos_syscall_trace("[SYSC] entered native user syscall dispatcher");
     /* SYSCALL does not preserve caller CS. It may serve the active process,
      * but it cannot produce the CPL3 acceptance acknowledgement. That proof
      * is emitted only by the DPL3 INT 0x80 gate after checking saved CS.RPL. */
     if (!koronos_target_validate_syscall_context(frame->rcx)) {
-        koronos_target_log("[SYSC] rejected user syscall context (RIP/CR3/PID mismatch)");
+        koronos_syscall_trace("[SYSC] rejected user syscall context (RIP/CR3/PID mismatch)");
         return static_cast<uint64_t>(-38ll);
     }
-    koronos_target_log("[SYSC] accepted user syscall context");
+    koronos_syscall_trace("[SYSC] accepted user syscall context");
 
     /* Octavian's init is linked against musl and enters through the Linux
      * x86-64 syscall ABI. Translate the raw Linux syscall number into the
@@ -120,18 +121,18 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             CHM_ENTRY_X86_SYSCALL, 64u,
             static_cast<uint32_t>(frame->rax), &identity) != 0 ||
         identity.canonical == 0xFFFFFFFFu) {
-        koronos_target_log("[SYSC] rejected unknown Linux syscall number");
+        koronos_syscall_trace("[SYSC] rejected unknown Linux syscall number");
         return static_cast<uint64_t>(-38ll);
     }
 
-    koronos_target_log("[SYSC] Linux syscall translated");
+    koronos_syscall_trace("[SYSC] Linux syscall translated");
     switch (identity.canonical) {
         case CHM_SYS_GETPID: {
             /* PID comes from the active kernel-owned process record. Never
              * fabricate PID 1 when no target process is actually running. */
             const uint32_t pid = koronos_target_active_pid();
             if (!pid) {
-                koronos_target_log("[SYSC] GETPID rejected: active process PID missing");
+                koronos_syscall_trace("[SYSC] GETPID rejected: active process PID missing");
                 return static_cast<uint64_t>(-38ll);
             }
             return static_cast<uint64_t>(pid);
@@ -143,7 +144,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
-            koronos_target_log("[SYSC] dispatching native WRITE");
+            koronos_syscall_trace("[SYSC] dispatching native WRITE");
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
@@ -153,7 +154,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
             koronos_user_exit_code = frame->rdi & 0xFFu;
-            koronos_target_log("[SYSC] userspace exit syscall received");
+            koronos_syscall_trace("[SYSC] userspace exit syscall received");
             return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
         default:
             return static_cast<uint64_t>(-38ll);
