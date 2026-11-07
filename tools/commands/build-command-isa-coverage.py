@@ -167,9 +167,9 @@ def main():
       "limitations":[
         "Catalogue entries are not automatically executable binaries; provider-required and candidate rows are not replaced by fake stubs.",
         "The ISA candidate index is discovery metadata, not a complete encoding or conformance database.",
-        "The 15 POSIX multicall aliases are Linux userspace commands and do not implement the 90 Chimera-native catalogue commands.",
+        "The 25 POSIX multicall aliases are Linux userspace commands and do not implement the 90 Chimera-native catalogue commands.",
         "Hosted Linux command frontends do not establish Koronos-native syscall or service integration.",
-        "The Koronos Makefile currently accepts only x86_64; the seven Linux command ABIs are cross-build candidates, not bootable Koronos ports.",
+        "The Koronos Makefile currently accepts only x86_64; the eight Linux command ABIs are cross-build candidates, not bootable Koronos ports.",
         "Native instruction semantics, privileged operations, device services and per-architecture QEMU tests remain required."
       ]
     }
