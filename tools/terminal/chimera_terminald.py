@@ -55,7 +55,7 @@ def handle(c,cfg):
  q=json.loads(line); token=str(q.get('token','')); role=str(q.get('role','terminal-user')); action=str(q.get('action','')); tf=cfg.get('authentication',{}).get('token_file','/etc/chimera/terminal/auth.token')
  if not auth(token,tf): send(c,{'ok':False,'error':'authentication failed'}); return
  if action=='create':
-  sid=str(q.get('session') or ('t-'+str(os.getpid())+'-'+str(time.time_ns()))); unsafe=bool(q.get('unsafe_host')) and allowed(role,'terminal.host')
+  sid=str(q.get('session') or ('t-'+str(os.getpid())+'-'+str(time.time_ns()))); unsafe=bool(q.get('unsafe_host')) and bool(cfg.get('sandbox',{}).get('allow_unsafe_host',False)) and allowed(role,'terminal.host')
   try: s=spawn(sid,str(q.get('shell','bash')),role,unsafe); SESSIONS[sid]=s; send(c,{'ok':True,'session':sid,'pid':s['pid'],'sandbox':str(s['root']),'backend':backend() or 'unsafe-host'})
   except Exception as e: send(c,{'ok':False,'error':str(e)})
   return
