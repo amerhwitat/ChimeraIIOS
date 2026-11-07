@@ -10,6 +10,14 @@ install -d "$OUT" "$ROOTFS/usr/share/chimera/commands" "$ROOTFS/usr/share/chimer
 manifest="$ROOTFS/usr/share/chimera/commands/hosted-tools.tsv"
 : > "$manifest"
 
+rootfs_has_executable() {
+  local name="$1" dir
+  for dir in /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin; do
+    [[ -x "$ROOTFS$dir/$name" ]] && return 0
+  done
+  return 1
+}
+
 "$CXX" -std=c++20 -O2 -Wall -Wextra -Werror "$ROOT/userland/commands/chmctl.cpp" -o "$ROOTFS/usr/bin/chmctl"
 printf 'chmctl|/usr/bin/chmctl|compiled-linux-userspace\n' >> "$manifest"
 
@@ -67,7 +75,7 @@ install -D -m 0755 "$ROOT/tools/display/chimera-display" "$OUT/chimera-display"
 printf 'chimera-display|/usr/bin/chimera-display|wlr-randr-or-xrandr\n' >> "$manifest"
 install -D -m 0755 "$ROOT/sdk/bin/chimera-python" "$OUT/chimera-python"
 printf 'chimera-python|/usr/bin/chimera-python|python3-wrapper\n' >> "$manifest"
-if chroot "$ROOTFS" /bin/sh -c 'command -v java >/dev/null 2>&1'; then
+if rootfs_has_executable java; then
   install -D -m 0755 "$ROOT/sdk/bin/chimera-java" "$OUT/chimera-java"
   printf 'chimera-java|/usr/bin/chimera-java|java-wrapper\n' >> "$manifest"
 fi
@@ -90,7 +98,7 @@ chmod 0755 "$OUT/chimera-shell"
 install -D -m 0644 "$ROOT/system/shell/chimera-shell.sh" "$ROOTFS/etc/profile.d/chimera-shell.sh"
 printf 'chimera-shell|/usr/bin/chimera-shell|bash-profile-integration\n' >> "$manifest"
 
-if chroot "$ROOTFS" /bin/sh -c 'command -v terminald >/dev/null 2>&1'; then
+if rootfs_has_executable terminald; then
   install -D -m 0755 "$ROOT/tools/terminal/chimera-terminal" "$OUT/chimera-terminal"
   printf 'chimera-terminal|/usr/bin/chimera-terminal|terminald-client\n' >> "$manifest"
 fi
