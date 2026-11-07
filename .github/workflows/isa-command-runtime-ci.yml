@@ -299,11 +299,11 @@ jobs:
           from pathlib import Path
           p=json.loads(Path("system/commands/native-command-candidates.json").read_text(encoding="utf-8"))
           assert p["counts"]["total"] == len(p["commands"])
-          assert p["counts"]["native_implemented"] == 15
+          assert p["counts"]["native_implemented"] == 25
           assert p["counts"]["candidate_only"] > 1000
           assert p["counts"]["catalogue_unique"] == 853
-          assert p["counts"]["catalogue_native_implemented"] == 15
-          assert p["counts"]["catalogue_candidate_only"] == 838
+          assert p["counts"]["catalogue_native_implemented"] == 25
+          assert p["counts"]["catalogue_candidate_only"] == 828
           assert all((c["execution_allowed"] is False and c["learning"]["state"] == "unresolved") for c in p["commands"] if c["status"] == "candidate-only")
           print("Imported native/candidate command inventory:", p["counts"])
           PY
