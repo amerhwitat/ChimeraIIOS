@@ -137,6 +137,7 @@ done
 "$ROOT/tools/build-mobile-edition.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
 python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+bash "$ROOT/tools/commands/ensure-zig-toolchain.sh"
 say BUILD "Cross-building Linux ABI Chimera command candidates for eight architectures (x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE, s390x)"
 python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
   --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
