@@ -1,8 +1,8 @@
 {
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
-  "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and built as Linux userspace ELF aliases for the eight declared Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
+  "policy": "Catalog presence does not mean a binary or implementation exists. Native C entries are compiled as Linux userspace ELF aliases for eight Linux ABIs; native script entries name real executable providers in the hosted rootfs. Neither category implies Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
   "native_binary": "rootfs/usr/lib/chimera/commands/linux-abi/<target>/chimera-cmd",
-  "native_abi": "Linux userspace ELF; cross-built for eight Linux ABIs; not a Koronos syscall ABI",
+  "native_abi": "Linux userspace ELF aliases and verified executable scripts; not a Koronos syscall ABI",
   "native_alias_count": 25,
   "koronos_abi_compatible": false,
   "command_count": 4141,
@@ -10,9 +10,9 @@
   "language_feature_count": 986,
   "shell_builtin_count": 53,
   "mode_counts": {
-    "compatibility-provider-required": 2933,
+    "compatibility-provider-required": 2914,
     "language-feature": 971,
-    "native": 25,
+    "native": 44,
     "native-provider-required": 159,
     "shell-builtin": 53
   },
@@ -12291,11 +12291,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-asm"
     },
     {
       "name": "chimera-asm64",
@@ -12335,11 +12336,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-background"
     },
     {
       "name": "chimera-biometric",
@@ -12467,33 +12469,36 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-disasm"
     },
     {
       "name": "chimera-display",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-display"
     },
     {
       "name": "chimera-doctor",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-doctor"
     },
     {
       "name": "chimera-domain",
@@ -12522,11 +12527,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-driver-panel"
     },
     {
       "name": "chimera-elf",
@@ -12577,11 +12583,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-gpu-driver-manager"
     },
     {
       "name": "chimera-group",
@@ -12599,11 +12606,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-hardware-drivers"
     },
     {
       "name": "chimera-hdc",
@@ -12621,11 +12629,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-help"
     },
     {
       "name": "chimera-hybrid",
@@ -12643,11 +12652,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-info"
     },
     {
       "name": "chimera-install",
@@ -12676,11 +12686,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-java"
     },
     {
       "name": "chimera-kernel",
@@ -12841,11 +12852,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-package"
     },
     {
       "name": "chimera-packagekit",
@@ -12896,11 +12908,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-python"
     },
     {
       "name": "chimera-registry",
@@ -12995,11 +13008,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-service"
     },
     {
       "name": "chimera-session",
@@ -13017,11 +13031,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-shell"
     },
     {
       "name": "chimera-shell-ar",
@@ -13094,11 +13109,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-terminal"
     },
     {
       "name": "chimera-terminals",
@@ -13116,11 +13132,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-update"
     },
     {
       "name": "chimera-user",
@@ -13171,11 +13188,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimeractl"
     },
     {
       "name": "chkconfig",
@@ -31126,11 +31144,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/korectl"
     },
     {
       "name": "koronosctl",
@@ -55819,5 +55838,27 @@
         "https://www.FreeBSD.org/donations"
       ]
     }
-  ]
+  ],
+  "native_script_provider_count": 19,
+  "native_script_providers": {
+    "chimeractl": "/usr/bin/chimeractl",
+    "chimera-help": "/usr/bin/chimera-help",
+    "chimera-info": "/usr/bin/chimera-info",
+    "chimera-doctor": "/usr/bin/chimera-doctor",
+    "chimera-update": "/usr/bin/chimera-update",
+    "chimera-package": "/usr/bin/chimera-package",
+    "korectl": "/usr/bin/korectl",
+    "chimera-service": "/usr/bin/chimera-service",
+    "chimera-asm": "/usr/bin/chimera-asm",
+    "chimera-disasm": "/usr/bin/chimera-disasm",
+    "chimera-display": "/usr/bin/chimera-display",
+    "chimera-python": "/usr/bin/chimera-python",
+    "chimera-java": "/usr/bin/chimera-java",
+    "chimera-background": "/usr/bin/chimera-background",
+    "chimera-gpu-driver-manager": "/usr/bin/chimera-gpu-driver-manager",
+    "chimera-hardware-drivers": "/usr/bin/chimera-hardware-drivers",
+    "chimera-driver-panel": "/usr/bin/chimera-driver-panel",
+    "chimera-shell": "/usr/bin/chimera-shell",
+    "chimera-terminal": "/usr/bin/chimera-terminal"
+  }
 }
