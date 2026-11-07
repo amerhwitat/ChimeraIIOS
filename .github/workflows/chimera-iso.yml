@@ -1,3 +1,4 @@
+# Active Koronos integration branch acceptance: native command/ABI artifacts must be built before the ISO stage.
 name: Chimera II OS Structured ISO
 
 on:
