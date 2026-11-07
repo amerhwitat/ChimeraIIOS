@@ -27,7 +27,7 @@ assert components.returncode==0,(components.stdout,components.stderr)
 assert "koronos.service" in json.loads(components.stdout).values()
 
 with tempfile.TemporaryDirectory() as tmp:
-    src=Path(tmp)/"rv.s";src.write_text("ADDI x1, x0, 5\\n",encoding="utf-8")
+    src=Path(tmp)/"rv.s";src.write_text("ADDI x1, x0, 5\n",encoding="utf-8")
     out=Path(tmp)/"rv.bin"
     hybrid=run(sys.executable,str(ROOT/"tools/commands/chimera-hybrid.py"),
                "assemble","--arch","riscv64","--input",str(src),"--output",str(out))
