@@ -208,6 +208,11 @@ python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
   --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
+python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
+  --rootfs "$WORK" \
+  --shell-registry "$REPO_DIR/aurora/shells/registry.json" \
+  --terminal-registry "$REPO_DIR/aurora/terminals/registry.json" \
+  --output "$WORK/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
 install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/usr/local/bin/chimera-verify-opengl"
