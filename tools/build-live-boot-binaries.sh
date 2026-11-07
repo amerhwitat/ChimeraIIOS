@@ -100,6 +100,15 @@ done < <("$BUSYBOX" --list)
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
 
 # Embed the complete command/ISA catalogues and an evidence-based implementation map.
+for required in \
+  system/commands/native-command-candidates.json \
+  isa/sources/imports/riscv-opcodes.json \
+  isa/generated/universal-instruction-catalog.json; do
+  [[ -s "$ROOT/$required" ]] || {
+    echo "ERROR: complete imported command/ISA catalogue is missing: $ROOT/$required" >&2
+    exit 2
+  }
+done
 install -d "$INIT/etc/chimera/catalogs"
 for rel in \
   system/commands/chimera-command-list.json \
