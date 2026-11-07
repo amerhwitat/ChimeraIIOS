@@ -128,7 +128,7 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
       busybox-static coreutils findutils grep sed gawk util-linux procps psmisc \
       iproute2 iputils-ping net-tools dnsutils traceroute openssh-client \
       sudo login passwd file tree plocate lsof strace bc acl \
-      aptitude aspell at bsdextrautils dos2unix ddrescue iw mtr-tiny netcat-openbsd \
+      aptitude aspell at bsdextrautils dos2unix gddrescue iw mtr-tiny netcat-openbsd \
       nftables pv ripgrep rename screen sharutils sysstat tmux unrar-free vim-tiny \
       wl-clipboard xclip xxd zstd openjdk-21-jre-headless python3-tk pkexec x11-xserver-utils libstdc++6 \
       libgtk-4-1 libadwaita-1-0 \
