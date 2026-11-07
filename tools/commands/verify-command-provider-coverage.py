@@ -47,6 +47,8 @@ def runtime_present(provider):
     return next((executable(n) for n in names if executable(n)),None)
 caps=json.loads(CAPS.read_text(encoding="utf-8"))
 rows=[]
+_digest_cache={}
+_elf_cache={}
 for item in caps.get("commands",[]):
     name=str(item.get("name","")).strip()
     mode=item.get("mode","")
@@ -89,15 +91,27 @@ for item in caps.get("commands",[]):
         row["koronos_runtime_status"]="not-tested-koronos-abi"
     if binary:
         rel="/"+str(binary.relative_to(ROOTFS))
-        data=binary.read_bytes()
-        row.update(path=rel,sha256=hashlib.sha256(data).hexdigest())
-        if data[:4]==b"\x7fELF":
-            readelf=shutil.which("readelf")
-            if readelf:
-                proc=subprocess.run([readelf,"-h",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
-                machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
+        resolved=binary.resolve()
+        digest=_digest_cache.get(resolved)
+        if digest is None:
+            data=binary.read_bytes()
+            digest=hashlib.sha256(data).hexdigest()
+            _digest_cache[resolved]=digest
+        else:
+            data=None
+        row.update(path=rel,sha256=digest)
+        is_elf=data[:4]==b"\x7fELF" if data is not None else binary.read_bytes()[:4]==b"\x7fELF"
+        if is_elf:
+            machine=_elf_cache.get(resolved)
+            if machine is None:
+                readelf=shutil.which("readelf")
+                if readelf:
+                    proc=subprocess.run([readelf,"-h",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
+                    machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
+                    _elf_cache[resolved]=machine
+            if machine:
                 row["elf_machine"]=machine
-                if machine and EXPECTED not in machine and machine not in EXPECTED:
+                if EXPECTED not in machine and machine not in EXPECTED:
                     row["status"]="wrong-architecture-provider-binary"
     rows.append(row)
 counts={}
