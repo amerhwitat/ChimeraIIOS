@@ -221,9 +221,9 @@ jobs:
           assert rows, 'no BusyBox applets were installed'
           print(f'Verified {len(rows)} BusyBox applet symlinks.')
           PY
-          test -s "$root/usr/lib/chimera/commands/linux-abi/x86_64/chimera-cmd"
-          test -s "$root/usr/lib/chimera/commands/linux-abi/aarch64/chimera-cmd"
-          test -s "$root/usr/lib/chimera/commands/linux-abi/riscv64/chimera-cmd"
+          for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
+            test -s "$root/usr/lib/chimera/commands/linux-abi/$arch/chimera-cmd"
+          done
           test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
           test -s "$root/usr/share/chimera/aurora/sounds/menu-select.wav"
           test -s "$root/opt/aurora/desktop/app-icons/catalog.svg"
@@ -361,9 +361,9 @@ jobs:
           assert any(x["id"]=="xterm" and x["path"] for x in d["terminals"]), "XTerm executable missing"
           print("Shell/terminal provider inventory validated; optional providers remain status-labelled.")
           PY
-          test -s "$root/usr/lib/chimera/commands/linux-abi/x86_64/chimera-cmd"
-          test -s "$root/usr/lib/chimera/commands/linux-abi/aarch64/chimera-cmd"
-          test -s "$root/usr/lib/chimera/commands/linux-abi/riscv64/chimera-cmd"
+          for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
+            test -s "$root/usr/lib/chimera/commands/linux-abi/$arch/chimera-cmd"
+          done
           test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
           test -s "$root/usr/share/chimera/aurora/sounds/menu-select.wav"
           test -s "$root/etc/systemd/system/aurora-startup-sound.service"
