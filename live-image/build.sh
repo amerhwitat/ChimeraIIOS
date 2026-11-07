@@ -476,11 +476,12 @@ cat > "$PAY/PROJECT.md" <<EOF
 shell (WebKit2GTK). \`wallpapers/\` holds the artwork shipped with this build, wired into
 every page's background picker. \`repo/\` is a verbatim snapshot of the source tree.
 
-The image boots a Linux kernel. Openbox manages the Aurora kiosk fullscreen state.
+The image boots Linux Live by default and also contains native Koronos Live, Installer,
+and Recovery menu entries. Those Koronos targets currently prove ring-3 text/ABI handoff;
+they are not yet a production graphical desktop, disk-writing installer, or repair environment.
 Offline application catalogs and first-party application sources are staged under
 app-catalogs/ and apps/native/; catalog-only upstream entries are not misrepresented
-as installed applications. The native Spit Fire/Koronos kernel remains a separate
-release track until its userspace handoff is verified.
+as installed applications.
 EOF
 
 cat > "$PAY/README.txt" <<EOF
@@ -489,7 +490,8 @@ $TITLE live image — $VERSION
 Desktop : $ENTRY (fullscreen kiosk)
 Keys    : Ctrl+Q quit kiosk · Ctrl+R reload · Ctrl+Alt+F2 text console
 Console : login live / live (passwordless sudo)
-Menu    : "Classic X session" boots openbox + xterm
+Menu    : Classic X session plus Koronos Live / Installer / Recovery
+Timeout : Jasper / Gates / GRUB wait 300 seconds before selecting the default
 Artwork : /opt/aurora/wallpapers and /usr/share/backgrounds/$SHORT
 Apps    : /opt/aurora/app-catalogs and /opt/aurora/apps/native
 Source  : $REPO_URL
