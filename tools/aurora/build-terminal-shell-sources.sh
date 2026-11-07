@@ -91,7 +91,7 @@ build_foot() {
   require meson; require ninja
   local src="$OUT/src/foot"
   git clone --depth 1 https://codeberg.org/dnkl/foot.git "$src"
-  meson setup "$src/build" --buildtype=release --prefix=/usr/local
+  meson setup "$src/build" "$src" --buildtype=release --prefix=/usr/local
   ninja -C "$src/build" -j"${JOBS:-2}"
   DESTDIR="$OUT/stage" ninja -C "$src/build" install
   install -D -m 0755 "$OUT/stage/usr/local/bin/foot" "$ROOTFS/usr/local/bin/foot"
