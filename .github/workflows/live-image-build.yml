@@ -429,6 +429,9 @@ jobs:
           grep -Fq 'set timeout_style=menu' "$tmp/grub.cfg"
           grep -Fq 'set gfxmode=5120x2880,1920x1080,1280x1024,1024x768,640x480,auto' "$tmp/grub.cfg"
           grep -Fq 'set gfxpayload=keep' "$tmp/grub.cfg"
+          grep -Fq '/boot/targets/target-init-live.elf chimera-user-init-elf target=live' "$tmp/grub.cfg"
+          grep -Fq '/boot/targets/target-init-installer.elf chimera-user-init-elf target=installer' "$tmp/grub.cfg"
+          grep -Fq '/boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery' "$tmp/grub.cfg"
           for target in live installer recovery; do
             xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf" >/dev/null
             readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
@@ -436,6 +439,16 @@ jobs:
           done
           xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img" >/dev/null
           xorriso -osirrox on -indev "$iso" -extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img" >/dev/null
+          for relative in \
+            /install/installer/installation.img \
+            /install/installer/installation-manifest.json \
+            /install/installer/installer-contract.json \
+            /install/installer/installation_phases.json \
+            /install/installer/installer_profiles.json; do
+            output="$tmp/$(basename "$relative")"
+            xorriso -osirrox on -indev "$iso" -extract "$relative" "$output" >/dev/null
+            test -s "$output"
+          done
           gzip -t "$tmp/live-initramfs.img"
           gzip -t "$tmp/recovery-initramfs.img"
           for target in live installer recovery; do
