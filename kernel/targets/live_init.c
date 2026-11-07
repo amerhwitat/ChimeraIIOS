@@ -30,17 +30,6 @@ __attribute__((noreturn, used)) void _start(void) {
             init_writestr("echo TEXT  print TEXT\n");
             init_writestr("clear      clear the text display\n");
             init_writestr("exit       leave the live console\n");
-        } else if (init_text_equal(line, "uname")) {
-            init_writestr("Koronos x86_64 — Chimera II OS\n");
-        } else if (init_text_equal(line, "pid")) {
-            init_writestr("pid=");
-            init_write_uint((unsigned long)pid);
-            init_writestr("\n");
-        } else if (init_text_starts_with(line, "echo ")) {
-            (void)init_write(1, line + 5, init_strlen(line + 5));
-            init_writestr("\n");
-        } else if (init_text_equal(line, "clear")) {
-            for (int i = 0; i < 25; ++i) init_writestr("\n");
         } else if (init_text_equal(line, "exit")) {
             init_writestr("LIVE: console exit requested\n");
             init_exit(0);
