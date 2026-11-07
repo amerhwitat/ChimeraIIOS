@@ -136,25 +136,37 @@ build_wezterm() {
   install -D -m 0755 "$src/target/release/wezterm-gui" "$ROOTFS/usr/local/bin/wezterm"
 }
 build_ghostty() {
-  require python3
-  local src="$OUT/src/ghostty" zigver venv
-  # Pin the 1.3 line: Ghostty 1.4 requires GTK 4.18 / libadwaita 1.7,
-  # while the Ubuntu 24.04 build host provides the 1.3 line's GTK 4.14 /
-  # libadwaita 1.5 baseline. Derive Zig from the checked-out source metadata.
-  local ref="${CHIMERA_GHOSTTY_REF:-v1.3.0}"
-  git clone --depth 1 --branch "$ref" https://github.com/ghostty-org/ghostty.git "$src"
+  require python3; require curl; require minisign; require tar
+  local src="$OUT/src/ghostty" zigver venv version archive pubkey
+  # Use the official release source archive, not a Git checkout: release
+  # archives contain preprocessed Blueprint outputs and avoid a host-only
+  # development dependency on blueprint-compiler >= 0.16.
+  version="${CHIMERA_GHOSTTY_VERSION:-1.3.0}"
+  archive="$OUT/ghostty-$version.tar.gz"
+  pubkey="RWQlAjJC23149WL2sEpT/l0QKy7hMIFhYdQOFy0Z7z7PbneUgvlsnYcV"
+  curl --fail --location --retry 3 --retry-delay 2 \
+    "https://release.files.ghostty.org/$version/ghostty-$version.tar.gz" \
+    --output "$archive"
+  curl --fail --location --retry 3 --retry-delay 2 \
+    "https://release.files.ghostty.org/$version/ghostty-$version.tar.gz.minisig" \
+    --output "$archive.minisig"
+  minisign -Vm "$archive" -P "$pubkey"
+  mkdir -p "$src"
+  tar -xzf "$archive" -C "$src" --strip-components=1
+  # Derive Zig from the authenticated release source metadata.
   if [[ -s "$src/.zig-version" ]]; then
     zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
   elif [[ -s "$src/build.zig.zon" ]]; then
     zigver="$(grep -E 'minimum_zig_version' "$src/build.zig.zon" | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | head -n 1)"
+  elif [[ -s "$src/build.zig" ]]; then
+    zigver="$(grep -E 'required_zig' "$src/build.zig" | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | head -n 1)"
   else
     zigver=""
   fi
-  [[ -n "$zigver" ]] || { echo "Ghostty source has no parseable Zig version contract" >&2; exit 2; }
+  [[ -n "$zigver" ]] || { echo "Authenticated Ghostty release has no parseable Zig version contract" >&2; exit 2; }
   venv="$OUT/zig-venv"
   python3 -m venv "$venv"
   "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
-  # Ubuntu 24.04 does not package gtk4-layer-shell; build that pinned dependency in Ghostty.
   (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast -fno-sys=gtk4-layer-shell)
   install -D -m 0755 "$src/zig-out/bin/ghostty" "$ROOTFS/usr/local/bin/ghostty"
 }
@@ -212,7 +224,7 @@ while IFS='|' read -r package binary status; do
     nu) commit="$(git -C "$OUT/src/nushell" rev-parse HEAD)" ;;
     elvish) commit="$(git -C "$OUT/src/elvish" rev-parse HEAD)" ;;
     wezterm) commit="$(git -C "$OUT/src/wezterm" rev-parse HEAD)" ;;
-    ghostty) commit="$(git -C "$OUT/src/ghostty" rev-parse HEAD)" ;;
+    ghostty) commit="release-v1.3.0+sha256:$(sha256sum "$OUT/ghostty-1.3.0.tar.gz" | awk '{print $1}')" ;;
     contour) commit="$(git -C "$OUT/src/contour" rev-parse HEAD)" ;;
   esac
   case "$binary" in
