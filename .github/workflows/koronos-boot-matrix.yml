@@ -76,11 +76,11 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+          printf '\n' | timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
             -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
             -debugcon file:qemu-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-koronos.log
-          qemu_rc=${PIPESTATUS[0]}
+          qemu_rc=${PIPESTATUS[1]}
           set -e
           # timeout (124) is expected after the kernel enters its idle loop.
           [[ "$qemu_rc" -eq 0 || "$qemu_rc" -eq 124 ]]
