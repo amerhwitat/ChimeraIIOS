@@ -236,6 +236,41 @@ jobs:
           assert any(x["id"]=="xterm" and x["path"] for x in d["terminals"]), "XTerm executable missing"
           print("Shell/terminal provider inventory validated; optional providers remain status-labelled.")
           PY
+          python3 - "$root" <<'PY'
+          import json,pathlib,sys
+          root=pathlib.Path(sys.argv[1])
+          terms=json.loads(pathlib.Path('aurora/terminals/registry.json').read_text())['entries']
+          shells=json.loads(pathlib.Path('aurora/shells/registry.json').read_text())['entries']
+          for item in terms+shells:
+              name=item['binary']
+              paths=[root/d/name for d in ('usr/bin','bin','usr/local/bin','usr/sbin','sbin')]
+              assert any(p.is_file() and p.stat().st_mode & 0o111 for p in paths), f'missing terminal/shell executable: {name}'
+          print(f'Verified all {len(terms)} terminal and {len(shells)} shell executables.')
+          PY
+          test -s "$root/opt/aurora/desktop/app-icons/catalog.svg"
+          test -s "$root/opt/aurora/desktop/app-icons/manifest.json"
+          test "$(find "$root/opt/aurora/desktop/app-icons/icons" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
+          test "$(find "$root/usr/share/icons/hicolor/scalable/apps" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
+          test -s "$root/usr/share/chimera/catalogs/ISA.csv"
+          test -s "$root/usr/share/chimera/catalogs/online-isa-index.json"
+          test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+          python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert d['native_chimera_command_count']==90
+          assert d['native_chimera_provider_count']==0
+          assert d['hosted_linux_chimera_provider_count']>=8
+          assert d['linux_abi_multicall_alias_count']==15
+          assert d['isa_candidate_definition_count']>=7000
+          print('Octavian command and ISA coverage accounting verified.')
+          PY
+          python3 - "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json" <<'PY'
+          import json,sys
+          rows=json.load(open(sys.argv[1],encoding='utf-8')).get('targets',[])
+          assert len(rows)==8, f'expected 8 Linux ABI targets, got {len(rows)}'
+          assert all(x.get('runtime_status') in {'native-linux-abi-smoke-tested','qemu-user-linux-abi-smoke-tested'} for x in rows), rows
+          print('All eight Linux ABI command candidates passed smoke tests.')
+          PY
           python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
           import json,sys
           report=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -402,16 +437,19 @@ jobs:
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 \
             gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
+            autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
+            libvte-2.91-dev libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
             libgtk-4-dev libadwaita-1-dev libxkbcommon-dev libwayland-dev libx11-dev \
             libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
             libx11-xcb-dev libxkbcommon-x11-dev libfontconfig1-dev libfreetype-dev \
             libharfbuzz-dev libvulkan-dev qt6-base-dev qt6-declarative-dev \
             libdbus-1-dev libssl-dev libasound2-dev libpulse-dev libxrandr-dev \
             libxi-dev libxinerama-dev libxcursor-dev libxext-dev libxrender-dev \
-            libxfixes-dev libxdamage-dev libxcomposite-dev
+            libxfixes-dev libxdamage-dev libxcomposite-dev \
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+
       - name: Validate shared Aurora runtime sources
         run: |
           set -euo pipefail
