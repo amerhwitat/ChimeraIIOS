@@ -97,9 +97,19 @@ build_foot() {
   install -D -m 0755 "$OUT/stage/usr/local/bin/foot" "$ROOTFS/usr/local/bin/foot"
 }
 build_blackbox() {
-  require meson; require ninja
-  local src="$OUT/src/blackbox"
-  git clone --depth 1 https://gitlab.gnome.org/raggesilver/blackbox.git "$src"
+  require meson; require ninja; require curl; require tar; require patch
+  local src="$OUT/src/blackbox" archive
+  # Use the upstream Flathub-pinned release archive; GitLab clone URLs may
+  # request credentials in non-interactive CI. Verify the archive before use.
+  archive="$OUT/blackbox-v0.14.0.tar.gz"
+  curl --fail --location --retry 3 --retry-delay 2 \
+    "https://gitlab.gnome.org/raggesilver/blackbox/-/archive/v0.14.0/blackbox-v0.14.0.tar.gz" \
+    --output "$archive"
+  echo "0a8b76666ac71a6dc9e05b8084e1c6c53cda880ad1f8f778d9d5de9a6644ad0d  $archive" | sha256sum --check -
+  mkdir -p "$src"
+  tar -xzf "$archive" -C "$src" --strip-components=1
+  patch -d "$src" -p1 < "$REPO_DIR/live-image/patches/blackbox-gcc14.patch"
+  patch -d "$src" -p1 < "$REPO_DIR/live-image/patches/blackbox-appdata.patch"
   meson setup "$src/build" --buildtype=release --prefix=/usr/local
   ninja -C "$src/build" -j"${JOBS:-2}"
   DESTDIR="$OUT/stage" ninja -C "$src/build" install
