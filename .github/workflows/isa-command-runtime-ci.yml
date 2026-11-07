@@ -161,7 +161,7 @@ jobs:
       - name: Validate native command and ISA coverage generation
         run: |
           sudo apt-get update
-          sudo apt-get install -y busybox-static gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils
+          sudo apt-get install -y busybox-static gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static
           busybox --list >/dev/null
           python3 tools/commands/build_linux_abi_command_matrix.py \
             --source src/chimera-command-compat/chimera-cmd.c \
@@ -171,6 +171,7 @@ jobs:
             --root . --busybox "$(command -v busybox)" \
             --native-matrix build/native-command-isa/manifest.json \
             --output build/runtime/command-isa-coverage.json
+          bash tests/commands/test-native-command-matrix.sh build/native-command-isa
           python3 -m json.tool build/runtime/command-isa-coverage.json >/dev/null
           grep -q 'catalogued-provider-required' build/runtime/command-isa-coverage.json
       - uses: actions/setup-python@v5
