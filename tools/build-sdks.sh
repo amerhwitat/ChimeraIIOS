@@ -7,7 +7,7 @@
 # readable build report.
 #
 #   tools/build-sdks.sh [--out reports/sdk-build-report.json] [--timeout 300]
-#                       [--max 40] [--only cmake,rust] [--list]
+#                       [--max 40] [--only cmake,rust] [--strict] [--list]
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
