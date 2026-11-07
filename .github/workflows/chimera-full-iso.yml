@@ -16,6 +16,7 @@ on:
       - "tests/boot/**"
       - "tests/commands/**"
       - "tools/commands/**"
+      - "tools/build-chimera-command-compat.sh"
       - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
@@ -37,6 +38,7 @@ on:
       - "tests/boot/**"
       - "tests/commands/**"
       - "tools/commands/**"
+      - "tools/build-chimera-command-compat.sh"
       - ".github/workflows/chimera-full-iso.yml"
 
 permissions:
