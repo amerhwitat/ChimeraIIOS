@@ -35,6 +35,11 @@ and tested behavior.
 - The native Linux userspace multicall currently implements 25 POSIX command
   aliases. The same source is cross-built and ELF-machine-validated for
   x86-64, i686, armel, AArch64, ARMv7, RISC-V 64, PowerPC64LE, and s390x.
+- The hosted desktop builder also stages 19 real Chimera userland script/front-end
+  providers (diagnostics, update/package, Kore, shell, display, driver and
+  assembler/disassembler tools). The target-rootfs coverage report verifies
+  each declared executable path; conditional providers remain missing until
+  their runtime is actually installed.
 - CI runs QEMU-user smoke tests for those eight Linux ABIs. This is Linux
   userspace validation only; these binaries are **not Koronos syscall-ABI
   binaries**.
