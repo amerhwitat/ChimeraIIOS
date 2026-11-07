@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOTFS="\${1:?usage: test-terminald-rootfs.sh ROOTFS}"
+for path in \
+  usr/lib/chimera/chimera_terminald.py \
+  usr/bin/terminald usr/bin/chimera-terminal usr/bin/chimera-sql \
+  usr/bin/bwrap etc/chimera/terminal/shell_adapters.json \
+  etc/chimera/terminal/permissions.json etc/chimera/terminal/terminal-service.json \
+  etc/systemd/system/chimera-terminald.service \
+  etc/systemd/system/multi-user.target.wants/chimera-terminald.service \
+  etc/chimera/terminal/auth.token; do
+  test -s "$ROOTFS/$path" || { echo "missing terminal runtime asset: $path" >&2; exit 1; }
+done
+chroot "$ROOTFS" /usr/bin/python3 -m py_compile /usr/lib/chimera/chimera_terminald.py
+chroot "$ROOTFS" /usr/bin/terminald --help >/dev/null
+chroot "$ROOTFS" /usr/bin/chimera-terminal --help >/dev/null
+chroot "$ROOTFS" /usr/bin/bwrap --version >/dev/null
+chroot "$ROOTFS" getent group chimera-terminal >/dev/null
+chroot "$ROOTFS" id -Gn live | tr ' ' '\n' | grep -qx chimera-terminal
+test "$(stat -c '%a' "$ROOTFS/etc/chimera/terminal/auth.token")" = 640
+test "$(stat -c '%G' "$ROOTFS/etc/chimera/terminal/auth.token")" = chimera-terminal
+echo "PASS terminald service, sandbox binary, config, token permissions and live-user group membership"
