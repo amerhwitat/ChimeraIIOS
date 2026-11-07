@@ -195,6 +195,7 @@ def main():
       "commands":command_rows,
       "command_summary":counts,
       "linux_abi_multicall_alias_count":len(LINUX_ABI_MULTICALL_IMPLEMENTED),
+      "linux_abi_multicall_aliases":sorted(LINUX_ABI_MULTICALL_IMPLEMENTED),
       "native_chimera_command_count":sum("chimera-native" in row["platforms"] for row in command_rows),
       "native_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="native-command-source-present" for row in command_rows),
       "hosted_linux_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="hosted-linux-rootfs-executable" for row in command_rows),
