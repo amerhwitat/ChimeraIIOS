@@ -12,14 +12,18 @@ with tempfile.TemporaryDirectory() as temp:
     temp = Path(temp)
     catalog = temp / "catalog.json"
     report = temp / "report.json"
+    ss64 = temp / "ss64.json"
     catalog.write_text(json.dumps({"linux_bash": ["printf", "case", "chimera-no-such-command-9f3"]}), encoding="utf-8")
+    ss64.write_text(json.dumps({"platforms":{"linux_bash":{"commands":[{"name":"chimera-ss64-only-command-7d2"}]}}}), encoding="utf-8")
     subprocess.run([sys.executable, str(SCRIPT), "--catalog", str(catalog),
-                    "--output", str(report), "--no-install"], check=True)
+                    "--ss64", str(ss64), "--output", str(report), "--no-install"], check=True)
     data = json.loads(report.read_text(encoding="utf-8"))
     rows = {row["name"]: row for row in data["commands"]}
     assert rows["case"]["status"] == "provided-by-shell-builtin"
     assert rows["printf"]["status"] == "existing-executable-provider"
     missing = rows["chimera-no-such-command-9f3"]
     assert missing["status"] == "provider-not-found-yet"
+    ss64_missing = rows["chimera-ss64-only-command-7d2"]
+    assert ss64_missing["status"] == "provider-not-found-yet"
     assert "path" not in missing and "binary" not in missing
     print("PASS catalogue resolver records real providers and never fabricates missing executables")
