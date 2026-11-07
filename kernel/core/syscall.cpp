@@ -148,8 +148,18 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
-            if (fd > 2u || length > 4096u) return static_cast<uint64_t>(-22ll);
-            return static_cast<uint64_t>(koronos_console_write_user(address, length));
+            if (fd > 2u) {
+                koronos_syscall_trace("[SYSC] WRITE rejected: fd exceeds stderr");
+                return static_cast<uint64_t>(-22ll);
+            }
+            if (length > 4096u) {
+                koronos_syscall_trace("[SYSC] WRITE rejected: length exceeds 4096");
+                return static_cast<uint64_t>(-22ll);
+            }
+            koronos_syscall_trace("[SYSC] WRITE arguments accepted; entering console copy");
+            const int64_t written = koronos_console_write_user(address, length);
+            koronos_syscall_trace("[SYSC] WRITE console copy returned");
+            return static_cast<uint64_t>(written);
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
