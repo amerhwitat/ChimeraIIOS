@@ -132,6 +132,7 @@ BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+GENERATED_DOCKER_IMAGE_ID=""
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -277,14 +278,53 @@ cleanup_generated_build_artifacts(){
   find "$BUILD_DIR" -maxdepth 3 -type f \
     \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
     -delete 2>/dev/null || true
-  # Remove empty build-owned directories left after the sweep.
-  find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
+  # Remove additional disposable outputs produced only by this build. Keep
+  # source assets, kernel ELF/debug artifacts, logs, command/ISA reports and
+  # every final ISO/checksum. These directories are deterministic rebuilds.
+  rm -rf -- \\
+    "$BUILD_DIR/aurora-media" \\
+    "$BUILD_DIR/aurora-icons" \\
+    "$BUILD_DIR/aurora-app-icons" \\
+    "$BUILD_DIR/aurora-selected-artwork.png" \\
+    "$BUILD_DIR/native-command-isa" \\
+    "$SCRIPT_DIR/boot/iso/work" 2>/dev/null || true
+  # Rootfs is disposable only when it resolves inside this build's own tree.
+  local build_real rootfs_real
+  build_real="$(realpath -m "$BUILD_DIR")"
+  rootfs_real="$(realpath -m "$ROOTFS_DIR")"
+  if [[ "$rootfs_real" == "$build_real"/* ]]; then
+    rm -rf -- "$ROOTFS_DIR" 2>/dev/null || true
+  fi
+  # Preserve the canonical native ISO and checksum, but remove other files
+  # left in its generated dist directory.
+  if [[ -d "$SCRIPT_DIR/boot/iso/dist" ]]; then
+    find "$SCRIPT_DIR/boot/iso/dist" -mindepth 1 -maxdepth 1 \\
+      ! -name output.iso ! -name output.iso.sha256 -exec rm -rf -- {} + 2>/dev/null || true
+  fi
+  # Remove only stopped containers carrying Chimera's private build labels.
+  # Never run docker container prune: that would affect unrelated projects.
+  if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    local container_id
+    while IFS= read -r container_id; do
+      [[ -n "$container_id" ]] || continue
+      docker rm "$container_id" >/dev/null 2>&1 || true
+    done < <(docker ps -aq --filter 'status=exited' --filter 'label=chimera.build.managed=true')
+    while IFS= read -r container_id; do
+      [[ -n "$container_id" ]] || continue
+      docker rm "$container_id" >/dev/null 2>&1 || true
+    done < <(docker ps -aq --filter 'status=exited' --filter 'label=chimera.rootfs.export=true')
+  fi
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
   log_info "Cleaning unused generated ISO build intermediates..."
   cleanup_generated_build_artifacts
+  # The rootfs has already been exported and the ISO verified, so the exact
+  # image built by this invocation is now disposable. Keep it on request, or
+  # whenever a container still references it. Never prune unrelated images.
+  if [[ -n "$GENERATED_DOCKER_IMAGE_ID" && "${CHIMERA_KEEP_DOCKER_IMAGE:-0}" != 1 ]]; then
+    cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$GENERATED_DOCKER_IMAGE_ID"
+  fi
   # Resume/failure state is no longer useful after a complete verified build.
   rm -f -- "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true
   log_success "Unused generated build artifacts removed; final ISO/checksum retained."
@@ -338,7 +378,8 @@ push_docker_image(){
     docker push "$target:latest"
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
-  cleanup_generated_docker_image "$source" "$image_id"
+  # Defer local image deletion until the ISO has been built and verified; the
+  # rootfs export stage still needs this image after publication.
 }
 
 is_writable_dir(){
@@ -496,8 +537,15 @@ build_docker(){
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
-  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" \\
+    --label chimera.build.managed=true \\
+    --label chimera.build.repository=ChimeraIIOS \\
+    -f "$SCRIPT_DIR/Dockerfile.comprehensive" \\
+    -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" \\
+    "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  GENERATED_DOCKER_IMAGE_ID="$(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG")"
+  log_info "Tracked this invocation's generated Docker image: $GENERATED_DOCKER_IMAGE_ID"
 }
 
 export_rootfs(){
@@ -522,7 +570,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --label chimera.build.managed=true --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
