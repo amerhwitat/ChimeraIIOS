@@ -504,6 +504,7 @@ Desktop : $ENTRY (fullscreen kiosk)
 Keys    : Ctrl+Q quit kiosk · Ctrl+R reload · Ctrl+Alt+F2 text console
 Console : login live / live (passwordless sudo)
 Menu    : Classic X session plus Koronos Live / Installer / Recovery
+Terminals: 20 emulators + 8 shells; executable and CLI smoke verified, GUI input pending
 Timeout : Jasper / Gates / GRUB wait 300 seconds before selecting the default
 Artwork : /opt/aurora/wallpapers and /usr/share/backgrounds/$SHORT
 Apps    : /opt/aurora/app-catalogs and /opt/aurora/apps/native
