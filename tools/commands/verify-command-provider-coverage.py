@@ -100,19 +100,24 @@ for item in caps.get("commands",[]):
         else:
             data=None
         row.update(path=rel,sha256=digest)
-        is_elf=data[:4]==b"\x7fELF" if data is not None else binary.read_bytes()[:4]==b"\x7fELF"
-        if is_elf:
-            machine=_elf_cache.get(resolved)
-            if machine is None:
-                readelf=shutil.which("readelf")
-                if readelf:
-                    proc=subprocess.run([readelf,"-h",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
-                    machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
-                    _elf_cache[resolved]=machine
-            if machine:
-                row["elf_machine"]=machine
-                if EXPECTED not in machine and machine not in EXPECTED:
-                    row["status"]="wrong-architecture-provider-binary"
+        elf_info=_elf_cache.get(resolved)
+        if elf_info is None:
+            if data is not None:
+                is_elf=data[:4]==b"\x7fELF"
+            else:
+                with binary.open("rb") as stream: is_elf=stream.read(4)==b"\x7fELF"
+            machine=None
+            readelf=shutil.which("readelf")
+            if is_elf and readelf:
+                proc=subprocess.run([readelf,"-h",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
+                machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
+            elf_info=(is_elf,machine)
+            _elf_cache[resolved]=elf_info
+        is_elf,machine=elf_info
+        if is_elf and machine:
+            row["elf_machine"]=machine
+            if EXPECTED not in machine and machine not in EXPECTED:
+                row["status"]="wrong-architecture-provider-binary"
     rows.append(row)
 counts={}
 for row in rows: counts[row["status"]]=counts.get(row["status"],0)+1
