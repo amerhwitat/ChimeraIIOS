@@ -370,6 +370,7 @@ jobs:
               "aurora_marine_health": "aurora-marine-runtime-health.json",
               "architecture_boot_matrix": "architecture-boot-matrix.json",
               "isa_conformance": "isa-conformance.json",
+              "native_koronos_default_boot": "native-koronos-default-boot.json",
           }
           missing = [name for name, filename in required.items() if not (root / filename).is_file()]
           checks = {}
@@ -385,12 +386,16 @@ jobs:
                   checks[name] = checks[name] and data.get("cpu_count", 0) >= 2 and data.get("overlap_intervals", 0) > 0
               elif name == "architecture_boot_matrix":
                   checks[name] = checks[name] and data.get("all_supported_targets_passed") is True
+              elif name == "aurora_marine_health":
+                  checks[name] = checks[name] and data.get("aurora_live") is True and data.get("marine_live") is True and data.get("gui_interaction_passed") is True
+              elif name == "native_koronos_default_boot":
+                  checks[name] = checks[name] and data.get("koronos_is_default") is True and data.get("linux_fallback_preserved") is True
               elif name == "isa_conformance":
                   checks[name] = checks[name] and data.get("instruction_count") == 1613 and data.get("all_semantics_conformant") is True
           accepted = not missing and all(checks.get(name, False) for name in required)
           report = {"schema": "chimera-production-acceptance/v1", "accepted": accepted,
                     "missing_evidence": missing, "checks": checks,
-                    "note": "Ring-3 target smoke tests alone do not prove installer persistence, recovery repair, SMP, desktop interaction, or all-architecture boot support."}
+                    "note": "Ring-3 target smoke tests alone do not prove native Koronos default boot, installer persistence, recovery repair, SMP, desktop interaction, or all-architecture boot support."}
           (root / "production-acceptance-status.json").write_text(json.dumps(report, indent=2) + "\n")
           print(json.dumps(report, indent=2))
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
