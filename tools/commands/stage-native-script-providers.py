@@ -34,6 +34,16 @@ SCRIPTS = {
     "chimera-hdc": ("tools/commands/chimera-hdc", "bash"),
     "chimera-neural": ("tools/commands/chimera-neural", "bash"),
     "chimera-shell-ar": ("tools/commands/chimera-shell-ar", "bash"),
+    "aegisctl": ("tools/commands/aegisctl", "bash"),
+    "auroractl": ("tools/commands/auroractl", "bash"),
+    "jasperctl": ("tools/commands/jasperctl", "bash"),
+    "koronosctl": ("tools/commands/koronosctl", "bash"),
+    "nucleusctl": ("tools/commands/nucleusctl", "bash"),
+    "spitfirectl": ("tools/commands/spitfirectl", "bash"),
+    "spotnikctl": ("tools/commands/spotnikctl", "bash"),
+    "chimera-security": ("tools/commands/chimera-security", "bash"),
+    "chimera-live": ("tools/commands/chimera-live", "bash"),
+    "chimera-hybrid": ("tools/commands/chimera-hybrid", "bash"),
 }
 VERIFIED_PROVIDERS = [
     "chimeractl", "chmctl", "chimera-registry", "hivectl", "chimera-help", "chimera-info", "chimera-doctor", "chimera-update",

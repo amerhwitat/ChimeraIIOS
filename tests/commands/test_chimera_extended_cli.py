@@ -22,6 +22,18 @@ risc=run(sys.executable,str(ROOT/"tools/isa/riscv_codec.py"),"encode","ADDI x1, 
 assert risc.returncode==0,(risc.stdout,risc.stderr)
 assert risc.stdout.strip()=="0x00500093"
 
+components=run(sys.executable,str(ROOT/"tools/commands/chimera-componentctl.py"),"koronos","list")
+assert components.returncode==0,(components.stdout,components.stderr)
+assert "koronos.service" in json.loads(components.stdout).values()
+
+with tempfile.TemporaryDirectory() as tmp:
+    src=Path(tmp)/"rv.s";src.write_text("ADDI x1, x0, 5\\n",encoding="utf-8")
+    out=Path(tmp)/"rv.bin"
+    hybrid=run(sys.executable,str(ROOT/"tools/commands/chimera-hybrid.py"),
+               "assemble","--arch","riscv64","--input",str(src),"--output",str(out))
+    assert hybrid.returncode==0,(hybrid.stdout,hybrid.stderr)
+    assert out.read_bytes()==bytes.fromhex("93005000")
+
 rnn=run(sys.executable,str(ROOT/"tools/commands/chimera-rnn.py"),"step",
         "--size","4","--features","0.25","0.5")
 assert rnn.returncode==0,(rnn.stdout,rnn.stderr)
@@ -83,7 +95,9 @@ assert 'ln -sfn chimera-registry "$OUT/hivectl"' in build
 manifest=(ROOT/"tools/commands/generate_runtime_manifest.py").read_text(encoding="utf-8")
 for name in ("chimera","chmctl","chimera-registry","hivectl","chimera-nbit",
              "chimera-risc","chimera-llm","chimera-rnn","chimera-p2p",
-             "chimera-install","chimera-apache","chimera-ss64","chimera-128d","chimera-vector","chimera-tensor","chimera-hdc","chimera-neural","chimera-shell-ar"):
+             "chimera-install","chimera-apache","chimera-ss64","chimera-128d","chimera-vector","chimera-tensor","chimera-hdc","chimera-neural","chimera-shell-ar",
+    "aegisctl","auroractl","jasperctl","koronosctl","nucleusctl","spitfirectl","spotnikctl",
+    "chimera-security","chimera-live","chimera-hybrid"):
     assert f'"{name}": "/usr/bin/{name}"' in manifest, f"runtime manifest missing {name}"
 stage=(ROOT/"tools/commands/stage-native-script-providers.py").read_text(encoding="utf-8")
 for name in ("chimera-nbit","chimera-risc","chimera-llm","chimera-rnn",
