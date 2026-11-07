@@ -195,7 +195,9 @@ def main():
     OUT.write_text(json.dumps({
         "schema":"CHM-COMMAND-RUNTIME-CAPABILITIES-1",
         "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and built as Linux userspace ELF aliases for the eight declared Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
-        "native_binary":"rootfs/usr/lib/chimera/commands/linux-abi/<target>/chimera-cmd",
+        "native_binary":"rootfs/usr/bin/chimera-cmd",
+        "linux_abi_matrix_artifact_root":"build/native-command-isa/<target>/chimera-cmd",
+        "linux_abi_matrix_staged_in_rootfs":False,
         "native_abi":"Linux userspace ELF aliases and verified executable scripts; not a Koronos syscall ABI",
         "native_script_provider_count":len(NATIVE_SCRIPT_PROVIDERS),
         "native_script_providers":NATIVE_SCRIPT_PROVIDERS,
