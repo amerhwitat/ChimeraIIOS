@@ -14,6 +14,14 @@ MACHINES={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devic
           "aarch64":"AArch64","arm64":"AArch64","i686":"Intel 80386","i386":"Intel 80386",
           "armv7":"ARM","riscv64":"RISC-V","ppc64le":"PowerPC64","s390x":"IBM S/390"}
 EXPECTED=MACHINES.get(TARGET,TARGET)
+ABI_TARGET={"amd64":"x86_64","i386":"i686","armhf":"armv7","arm64":"aarch64"}.get(TARGET,TARGET)
+MATRIX_PATH=ROOTFS/"usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+try:
+    matrix=json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
+except (OSError,json.JSONDecodeError):
+    matrix={}
+abi_row=next((x for x in matrix.get("targets",[]) if x.get("target")==ABI_TARGET),{})
+abi_aliases=set(abi_row.get("aliases",[])) if abi_row.get("binary_status")=="cross-compiled-and-elf-machine-validated" else set()
 SEARCH=( "usr/bin","bin","usr/sbin","sbin","usr/local/bin","usr/local/sbin" )
 def executable(name):
     if not name or "/" in name or name in (".",".."): return None
@@ -21,6 +29,11 @@ def executable(name):
         p=ROOTFS/base/name
         if p.is_file() and os.access(p,os.X_OK): return p
     return None
+def linux_abi_alias(name):
+    if name not in abi_aliases: return None
+    candidate=ROOTFS/"usr/lib/chimera/commands/linux-abi"/ABI_TARGET/name
+    return candidate if candidate.is_file() and os.access(candidate,os.X_OK) else None
+
 def runtime_present(provider):
     key=(provider or "").casefold()
     names=[]
@@ -42,9 +55,9 @@ for item in caps.get("commands",[]):
     if mode=="language-feature":
         status="not-a-standalone-executable"
     elif mode=="native":
-        binary=executable("chimera-cmd")
+        binary=linux_abi_alias(name)
         if binary:
-            status="native-multicall-binary-present"
+            status="linux-abi-multicall-alias-present-not-koronos-native"
         else:
             binary=executable(name)
             status="external-provider-binary-present-native-implementation-not-staged" if binary else "native-implementation-not-staged"
@@ -63,6 +76,10 @@ for item in caps.get("commands",[]):
             elif rt: binary=rt; status="compatibility-runtime-present-command-unverified"
             else: status="provider-binary-and-runtime-missing"
     row={"name":name,"mode":mode,"entry_kind":item.get("entry_kind","executable-command"),"provider":provider,"platforms":item.get("platforms",[]),"status":status}
+    if mode=="native":
+        row["linux_abi_target"]=ABI_TARGET
+        row["linux_abi_runtime_status"]=abi_row.get("runtime_status","not-tested") if binary and status.startswith("linux-abi-") else "not-applicable"
+        row["koronos_runtime_status"]="not-tested-koronos-abi"
     if binary:
         rel="/"+str(binary.relative_to(ROOTFS))
         data=binary.read_bytes()
@@ -78,8 +95,10 @@ for item in caps.get("commands",[]):
     rows.append(row)
 counts={}
 for row in rows: counts[row["status"]]=counts.get(row["status"],0)+1
-result={"schema":"CHIMERA-COMMAND-PROVIDER-COVERAGE-1","target_architecture":TARGET,
+result={"schema":"CHIMERA-COMMAND-PROVIDER-COVERAGE-2","target_architecture":TARGET,
         "catalog_count":len(rows),"counts":counts,
+        "linux_abi_matrix_target":ABI_TARGET,"linux_abi_matrix_status":abi_row.get("binary_status","not-built"),
+        "linux_abi_alias_count":len(abi_aliases),
         "policy":"Binary presence/hash/ELF architecture are not semantic or Koronos ABI validation.",
         "commands":rows}
 OUT.parent.mkdir(parents=True,exist_ok=True)
