@@ -23,23 +23,44 @@ for rel in SUBMENUS:
 # Every interactive boot path that can start a Koronos target must pass the
 # matching native ring-3 init ELF; initramfs-only entries are not accepted as
 # production Live/Installer/Recovery handoffs.
-TARGET_MODULES = {
-    "iso/grub.cfg": ("live", "installer", "recovery"),
-    "spitfire/spitfire-menu.cfg": ("live", "recovery"),
-    "jasper/install.cfg": ("installer",),
-    "jasper/live.cfg": ("live",),
-    "jasper/recovery.cfg": ("recovery",),
-    "jasper/safe-mode.cfg": ("live",),
-    "jasper/last-known-good.cfg": ("live",),
-    "installation/services.cfg": ("installer",),
-    "loader-menu.cfg": ("live",),
-    "jasper/retro.cfg": ("live",),
-}
-for rel, targets in TARGET_MODULES.items():
-    menu = (BOOT / rel).read_text(encoding="utf-8")
-    for target in targets:
-        marker = f"target-init-{target}.elf chimera-user-init-elf target={target}"
-        assert marker in menu, f"{rel}: missing native Koronos {target} init module entry"
+# Check every menuentry, not just whether a file contains one matching line.
+# Any entry that stages a Live/Installer/Recovery payload must also stage the
+# matching native ring-3 init ELF in that same menuentry.
+MENU_FILES = (
+    "iso/grub.cfg", "loader-menu.cfg", "spitfire/spitfire-menu.cfg",
+    "jasper/install.cfg", "jasper/live.cfg", "jasper/recovery.cfg",
+    "jasper/safe-mode.cfg", "jasper/last-known-good.cfg", "jasper/retro.cfg",
+    "installation/services.cfg",
+)
+
+def menu_blocks(data):
+    for match in re.finditer(r"^\\s*menuentry\\b", data, re.M):
+        opening = data.find("{", match.start())
+        if opening < 0:
+            continue
+        depth = 0
+        for end in range(opening, len(data)):
+            if data[end] == "{":
+                depth += 1
+            elif data[end] == "}":
+                depth -= 1
+                if depth == 0:
+                    yield data[match.start():end + 1]
+                    break
+
+for rel in MENU_FILES:
+    data = (BOOT / rel).read_text(encoding="utf-8")
+    for menu in menu_blocks(data):
+        required = []
+        if "chimera-live-initramfs" in menu:
+            required.append("live")
+        if "chimera-installation-image" in menu or "chimera-install-image" in menu:
+            required.append("installer")
+        if "chimera-recovery-initramfs" in menu:
+            required.append("recovery")
+        for target in required:
+            marker = f"target-init-{target}.elf chimera-user-init-elf target={target}"
+            assert marker in menu, f"{rel}: menuentry missing native Koronos {target} init module: {menu.splitlines()[0]}"
 
 contract=json.loads((BOOT/"boot-menu-contract.json").read_text())
 assert contract["timeouts"]=={"primary_seconds":300,"submenu_seconds":120,"default_entry":"live","policy":"Wait for user input for five minutes on primary boot menus and two minutes on nested menus, then select the configured default entry."}
