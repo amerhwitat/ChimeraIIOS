@@ -33,6 +33,7 @@ def main():
     ap.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[2])
     ap.add_argument("--busybox",type=Path,required=True)
     ap.add_argument("--native-matrix","--linux-abi-matrix",dest="native_matrix",type=Path)
+    ap.add_argument("--ss64",type=Path,help="Crawled SS64 command-name/source index")
     ap.add_argument("--rootfs",type=Path,help="Target root filesystem to inspect for real executable providers")
     ap.add_argument("--target-arch",choices=("x86_64","i686","armel","aarch64","armv7","riscv64","ppc64le","s390x"),default="x86_64")
     ap.add_argument("--output",type=Path,required=True)
@@ -50,6 +51,24 @@ def main():
             if not any(char.isalnum() or char == "_" for char in name): continue
             row=rows.setdefault(name.casefold(),{"command":name,"platforms":[]})
             if platform not in row["platforms"]: row["platforms"].append(platform)
+    ss64_path=args.ss64 or (root/"system/commands/ss64-command-catalog.json")
+    ss64_platforms={"linux_bash":"linux-bash","macos":"macos","windows_cmd":"windows-cmd",
+                    "powershell":"powershell","vbscript":"vbscript","sql_server":"sql-server",
+                    "access":"access","tools":"cross-platform-tools"}
+    if ss64_path.is_file():
+        try:
+            ss64=json.loads(ss64_path.read_text(encoding="utf-8"))
+            for source_platform,data in ss64.get("platforms",{}).items():
+                platform=ss64_platforms.get(source_platform,"ss64-"+source_platform)
+                for raw in data.get("commands",[]):
+                    name=raw.get("name") if isinstance(raw,dict) else raw
+                    if not isinstance(name,str) or not name.strip() or "/" in name: continue
+                    name=name.strip()
+                    if not any(char.isalnum() or char=="_" for char in name): continue
+                    row=rows.setdefault(name.casefold(),{"command":name,"platforms":[]})
+                    if platform not in row["platforms"]: row["platforms"].append(platform)
+        except (OSError,json.JSONDecodeError) as exc:
+            print(f"warning: could not read SS64 command index: {exc}")
     registry=json.loads((root/"config/linux-command-registry.json").read_text(encoding="utf-8"))
     for group,names in registry.get("groups",{}).items():
         for name in names:
