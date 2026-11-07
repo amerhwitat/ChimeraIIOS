@@ -19,7 +19,7 @@ on:
       - "tools/build-chimera-command-compat.sh"
       - ".github/workflows/chimera-full-iso.yml"
   push:
-    branches: [main]
+    branches: [main, 'fix/koronos-interactive-target-timeout-v3-*', 'integrate/koronos-command-terminal-runtime-*']
     paths:
       - "kernel/**"
       - "src/**"
