@@ -102,16 +102,16 @@ on:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ github.token }}
+          repository: \${{ github.event.pull_request.head.repo.full_name }}
+          ref: \${{ github.event.pull_request.head.ref }}
+          token: \${{ github.token }}
       - uses: actions/download-artifact@v4
         with:
           name: command-catalogue-refresh
-          path: ${{ runner.temp }}/command-catalogue-refresh
+          path: \${{ runner.temp }}/command-catalogue-refresh
       - name: Commit the refreshed SS64, Arabic and provider catalogues
         env:
-          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: \${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
           cp -a "$RUNNER_TEMP/command-catalogue-refresh/system/commands/." system/commands/
@@ -132,7 +132,6 @@ on:
         required: true
         type: boolean
         default: false
-
 permissions:
   contents: write
 
@@ -147,18 +146,6 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: command-catalogue-refresh
-          path: ${{ runner.temp }}/command-catalogue-refresh
-      - name: Reuse the same refreshed command catalogues for OctavianOS
-        run: |
-          set -euo pipefail
-          cp -a "$RUNNER_TEMP/command-catalogue-refresh/system/commands/." system/commands/
-          cp -a "$RUNNER_TEMP/command-catalogue-refresh/desktop/aurora/." desktop/aurora/
-          mkdir -p "$RUNNER_TEMP/octavian-live-build"
-          cp "$RUNNER_TEMP/command-catalogue-refresh/ss64-command-catalog.json" \
-             "$RUNNER_TEMP/octavian-live-build/ss64-command-catalog.json"
       - name: Install current stable Rust toolchain for source-built shells and terminals
         uses: dtolnay/rust-toolchain@stable
 
@@ -418,6 +405,18 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: command-catalogue-refresh
+          path: ${{ runner.temp }}/command-catalogue-refresh
+      - name: Reuse the same refreshed command catalogues for OctavianOS
+        run: |
+          set -euo pipefail
+          cp -a "$RUNNER_TEMP/command-catalogue-refresh/system/commands/." system/commands/
+          cp -a "$RUNNER_TEMP/command-catalogue-refresh/desktop/aurora/." desktop/aurora/
+          mkdir -p "$RUNNER_TEMP/octavian-live-build"
+          cp "$RUNNER_TEMP/command-catalogue-refresh/ss64-command-catalog.json" \
+             "$RUNNER_TEMP/octavian-live-build/ss64-command-catalog.json"
       - name: Install current stable Rust toolchain for source-built shells and terminals
         uses: dtolnay/rust-toolchain@stable
       - name: Install host ISO and cross-build dependencies
