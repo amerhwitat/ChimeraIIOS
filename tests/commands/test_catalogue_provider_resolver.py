@@ -26,4 +26,9 @@ with tempfile.TemporaryDirectory() as temp:
     ss64_missing = rows["chimera-ss64-only-command-7d2"]
     assert ss64_missing["status"] == "provider-not-found-yet"
     assert "path" not in missing and "binary" not in missing
-    print("PASS catalogue resolver records real providers and never fabricates missing executables")
+    strict = subprocess.run([sys.executable, str(SCRIPT), "--catalog", str(catalog),
+                             "--ss64", str(ss64), "--output", str(report),
+                             "--no-install", "--require-all"], text=True, capture_output=True)
+    assert strict.returncode == 1, (strict.returncode, strict.stdout, strict.stderr)
+    assert "unresolved Linux command providers" in strict.stderr
+    print("PASS catalogue resolver records real providers, rejects unresolved entries in strict mode, and never fabricates executables")
