@@ -110,38 +110,44 @@ def main() -> int:
             rows.append({"command": "chimeractl", "path": "/usr/bin/chimeractl",
                          "status": "verified-alias-to-chmctl"})
 
-    # Compile the real Chimera Bit assembler/disassembler/reverse-engineering tools.
-    asm_source = repo / "tools/chimera-asm"
-    cmake = shutil.which("cmake")
-    if cmake and (asm_source / "CMakeLists.txt").is_file():
-        asm_build = build / "chimera-asm"
-        proc = subprocess.run([cmake, "-S", str(asm_source), "-B", str(asm_build),
-                               "-DCMAKE_BUILD_TYPE=Release"],
-                              text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if proc.returncode == 0:
-            proc = subprocess.run([cmake, "--build", str(asm_build), "--parallel", "2"],
+    # build-chimera-native-tools.sh normally compiled and installed these tools.
+    # Reuse those binaries; only invoke CMake as a fallback when an output is absent.
+    binaries = {"chimera-asm": bindir / "chimera-asm",
+                "chimera-disasm": bindir / "chimera-disasm",
+                "chimera-re": bindir / "chimera-re"}
+    missing_binaries = [name for name, path in binaries.items()
+                        if not (path.is_file() and path.stat().st_mode & 0o111)]
+    if missing_binaries:
+        asm_source = repo / "tools/chimera-asm"
+        cmake = shutil.which("cmake")
+        if cmake and (asm_source / "CMakeLists.txt").is_file():
+            asm_build = build / "chimera-asm"
+            proc = subprocess.run([cmake, "-S", str(asm_source), "-B", str(asm_build),
+                                   "-DCMAKE_BUILD_TYPE=Release"],
                                   text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if proc.returncode == 0:
-            binaries = {
-                "chimera-asm": asm_build / "chimera-as",
-                "chimera-disasm": asm_build / "chimera-dis",
-                "chimera-re": asm_build / "chimera-re",
-            }
-            for name, source in binaries.items():
-                if source.is_file():
-                    dest = bindir / name
-                    shutil.copy2(source, dest)
-                    dest.chmod(0o755)
-                    rows.append({"command": name, "source": str(source.relative_to(build)),
-                                 "path": "/usr/bin/" + name, "status": "compiled-from-source",
-                                 "sha256": sha(dest)})
-                else:
-                    rows.append({"command": name, "status": "build-output-missing"})
+            if proc.returncode == 0:
+                proc = subprocess.run([cmake, "--build", str(asm_build), "--parallel", "2"],
+                                      text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if proc.returncode == 0:
+                outputs = {"chimera-asm": asm_build / "chimera-as",
+                           "chimera-disasm": asm_build / "chimera-dis",
+                           "chimera-re": asm_build / "chimera-re"}
+                for name in missing_binaries:
+                    source = outputs[name]
+                    if source.is_file():
+                        shutil.copy2(source, binaries[name])
+                        binaries[name].chmod(0o755)
+                    else:
+                        rows.append({"command": name, "status": "build-output-missing"})
+            else:
+                rows.append({"command": "chimera-asm-suite", "status": "compile-failed",
+                             "stderr": proc.stderr[-3000:]})
         else:
-            rows.append({"command": "chimera-asm-suite", "status": "compile-failed",
-                         "stderr": proc.stderr[-3000:]})
-    else:
-        rows.append({"command": "chimera-asm-suite", "status": "cmake-or-source-missing"})
+            rows.append({"command": "chimera-asm-suite", "status": "cmake-or-source-missing"})
+    for name, path in binaries.items():
+        if path.is_file() and path.stat().st_mode & 0o111:
+            rows.append({"command": name, "path": "/usr/bin/" + name,
+                         "status": "verified-compiled-assembler-provider", "sha256": sha(path)})
 
     # Include the runtime manifests at the paths expected by the actual tools.
     for relative, destination in (
