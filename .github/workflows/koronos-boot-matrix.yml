@@ -59,8 +59,9 @@ jobs:
           mkdir -p build/qemu-iso/boot/grub
           install -m 0644 build/koronos/x86_64/koronos.elf build/qemu-iso/boot/koronos.elf
           cat > build/qemu-iso/boot/grub/grub.cfg <<'GRUB'
-          # Keep the interactive boot menu visible before selecting the default.
-          set timeout=300
+          # Test-only ISO: boot quickly; production Jasper/Gates/GRUB menus are
+          # independently checked for their 300-second interactive timeout.
+          set timeout=1
           set default=0
           insmod serial
           serial --unit=0 --speed=115200
@@ -76,11 +77,11 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          printf '\r' | timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+          timeout 15s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
             -cdrom build/koronos-qemu-smoke.iso -boot d -serial stdio \
             -debugcon file:qemu-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-koronos.log
-          qemu_rc=${PIPESTATUS[1]}
+          qemu_rc=${PIPESTATUS[0]}
           set -e
           # timeout (124) is expected after the kernel enters its idle loop.
           [[ "$qemu_rc" -eq 0 || "$qemu_rc" -eq 124 ]]
