@@ -10,6 +10,7 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
+  --full                  Clean, no-cache full ISO build; require every discovered SDK build to pass.
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
@@ -125,11 +126,12 @@ STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
+FULL_BUILD=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 
@@ -221,6 +223,7 @@ while [[ $# -gt 0 ]]; do
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
+    --full) FULL_BUILD=1; CLEAN_STATE=1; RESUME_BUILD=0; shift;;
     --storage-auto) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
     --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
@@ -279,7 +282,6 @@ cleanup_generated_build_artifacts(){
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -495,7 +497,8 @@ build_docker(){
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
-  docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
+  docker buildx version >/dev/null 2>&1 && build_opts+=(--progress=plain)
+  [[ "$FULL_BUILD" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
@@ -1568,18 +1571,27 @@ main(){
 
 stage_sdks(){
   header 'STEP: COMPILE ALL REPOSITORY SDKS'
-  # Compiles every build definition the host toolchains support (CMake, Cargo, Swift,
-  # Dart, Maven, Gradle, dotnet, npm, Go, Python) and stages an honest report in the
-  # ISO. Missing toolchains are reported as skipped, never as passed.
   local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
   mkdir -p "$(dirname "$report")"
-  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+  if [[ ! -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+    if [[ "$FULL_BUILD" == 1 ]]; then
+      log_error 'Full build requires tools/build-sdks.sh; refusing to skip SDK compilation.'
+      return 1
+    fi
+    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+    return 0
+  fi
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --strict --out "$report" \
+      --max "${CHIMERA_SDK_MAX:-1000}" --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || {
+        log_error 'Full build SDK gate failed; inspect sdk-build-report.json.'
+        return 1
+      }
+  else
     bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
       --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
-    log_info "SDK report staged at $report"
-  else
-    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
   fi
+  log_info "SDK report staged at $report"
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
