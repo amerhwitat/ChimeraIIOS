@@ -6,6 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 SVG = "{http://www.w3.org/2000/svg}"
+ET.register_namespace("", "http://www.w3.org/2000/svg")
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--sprite",type=Path,required=True)
