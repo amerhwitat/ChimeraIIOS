@@ -122,7 +122,11 @@ def test_successful_external_clone_records_revision(tmp_path: Path, monkeypatch)
             destination = Path(args[-1])
             (destination / ".git").mkdir(parents=True, exist_ok=True)
             return CompletedProcess(args, 0, "", "")
-        return CompletedProcess(args, 0, "a" * 40, "")
+        if args[-2:] == ["rev-parse", "HEAD"]:
+            return CompletedProcess(args, 0, "a" * 40, "")
+        if args[-3:] == ["status", "--porcelain", "--untracked-files=no"]:
+            return CompletedProcess(args, 0, "", "")
+        raise AssertionError(f"unexpected git command: {args}")
 
     monkeypatch.setattr(_OFFICIAL_DRIVER_SOURCES, "run_git", successful_git)
     row = _OFFICIAL_DRIVER_SOURCES.acquire_source(
@@ -145,4 +149,34 @@ def test_reference_only_apis_are_not_counted_as_acquired():
         "acquired": 0,
         "failed": 0,
         "reference_only": 1,
+    }
+
+
+def test_zero_exit_clone_with_missing_tracked_file_is_not_acquired(tmp_path: Path, monkeypatch):
+    def incomplete_checkout(args):
+        if args[1] == "clone":
+            destination = Path(args[-1])
+            (destination / ".git").mkdir(parents=True, exist_ok=True)
+            return CompletedProcess(args, 0, "", "")
+        if args[-2:] == ["rev-parse", "HEAD"]:
+            return CompletedProcess(args, 0, "b" * 40, "")
+        if args[-3:] == ["status", "--porcelain", "--untracked-files=no"]:
+            return CompletedProcess(
+                args, 0, " D network/netadaptercx/netvadapter/km/netvadapter.inf\\n", ""
+            )
+        raise AssertionError(f"unexpected git command: {args}")
+
+    monkeypatch.setattr(_OFFICIAL_DRIVER_SOURCES, "run_git", incomplete_checkout)
+    row = _OFFICIAL_DRIVER_SOURCES.acquire_source(
+        "windows-driver-samples",
+        "https://github.com/microsoft/Windows-driver-samples.git",
+        tmp_path,
+    )
+
+    assert row["status"] == "checkout_failed"
+    assert "netvadapter.inf" in row["error"]
+    assert _OFFICIAL_DRIVER_SOURCES.summarize([row]) == {
+        "acquired": 0,
+        "failed": 1,
+        "reference_only": 0,
     }
