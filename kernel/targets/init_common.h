@@ -16,7 +16,6 @@
 #error "CHIMERA_TARGET_NAME must be defined (live|installer|recovery)"
 #endif
 
-#define LINUX_X86_64_SYS_READ 0
 #define LINUX_X86_64_SYS_WRITE 1
 #define LINUX_X86_64_SYS_GETPID 39
 #define LINUX_X86_64_SYS_YIELD 24
@@ -52,9 +51,6 @@ static long init_getpid(void) {
 }
 static void init_yield(void) {
     (void)init_syscall1(LINUX_X86_64_SYS_YIELD);
-}
-static long init_read(long fd, char *buffer, long length) {
-    return init_syscall3(LINUX_X86_64_SYS_READ, fd, (long)buffer, length);
 }
 static long init_write(long fd, const char *buffer, long length) {
     return init_syscall3(LINUX_X86_64_SYS_WRITE, fd, (long)buffer, length);
