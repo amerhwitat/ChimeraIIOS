@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then sed -i -E '/^Components:/ { /(^|[[:space:]])universe([[:space:]]|$)/! s/$/ universe/; }' /etc/apt/sources.list.d/ubuntu.sources; fi \
     && apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
+    bash ca-certificates git gcc g++ make cmake ninja-build binutils nasm \
     grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin xorriso mtools dosfstools \
     python3 python3-pytest python3-cairosvg qemu-system-x86 qemu-user-static ovmf file cpio busybox-static librsvg2-bin rsync xz-utils gzip bzip2 zstd \
     gcc-13-i686-linux-gnu gcc-13-arm-linux-gnueabi gcc-13-aarch64-linux-gnu gcc-13-arm-linux-gnueabihf gcc-13-riscv64-linux-gnu gcc-13-powerpc64le-linux-gnu gcc-13-s390x-linux-gnu \
