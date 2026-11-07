@@ -423,6 +423,52 @@ jobs:
           assert (root / "repo").is_dir(), "full source snapshot missing"
           print(f"Embedded {len(manifest['catalog_files'])} offline application catalogs.")
           PY
+          # Confirm the composed ISO contains and boots each real Koronos target.
+          xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$tmp/grub.cfg" >/dev/null
+          grep -Fq 'set timeout=300' "$tmp/grub.cfg"
+          grep -Fq 'set timeout_style=menu' "$tmp/grub.cfg"
+          grep -Fq 'set gfxmode=5120x2880,1920x1080,1280x1024,1024x768,640x480,auto' "$tmp/grub.cfg"
+          grep -Fq 'set gfxpayload=keep' "$tmp/grub.cfg"
+          for target in live installer recovery; do
+            xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf" >/dev/null
+            readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
+            readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+          done
+          xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img" >/dev/null
+          xorriso -osirrox on -indev "$iso" -extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img" >/dev/null
+          gzip -t "$tmp/live-initramfs.img"
+          gzip -t "$tmp/recovery-initramfs.img"
+          for target in live installer recovery; do
+            log="$OUT_DIR/koronos-$target-iso-qemu.log"
+            qemu=(qemu-system-x86_64 -machine q35 -accel tcg -cpu qemu64 -m 1536 \
+              -cdrom "$iso" -boot d -display none -serial none -monitor stdio \
+              -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9)
+            set +e
+            case "$target" in
+              live)
+                ( sleep 6; printf 'sendkey end\n'; sleep 1; printf 'sendkey up\n'; sleep 1; printf 'sendkey up\n'; sleep 1; printf 'sendkey ret\n'; sleep 1 ) | timeout 35s "${qemu[@]}" >/dev/null 2>&1
+                ;;
+              installer)
+                ( sleep 6; printf 'sendkey end\n'; sleep 1; printf 'sendkey up\n'; sleep 1; printf 'sendkey ret\n'; sleep 1 ) | timeout 35s "${qemu[@]}" >/dev/null 2>&1
+                ;;
+              recovery)
+                ( sleep 6; printf 'sendkey end\n'; sleep 1; printf 'sendkey ret\n'; sleep 1 ) | timeout 35s "${qemu[@]}" >/dev/null 2>&1
+                ;;
+            esac
+            qemu_rc=$?
+            set -e
+            [[ "$qemu_rc" -eq 124 || "$qemu_rc" -eq 137 || "$qemu_rc" -eq 0 ]] || {
+              echo "::error::QEMU failed for actual ISO target $target (exit $qemu_rc)"; exit 1;
+            }
+            grep -Fq "[KRN ] KORONOS READY" "$log"
+            syscall_pid="$(grep -oE "USER INIT SYSCALL: target=$target init_pid=[0-9]+" "$log" | tail -1 | sed 's/.*=//')"
+            ready_pid="$(grep -oE "USERSPACE READY: target=$target init_pid=[0-9]+" "$log" | tail -1 | sed 's/.*=//')"
+            test -n "$syscall_pid" && test "$syscall_pid" -gt 0
+            test "$syscall_pid" = "$ready_pid" || {
+              echo "::error::Target $target did not report matching nonzero ring-3 PID"; exit 1;
+            }
+            echo "Actual Chimera ISO $target boot passed with PID $ready_pid."
+          done
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
 
@@ -434,6 +480,9 @@ jobs:
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso
             ${{ runner.temp }}/aurora-live-output/chimera-ii-os-live-amd64.iso.sha256
             ${{ runner.temp }}/aurora-live-output/ISO-BOOT-REPORT.txt
+            ${{ runner.temp }}/aurora-live-output/koronos-live-iso-qemu.log
+            ${{ runner.temp }}/aurora-live-output/koronos-installer-iso-qemu.log
+            ${{ runner.temp }}/aurora-live-output/koronos-recovery-iso-qemu.log
           if-no-files-found: error
           retention-days: 30
 
