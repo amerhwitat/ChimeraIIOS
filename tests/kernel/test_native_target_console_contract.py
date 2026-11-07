@@ -35,6 +35,10 @@ for source, prompt in ((live, "chimera> "), (installer, "installer> "), (recover
     assert 'init_text_equal(line, "help")' in source
     assert 'init_text_equal(line, "exit")' in source
     assert "init_emit_readiness(pid)" in source
+    assert "init_command_common(line, pid)" in source
+
+for command in ("version", "arch", "uname", "pid", "clear", "echo ", "true", "false", "yield"):
+    assert command in common, f"missing native ring-3 console built-in: {command}"
 
 assert "no disk writes performed" in installer
 assert "no disks are writable" in installer
