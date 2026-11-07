@@ -86,6 +86,11 @@ def main() -> int:
             rows.append({"command": "chimeractl", "source": "userland/commands/chmctl.cpp",
                          "path": "/usr/bin/chimeractl", "status": "compiled-from-source",
                          "sha256": sha(target)})
+            legacy = bindir / "chmctl"
+            legacy.unlink(missing_ok=True)
+            legacy.symlink_to("chimeractl")
+            rows.append({"command": "chmctl", "path": "/usr/bin/chmctl",
+                         "status": "verified-alias-to-compiled-chimeractl"})
         else:
             target.unlink(missing_ok=True)
             rows.append({"command": "chimeractl", "source": "userland/commands/chmctl.cpp",
