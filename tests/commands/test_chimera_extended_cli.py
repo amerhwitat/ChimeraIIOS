@@ -87,6 +87,7 @@ for name in ("chimera","chmctl","chimera-registry","hivectl","chimera-nbit",
     assert f'"{name}": "/usr/bin/{name}"' in manifest, f"runtime manifest missing {name}"
 stage=(ROOT/"tools/commands/stage-native-script-providers.py").read_text(encoding="utf-8")
 for name in ("chimera-nbit","chimera-risc","chimera-llm","chimera-rnn",
-             "chimera-p2p","chimera-install","chimera-apache","chimera-ss64"):
+             "chimera-p2p","chimera-install","chimera-apache","chimera-ss64",
+             "chimera-128d","chimera-vector","chimera-tensor","chimera-hdc","chimera-neural"):
     assert f'"{name}":' in stage, f"staging map missing {name}"
 print("PASS source-backed N-bit, RV32I, RNN, P2P, Hive and installer/Apache command providers")
