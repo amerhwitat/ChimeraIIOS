@@ -23,6 +23,8 @@ static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_user_timeout_disarm(void);
+extern "C" void koronos_user_timeout_disarm_keep_timer(void);
 
 static bool token(const char *text, const char *needle) {
     if (!text || !needle) return false;
@@ -152,6 +154,12 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
     if (syscall_ack_seen && active_pid &&
         target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
         ready_seen=1;
+        if (active_target == TARGET_LIVE) {
+            // The live target becomes an interactive console after its
+            // readiness handshake; do not expire it on the bootstrap deadline.
+            koronos_user_timeout_disarm_keep_timer();
+            koronos_target_log("[RUN ] live console accepted; bootstrap deadline disarmed, PIT clock retained");
+        }
         return 1;
     }
     return 0;
@@ -232,7 +240,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
         return -10;
     }
-    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
+    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry; readiness deadline 10s, live console continues after handshake");
     /* _start is a freestanding C entry, not a CRT process-entry shim.
      * Give it the SysV function-entry stack alignment (RSP % 16 == 8).
      * The full final stack page is already mapped by the ELF loader. */

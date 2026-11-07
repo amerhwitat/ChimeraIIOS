@@ -202,6 +202,16 @@ NATIVE_COMMANDS=(
     date
     true
     false
+    rmdir
+    ln
+    readlink
+    basename
+    dirname
+    uname
+    wc
+    head
+    tail
+    sleep
 )
 
 for command in "${NATIVE_COMMANDS[@]}"; do
@@ -283,6 +293,22 @@ JSON
 
 cat > "$CMDROOT/registry.tsv" <<'REGISTRY'
 # command	arabic	mode	implementation	source
+echo	echo	native	chimera-cmd	SS64/Linux
+whoami	whoami	native	chimera-cmd	SS64/Linux
+hostname	hostname	native	chimera-cmd	SS64/Linux
+date	date	native	chimera-cmd	SS64/Linux
+true	true	native	chimera-cmd	SS64/Linux
+false	false	native	chimera-cmd	SS64/Linux
+rmdir	rmdir	native	chimera-cmd	SS64/Linux
+ln	ln	native	chimera-cmd	SS64/Linux
+readlink	readlink	native	chimera-cmd	SS64/Linux
+basename	basename	native	chimera-cmd	SS64/Linux
+dirname	dirname	native	chimera-cmd	SS64/Linux
+uname	uname	native	chimera-cmd	SS64/Linux
+wc	wc	native	chimera-cmd	SS64/Linux
+head	head	native	chimera-cmd	SS64/Linux
+tail	tail	native	chimera-cmd	SS64/Linux
+sleep	sleep	native	chimera-cmd	SS64/Linux
 ls	عرض	native	chimera-cmd	SS64/Linux
 cd	دخول	shell	cd	SS64/Linux
 pwd	موقعي	native	chimera-cmd	SS64/Linux

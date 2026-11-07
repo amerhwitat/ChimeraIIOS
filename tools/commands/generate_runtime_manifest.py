@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build an auditable native/shell/compatibility capability manifest for catalogued commands."""
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -9,7 +10,68 @@ SS64 = ROOT / "system" / "commands" / "ss64-command-catalog.json"
 ARABIC = ROOT / "system" / "commands" / "ss64-command-catalog.ar.json"
 OUT = ROOT / "system" / "commands" / "command-runtime-capabilities.json"
 REGISTRY = ROOT / "tools" / "commands" / "os-command-runtime.json"
-NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
+NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
+NATIVE_SCRIPT_PROVIDERS = {
+    "chimera": "/usr/bin/chimera",
+    "chmctl": "/usr/bin/chmctl",
+    "chimera-registry": "/usr/bin/chimera-registry",
+    "hivectl": "/usr/bin/hivectl",
+    "chimera-nbit": "/usr/bin/chimera-nbit",
+    "chimera-risc": "/usr/bin/chimera-risc",
+    "chimera-llm": "/usr/bin/chimera-llm",
+    "chimera-rnn": "/usr/bin/chimera-rnn",
+    "chimera-p2p": "/usr/bin/chimera-p2p",
+    "chimera-install": "/usr/bin/chimera-install",
+    "chimera-apache": "/usr/bin/chimera-apache",
+    "chimera-ss64": "/usr/bin/chimera-ss64",
+    "chimera-128d": "/usr/bin/chimera-128d",
+    "chimera-vector": "/usr/bin/chimera-vector",
+    "chimera-tensor": "/usr/bin/chimera-tensor",
+    "chimera-hdc": "/usr/bin/chimera-hdc",
+    "chimera-neural": "/usr/bin/chimera-neural",
+    "chimera-shell-ar": "/usr/bin/chimera-shell-ar",
+    "aegisctl": "/usr/bin/aegisctl",
+    "auroractl": "/usr/bin/auroractl",
+    "jasperctl": "/usr/bin/jasperctl",
+    "koronosctl": "/usr/bin/koronosctl",
+    "nucleusctl": "/usr/bin/nucleusctl",
+    "spitfirectl": "/usr/bin/spitfirectl",
+    "spotnikctl": "/usr/bin/spotnikctl",
+    "chimera-security": "/usr/bin/chimera-security",
+    "chimera-live": "/usr/bin/chimera-live",
+    "chimera-hybrid": "/usr/bin/chimera-hybrid",
+    "chimeractl": "/usr/bin/chimeractl",
+    "chimera-help": "/usr/bin/chimera-help",
+    "chimera-info": "/usr/bin/chimera-info",
+    "chimera-doctor": "/usr/bin/chimera-doctor",
+    "chimera-update": "/usr/bin/chimera-update",
+    "chimera-package": "/usr/bin/chimera-package",
+    "korectl": "/usr/bin/korectl",
+    "chimera-service": "/usr/bin/chimera-service",
+    "chimera-asm": "/usr/bin/chimera-asm",
+    "chimera-disasm": "/usr/bin/chimera-disasm",
+    "chimera-display": "/usr/bin/chimera-display",
+    "chimera-python": "/usr/bin/chimera-python",
+    "chimera-java": "/usr/bin/chimera-java",
+    "chimera-background": "/usr/bin/chimera-background",
+    "chimera-gpu-driver-manager": "/usr/bin/chimera-gpu-driver-manager",
+    "chimera-hardware-drivers": "/usr/bin/chimera-hardware-drivers",
+    "chimera-driver-panel": "/usr/bin/chimera-driver-panel",
+    "chimera-shell": "/usr/bin/chimera-shell",
+    "chimera-terminal": "/usr/bin/chimera-terminal",
+}
+
+# Promote only aliases whose configured target is an actual executable provider.
+_ALIAS_FILE = Path(__file__).resolve().parents[2] / "system/commands/native-provider-aliases.json"
+try:
+    _alias_data = json.loads(_ALIAS_FILE.read_text(encoding="utf-8"))
+    for _name, _entry in _alias_data.get("aliases", {}).items():
+        _provider = _entry.get("provider") if isinstance(_entry, dict) else None
+        if isinstance(_provider, str) and _provider.startswith("/"):
+            NATIVE_SCRIPT_PROVIDERS.setdefault(_name, _provider)
+except (OSError, json.JSONDecodeError) as exc:
+    print(f"warning: native provider alias manifest unavailable: {exc}")
+
 SHELL = set("""alias bg break builtin caller case cd command continue declare dirs eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 PLATFORM_ARRAYS = {
     "linux_bash":"linux_bash", "macos":"macos_core", "windows_cmd":"windows_cmd_core",
@@ -22,6 +84,25 @@ def names(value):
             yield item.strip()
         elif isinstance(item, dict) and item.get("name"):
             yield str(item["name"]).strip()
+def catalogue_kind(name, platforms, source_urls):
+    """Separate executable commands from language tokens, syntax and API members."""
+    value = str(name).strip()
+    identifier = bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*", value))
+    urls = " ".join(str(u).casefold() for u in source_urls)
+    if "sql_server" in platforms or "access" in platforms:
+        return "language-feature"
+    if "vbscript" in platforms and (value.startswith(".") or not identifier):
+        return "language-feature"
+    if "powershell" in platforms and (value.startswith("$") or value.startswith("-") or "syntax" in urls):
+        return "language-feature"
+    if "windows_cmd" in platforms and (not identifier or any(token in value for token in ("%","&&","||","::"))):
+        return "shell-syntax"
+    if "linux_bash" in platforms and ("syntax" in urls or value.startswith(".") or value.isdigit()):
+        return "shell-syntax"
+    if not identifier and any(token in platforms for token in ("linux_bash","macos","windows_cmd","powershell")):
+        return "language-feature"
+    return "executable-command"
+
 def main():
     source=json.loads(BASE.read_text(encoding="utf-8"))
     rows={}
@@ -79,8 +160,13 @@ def main():
             print(f"warning: ignoring invalid command runtime registry: {exc}")
     commands=[]
     for key,row in sorted(rows.items()):
+        kind=catalogue_kind(row["name"], row["platforms"], row["source_urls"])
+        provider_binary=None
         if key in NATIVE: mode="native"; provider="chimera-cmd"
+        elif key in NATIVE_SCRIPT_PROVIDERS: mode="native"; provider="chimera-userland-script"; provider_binary=NATIVE_SCRIPT_PROVIDERS[key]
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
+        elif kind in ("language-feature", "shell-syntax"):
+            mode="language-feature"; provider="shell-interpreter-or-language-runtime"
         elif key in registry_modes:
             declared, runtime=registry_modes[key]
             # Only entries in NATIVE above are implemented by the compiled multicall.
@@ -98,16 +184,29 @@ def main():
                 provider="platform-runtime-not-selected"
         label=arabic.get(key)
         if isinstance(label,dict): label=label.get("label")
-        commands.append({
+        command_row={
             "name":row["name"],"platforms":sorted(row["platforms"]),"mode":mode,
+            "entry_kind":kind,
             "provider":provider,"arabic_label":label,
             "source_urls":sorted(set(row["source_urls"]))
-        })
+        }
+        if provider_binary: command_row["provider_binary"]=provider_binary
+        commands.append(command_row)
     OUT.write_text(json.dumps({
         "schema":"CHM-COMMAND-RUNTIME-CAPABILITIES-1",
-        "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
+        "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and built as Linux userspace ELF aliases for the eight declared Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
         "native_binary":"rootfs/usr/bin/chimera-cmd",
+        "linux_abi_matrix_artifact_root":"build/native-command-isa/<target>/chimera-cmd",
+        "linux_abi_matrix_staged_in_rootfs":False,
+        "native_abi":"Linux userspace ELF aliases and verified executable scripts; not a Koronos syscall ABI",
+        "native_script_provider_count":len(NATIVE_SCRIPT_PROVIDERS),
+        "native_script_providers":NATIVE_SCRIPT_PROVIDERS,
+        "native_alias_count":len(NATIVE),
+        "koronos_abi_compatible":False,
         "command_count":len(commands),
+        "executable_command_count":sum(c["entry_kind"]=="executable-command" for c in commands),
+        "language_feature_count":sum(c["entry_kind"] in ("language-feature","shell-syntax") for c in commands),
+        "shell_builtin_count":sum(c["mode"]=="shell-builtin" for c in commands),
         "mode_counts":{mode:sum(c["mode"]==mode for c in commands) for mode in sorted({c["mode"] for c in commands})},
         "commands":commands
     },ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

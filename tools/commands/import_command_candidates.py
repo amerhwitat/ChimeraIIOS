@@ -9,8 +9,9 @@ DEFAULT_SOURCE = ROOT / "system/commands/chimera-command-list.json"
 DEFAULT_SS64 = ROOT / "system/commands/ss64-command-catalog.json"
 DEFAULT_ARABIC = ROOT / "system/commands/ss64-command-catalog.ar.json"
 DEFAULT_OUT = ROOT / "system/commands/native-command-candidates.json"
-NATIVE = {"pwd", "echo", "ls", "cp", "mv", "touch", "mkdir", "rm", "cat", "clear", "whoami", "hostname", "date", "true", "false"}
-COMMON = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","printf","grep","find","head","tail","sort","wc","cut","tr","env","uname","id","ps","kill","chmod","chown","df","du","mount","umount","tar","gzip","sha256sum","curl","wget","git","python3","sh","bash","test","help","man","history","cd","exit","read","export","alias","which","command"}
+NATIVE = {"pwd", "echo", "ls", "cp", "mv", "touch", "mkdir", "rm", "cat", "clear", "whoami", "hostname", "date", "true", "false", "rmdir", "ln", "readlink", "basename", "dirname", "uname", "wc", "head", "tail", "sleep"}
+CATALOGUE_FIELDS = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core", "vbscript_core", "sql_server_core", "native_chimera")
+COMMON = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","printf","grep","find","head","tail","sort","wc","cut","tr","env","uname","id","ps","kill","chmod","chown","df","du","mount","umount","tar","gzip","sha256sum","curl","wget","git","python3","sh","bash","test","help","man","history","cd","exit","read","export","alias","which","command","rmdir","ln","readlink","basename","dirname","sleep"}
 def names(items):
     if not isinstance(items, list): return
     for item in items:
@@ -21,6 +22,10 @@ def load(path, default):
     except (OSError, json.JSONDecodeError): return default
 def build(source, ss64, arabic):
     records = {}
+    catalogue_names = set()
+    if isinstance(source, dict):
+        for field in CATALOGUE_FIELDS:
+            catalogue_names.update(name.casefold() for name in names(source.get(field, [])))
     def add(name, platform, source_url=None):
         key = name.casefold()
         row = records.setdefault(key, {"name": name, "platforms": [], "source_urls": []})
@@ -54,6 +59,8 @@ def build(source, ss64, arabic):
         commands.append({
             "name": row["name"], "normalized_name": key,
             "platforms": sorted(row["platforms"]),
+            "catalogue_member": key in catalogue_names,
+            "catalogue_status": ("native-implemented" if key in NATIVE else "candidate-only") if key in catalogue_names else "not-in-core-catalogue",
             "status": "native-implemented" if native else "candidate-only",
             "dispatch": "chimera-cmd" if native else "defer-to-runtime-learning",
             "execution_allowed": native,
@@ -71,7 +78,14 @@ def build(source, ss64, arabic):
         "policy": "Catalog import is discovery only. Only the explicit native allowlist is executable here. Candidate entries remain unresolved until a provider is installed and behavior is tested.",
         "native_allowlist": sorted(NATIVE),
         "common_candidates": sorted(COMMON),
-        "counts": {"total": len(commands), "native_implemented": sum(x["status"] == "native-implemented" for x in commands), "candidate_only": sum(x["status"] == "candidate-only" for x in commands)},
+        "counts": {
+            "total": len(commands),
+            "native_implemented": sum(x["status"] == "native-implemented" for x in commands),
+            "candidate_only": sum(x["status"] == "candidate-only" for x in commands),
+            "catalogue_unique": len(catalogue_names),
+            "catalogue_native_implemented": len(catalogue_names & NATIVE),
+            "catalogue_candidate_only": len(catalogue_names - NATIVE),
+        },
         "commands": commands
     }
 def main():

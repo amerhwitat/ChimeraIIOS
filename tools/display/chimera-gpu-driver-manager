@@ -48,23 +48,40 @@ auto(){
   mkdir -p "$(dirname "$marker_file")"; date -Is > "$marker_file"
 }
 install_gpu(){
-  local gpu; gpu="$(scan_gpu || true)"; install_common
+  local gpu id
+  gpu="$(scan_gpu || true)"
+  . /etc/os-release 2>/dev/null || true
+  id="${ID:-unknown}"
+  install_common
   if echo "$gpu" | grep -qi 'NVIDIA'; then
-    apt-get install -y --no-install-recommends ubuntu-drivers-common
-    log "NVIDIA detected; selecting the Ubuntu recommended signed driver."
-    ubuntu-drivers list || true
-    ubuntu-drivers install
+    if [[ "$id" == "debian" ]]; then
+      if candidate nvidia-driver; then
+        apt-get install -y --no-install-recommends nvidia-driver
+      else
+        log "NVIDIA detected, but nvidia-driver is unavailable. Enable Debian contrib/non-free/non-free-firmware and refresh signed package indexes."
+      fi
+    else
+      apt-get install -y --no-install-recommends ubuntu-drivers-common
+      log "NVIDIA detected; selecting the Ubuntu recommended signed driver."
+      ubuntu-drivers list || true
+      ubuntu-drivers install
+    fi
   elif echo "$gpu" | grep -qi 'AMD\|ATI'; then
-    apt-get install -y --no-install-recommends xserver-xorg-video-amdgpu libdrm-amdgpu1
+    for p in xserver-xorg-video-amdgpu libdrm-amdgpu1 firmware-amd-graphics; do
+      candidate "$p" && apt-get install -y --no-install-recommends "$p" || log "Skipped/unavailable: $p"
+    done
     log "AMD support uses the kernel amdgpu DRM driver plus Mesa/firmware userspace."
   elif echo "$gpu" | grep -qi 'Intel'; then
-    apt-get install -y --no-install-recommends intel-media-va-driver mesa-va-drivers
+    for p in intel-media-va-driver mesa-va-drivers firmware-intel-graphics; do
+      candidate "$p" && apt-get install -y --no-install-recommends "$p" || log "Skipped/unavailable: $p"
+    done
     log "Intel support uses the kernel i915/xe DRM driver plus Mesa/media userspace."
   else
     log "Unknown GPU vendor; generic Mesa/firmware support installed."
   fi
   log "Driver installation completed. A reboot may be required."
 }
+
 case "${1:-status}" in
   scan) scan_gpu ;;
   status) status ;;

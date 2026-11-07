@@ -22,16 +22,49 @@ esac
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
+NATIVE_COMMAND_OUT="$BUILD/native-command-isa"
 BASE="$BUILD/rootfs-base"
 WORK="${WORK_DIR:-$BUILD/rootfs-$ED}"
 ISODIR="$BUILD/iso-$ED"
 OUT="${OUT_DIR:-$BUILD/out}"
 ART="$HERE/artwork"
 JOBS="${JOBS:-$(nproc)}"
+python3 "$REPO_DIR/tools/boot/verify-menu-timeouts.py" --root "$REPO_DIR"
+# Refresh the empty/stale SS64 index once per shared build root. SS64 contributes
+# command names and source references only; it is never treated as a binary source.
+SS64_CACHE="$BUILD/ss64-command-catalog.json"
+if [[ ! -s "$SS64_CACHE" || "${CHIMERA_REFRESH_SS64:-0}" == "1" ]]; then
+  mkdir -p "$BUILD"
+  CHIMERA_ROOTFS_DIR="$BUILD/ss64-no-rootfs" CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-45}" \
+    python3 "$REPO_DIR/tools/commands/crawl_ss64.py" \
+      --output "$SS64_CACHE" --max-pages "${CHIMERA_SS64_MAX_PAGES:-500}" \
+      --timeout 10 --retries 1 --delay 0.02
+fi
+if [[ -s "$SS64_CACHE" ]]; then
+  install -D -m 0644 "$SS64_CACHE" "$REPO_DIR/system/commands/ss64-command-catalog.json"
+fi
+python3 "$REPO_DIR/tools/commands/import_command_candidates.py"
+python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$REPO_DIR/system/commands/command-runtime-capabilities.json" >/dev/null
 
 if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
 fi
+# Fail early if the source-build and eight-ABI validation toolchain is incomplete.
+for cmd in i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc \
+  riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc go \
+  qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static \
+  qemu-ppc64le-static qemu-s390x-static git cargo rustc cmake ninja readelf g++; do
+  command -v "$cmd" >/dev/null 2>&1 || { echo "Missing build dependency: $cmd" >&2; exit 2; }
+done
+python3 -c 'import venv' || { echo "python3-venv is required for the pinned Ghostty Zig toolchain." >&2; exit 2; }
+# Build target-specific Linux ABI command binaries for both hosted desktop editions.
+python3 "$REPO_DIR/tools/commands/build_linux_abi_command_matrix.py" \
+  --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
+  --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
+  --output "$NATIVE_COMMAND_OUT" \
+  --require-all
+bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$NATIVE_COMMAND_OUT"
 
 case "$ED" in
   chimera)
@@ -63,7 +96,7 @@ log() { printf '\n== [%s] %s\n' "$ED" "$*"; }
 if [ ! -x "$BASE/bin/bash" ] || [ "${REBUILD_BASE:-0}" = "1" ]; then
   log "debootstrap trixie -> $BASE"
   rm -rf "$BASE"; mkdir -p "$BASE"
-  debootstrap --arch=amd64 --variant=minbase \
+  debootstrap --arch=amd64 --variant=minbase --components=main,contrib \
     --include=apt-transport-https,ca-certificates,locales \
     trixie "$BASE" http://deb.debian.org/debian
 fi
@@ -86,8 +119,12 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed" ]; then
+if [ ! -f "$BASE/.packages-installed-v4" ]; then
   log "installing shared package set (one-off)"
+  install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
+  install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
+  install -D -m 0644 "$REPO_DIR/system/commands/chimera-command-list.json" "$BASE/tmp/chimera-command-list.json"
+  install -D -m 0644 "$REPO_DIR/system/commands/ss64-command-catalog.json" "$BASE/tmp/ss64-command-catalog.json"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
@@ -100,17 +137,36 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
       xinit xauth x11-xserver-utils x11-utils xfonts-base \
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
-      libgl1 libglx-mesa0 libegl1 libgles2 \
+      libgl1 libglx-mesa0 libegl1 libgles2 libgl-dev libegl-dev libgles-dev \
+      libgbm1 libgl1-mesa-dri mesa-utils \
       openbox xterm feh \
       fonts-dejavu-core fonts-liberation2 fonts-noto-core \
-      sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
-      iproute2 iputils-ping netbase procps psmisc rsync \
+      busybox-static coreutils findutils grep sed gawk util-linux procps psmisc \
+      iproute2 iputils-ping net-tools dnsutils traceroute openssh-client \
+      sudo login passwd file tree plocate lsof strace bc acl \
+      aptitude aspell at bsdextrautils dos2unix gddrescue iw mtr-tiny netcat-openbsd \
+      nftables pv ripgrep rename screen sharutils sysstat tmux unrar-free vim-tiny \
+      wl-clipboard xclip xxd zstd openjdk-21-jre-headless python3-tk pkexec x11-xserver-utils libstdc++6 \
+      libgtk-4-1 libadwaita-1-0 \
+      libxkbcommon0 libwayland-client0 libwayland-cursor0 libx11-6 libxcb1 libfontconfig1 \
+      libfreetype6 libharfbuzz0b libvulkan1 libdbus-1-3 libssl3t64 libasound2t64 libpulse0 \
+      libxrandr2 libxi6 libxinerama1 libxcursor1 libxext6 libxrender1 libxfixes3 libxdamage1 libxcomposite1 \
+      ca-certificates curl wget less nano htop jq git rsync \
+      tar gzip bzip2 xz-utils zip unzip man-db manpages \
+      gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    bash /tmp/chimera-install-command-providers.sh
+    python3 /tmp/chimera-resolve-command-providers.py \
+      --catalog /tmp/chimera-command-list.json \
+      --ss64 /tmp/ss64-command-catalog.json \
+      --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
+      --require-all
+    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed"
+  touch "$BASE/.packages-installed-v4"
 fi
 
 # ------------------------------------------------------------- rootfs copy
@@ -123,38 +179,227 @@ cp -a "$BASE/." "$WORK/" 2>/dev/null || true
 rm -rf "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run
 mkdir -p "$WORK"/dev "$WORK"/proc "$WORK"/sys "$WORK"/run "$WORK"/tmp "$WORK"/mnt "$WORK"/media
 
+# Install every BusyBox applet as a real multicall command where no native
+# package binary already exists. Never replace a GNU/coreutils implementation.
+BB_IN_ROOT=""
+for candidate in /bin/busybox /usr/bin/busybox; do
+  if [[ -x "$WORK$candidate" ]]; then BB_IN_ROOT="$candidate"; break; fi
+done
+if [[ -z "$BB_IN_ROOT" ]]; then
+  echo "[ERROR] busybox-static was not installed in the live rootfs" >&2
+  exit 2
+fi
+while IFS= read -r applet; do
+  [[ -n "$applet" && "$applet" != */* && "$applet" != "busybox" ]] || continue
+  # Preserve package-provided commands and valid symlinks. Remove only stale
+  # dangling aliases left by a prior interrupted rootfs staging attempt.
+  present=false
+  for dir in usr/local/bin usr/bin bin usr/local/sbin usr/sbin sbin; do
+    candidate="$WORK/$dir/$applet"
+    if [[ -e "$candidate" ]]; then present=true; break; fi
+    if [[ -L "$candidate" ]]; then
+      if [[ -e "$candidate" ]]; then present=true; break; fi
+      rm -f "$candidate"
+    fi
+  done
+  if [[ "$present" == false ]]; then
+    ln -s "$BB_IN_ROOT" "$WORK/usr/bin/$applet"
+  fi
+done < <("$WORK$BB_IN_ROOT" --list)
+
+# Put the complete command/ISA catalogues and the actual provider coverage
+# report in both desktop editions; catalog-only entries remain explicitly marked.
+install -d "$WORK/usr/share/chimera/catalogs"
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
+  if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
+done
+install -d "$WORK/usr/lib/chimera/commands/linux-abi"
+cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
+bash "$REPO_DIR/tools/commands/install-busybox-applets.sh" "$WORK"
+bash "$REPO_DIR/tools/commands/build-chimera-native-tools.sh" "$WORK"
+CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/tools/terminal/build-terminal.sh"
+# A per-image random bearer token is readable only by the dedicated terminal
+# service group and members of the live desktop group.
+python3 - "$WORK/etc/chimera/terminal/auth.token" <<'PY'
+import secrets,sys
+from pathlib import Path
+p=Path(sys.argv[1]); p.parent.mkdir(parents=True,exist_ok=True)
+if not p.exists() or not p.read_text(encoding="utf-8").strip(): p.write_text(secrets.token_urlsafe(32)+"\n",encoding="utf-8")
+PY
+chown root:chimera-terminal "$WORK/etc/chimera/terminal/auth.token"
+chmod 0640 "$WORK/etc/chimera/terminal/auth.token"
+bash "$REPO_DIR/tests/terminal/test-terminald-rootfs.sh" "$WORK"
+bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
+install -d "$WORK/usr/share/chimera/catalogs"
+python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json \
+  tools/commands/os-command-runtime.json \
+  ISA.csv data/isa/online-isa-index.json; do
+  [[ -s "$REPO_DIR/$rel" ]] && install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
+done
+install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$WORK/usr/share/chimera/catalogs/terminals-registry.json"
+install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chimera/catalogs/shells-registry.json"
+install -D -m 0644 "$REPO_DIR/aurora/terminals/binary-manifest.json" "$WORK/usr/share/chimera/catalogs/terminals-binary-manifest.json"
+install -D -m 0644 "$REPO_DIR/aurora/shells/binary-manifest.json" "$WORK/usr/share/chimera/catalogs/shells-binary-manifest.json"
+install -D -m 0644 "$REPO_DIR/system/commands/native-provider-aliases.json" "$WORK/usr/share/chimera/catalogs/native-provider-aliases.json"
+install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$WORK/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
+  --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
+  --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
+
+# Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
+install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/usr/local/bin/chimera-verify-opengl"
+# Install the optional Aurora event sound player and start cue after sound.target.
+install -D -m 0755 "$REPO_DIR/desktop/aurora/aurora-event-sound.sh" "$WORK/usr/local/bin/aurora-event-sound"
+install -d "$WORK/etc/systemd/system/multi-user.target.wants"
+cat > "$WORK/etc/systemd/system/aurora-startup-sound.service" <<'UNIT'
+[Unit]
+Description=Aurora desktop startup sound
+After=sound.target
+Wants=sound.target
+
+[Service]
+Type=oneshot
+User=live
+Environment=CHIMERA_SOUND_DIR=/usr/share/chimera/aurora/sounds
+Environment=CHIMERA_SOUND_VOLUME=0.55
+ExecStart=/usr/local/bin/aurora-event-sound startup
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.target.wants/aurora-startup-sound.service"
+
+# Install real, package-manager-verified open-source shells and terminals in both editions.
+log "installing Aurora terminal and shell suite"
+bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
+bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
+python3 "$REPO_DIR/tools/commands/stage-native-script-providers.py" \
+  --repo "$REPO_DIR" --rootfs "$WORK" --build-dir "$BUILD/native-userland-tools"
+CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
+python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
+  --rootfs "$WORK" \
+  --shell-registry "$REPO_DIR/aurora/shells/registry.json" \
+  --terminal-registry "$REPO_DIR/aurora/terminals/registry.json" \
+  --output "$WORK/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+# Audit every command record against actual files in the final target rootfs.
+python3 "$REPO_DIR/tools/commands/verify-command-provider-coverage.py" \
+  "$WORK" "$REPO_DIR/system/commands/command-runtime-capabilities.json" x86_64 --require-native
+# Recompute the platform-specific command/ISA report after all providers are installed.
+python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
+  --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
+  --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
+
 # ------------------------------------------------------------- payload
 log "staging payload"
 PAY="$WORK/opt/aurora"
 rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
+
+# Build and install every generated Aurora visual asset for both OS editions.
+AURORA_MEDIA="$BUILD/aurora-media-$ED"
+bash "$REPO_DIR/tools/aurora/build-visual-assets.sh" "$AURORA_MEDIA"
+install -d "$WORK/usr/share/chimera/aurora/media" "$WORK/usr/share/chimera/aurora/icons"
+cp -a "$AURORA_MEDIA/." "$WORK/usr/share/chimera/aurora/media/"
+python3 "$REPO_DIR/tools/aurora/export-icon-theme.py" \
+  --output "$BUILD/aurora-icons-$ED"
+install -d "$WORK/usr/share/icons/hicolor/scalable/apps" "$WORK/usr/share/icons/chimera-aurora/scalable/apps"
+cp -a "$BUILD/aurora-icons-$ED/." "$WORK/usr/share/icons/chimera-aurora/"
+cp -a "$BUILD/aurora-icons-$ED/chimera-"*.svg "$WORK/usr/share/icons/hicolor/scalable/apps/"
+cp -a "$BUILD/aurora-icons-$ED/chimera-"*.svg "$WORK/usr/share/icons/chimera-aurora/scalable/apps/"
+install -d "$WORK/etc/gtk-3.0"
+cat > "$WORK/etc/gtk-3.0/settings.ini" <<'GTK'
+[Settings]
+gtk-icon-theme-name=chimera-aurora
+GTK
+cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$WORK/usr/share/chimera/aurora/"
+cp -a "$REPO_DIR/desktop/aurora/icons/icon_theme.json" "$WORK/usr/share/chimera/aurora/icons/"
 cp -a "$REPO_DIR/$DESKTOP_COPY" "$PAY/desktop"
+# Ship the complete 133-icon original artwork sprite and native hicolor icon files.
+mkdir -p "$PAY/desktop/app-icons"
+cp -f "$REPO_DIR/desktop/app-icons/catalog.svg" "$PAY/desktop/app-icons/catalog.svg"
+cp -f "$REPO_DIR/desktop/app-icons/manifest.json" "$PAY/desktop/app-icons/manifest.json"
+python3 "$REPO_DIR/tools/aurora/export-app-icon-theme.py" \
+  --sprite "$REPO_DIR/desktop/app-icons/catalog.svg" \
+  --manifest "$REPO_DIR/desktop/app-icons/manifest.json" \
+  --output "$WORK/usr/share/icons/hicolor/scalable/apps"
+mkdir -p "$PAY/desktop/app-icons/icons"
+cp -f "$WORK/usr/share/icons/hicolor/scalable/apps"/chimera-*.svg "$PAY/desktop/app-icons/icons/"
+cat > "$WORK/usr/share/icons/hicolor/index.theme" <<'THEME'
+[Icon Theme]
+Name=hicolor
+Comment=Fallback icon theme with Chimera Aurora app artwork
+Directories=scalable/apps
+[scalable/apps]
+Size=64
+Type=Scalable
+MinSize=16
+MaxSize=256
+THEME
+
+# Publish desktop launchers only for executables actually present in this rootfs.
+CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/aurora/terminals/install-desktop-entries.sh"
+bash "$REPO_DIR/tests/desktop/test-aurora-terminal-shell-centers.sh" "$WORK"
 
 # Aurora desktop shell (multi-profile window manager + apps) for every edition.
 if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
   mkdir -p "$PAY/desktop"
   cp -a "$REPO_DIR/desktop/aurora-shell" "$PAY/desktop/aurora-shell"
+  # The shell resolves audio files relative to desktop/aurora-shell/index.html.
+  install -d "$PAY/desktop/aurora/assets"
+  cp -a "$REPO_DIR/desktop/aurora/assets/sounds" "$PAY/desktop/aurora/assets/sounds"
 fi
 [ "$ED" = "octavian" ] && cp -a "$REPO_DIR/apps" "$PAY/apps"
 
-python3 - "$ART" "$PAY" <<'PY'
-import json, os, subprocess, sys
-src, pay = sys.argv[1], sys.argv[2]
-manifest = json.load(open(os.path.join(src, "manifest.json")))
+python3 - "$ART" "$PAY" "$AURORA_MEDIA" <<'PY'
+import json, os, shutil, subprocess, sys
+src, pay, media = sys.argv[1:4]
+wallpapers = os.path.join(pay, "wallpapers")
+manifest = json.load(open(os.path.join(src, "manifest.json"), encoding="utf-8"))
 out = []
 for item in manifest:
-    dst = os.path.join(pay, "wallpapers", item["file"])
+    dst = os.path.join(wallpapers, item["file"])
     subprocess.run(["convert", os.path.join(src, item["file"]),
                     "-resize", "2560x2560>", "-strip", "-quality", "88", dst], check=True)
     out.append({"name": item["name"], "file": item["file"], "url": item["file"],
                 "source": item.get("source", "")})
-json.dump(out, open(os.path.join(pay, "wallpapers", "index.json"), "w"), indent=1)
-print("wallpapers:", len(out))
+# Add every generated Aurora screen/background to the desktop wallpaper picker.
+visual = json.load(open(os.path.join(media, "manifest.json"), encoding="utf-8"))
+for role, rel in visual.get("assets", {}).items():
+    source = os.path.join(media, rel)
+    if not os.path.isfile(source):
+        raise SystemExit(f"generated Aurora visual is missing: {source}")
+    filename = "aurora-" + os.path.basename(rel)
+    destination = os.path.join(wallpapers, filename)
+    shutil.copy2(source, destination)
+    out.append({"name": "Aurora " + role.replace("_", " ").title(),
+                "file": filename, "url": filename, "source": "generated:" + rel,
+                "role": role})
+video = os.path.join(media, "Init.mp4")
+if os.path.isfile(video):
+    shutil.copy2(video, os.path.join(wallpapers, "aurora-init.mp4"))
+json.dump(out, open(os.path.join(wallpapers, "index.json"), "w", encoding="utf-8"), indent=1)
+print("wallpapers:", len(out), "(repository + generated Aurora artwork)")
 PY
 
 # verbatim source snapshot for provenance (excluding build output)
 mkdir -p "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . 2>/dev/null \
   | tar -C "$PAY/repo" -xf - 2>/dev/null || true
+# Execute the real staged Chimera command frontends against the completed source snapshot.
+bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
 
 # Stage every repository-owned application catalog for offline discovery.
 # Catalog-only upstream references remain distinct from installed executables.

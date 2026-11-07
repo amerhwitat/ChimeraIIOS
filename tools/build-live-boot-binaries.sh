@@ -38,6 +38,7 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
 # Always inherit the canonical build directory selected by build-chimera-iso.sh.
 # CHIMERA_LIVE_BOOT_DIR remains an explicit override for standalone builds.
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
@@ -58,8 +59,41 @@ for tool in cpio gzip; do
 done
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
+if command -v file >/dev/null 2>&1 && ! file "$BUSYBOX" | grep -qi 'statically linked'; then
+  echo "ERROR: a statically linked BusyBox is required for the initramfs; install busybox-static." >&2
+  exit 2
+fi
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
+# Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
+while IFS= read -r applet; do
+  [[ -n "$applet" && "$applet" != "busybox" ]] || continue
+  [[ "$applet" == */* ]] && continue
+  ln -sf busybox "$INIT/bin/$applet"
+done < <("$BUSYBOX" --list)
+# Keep compatibility aliases required by the init scripts even if a BusyBox
+# build omits an optional applet.
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
+
+# Embed the complete command/ISA catalogues and an evidence-based implementation map.
+install -d "$INIT/etc/chimera/catalogs"
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
+  if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"; fi
+done
+install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$INIT/etc/chimera/catalogs/terminals-registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$INIT/etc/chimera/catalogs/shells-registry.json"
+bash "$ROOT/tools/commands/install-busybox-applets.sh" "$INIT"
+python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
+  --root "$ROOT" --busybox "$BUSYBOX" --rootfs "$INIT" \
+  --output "$INIT/etc/chimera/catalogs/command-isa-coverage.json"
+python3 "$ROOT/tools/commands/verify-command-provider-coverage.py" \
+  "$INIT" "$ROOT/system/commands/command-runtime-capabilities.json" x86_64
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
@@ -80,8 +114,8 @@ progress() {
     n=$((n + 1))
   done
   line="[LIVE] [${bar}] ${pct}% ${phase}: ${message}"
-  printf '%s\\n' "$line" >> /var/log/mesgs
-  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf '%s\n' "$line" >> /var/log/mesgs
+  printf '%s\n' "$line" > /dev/console 2>/dev/null || printf '%s\n' "$line"
   printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
 }
 progress 0 "Initramfs" "Starting early userspace"
@@ -148,8 +182,8 @@ recovery_progress() {
     n=$((n + 1))
   done
   line="[RECOVERY] [${bar}] ${pct}% ${phase}: ${message}"
-  printf '%s\\n' "$line" >> /var/log/mesgs
-  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf '%s\n' "$line" >> /var/log/mesgs
+  printf '%s\n' "$line" > /dev/console 2>/dev/null || printf '%s\n' "$line"
   printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
 }
 recovery_progress 0 "Initramfs" "Starting Jasper recovery userspace"
