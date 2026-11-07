@@ -88,7 +88,42 @@ on:
       - '.github/workflows/live-image-build.yml'
   workflow_dispatch:
     inputs:
-      publish:
+      persist-catalogue:
+    name: Persist refreshed command catalogues to the PR branch
+    needs: [build]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: command-catalogue-refresh
+          path: ${{ runner.temp }}/command-catalogue-refresh
+      - name: Commit the refreshed SS64, Arabic and provider catalogues
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          cp -a "$RUNNER_TEMP/command-catalogue-refresh/system/commands/." system/commands/
+          cp -a "$RUNNER_TEMP/command-catalogue-refresh/desktop/aurora/." desktop/aurora/
+          git add system/commands/ss64-command-catalog.json \
+            system/commands/ss64-command-catalog.ar.json \
+            system/commands/native-command-candidates.json \
+            system/commands/command-runtime-capabilities.json \
+            desktop/aurora/arabic_command_catalog.json
+          if git diff --cached --quiet; then echo "Command catalogues are already current."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh SS64 command catalogue and provider manifests [skip ci]"
+          git push origin "HEAD:$TARGET_BRANCH"
+
+  publish:
         description: Publish a GitHub Release after all ISO and desktop checks pass
         required: true
         type: boolean
@@ -108,6 +143,18 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: command-catalogue-refresh
+          path: ${{ runner.temp }}/command-catalogue-refresh
+      - name: Reuse the same refreshed command catalogues for OctavianOS
+        run: |
+          set -euo pipefail
+          cp -a "$RUNNER_TEMP/command-catalogue-refresh/system/commands/." system/commands/
+          cp -a "$RUNNER_TEMP/command-catalogue-refresh/desktop/aurora/." desktop/aurora/
+          mkdir -p "$RUNNER_TEMP/octavian-live-build"
+          cp "$RUNNER_TEMP/command-catalogue-refresh/ss64-command-catalog.json" \
+             "$RUNNER_TEMP/octavian-live-build/ss64-command-catalog.json"
       - name: Install current stable Rust toolchain for source-built shells and terminals
         uses: dtolnay/rust-toolchain@stable
 
@@ -343,8 +390,26 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Prepare refreshed command catalogue artifact
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/command-catalogue-refresh"
+          mkdir -p "$out/system/commands" "$out/desktop/aurora"
+          cp system/commands/ss64-command-catalog.json "$out/ss64-command-catalog.json"
+          cp system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+             system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+             "$out/system/commands/"
+          cp desktop/aurora/arabic_command_catalog.json "$out/desktop/aurora/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: command-catalogue-refresh
+          path: ${{ runner.temp }}/command-catalogue-refresh/
+          if-no-files-found: error
+          retention-days: 7
+
   octavian:
     name: Build OctavianOS live ISO
+    needs: [build]
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     steps:
