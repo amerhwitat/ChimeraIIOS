@@ -65,7 +65,7 @@ jobs:
 
       - name: Validate rootless live rootfs staging
         run: |
-          bash -n tools/commands/install-busybox-applets.sh tools/commands/build-chimera-native-tools.sh kernel/build-target-inits.sh
+          bash -n tools/commands/install-busybox-applets.sh tools/commands/build-chimera-native-tools.sh kernel/build-target-inits.sh tools/aurora/stage-generated-iso-artwork.sh iso/chimera-live-iso.sh tools/build-full-iso.sh
           python3 tests/commands/test_rootless_rootfs_staging.py
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
