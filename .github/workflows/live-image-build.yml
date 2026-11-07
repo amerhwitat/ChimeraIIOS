@@ -156,6 +156,16 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          python3 - "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert d["summary"]["shells_registered"] == 8, d["summary"]
+          assert d["summary"]["terminals_registered"] == 20, d["summary"]
+          assert any(x["id"]=="bash" and x["path"] for x in d["shells"]), "Bash executable missing"
+          assert any(x["id"]=="xterm" and x["path"] for x in d["terminals"]), "XTerm executable missing"
+          print("Shell/terminal provider inventory validated; optional providers remain status-labelled.")
+          PY
           python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
           import json,sys
           report=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -341,6 +351,16 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          python3 - "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert d["summary"]["shells_registered"] == 8, d["summary"]
+          assert d["summary"]["terminals_registered"] == 20, d["summary"]
+          assert any(x["id"]=="bash" and x["path"] for x in d["shells"]), "Bash executable missing"
+          assert any(x["id"]=="xterm" and x["path"] for x in d["terminals"]), "XTerm executable missing"
+          print("Shell/terminal provider inventory validated; optional providers remain status-labelled.")
+          PY
           test -s "$root/usr/lib/chimera/commands/linux-abi/x86_64/chimera-cmd"
           test -s "$root/usr/lib/chimera/commands/linux-abi/aarch64/chimera-cmd"
           test -s "$root/usr/lib/chimera/commands/linux-abi/riscv64/chimera-cmd"
