@@ -534,10 +534,12 @@ jobs:
           chimera_report="$(find release-assets/chimera -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
           octavian_report="$(find release-assets/octavian -maxdepth 1 -type f -name 'ISO-BOOT-REPORT.txt' -print -quit)"
           test -s "$chimera_iso" && test -s "$chimera_sum" && test -s "$octavian_iso" && test -s "$octavian_sum" && test -s "$chimera_report" && test -s "$octavian_report"
+          cp "$chimera_report" release-assets/CHIMERA-ISO-BOOT-REPORT.txt
+          cp "$octavian_report" release-assets/OCTAVIAN-ISO-BOOT-REPORT.txt
           version="$(date -u +%Y.%m.%d)"
           short="${GITHUB_SHA:0:12}"
           tag="chimera-octavian-live-${version}-desktop-${short}"
-          gh release create "$tag" "$chimera_iso" "$chimera_sum" "$chimera_report" "$octavian_iso" "$octavian_sum" "$octavian_report" \
+          gh release create "$tag" "$chimera_iso" "$chimera_sum" release-assets/CHIMERA-ISO-BOOT-REPORT.txt "$octavian_iso" "$octavian_sum" release-assets/OCTAVIAN-ISO-BOOT-REPORT.txt \
             --repo "$GITHUB_REPOSITORY" \
             --title "Chimera II OS + OctavianOS ${version} — hosted desktop images" \
             --notes "Rebuilt from commit ${GITHUB_SHA}. Both hosted desktop editions are built and validated with Aurora WebGL/OpenGL userspace, command providers, cross-built native command artifacts and desktop assets. These are Debian/Linux-backed hosted live images; they are not Koronos-native production releases. The native Koronos ISO remains gated on its separate kernel, QEMU, live, installer and recovery runtime acceptance."
