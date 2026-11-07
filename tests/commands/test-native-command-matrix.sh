@@ -31,6 +31,32 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   alias="$tmp/$arch-true"; ln -sf "$bin" "$alias"; run "$alias"
   alias="$tmp/$arch-false"; ln -sf "$bin" "$alias"
   if run "$alias"; then echo "$arch false returned success" >&2; exit 1; fi
+  alias="$tmp/$arch-touch"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/touched-$arch"
+  [[ -f "$tmp/touched-$arch" ]] || { echo "$arch touch failed" >&2; exit 1; }
+  printf 'copy-source\n' > "$tmp/copy-source-$arch"
+  alias="$tmp/$arch-cp"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/copy-source-$arch" "$tmp/copy-target-$arch"
+  cmp -s "$tmp/copy-source-$arch" "$tmp/copy-target-$arch" || { echo "$arch cp failed" >&2; exit 1; }
+  alias="$tmp/$arch-cat"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" "$tmp/copy-target-$arch")"
+  [[ "$output" == "copy-source" ]] || { echo "$arch cat failed: $output" >&2; exit 1; }
+  alias="$tmp/$arch-mv"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/copy-target-$arch" "$tmp/moved-$arch"
+  [[ -f "$tmp/moved-$arch" && ! -e "$tmp/copy-target-$arch" ]] || { echo "$arch mv failed" >&2; exit 1; }
+  alias="$tmp/$arch-mkdir"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/made-dir-$arch"
+  [[ -d "$tmp/made-dir-$arch" ]] || { echo "$arch mkdir failed" >&2; exit 1; }
+  alias="$tmp/$arch-rm"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/moved-$arch"
+  [[ ! -e "$tmp/moved-$arch" ]] || { echo "$arch rm failed" >&2; exit 1; }
+  alias="$tmp/$arch-whoami"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"; [[ -n "$output" ]] || { echo "$arch whoami failed" >&2; exit 1; }
+  alias="$tmp/$arch-hostname"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"; [[ -n "$output" ]] || { echo "$arch hostname failed" >&2; exit 1; }
+  alias="$tmp/$arch-date"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"; [[ -n "$output" ]] || { echo "$arch date failed" >&2; exit 1; }
+  alias="$tmp/$arch-clear"; ln -sf "$bin" "$alias"; run "$alias" >/dev/null
   printf 'line-one\nline-two\nline-three\n' > "$tmp/input-$arch"
   alias="$tmp/$arch-head"; ln -sf "$bin" "$alias"
   output="$(run "$alias" -n 1 "$tmp/input-$arch")"
