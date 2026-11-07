@@ -208,6 +208,8 @@ fi
 FINAL="$ISO_DIR/chimera-ii-os.iso"
 if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" "$DISK_MANAGER"; fi
 if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
+  # The base-ISO injection path must receive the same generated media/icon payload as a fresh ISO.
+  bash "$ROOT/tools/aurora/stage-generated-iso-artwork.sh" "$STAGE"
   # xorriso refuses a non-empty existing outdev when indev and outdev differ.
   # Delete the previous output before opening the base image. If BASE happens
   # to point at FINAL, first preserve it under a distinct path.
