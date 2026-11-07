@@ -40,6 +40,74 @@ verify_target_elf() {
   }
 }
 require git
+build_bash() {
+  require make; require gcc
+  local src="$OUT/src/bash"
+  git clone --depth 1 https://git.savannah.gnu.org/git/bash.git "$src"
+  (cd "$src" && ./configure --prefix=/usr/local --without-bash-malloc && make -j"${JOBS:-2}" && make install DESTDIR="$OUT/stage")
+  install -D -m 0755 "$OUT/stage/usr/local/bin/bash" "$ROOTFS/usr/local/bin/bash"
+}
+build_zsh() {
+  require make; require gcc; require autoconf
+  local src="$OUT/src/zsh"
+  git clone --depth 1 https://github.com/zsh-users/zsh.git "$src"
+  (cd "$src" && ./Util/preconfig && ./configure --prefix=/usr/local && make -j"${JOBS:-2}" && make install DESTDIR="$OUT/stage")
+  install -D -m 0755 "$OUT/stage/usr/local/bin/zsh" "$ROOTFS/usr/local/bin/zsh"
+}
+build_fish() {
+  require cmake; require ninja; require c++
+  local src="$OUT/src/fish"
+  git clone --depth 1 https://github.com/fish-shell/fish-shell.git "$src"
+  cmake -S "$src" -B "$src/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_DOCS=OFF
+  cmake --build "$src/build" --parallel "${JOBS:-2}"
+  DESTDIR="$OUT/stage" cmake --install "$src/build"
+  install -D -m 0755 "$OUT/stage/usr/local/bin/fish" "$ROOTFS/usr/local/bin/fish"
+}
+build_dash() {
+  require make; require gcc; require autoreconf
+  local src="$OUT/src/dash"
+  git clone --depth 1 https://git.kernel.org/pub/scm/utils/dash/dash.git "$src"
+  (cd "$src" && if [[ -x ./autogen.sh ]]; then ./autogen.sh; else autoreconf -fi; fi && ./configure --prefix=/usr/local && make -j"${JOBS:-2}" && make install DESTDIR="$OUT/stage")
+  install -D -m 0755 "$OUT/stage/usr/local/bin/dash" "$ROOTFS/usr/local/bin/dash"
+}
+build_mksh() {
+  require make; require gcc
+  local src="$OUT/src/mksh"
+  git clone --depth 1 https://github.com/MirBSD/mksh.git "$src"
+  (cd "$src" && sh Build.sh -r)
+  local binary
+  binary="$(find "$src" -maxdepth 2 -type f -name mksh -perm -111 -print -quit)"
+  [[ -n "$binary" ]] || { echo "mksh source build produced no executable" >&2; exit 2; }
+  install -D -m 0755 "$binary" "$ROOTFS/usr/local/bin/mksh"
+}
+build_alacritty() {
+  require cargo
+  local src="$OUT/src/alacritty"
+  git clone --depth 1 https://github.com/alacritty/alacritty.git "$src"
+  (cd "$src" && cargo build --release --locked)
+  install -D -m 0755 "$src/target/release/alacritty" "$ROOTFS/usr/local/bin/alacritty"
+}
+build_foot() {
+  require meson; require ninja
+  local src="$OUT/src/foot"
+  git clone --depth 1 https://codeberg.org/dnkl/foot.git "$src"
+  meson setup "$src/build" --buildtype=release --prefix=/usr/local
+  ninja -C "$src/build" -j"${JOBS:-2}"
+  DESTDIR="$OUT/stage" ninja -C "$src/build" install
+  install -D -m 0755 "$OUT/stage/usr/local/bin/foot" "$ROOTFS/usr/local/bin/foot"
+}
+build_blackbox() {
+  require meson; require ninja
+  local src="$OUT/src/blackbox"
+  git clone --depth 1 https://gitlab.gnome.org/haecker-felix/blackbox.git "$src"
+  meson setup "$src/build" --buildtype=release --prefix=/usr/local
+  ninja -C "$src/build" -j"${JOBS:-2}"
+  DESTDIR="$OUT/stage" ninja -C "$src/build" install
+  local binary
+  binary="$(find "$OUT/stage/usr/local" "$src/build" -type f -name blackbox -perm -111 -print -quit)"
+  [[ -n "$binary" ]] || { echo "Black Box source build produced no executable" >&2; exit 2; }
+  install -D -m 0755 "$binary" "$ROOTFS/usr/local/bin/blackbox"
+}
 build_yash() {
   require make
   local src="$OUT/src/yash"
@@ -96,9 +164,17 @@ tmp="$OUT/providers-built.tsv"
 while IFS='|' read -r package binary status; do
   [[ -n "$binary" ]] || continue
   case "$binary" in
+    bash) build_bash ;;
+    zsh) build_zsh ;;
+    fish) build_fish ;;
+    dash) build_dash ;;
+    mksh) build_mksh ;;
     yash) build_yash ;;
     nu) build_nushell ;;
     elvish) build_elvish ;;
+    alacritty) build_alacritty ;;
+    foot) build_foot ;;
+    blackbox) build_blackbox ;;
     wezterm) build_wezterm ;;
     ghostty) build_ghostty ;;
     contour) build_contour ;;
@@ -113,6 +189,14 @@ while IFS='|' read -r package binary status; do
   fi
   verify_target_elf "$ROOTFS/usr/local/bin/$binary"
   case "$binary" in
+    bash) commit="$(git -C "$OUT/src/bash" rev-parse HEAD)" ;;
+    zsh) commit="$(git -C "$OUT/src/zsh" rev-parse HEAD)" ;;
+    fish) commit="$(git -C "$OUT/src/fish" rev-parse HEAD)" ;;
+    dash) commit="$(git -C "$OUT/src/dash" rev-parse HEAD)" ;;
+    mksh) commit="$(git -C "$OUT/src/mksh" rev-parse HEAD)" ;;
+    alacritty) commit="$(git -C "$OUT/src/alacritty" rev-parse HEAD)" ;;
+    foot) commit="$(git -C "$OUT/src/foot" rev-parse HEAD)" ;;
+    blackbox) commit="$(git -C "$OUT/src/blackbox" rev-parse HEAD)" ;;
     yash) commit="$(git -C "$OUT/src/yash" rev-parse HEAD)" ;;
     nu) commit="$(git -C "$OUT/src/nushell" rev-parse HEAD)" ;;
     elvish) commit="$(git -C "$OUT/src/elvish" rev-parse HEAD)" ;;
@@ -121,6 +205,14 @@ while IFS='|' read -r package binary status; do
     contour) commit="$(git -C "$OUT/src/contour" rev-parse HEAD)" ;;
   esac
   case "$binary" in
+    bash) srcdir="$OUT/src/bash" ;;
+    zsh) srcdir="$OUT/src/zsh" ;;
+    fish) srcdir="$OUT/src/fish" ;;
+    dash) srcdir="$OUT/src/dash" ;;
+    mksh) srcdir="$OUT/src/mksh" ;;
+    alacritty) srcdir="$OUT/src/alacritty" ;;
+    foot) srcdir="$OUT/src/foot" ;;
+    blackbox) srcdir="$OUT/src/blackbox" ;;
     yash) srcdir="$OUT/src/yash" ;;
     nu) srcdir="$OUT/src/nushell" ;;
     elvish) srcdir="$OUT/src/elvish" ;;
