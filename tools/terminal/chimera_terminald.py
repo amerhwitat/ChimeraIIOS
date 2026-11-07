@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 CONFIG_DIR=Path(os.environ.get('CHIMERA_TERMINAL_CONFIG_DIR','/etc/chimera/terminal'))
 ADAPTERS=CONFIG_DIR/'shell_adapters.json'; PERMISSIONS=CONFIG_DIR/'permissions.json'
-LIMITS={'cpu_seconds':30,'address_space_bytes':1073741824,'file_size_bytes':134217728,'open_files':256,'processes':64}; SESSIONS={}
+LIMITS={'cpu_seconds':3600,'address_space_bytes':2147483648,'file_size_bytes':536870912,'open_files':512,'processes':128,'wall_seconds':28800}; SESSIONS={}
 def load(p): return json.loads(p.read_text(encoding='utf-8'))
 def allowed(role,cap):
  c=load(PERMISSIONS).get('roles',{}).get(role,{}); return cap in c.get('allow',[]) and cap not in c.get('deny',[])
@@ -47,7 +47,7 @@ def spawn(sid,shell,role,unsafe):
   def pre():
    os.setsid(); limits(); os.chdir(root)
    if hasattr(os,'unshare'): os.unshare(os.CLONE_NEWNS|os.CLONE_NEWPID|os.CLONE_NEWNET)
- proc=subprocess.Popen(cmd,stdin=slave,stdout=slave,stderr=slave,env=env,close_fds=True,preexec_fn=pre); os.close(slave); os.set_blocking(master,False); return {'master':master,'pid':proc.pid,'root':root}
+ proc=subprocess.Popen(cmd,stdin=slave,stdout=slave,stderr=slave,env=env,close_fds=True,preexec_fn=pre); os.close(slave); os.set_blocking(master,False); return {'master':master,'pid':proc.pid,'root':root,'started':time.monotonic()}
 def send(c,o): c.sendall((json.dumps(o,separators=(',',':'))+'\n').encode())
 def handle(c,cfg):
  line=c.makefile('rb').readline(1048576)
@@ -61,6 +61,10 @@ def handle(c,cfg):
   return
  sid=str(q.get('session','')); s=SESSIONS.get(sid)
  if not s: send(c,{'ok':False,'error':'session not found'}); return
+ if time.monotonic()-s.get('started',time.monotonic())>LIMITS['wall_seconds']:
+  try: os.killpg(s['pid'],signal.SIGTERM)
+  except ProcessLookupError: pass
+  SESSIONS.pop(sid,None); send(c,{'ok':False,'error':'terminal session wall-time limit exceeded'}); return
  if action=='write':
   if not allowed(role,'terminal.write'): send(c,{'ok':False,'error':'terminal.write denied'}); return
   os.write(s['master'],base64.b64decode(q.get('data',''))); send(c,{'ok':True})
@@ -78,7 +82,7 @@ def handle(c,cfg):
   SESSIONS.pop(sid,None); send(c,{'ok':True})
  else: send(c,{'ok':False,'error':'unknown action'})
 def main():
- p=argparse.ArgumentParser(); p.add_argument('--socket',default='/run/chimera/terminald.sock'); p.add_argument('--config',default=str(CONFIG_DIR/'terminal-service.json')); a=p.parse_args(); cfg=load(Path(a.config)); sock=Path(a.socket); sock.parent.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(); p.add_argument('--socket',default='/run/chimera/terminald.sock'); p.add_argument('--config',default=str(CONFIG_DIR/'terminal-service.json')); a=p.parse_args(); cfg=load(Path(a.config)); LIMITS.update({k:int(v) for k,v in cfg.get('limits',{}).items() if k in LIMITS}); sock=Path(a.socket); sock.parent.mkdir(parents=True,exist_ok=True)
  try:sock.unlink()
  except FileNotFoundError:pass
  srv=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); srv.bind(sock); os.chmod(sock,0o660); srv.listen(64)
