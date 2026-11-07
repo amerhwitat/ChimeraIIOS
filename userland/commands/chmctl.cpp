@@ -3,10 +3,16 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
-#include <sys/utsname.h>
-#include <unistd.h>
 #include <utility>
 #include <vector>
+
+#ifdef _WIN32
+#include <windows.h>
+#include <process.h>
+#else
+#include <sys/utsname.h>
+#include <unistd.h>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -17,11 +23,22 @@ static void usage()
 
 static int exec_tool(const std::string& tool, std::vector<std::string> args)
 {
+#ifdef _WIN32
+    std::vector<const char*> argv;
+    argv.reserve(args.size() + 1);
+    for (const auto& arg : args) argv.push_back(arg.c_str());
+    argv.push_back(nullptr);
+    std::string executable = tool;
+    if (fs::path(executable).extension().empty()) executable += ".exe";
+    const intptr_t rc = _spawnvp(_P_WAIT, executable.c_str(), argv.data());
+    if (rc != -1) return static_cast<int>(rc);
+#else
     std::vector<char*> argv;
     argv.reserve(args.size() + 1);
     for (auto& arg : args) argv.push_back(arg.data());
     argv.push_back(nullptr);
     execvp(tool.c_str(), argv.data());
+#endif
     const int saved = errno;
     std::cerr << "chmctl: provider '" << tool << "' unavailable: " << std::strerror(saved) << "\n";
     return saved == ENOENT ? 127 : 126;
@@ -29,6 +46,22 @@ static int exec_tool(const std::string& tool, std::vector<std::string> args)
 
 static int status()
 {
+#ifdef _WIN32
+    SYSTEM_INFO info{};
+    GetNativeSystemInfo(&info);
+    const char* arch = "unknown";
+    switch (info.wProcessorArchitecture) {
+        case PROCESSOR_ARCHITECTURE_AMD64: arch = "x86_64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM64: arch = "aarch64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: arch = "arm"; break;
+    }
+    std::cout << "Kernel: Windows (native architecture " << arch << ")\n";
+    char host[256] = "unknown";
+    DWORD size = static_cast<DWORD>(sizeof(host));
+    if (GetComputerNameA(host, &size)) std::cout << "Hostname: " << host << "\n";
+    else std::cout << "Hostname: unavailable\n";
+#else
     struct utsname u{};
     char host[256] = "unknown";
     if (uname(&u) == 0)
@@ -39,6 +72,7 @@ static int status()
         std::cout << "Hostname: " << host << "\n";
     else
         std::cout << "Hostname: unavailable\n";
+#endif
 
     for (const char* state : {"/run/kore/state.json", "/run/spotnik/state.json", "/run/aegis/state.json"}) {
         std::cout << state << ": " << (fs::is_regular_file(state) ? "present" : "not-present") << "\n";
