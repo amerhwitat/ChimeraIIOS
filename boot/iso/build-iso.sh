@@ -179,9 +179,33 @@ mkdir -p "$ICON_OUT" "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps"
 cp -a "$ROOT/build/aurora-icons/." "$ICON_OUT/"
 cp -a "$ROOT/build/aurora-icons/." "$DIST/iso/usr/share/icons/chimera-aurora/"
 cp -a "$ROOT/build/aurora-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps/"
+APP_ICON_OUT="$DIST/iso/desktop/app-icons/icons"
+python3 "$ROOT/tools/aurora/export-app-icon-theme.py" \
+  --sprite "$ROOT/desktop/app-icons/catalog.svg" \
+  --manifest "$ROOT/desktop/app-icons/manifest.json" \
+  --output "$ROOT/build/aurora-app-icons"
+mkdir -p "$APP_ICON_OUT" "$DIST/iso/usr/share/icons/hicolor/scalable/apps" "$DIST/iso/desktop/app-icons"
+cp -a "$ROOT/build/aurora-app-icons/." "$APP_ICON_OUT/"
+cp -a "$ROOT/build/aurora-app-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/hicolor/scalable/apps/"
+cp -f "$ROOT/desktop/app-icons/catalog.svg" "$ROOT/desktop/app-icons/manifest.json" "$DIST/iso/desktop/app-icons/"
+python3 - "$ROOT/build/aurora-app-icons/manifest.json" <<'PY'
+import json, pathlib, sys
+manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+if manifest.get("count") != 133: raise SystemExit(f"expected 133 generated app icons, got {manifest.get('count')}")
+for icon in manifest.get("icons",[]):
+    if not (pathlib.Path(sys.argv[1]).parent / icon["file"]).is_file(): raise SystemExit(f"missing app icon: {icon}")
+print("Verified all 133 generated Aurora app icons.")
+PY
 test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/visual/aurora-media"
 cp -a "$MEDIA/." "$DIST/iso/boot/visual/aurora-media/"
+DESKTOP_ART="$DIST/iso/desktop/aurora/assets"
+ISO_AURORA_ROOT="$DIST/iso/usr/share/chimera/aurora"
+mkdir -p "$DESKTOP_ART" "$ISO_AURORA_ROOT/icons" "$ISO_AURORA_ROOT/app-icons"
+cp -a "$MEDIA/." "$DESKTOP_ART/"
+cp -a "$MEDIA/." "$ISO_AURORA_ROOT/"
+cp -a "$ROOT/build/aurora-icons/." "$ISO_AURORA_ROOT/icons/"
+cp -a "$ROOT/build/aurora-app-icons/." "$ISO_AURORA_ROOT/app-icons/"
 for f in   backgrounds/boot.png   backgrounds/desktop.png   menus/default.png   splash/aurora-splash.png   installer/aurora-installer.png   recovery/aurora-recovery.png   diagnostics/aurora-diagnostics.png   live/aurora-live.png   mobile/aurora-mobile.png   manifest.json   progress/state.json   progress/stages.json   progress/style.json   Init.mp4; do
   test -s "$MEDIA/$f" || { echo "ERROR: Aurora asset missing: $MEDIA/$f" >&2; exit 2; }
 done
@@ -220,6 +244,8 @@ if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
   cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
   mkdir -p "$RUNTIME_AURORA_ROOT/icons"
   cp -a "$ROOT/build/aurora-icons/." "$RUNTIME_AURORA_ROOT/icons/"
+  mkdir -p "$RUNTIME_AURORA_ROOT/app-icons"
+  cp -a "$ROOT/build/aurora-app-icons/." "$RUNTIME_AURORA_ROOT/app-icons/"
 fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
@@ -232,6 +258,10 @@ for visual in \
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
 test -s "$ICON_OUT/manifest.json" || { echo "ERROR: generated Aurora icon manifest missing." >&2; exit 2; }
+test -s "$ISO_AURORA_ROOT/backgrounds/desktop.png" || { echo "ERROR: desktop wallpaper missing from installed Aurora assets." >&2; exit 2; }
+test -s "$ISO_AURORA_ROOT/icons/manifest.json" || { echo "ERROR: installed Aurora icon manifest missing." >&2; exit 2; }
+test -s "$ISO_AURORA_ROOT/app-icons/manifest.json" || { echo "ERROR: installed Aurora app-icon manifest missing." >&2; exit 2; }
+test "$(find "$DIST/iso/usr/share/icons/hicolor/scalable/apps" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133 || { echo "ERROR: incomplete hicolor app icon export." >&2; exit 2; }
 for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/Init.mp4" || { echo "ERROR: Init.mp4 missing from $stage stage." >&2; exit 2; }
   test -s "$DIST/iso/boot/$stage/aurora-boot.png" || { echo "ERROR: Aurora artwork missing from $stage stage." >&2; exit 2; }
