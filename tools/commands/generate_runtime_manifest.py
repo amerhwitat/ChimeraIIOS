@@ -10,7 +10,7 @@ SS64 = ROOT / "system" / "commands" / "ss64-command-catalog.json"
 ARABIC = ROOT / "system" / "commands" / "ss64-command-catalog.ar.json"
 OUT = ROOT / "system" / "commands" / "command-runtime-capabilities.json"
 REGISTRY = ROOT / "tools" / "commands" / "os-command-runtime.json"
-NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
+NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
 SHELL = set("""alias bg break builtin caller case cd command continue declare dirs eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 PLATFORM_ARRAYS = {
     "linux_bash":"linux_bash", "macos":"macos_core", "windows_cmd":"windows_cmd_core",
@@ -129,8 +129,11 @@ def main():
         })
     OUT.write_text(json.dumps({
         "schema":"CHM-COMMAND-RUNTIME-CAPABILITIES-1",
-        "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
-        "native_binary":"rootfs/usr/bin/chimera-cmd",
+        "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and built as Linux userspace ELF aliases for the eight declared Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
+        "native_binary":"rootfs/usr/lib/chimera/commands/linux-abi/<target>/chimera-cmd",
+        "native_abi":"Linux userspace ELF; cross-built for eight Linux ABIs; not a Koronos syscall ABI",
+        "native_alias_count":len(NATIVE),
+        "koronos_abi_compatible":False,
         "command_count":len(commands),
         "executable_command_count":sum(c["entry_kind"]=="executable-command" for c in commands),
         "language_feature_count":sum(c["entry_kind"] in ("language-feature","shell-syntax") for c in commands),
