@@ -138,9 +138,19 @@ build_wezterm() {
 build_ghostty() {
   require python3
   local src="$OUT/src/ghostty" zigver venv
-  git clone --depth 1 https://github.com/ghostty-org/ghostty.git "$src"
-  zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
-  [[ -n "$zigver" ]] || { echo "Ghostty source has no pinned .zig-version" >&2; exit 2; }
+  # Pin the 1.3 line: Ghostty 1.4 requires GTK 4.18 / libadwaita 1.7,
+  # while the Ubuntu 24.04 build host provides the 1.3 line's GTK 4.14 /
+  # libadwaita 1.5 baseline. Derive Zig from the checked-out source metadata.
+  local ref="${CHIMERA_GHOSTTY_REF:-v1.3.0}"
+  git clone --depth 1 --branch "$ref" https://github.com/ghostty-org/ghostty.git "$src"
+  if [[ -s "$src/.zig-version" ]]; then
+    zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+  elif [[ -s "$src/build.zig.zon" ]]; then
+    zigver="$(grep -E 'minimum_zig_version' "$src/build.zig.zon" | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | head -n 1)"
+  else
+    zigver=""
+  fi
+  [[ -n "$zigver" ]] || { echo "Ghostty source has no parseable Zig version contract" >&2; exit 2; }
   venv="$OUT/zig-venv"
   python3 -m venv "$venv"
   "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
