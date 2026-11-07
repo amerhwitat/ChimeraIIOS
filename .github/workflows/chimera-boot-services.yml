@@ -23,6 +23,8 @@ jobs:
         run: |
           set -e
           for f in config/services/*.json boot/chimera-boot-modes.json boot/chimera-measurement-policy.json installer/services/service-selection.json; do python3 -m json.tool "$f" >/dev/null; done
+      - name: Run boot menu policy tests
+        run: python3 tools/tests/test_boot_menu_policy.py
       - name: Run registry tests
         run: python3 tools/tests/test_service_registry.py
       - name: Run installer profile tests
