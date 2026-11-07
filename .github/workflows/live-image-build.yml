@@ -545,12 +545,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes \
-            debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            build-essential nasm qemu-system-x86 cpio gzip file gettext debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
             gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
             autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
-            libvte-2.91-dev libvte-2.91-gtk4-dev blueprint-compiler libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
+            libvte-2.91-dev libvte-2.91-gtk4-dev blueprint-compiler valac libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
             libgtk-4-dev libadwaita-1-dev libxkbcommon-dev libwayland-dev libx11-dev \
             libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
             libx11-xcb-dev libxkbcommon-x11-dev libfontconfig1-dev libfreetype-dev \
@@ -558,14 +558,16 @@ jobs:
             libdbus-1-dev libssl-dev libasound2-dev libpulse-dev libxrandr-dev \
             libxi-dev libxinerama-dev libxcursor-dev libxext-dev libxrender-dev \
             libxfixes-dev libxdamage-dev libxcomposite-dev \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 curl minisign
 
       - name: Validate shared Aurora runtime sources
         run: |
           set -euo pipefail
           python3 -m py_compile tools/aurora/export-icon-theme.py tools/aurora/export-app-icon-theme.py tools/commands/build-command-isa-coverage.py tools/commands/build_linux_abi_command_matrix.py tools/commands/chimera-info.py tools/commands/chimera-doctor.py tools/boot/verify-menu-timeouts.py
           python3 -m py_compile tools/aurora/verify-terminal-shell-providers.py
+          python3 -m py_compile tests/boot/verify-userspace-handoff.py
           bash -n tools/aurora/install-terminal-shell-suite.sh tools/aurora/build-terminal-shell-sources.sh aurora/terminals/install-desktop-entries.sh aurora/terminals/aurora-terminal-center.sh aurora/shells/launch-shell.sh live-image/verify-terminal-shell-suite.sh tests/commands/test-native-chimera-tools.sh tests/desktop/test-aurora-terminal-shell-centers.sh
+          bash -n live-image/build.sh kernel/build-koronos.sh tools/build-live-boot-binaries.sh
           python3 tests/desktop/test_aurora_sound_contract.py
           python3 tools/boot/verify-menu-timeouts.py --root .
       - name: Verify Octavian Aurora desktop fullscreen
