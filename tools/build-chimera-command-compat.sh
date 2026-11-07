@@ -212,6 +212,13 @@ NATIVE_COMMANDS=(
     head
     tail
     sleep
+    env
+    printenv
+    which
+    seq
+    yes
+    tty
+    id
 )
 
 for command in "${NATIVE_COMMANDS[@]}"; do
