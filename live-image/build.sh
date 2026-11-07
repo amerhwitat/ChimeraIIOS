@@ -369,6 +369,8 @@ PY
 mkdir -p "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . 2>/dev/null \
   | tar -C "$PAY/repo" -xf - 2>/dev/null || true
+# Execute the real staged Chimera command frontends against the completed source snapshot.
+bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
 
 # Stage every repository-owned application catalog for offline discovery.
 # Catalog-only upstream references remain distinct from installed executables.
