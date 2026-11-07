@@ -15,26 +15,17 @@ from pathlib import Path
 
 # command -> (repository source, interpreter)
 SCRIPTS = {
-    "chimera-help": ("tools/help/chimera-help", "python"),
-    "chimera-info": ("tools/commands/chimera-info.py", "python"),
-    "chimera-doctor": ("tools/commands/chimera-doctor.py", "python"),
-    "chimera-update": ("tools/commands/chimera-update.sh", "bash"),
-    "chimera-package": ("package-manager/chimera-pkg.py", "python"),
-    "korectl": ("tools/runtime/chimera-korectl.py", "python"),
-    "chimera-service": ("tools/runtime/chimera-service.py", "python"),
-    "chimera-display": ("tools/display/chimera-display", "bash"),
-    "chimera-python": ("sdk/bin/chimera-python", "sh"),
-    "chimera-java": ("sdk/bin/chimera-java", "sh"),
-    "chimera-background": ("tools/branding/chimera-background", "bash"),
-    "chimera-gpu-driver-manager": ("tools/display/chimera-gpu-driver-manager", "bash"),
-    "chimera-hardware-drivers": ("tools/drivers/chimera-hardware-drivers", "bash"),
-    "chimera-driver-panel": ("tools/drivers/chimera-driver-panel.py", "python"),
-    "chimera-shell": ("system/shell/chimera-shell.sh", "bash"),
-    "chimera-terminal": ("tools/terminal/chimera-terminal", "python"),
     "chimera": ("tools/runtime/chimera-command.py", "python"),
     "chimera-cmd": ("tools/commands/chimera-cmd", "bash"),
     "chimera-run": ("tools/commands/chimera-run", "python"),
 }
+VERIFIED_PROVIDERS = [
+    "chimeractl", "chimera-help", "chimera-info", "chimera-doctor", "chimera-update",
+    "chimera-package", "korectl", "chimera-service", "chimera-asm", "chimera-disasm",
+    "chimera-display", "chimera-python", "chimera-java", "chimera-background",
+    "chimera-gpu-driver-manager", "chimera-hardware-drivers", "chimera-driver-panel",
+    "chimera-shell", "chimera-terminal",
+]
 
 def sha(path: Path) -> str:
     h = hashlib.sha256()
@@ -72,6 +63,18 @@ def main() -> int:
         target.chmod(0o755)
         rows.append({"command": command, "source": relative, "path": "/usr/bin/" + command,
                      "status": "source-backed-launcher-staged", "sha256": sha(source)})
+
+    # These providers are compiled/installed by build-chimera-native-tools.sh
+    # and tools/terminal/build-terminal.sh. Verify their real target-rootfs files
+    # instead of replacing their tested wrappers with duplicate launchers.
+    for command in VERIFIED_PROVIDERS:
+        path = bindir / command
+        if path.is_file() and path.stat().st_mode & 0o111:
+            rows.append({"command": command, "path": "/usr/bin/" + command,
+                         "status": "verified-existing-provider", "sha256": sha(path)})
+        else:
+            rows.append({"command": command, "path": "/usr/bin/" + command,
+                         "status": "provider-missing"})
 
     # Reuse the real chmctl binary already built by build-chimera-native-tools.sh.
     # Build it here only when the earlier native-tool stage did not provide it.
@@ -175,7 +178,7 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"provider_count": len(rows), "counts": report["counts"]}, sort_keys=True))
-    failures = [r for r in rows if r["status"] in ("source-missing", "compile-failed",
+    failures = [r for r in rows if r["status"] in ("source-missing", "compile-failed", "provider-missing",
                 "compiler-or-source-missing", "cmake-or-source-missing", "build-output-missing")]
     return 1 if failures else 0
 
