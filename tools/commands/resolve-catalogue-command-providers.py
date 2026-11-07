@@ -22,14 +22,25 @@ def run(args: list[str], *, capture: bool = False):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--catalog", type=Path, required=True)
+    ap.add_argument("--ss64", type=Path)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--no-install", action="store_true")
     args = ap.parse_args()
     catalog = json.loads(args.catalog.read_text(encoding="utf-8"))
     raw = catalog.get("linux_bash", [])
-    names = sorted({(x.get("name") if isinstance(x, dict) else x).strip()
-                    for x in raw if isinstance(x, (str, dict)) and
-                    (x.get("name") if isinstance(x, dict) else x)})
+    discovered = {(x.get("name") if isinstance(x, dict) else x).strip()
+                  for x in raw if isinstance(x, (str, dict)) and
+                  (x.get("name") if isinstance(x, dict) else x)}
+    if args.ss64 and args.ss64.is_file():
+        try:
+            ss64 = json.loads(args.ss64.read_text(encoding="utf-8"))
+            for item in ss64.get("platforms", {}).get("linux_bash", {}).get("commands", []):
+                name = item.get("name") if isinstance(item, dict) else item
+                if isinstance(name, str) and name.strip():
+                    discovered.add(name.strip())
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"warning: could not read SS64 Linux command index: {exc}")
+    names = sorted(discovered)
     rows: dict[str, dict] = {}
     missing: list[str] = []
     for name in names:
