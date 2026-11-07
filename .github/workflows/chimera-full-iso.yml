@@ -132,6 +132,18 @@ jobs:
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          extract /desktop/app-icons/manifest.json "$tmp/app-icons-source-manifest.json"
+          extract /desktop/app-icons/icons/manifest.json "$tmp/app-icons-theme-manifest.json"
+          extract /desktop/app-icons/icons/chimera-settings.svg "$tmp/app-icon-settings.svg"
+          extract /desktop/aurora/icons/manifest.json "$tmp/aurora-icons-manifest.json"
+          extract /desktop/aurora/icons/chimera-settings.svg "$tmp/aurora-icon-settings.svg"
+          extract /desktop/aurora/media/manifest.json "$tmp/aurora-media-manifest.json"
+          extract /desktop/aurora/media/backgrounds/desktop.png "$tmp/aurora-desktop.png"
+          extract /desktop/aurora/assets/sounds/menu-select.wav "$tmp/aurora-menu-select.wav"
+          extract /boot/visual/aurora/manifest.json "$tmp/aurora-boot-media-manifest.json"
+          extract /boot/grub/aurora-boot.png "$tmp/aurora-boot.png"
+          extract /boot/grub/aurora-menu.png "$tmp/aurora-menu.png"
+          extract /boot/grub/aurora-splash.png "$tmp/aurora-splash.png"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -142,6 +154,17 @@ jobs:
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          source_icons = json.loads((root / "app-icons-source-manifest.json").read_text())
+          app_icons = json.loads((root / "app-icons-theme-manifest.json").read_text())
+          aurora_icons = json.loads((root / "aurora-icons-manifest.json").read_text())
+          media = json.loads((root / "aurora-media-manifest.json").read_text())
+          boot_media = json.loads((root / "aurora-boot-media-manifest.json").read_text())
+          if source_icons.get("count") != 133 or app_icons.get("count") != 133:
+              raise SystemExit("the complete 133-icon Aurora app artwork library is not embedded")
+          if aurora_icons.get("count") != 4:
+              raise SystemExit("the native Aurora desktop SVG icon theme is incomplete")
+          if media.get("schema") != "CHIMERA-AURORA-MEDIA-3" or boot_media.get("schema") != "CHIMERA-AURORA-MEDIA-3":
+              raise SystemExit("generated Aurora media manifest is missing or has the wrong schema")
           if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
           grub = (root / "grub.cfg").read_text()
