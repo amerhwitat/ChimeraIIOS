@@ -61,6 +61,14 @@ copy_if_distinct() {
 if [[ -n "${CHIMERA_KERNEL:-}" && -f "$CHIMERA_KERNEL" ]]; then
   copy_if_distinct "$CHIMERA_KERNEL" "$STAGE/boot/koronos/koronos.elf"
 fi
+# The full ISO uses the same real ring-3 init payloads as the structured Koronos ISO.
+bash "$ROOT/kernel/build-target-inits.sh"
+mkdir -p "$STAGE/boot/targets"
+for target in live installer recovery; do
+  image="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  test -s "$image" || { echo "ERROR: missing Koronos $target init ELF: $image" >&2; exit 2; }
+  cp -f "$image" "$STAGE/boot/targets/"
+done
 cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/live/live-manifest.json"
 cp -a "$ROOT/installer" "$STAGE/install/installer-source"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
