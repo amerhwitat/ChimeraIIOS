@@ -588,3 +588,93 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[RUN ] Entering Koronos scheduler loop");
     console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
 }
+
+static char koronos_scancode_ascii(uint8_t code, bool shift, bool caps) {
+    const bool upper = shift ^ caps;
+    switch (code) {
+        case 0x02: return shift ? '!' : '1'; case 0x03: return shift ? '@' : '2';
+        case 0x04: return shift ? '#' : '3'; case 0x05: return shift ? '$' : '4';
+        case 0x06: return shift ? '%' : '5'; case 0x07: return shift ? '^' : '6';
+        case 0x08: return shift ? '&' : '7'; case 0x09: return shift ? '*' : '8';
+        case 0x0A: return shift ? '(' : '9'; case 0x0B: return shift ? ')' : '0';
+        case 0x0C: return shift ? '_' : '-'; case 0x0D: return shift ? '+' : '=';
+        case 0x0E: return '\b'; case 0x0F: return '\t';
+        case 0x10: return upper ? 'Q' : 'q'; case 0x11: return upper ? 'W' : 'w';
+        case 0x12: return upper ? 'E' : 'e'; case 0x13: return upper ? 'R' : 'r';
+        case 0x14: return upper ? 'T' : 't'; case 0x15: return upper ? 'Y' : 'y';
+        case 0x16: return upper ? 'U' : 'u'; case 0x17: return upper ? 'I' : 'i';
+        case 0x18: return upper ? 'O' : 'o'; case 0x19: return upper ? 'P' : 'p';
+        case 0x1A: return shift ? '{' : '['; case 0x1B: return shift ? '}' : ']';
+        case 0x1C: return '\n';
+        case 0x1E: return upper ? 'A' : 'a'; case 0x1F: return upper ? 'S' : 's';
+        case 0x20: return upper ? 'D' : 'd'; case 0x21: return upper ? 'F' : 'f';
+        case 0x22: return upper ? 'G' : 'g'; case 0x23: return upper ? 'H' : 'h';
+        case 0x24: return upper ? 'J' : 'j'; case 0x25: return upper ? 'K' : 'k';
+        case 0x26: return upper ? 'L' : 'l'; case 0x27: return shift ? ':' : ';';
+        case 0x28: return shift ? '"' : '\x27'; case 0x29: return shift ? '~' : '\x60';
+        case 0x2B: return shift ? '|' : '\x5c';
+        case 0x2C: return upper ? 'Z' : 'z'; case 0x2D: return upper ? 'X' : 'x';
+        case 0x2E: return upper ? 'C' : 'c'; case 0x2F: return upper ? 'V' : 'v';
+        case 0x30: return upper ? 'B' : 'b'; case 0x31: return upper ? 'N' : 'n';
+        case 0x32: return upper ? 'M' : 'm'; case 0x33: return shift ? '<' : ',';
+        case 0x34: return shift ? '>' : '.'; case 0x35: return shift ? '?' : '/';
+        case 0x39: return ' ';
+        default: return 0;
+    }
+}
+
+/* Poll input without pinning the cooperative kernel in a syscall. */
+static bool koronos_console_try_getchar(char *out) {
+    static bool shift = false;
+    static bool caps = false;
+    static bool extended = false;
+    if (!out) return false;
+    if (serial_in8(0x3FD) & 0x01u) {
+        char c = static_cast<char>(serial_in8(0x3F8));
+        if (c == '\r') c = '\n';
+        if (c == 0x7f) c = '\b';
+        *out = c;
+        return true;
+    }
+    const uint8_t status = serial_in8(0x64);
+    if ((status & 0x01u) == 0) return false;
+    if (status & 0x20u) { (void)serial_in8(0x60); return false; }
+    const uint8_t code = serial_in8(0x60);
+    if (code == 0xE0u) { extended = true; return false; }
+    if (code == 0x2Au || code == 0x36u) { shift = true; return false; }
+    if (code == 0xAAu || code == 0xB6u) { shift = false; return false; }
+    if (code == 0x3Au) { caps = !caps; return false; }
+    if (code & 0x80u) { extended = false; return false; }
+    if (extended) { extended = false; return false; }
+    const char c = koronos_scancode_ascii(code, shift, caps);
+    if (!c) return false;
+    *out = c;
+    return true;
+}
+
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length) {
+    if (length == 0) return 0;
+    if (length > 4096u) return -22;
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 1u) != 0) {
+        koronos_target_log("[SYSC] READ rejected: user buffer is not writable mapped memory");
+        return -14;
+    }
+    auto *buffer = reinterpret_cast<char *>(static_cast<uintptr_t>(address));
+    uint64_t used = 0;
+    while (used < length) {
+        char c = 0;
+        if (!koronos_console_try_getchar(&c)) break;
+        if (c == '\r') c = '\n';
+        if (c == '\b') {
+            if (used) { --used; console_raw("\b \b"); }
+            continue;
+        }
+        buffer[used++] = c;
+        char one[2] = {c, 0};
+        console_raw(one);
+        if (c == '\n') break;
+    }
+    return used ? static_cast<int64_t>(used) : -11; /* -EAGAIN */
+}
