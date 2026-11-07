@@ -360,7 +360,7 @@ jobs:
           set -euo pipefail
           mkdir -p build/iso/acceptance
           python3 - <<'PY_PRODUCTION_GATE'
-          import json, pathlib
+          import json, pathlib, os
           root = pathlib.Path("build/iso/acceptance")
           required = {
               "firmware_matrix": "firmware-matrix.json",
@@ -393,7 +393,7 @@ jobs:
                     "note": "Ring-3 target smoke tests alone do not prove installer persistence, recovery repair, SMP, desktop interaction, or all-architecture boot support."}
           (root / "production-acceptance-status.json").write_text(json.dumps(report, indent=2) + "\n")
           print(json.dumps(report, indent=2))
-          with open("$GITHUB_OUTPUT", "a", encoding="utf-8") as output:
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               output.write(f"accepted={str(accepted).lower()}\n")
           PY_PRODUCTION_GATE
 
@@ -421,6 +421,7 @@ jobs:
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
+            build/iso/acceptance/production-acceptance-status.json
 
       - name: Fail closed when native userspace acceptance is incomplete
         if: steps.userspace_gate.outputs.accepted != 'true'
