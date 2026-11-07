@@ -170,8 +170,19 @@ if [[ -z "$BB_IN_ROOT" ]]; then
 fi
 while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != */* && "$applet" != "busybox" ]] || continue
-  if [[ ! -e "$WORK/usr/bin/$applet" && ! -e "$WORK/bin/$applet" ]]; then
-    ln -s /bin/busybox "$WORK/usr/bin/$applet"
+  # Preserve package-provided commands and valid symlinks. Remove only stale
+  # dangling aliases left by a prior interrupted rootfs staging attempt.
+  present=false
+  for dir in usr/local/bin usr/bin bin usr/local/sbin usr/sbin sbin; do
+    candidate="$WORK/$dir/$applet"
+    if [[ -e "$candidate" ]]; then present=true; break; fi
+    if [[ -L "$candidate" ]]; then
+      if [[ -e "$candidate" ]]; then present=true; break; fi
+      rm -f "$candidate"
+    fi
+  done
+  if [[ "$present" == false ]]; then
+    ln -s "$BB_IN_ROOT" "$WORK/usr/bin/$applet"
   fi
 done < <("$WORK$BB_IN_ROOT" --list)
 
