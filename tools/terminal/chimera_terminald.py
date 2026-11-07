@@ -25,14 +25,14 @@ def backend():
  return None
 def make_root(sid):
  root=Path(os.environ.get('CHIMERA_SANDBOX_ROOT','/var/lib/chimera/sandboxes'))/sid
- for d in ('home','home/live','tmp','data','work'): (root/d).mkdir(parents=True,exist_ok=True)
+ for d in ('home','home/chimera-terminal','tmp','data','work'): (root/d).mkdir(parents=True,exist_ok=True)
  import sqlite3
  db=root/'data'/'chimera.sqlite3'; con=sqlite3.connect(db); con.execute('PRAGMA journal_mode=WAL'); con.execute('PRAGMA foreign_keys=ON'); con.execute("CREATE TABLE IF NOT EXISTS chimera_session(key TEXT PRIMARY KEY,value TEXT NOT NULL)"); con.execute("INSERT OR REPLACE INTO chimera_session VALUES('format','1')"); con.commit(); con.close(); return root
 def spawn(sid,shell,role,unsafe):
  if not allowed(role,'terminal.create'): raise PermissionError('terminal.create denied')
  b=backend()
  if not b and not unsafe: raise RuntimeError('no supported sandbox backend; refusing host execution')
- root=make_root(sid); master,slave=pty.openpty(); env=os.environ.copy(); env.update({'HOME':'/home/live','USER':'live','LOGNAME':'live','SHELL':'/bin/bash','TMPDIR':'/tmp','TERM':'xterm-256color','CHIMERA_TERMINAL_SESSION':sid,'CHIMERA_TERMINAL_SANDBOX':str(root),'PATH':'/usr/local/bin:/usr/bin:/bin'}); cmd=shell_argv(shell)
+ root=make_root(sid); master,slave=pty.openpty(); env=os.environ.copy(); env.update({'HOME':'/home/chimera-terminal','USER':'chimera-terminal','LOGNAME':'chimera-terminal','SHELL':'/bin/bash','TMPDIR':'/tmp','TERM':'xterm-256color','CHIMERA_TERMINAL_SESSION':sid,'CHIMERA_TERMINAL_SANDBOX':str(root),'PATH':'/usr/local/bin:/usr/bin:/bin'}); cmd=shell_argv(shell)
  if b=='bwrap':
   cmd=['bwrap','--die-with-parent','--new-session','--proc','/proc','--dev','/dev','--dir','/etc','--ro-bind','/etc/passwd','/etc/passwd','--ro-bind','/etc/group','/etc/group','--ro-bind','/etc/os-release','/etc/os-release','--ro-bind','/etc/hostname','/etc/hostname','--ro-bind','/etc/hosts','/etc/hosts','--ro-bind','/usr','/usr','--ro-bind','/bin','/bin','--ro-bind','/lib','/lib','--ro-bind','/lib64','/lib64','--bind',str(root/'home'),'/home','--bind',str(root/'tmp'),'/tmp','--bind',str(root/'data'),'/data','--bind',str(root/'work'),'/work','--chdir','/work','--unshare-net']+cmd
   pre=lambda:(os.setsid(),limits())
