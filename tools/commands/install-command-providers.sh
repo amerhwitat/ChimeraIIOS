@@ -133,9 +133,11 @@ if [[ -n "$oc_url" ]] && command -v curl >/dev/null 2>&1 && command -v sha256sum
   oc_tmp="$(mktemp -d)"
   if curl -fsSL "$oc_url" -o "$oc_tmp/openshift-client.tar.gz" &&
      printf '%s  %s\n' "$oc_sha" "$oc_tmp/openshift-client.tar.gz" | sha256sum --check --status &&
-     tar -xzf "$oc_tmp/openshift-client.tar.gz" -C "$oc_tmp" oc &&
+     tar -xzf "$oc_tmp/openshift-client.tar.gz" -C "$oc_tmp" oc kubectl &&
      install -D -m 0755 "$oc_tmp/oc" /usr/bin/oc &&
-     /usr/bin/oc version --client >/dev/null 2>&1; then
+     install -D -m 0755 "$oc_tmp/kubectl" /usr/bin/kubectl &&
+     /usr/bin/oc version --client >/dev/null 2>&1 &&
+     /usr/bin/kubectl version --client --output=json >/dev/null 2>&1; then
     echo "[Chimera][COMMANDS] installed verified OpenShift oc $oc_version for $oc_arch"
   else
     echo "[Chimera][COMMANDS][WARN] pinned OpenShift client failed download/checksum/runtime verification"
