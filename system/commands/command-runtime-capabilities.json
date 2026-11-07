@@ -1,12 +1,12 @@
 {
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
-  "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
-  "native_binary": "rootfs/usr/bin/chimera-cmd",
+  "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and compiled as Linux userspace ELF aliases for eight Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
+  "native_binary": "rootfs/usr/lib/chimera/commands/linux-abi/<target>/chimera-cmd",
   "command_count": 4141,
   "mode_counts": {
-    "compatibility-provider-required": 3902,
-    "native": 15,
-    "native-provider-required": 171,
+    "compatibility-provider-required": 3901,
+    "native": 25,
+    "native-provider-required": 162,
     "shell-builtin": 53
   },
   "commands": [
@@ -8177,19 +8177,21 @@
       "name": "basename",
       "platforms": [
         "busybox",
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — basename",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/basename.html",
         "https://ss64.com/bash/basename.html",
         "https://ss64.com/mac/basename.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "basename ()",
@@ -10708,7 +10710,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/cat.html",
         "https://ss64.com/bash/cat.html",
         "https://ss64.com/mac/cat.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "CATCH",
@@ -12580,7 +12583,8 @@
       "mode": "native",
       "provider": "chimera-cmd",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "entry_kind": "executable-command"
     },
     {
       "name": "Clear-adAccountExpiration",
@@ -14192,7 +14196,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/cp.html",
         "https://ss64.com/bash/cp.html",
         "https://ss64.com/mac/cp.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "cp -R",
@@ -15419,7 +15424,8 @@
         "https://ss64.com/mac/date.html",
         "https://ss64.com/nt/date.html",
         "https://ss64.com/vb/date.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "Date&Time",
@@ -16980,19 +16986,21 @@
       "name": "dirname",
       "platforms": [
         "busybox",
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "installed BusyBox multicall binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "اعرض — dirname",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/dirname.html",
         "https://ss64.com/bash/dirname.html",
         "https://ss64.com/mac/dirname.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "dirname ()",
@@ -18993,7 +19001,8 @@
         "https://ss64.com/bash/echo.html",
         "https://ss64.com/mac/echo.html",
         "https://ss64.com/nt/echo.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "ed",
@@ -20664,7 +20673,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/false.html",
         "https://ss64.com/bash/false.html",
         "https://ss64.com/mac/false.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "FAQ",
@@ -26389,20 +26399,22 @@
     {
       "name": "head",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — head",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/head.html",
         "https://ss64.com/bash/head.html",
         "https://ss64.com/mac/head.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "Health",
@@ -26650,7 +26662,8 @@
         "https://ss64.com/bash/hostname.html",
         "https://ss64.com/mac/hostname.html",
         "https://ss64.com/nt/hostname.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "hotpatching",
@@ -29867,20 +29880,22 @@
     {
       "name": "ln",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — ln",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/ln.html",
         "https://ss64.com/bash/ln.html",
         "https://ss64.com/mac/ln.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "load metadata",
@@ -30581,7 +30596,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/ls.html",
         "https://ss64.com/bash/ls.html",
         "https://ss64.com/mac/ls.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "ls - l",
@@ -32017,7 +32033,8 @@
         "https://ss64.com/access/mkdir.html",
         "https://ss64.com/bash/mkdir.html",
         "https://ss64.com/mac/mkdir.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "mkfifo",
@@ -32749,7 +32766,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/mv.html",
         "https://ss64.com/bash/mv.html",
         "https://ss64.com/mac/mv.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "mysql",
@@ -37879,7 +37897,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/pwd.html",
         "https://ss64.com/bash/pwd.html",
         "https://ss64.com/mac/pwd.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "pwlauncher",
@@ -38531,15 +38550,17 @@
     {
       "name": "readlink",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — readlink",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/readlink.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "readonly",
@@ -40703,7 +40724,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/rm.html",
         "https://ss64.com/bash/rm.html",
         "https://ss64.com/mac/rm.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "rmdel",
@@ -40720,6 +40742,7 @@
     {
       "name": "rmdir",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
@@ -40729,8 +40752,8 @@
         "windows-cmd",
         "windows_cmd"
       ],
-      "mode": "compatibility-provider-required",
-      "provider": "Windows command interpreter or compatible implementation",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "احذف مجلداً",
       "source_urls": [
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/rmdir",
@@ -40738,7 +40761,8 @@
         "https://ss64.com/bash/rmdir.html",
         "https://ss64.com/mac/rmdir.html",
         "https://ss64.com/nt/rd.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "rmmod",
@@ -43957,20 +43981,22 @@
     {
       "name": "sleep",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — sleep",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sleep.html",
         "https://ss64.com/bash/sleep.html",
         "https://ss64.com/mac/sleep.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "SLMGR",
@@ -46221,20 +46247,22 @@
     {
       "name": "tail",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — tail",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/tail.html",
         "https://ss64.com/bash/tail.html",
         "https://ss64.com/mac/tail.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "TAKEOWN",
@@ -47173,7 +47201,8 @@
         "https://ss64.com/mac/touch.html",
         "https://ss64.com/nt/touch.html",
         "https://ss64.com/ps/syntax-touch.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "tpmtool",
@@ -47487,7 +47516,8 @@
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/true.html",
         "https://ss64.com/bash/true.html",
         "https://ss64.com/mac/true.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "Trueprint",
@@ -47909,6 +47939,7 @@
     {
       "name": "uname",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
@@ -47916,15 +47947,16 @@
         "posix",
         "vbscript"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "معلومات النظام",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/uname.html",
         "https://ss64.com/bash/uname.html",
         "https://ss64.com/mac/uname.html",
         "https://ss64.com/vb/syntax-username.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "Unblock-File",
@@ -49713,20 +49745,22 @@
     {
       "name": "wc",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
-      "provider": "native provider binary",
+      "mode": "native",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — wc",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/wc.html",
         "https://ss64.com/bash/wc.html",
         "https://ss64.com/mac/wc.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "Wdiff",
@@ -50123,7 +50157,8 @@
         "https://ss64.com/bash/whoami.html",
         "https://ss64.com/mac/id.html",
         "https://ss64.com/nt/whoami.html"
-      ]
+      ],
+      "entry_kind": "executable-command"
     },
     {
       "name": "WHOIS",
@@ -51661,5 +51696,11 @@
         "https://www.FreeBSD.org/donations"
       ]
     }
-  ]
+  ],
+  "native_abi": "Linux userspace ELF; cross-built for eight Linux ABIs; not a Koronos syscall ABI",
+  "native_alias_count": 25,
+  "koronos_abi_compatible": false,
+  "executable_command_count": 25,
+  "language_feature_count": 0,
+  "shell_builtin_count": 53
 }
