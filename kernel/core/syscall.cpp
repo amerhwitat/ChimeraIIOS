@@ -97,6 +97,18 @@ extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length)
 extern "C" void koronos_target_log(const char *message);
 extern "C" void koronos_syscall_trace(const char *message);
 
+static void koronos_syscall_trace_u64(const char *label, uint64_t value) {
+    static const char digits[] = "0123456789ABCDEF";
+    char message[64];
+    uint32_t used = 0;
+    while (label && *label && used < sizeof(message) - 17u)
+        message[used++] = *label++;
+    for (int shift = 60; shift >= 0; shift -= 4)
+        message[used++] = digits[(value >> shift) & 0xFu];
+    message[used] = 0;
+    koronos_syscall_trace(message);
+}
+
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
     /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
@@ -148,6 +160,9 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
+            koronos_syscall_trace_u64("[SYSC] WRITE fd=0x", fd);
+            koronos_syscall_trace_u64("[SYSC] WRITE ptr=0x", address);
+            koronos_syscall_trace_u64("[SYSC] WRITE len=0x", length);
             if (fd > 2u) {
                 koronos_syscall_trace("[SYSC] WRITE rejected: fd exceeds stderr");
                 return static_cast<uint64_t>(-22ll);
