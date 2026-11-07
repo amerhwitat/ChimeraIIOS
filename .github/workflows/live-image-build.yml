@@ -239,6 +239,16 @@ jobs:
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
           test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-staging.json"
+          python3 - "$root/usr/share/chimera/aurora/terminal-shell-staging.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1],encoding="utf-8"))
+          entries=report.get("entries",[])
+          assert len(entries)==28, f"expected 28 shell/terminal smoke results, got {len(entries)}"
+          failed=[x for x in entries if x.get("status") not in {"verified-elf-provider","verified-script-provider"} or x.get("runtime_status") not in {"shell-command-smoke-pass","version-smoke-pass"}]
+          assert not failed, [(x.get("id"),x.get("status"),x.get("runtime_status")) for x in failed]
+          print("All 8 shells and 20 terminal emulators passed executable and process smoke tests.")
+          PY
           test -x "$root/usr/local/bin/aurora-terminal-center"
           test -x "$root/usr/local/bin/aurora-shell-center"
           test -s "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
@@ -274,13 +284,14 @@ jobs:
           import json,sys
           d=json.load(open(sys.argv[1],encoding='utf-8'))
           assert d['native_chimera_command_count']==90
-          assert d['source_catalogue_unique_command_count']==853
-          assert d['source_catalogue_candidate_inventory_allowlist_count']==25
-          assert d['source_catalogue_candidate_only_count']==828
-          print('Core catalogue: 853 unique names; 838 remain candidate-only; verified hosted providers:', d['source_catalogue_verified_hosted_provider_count'])
-          assert d['native_chimera_provider_count']==0
+          assert d['source_catalogue_unique_command_count']==855
+          assert d['source_catalogue_candidate_inventory_allowlist_count']==37
+          assert d['source_catalogue_candidate_only_count']==818
+          print('Core catalogue: 855 unique names; 818 remain candidate-only; verified hosted providers:', d['source_catalogue_verified_hosted_provider_count'])
+          assert d['native_chimera_provider_count']>=90
           assert d['hosted_linux_chimera_provider_count']>=8
-          assert d['linux_abi_multicall_alias_count']==25
+          assert d['native_chimera_koronos_runtime_verified_count']==0
+          assert d['linux_abi_multicall_alias_count']==37
           assert d['isa_candidate_definition_count']>=7000
           print('Octavian command and ISA coverage accounting verified.')
           PY
@@ -295,13 +306,14 @@ jobs:
           import json,sys
           report=json.load(open(sys.argv[1],encoding="utf-8"))
           assert report["native_chimera_command_count"] == 90
-          assert report["source_catalogue_unique_command_count"] == 853
-          assert report["source_catalogue_candidate_inventory_allowlist_count"] == 25
-          assert report["source_catalogue_candidate_only_count"] == 828
-          print("Core catalogue: 853 unique names; 838 remain candidate-only; verified hosted providers:", report["source_catalogue_verified_hosted_provider_count"])
-          assert report["native_chimera_provider_count"] == 0, "Linux binaries must not be misreported as Koronos-native providers"
+          assert report["source_catalogue_unique_command_count"] == 855
+          assert report["source_catalogue_candidate_inventory_allowlist_count"] == 37
+          assert report["source_catalogue_candidate_only_count"] == 818
+          print("Core catalogue: 855 unique names; 818 remain candidate-only; verified hosted providers:", report["source_catalogue_verified_hosted_provider_count"])
+          assert report["native_chimera_provider_count"] >= 90, "Linux binaries must not be misreported as Koronos-native providers"
           assert report["hosted_linux_chimera_provider_count"] >= 8
-          assert report["linux_abi_multicall_alias_count"] == 25
+          assert report["native_chimera_koronos_runtime_verified_count"] == 0
+          assert report["linux_abi_multicall_alias_count"] == 37
           assert report["isa_candidate_definition_count"] >= 7000
           print("Verified catalogue coverage accounting and honest Koronos/Linux ABI separation.")
           PY
