@@ -197,11 +197,11 @@ jobs:
           import json,sys
           matrix=json.load(open(sys.argv[1],encoding="utf-8"))
           targets=matrix.get("targets",[])
-          assert len(targets)==7, f"expected seven Linux ABI targets, got {len(targets)}"
+          assert len(targets)==8, f"expected eight Linux ABI targets, got {len(targets)}"
           assert all(row.get("runtime_status") in {"native-linux-abi-smoke-tested","qemu-user-linux-abi-smoke-tested"} for row in targets), targets
           assert sum(row.get("runtime_status")=="native-linux-abi-smoke-tested" for row in targets)==1
-          assert sum(row.get("runtime_status")=="qemu-user-linux-abi-smoke-tested" for row in targets)==6
-          print("All seven Linux ABI command targets passed their native/QEMU-user smoke tests.")
+          assert sum(row.get("runtime_status")=="qemu-user-linux-abi-smoke-tested" for row in targets)==7
+          print("All eight Linux ABI command targets passed their native/QEMU-user smoke tests.")
           PY
           test -s "$root/usr/share/chimera/catalogs/terminals-registry.json"
           test -s "$root/usr/share/chimera/catalogs/shells-registry.json"
