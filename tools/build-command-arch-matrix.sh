@@ -47,6 +47,7 @@ report={"schema":"CHIMERA-NATIVE-MULTICALL-ARCH-1","target_architecture":arch,
         "commands":rows,
         "limitations":"Compilation and ELF inspection only; cross-architecture runtime semantics and Koronos syscall/ABI compatibility require separate tests."}
 path=binary.parent/"native-command-coverage.json"
-path.write_text(json.dumps(report,indent=2)+"\\n",encoding="utf-8")
+path.write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
+json.loads(path.read_text(encoding="utf-8"))
 print(f"Built one genuine native multicall ELF for {arch}: {len(rows)} command entrypoints; machine={machine}; sha256={digest}")
 PY
