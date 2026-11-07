@@ -219,6 +219,11 @@ NATIVE_COMMANDS=(
     yes
     tty
     id
+    fold
+    nl
+    tr
+    tee
+    cmp
 )
 
 for command in "${NATIVE_COMMANDS[@]}"; do
@@ -323,6 +328,11 @@ seq	seq	native	chimera-cmd	SS64/Linux
 yes	yes	native	chimera-cmd	SS64/Linux
 tty	tty	native	chimera-cmd	SS64/Linux
 id	id	native	chimera-cmd	SS64/Linux
+fold	fold	native	chimera-cmd	SS64/Linux
+nl	nl	native	chimera-cmd	SS64/Linux
+tr	tr	native	chimera-cmd	SS64/Linux
+tee	tee	native	chimera-cmd	SS64/Linux
+cmp	cmp	native	chimera-cmd	SS64/Linux
 ls	عرض	native	chimera-cmd	SS64/Linux
 cd	دخول	shell	cd	SS64/Linux
 pwd	موقعي	native	chimera-cmd	SS64/Linux
