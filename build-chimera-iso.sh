@@ -281,12 +281,12 @@ cleanup_generated_build_artifacts(){
   # Remove additional disposable outputs produced only by this build. Keep
   # source assets, kernel ELF/debug artifacts, logs, command/ISA reports and
   # every final ISO/checksum. These directories are deterministic rebuilds.
-  rm -rf -- \\
-    "$BUILD_DIR/aurora-media" \\
-    "$BUILD_DIR/aurora-icons" \\
-    "$BUILD_DIR/aurora-app-icons" \\
-    "$BUILD_DIR/aurora-selected-artwork.png" \\
-    "$BUILD_DIR/native-command-isa" \\
+  rm -rf -- \
+    "$BUILD_DIR/aurora-media" \
+    "$BUILD_DIR/aurora-icons" \
+    "$BUILD_DIR/aurora-app-icons" \
+    "$BUILD_DIR/aurora-selected-artwork.png" \
+    "$BUILD_DIR/native-command-isa" \
     "$SCRIPT_DIR/build/aurora-media" \
     "$SCRIPT_DIR/build/aurora-icons" \
     "$SCRIPT_DIR/build/aurora-app-icons" \
@@ -303,7 +303,7 @@ cleanup_generated_build_artifacts(){
   # Preserve the canonical native ISO and checksum, but remove other files
   # left in its generated dist directory.
   if [[ -d "$SCRIPT_DIR/boot/iso/dist" ]]; then
-    find "$SCRIPT_DIR/boot/iso/dist" -mindepth 1 -maxdepth 1 \\
+    find "$SCRIPT_DIR/boot/iso/dist" -mindepth 1 -maxdepth 1 \
       ! -name output.iso ! -name output.iso.sha256 -exec rm -rf -- {} + 2>/dev/null || true
   fi
   # Remove only stopped containers carrying Chimera's private build labels.
