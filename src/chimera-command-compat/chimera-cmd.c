@@ -562,7 +562,7 @@ static int stream_lines(int argc, char **argv, int tail_mode)
             if(!ring||!lens){free(ring);free(lens);free(line);return 1;}
             long total=0; while((n=getline(&line,&cap,stdin))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
             long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
-            for(long x=0;x<(count?count:1);++x)free(ring[x]);free(ring);free(lens);
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
         }
         free(line); return ferror(stdin)?1:0;
     }
