@@ -9,7 +9,6 @@ Usage:
   build-chimera-iso.sh [options] [arguments]
 
 Options:
-<<<<<<< HEAD
   -h, --help                  Show this help and exit successfully.
   --verbose, --debug          Emit detailed stage diagnostics (default).
   --quiet                     Reduce console output; logs remain enabled.
@@ -33,15 +32,6 @@ Options:
   --sync-dos-payloads         Fetch eligible DOS payloads for ISO staging.
   --skip-native-iso           Skip the additional native boot/ISO pipeline.
   --install-build-deps        Opt in to installing missing host build tools.
-=======
-  -h, --help    Show this help and exit successfully.
-  --verbose     Enable detailed build diagnostics (default; secret values are never traced).
-  --quiet       Reduce debug-only console chatter; full logs are still retained.
-  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
-  --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
-  --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
-  --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
->>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
 
 Environment:
   CHIMERA_BUILD_DIR, CHIMERA_ROOTFS_DIR, CHIMERA_ISO_OUTPUT_DIR,
@@ -162,7 +152,7 @@ STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 CHIMERA_VERBOSE="${CHIMERA_VERBOSE:-1}"
@@ -265,11 +255,7 @@ process_snapshot(){
     echo "-- host processes --"
     ps -eo pid,ppid,stat,%cpu,%mem,etime,comm --sort=-%cpu 2>/dev/null || true
     echo "-- process tree --"
-<<<<<<< HEAD
-    pstree -p "$" 2>/dev/null | head -n 80 || true
-=======
-    pstree -p $ 2>/dev/null | head -n 80 || true
->>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
+    pstree -p "${BASHPID:-$$}" 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
     docker ps -a --no-trunc --format '{{.ID}} {{.Image}} {{.Status}} {{.Names}}' 2>/dev/null || true
     echo "-- docker disk usage --"
@@ -372,7 +358,6 @@ cleanup_generated_build_artifacts(){
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -483,30 +468,20 @@ preflight(){
   log_info "Media filesystem profile: $MEDIA_FS_PROFILE (ISO9660/El Torito + SquashFS rootfs)"
   log_info "SquashFS worker count: ${CHIMERA_SQUASHFS_PROCESSORS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2)}"
   header 'LARGE ISO / STORAGE PREFLIGHT'
-  mkdir -p "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
   local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
-<<<<<<< HEAD
-  if [[ "${CHIMERA_SKIP_SPACE_CHECKS:-0}" == 1 ]]; then
-    log_info 'Storage preflight skipped (CHIMERA_SKIP_SPACE_CHECKS=1).'
-  else
-  local need="${CHIMERA_MIN_FREE_GIB:-20}"
-  if ((rg<need || og<need)); then
-=======
   # --storage-auto is an explicit request to select a suitable writable volume.
   if [[ "$STORAGE_AUTO" == 1 && -z "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
     choose_storage 20 || { log_error 'No suitable writable storage with at least 20 GiB free was found'; log_error 'Read-only WSL /mnt mounts are never selected.'; exit 1; }
     rg="$(free_gib "$ROOTFS_DIR")"; og="$(free_gib "$ISO_OUTPUT_DIR")"
     log_info "Automatic storage selected; rootfs free=${rg} GiB output free=${og} GiB"
   elif ((rg<20 || og<20)); then
->>>>>>> bfa2171b7 (Restore full builder CLI and improve resume/storage handling)
     if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable writable storage with enough free space found'; log_error 'A read-only /mnt drive is never selected automatically.'; exit 1; }
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
       export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
-  fi
   fi
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
   # Network research is opt-in; failures do not silently promote support claims.
@@ -524,7 +499,6 @@ preflight(){
 }
 state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
 state_fingerprint(){
-<<<<<<< HEAD
   local head diff untracked
   head="$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || printf 'no-git')"
   diff="$(git -C "$SCRIPT_DIR" diff --binary HEAD -- . 2>/dev/null | sha256sum | awk '{print $1}')"
@@ -532,17 +506,18 @@ state_fingerprint(){
   # change the build inputs without invalidating a saved resume checkpoint.
   untracked="$(git -C "$SCRIPT_DIR" ls-files --others --exclude-standard -z 2>/dev/null | xargs -0 -r sha256sum 2>/dev/null | sha256sum | awk '{print $1}')"
   printf '%s:%s:%s' "$head" "${diff:-no-diff}" "${untracked:-no-untracked}"
-=======
-  local head diff
-  head="$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || printf 'no-git')"
-  diff="$(git -C "$SCRIPT_DIR" diff --binary HEAD -- . 2>/dev/null | sha256sum | awk '{print $1}')"
-  printf '%s:%s' "$head" "${diff:-no-diff}"
->>>>>>> a8f340cd0 (Validate saved build state before resuming completed stages)
 }
 state_mark(){
-  local fingerprint
+  local fingerprint tmp
   fingerprint="$(state_fingerprint)"
-  printf 'schema=3\ncompleted=%s\nfingerprint=%s\nupdated=%s\n' "$1" "$fingerprint" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."
+  tmp="${STATE_FILE}.tmp.${BASHPID:-$$}"
+  if printf 'schema=3\\ncompleted=%s\\nfingerprint=%s\\nupdated=%s\\n' "$1" "$fingerprint" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$tmp" &&
+     mv -f -- "$tmp" "$STATE_FILE"; then
+    :
+  else
+    rm -f -- "$tmp"
+    log_warning "Build state could not be written atomically to $STATE_FILE."
+  fi
 }
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 resume_artifacts_present(){
@@ -553,13 +528,8 @@ resume_artifacts_present(){
     docker-publish) return 1 ;; # Re-publish idempotently rather than trusting an old push marker.
     boot) [[ -s "$ISO_DIR/boot/grub/grub.cfg" || -s "$ISO_DIR/boot/grub.cfg" ]] ;;
     installer) [[ -s "$ISO_DIR/install/installer/installation.img" ]] ;;
-<<<<<<< HEAD
     branding) [[ -d "$ISO_DIR/boot/visual" && -n "$(find "$ISO_DIR/boot/visual" -maxdepth 1 -type f -print -quit 2>/dev/null)" ]] ;;
     apache|features|package-managers|games) return 1 ;; # Re-run until each stage has a dedicated completion manifest.
-=======
-    branding) [[ -d "$ISO_DIR/boot/visual" ]] ;;
-    apache|features|package-managers|games) [[ -d "$ROOTFS_DIR/etc" ]] ;;
->>>>>>> a8f340cd0 (Validate saved build state before resuming completed stages)
     squashfs) [[ -s "$ISO_DIR/live/filesystem.squashfs" ]] ;;
     iso) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso" ]] ;;
     verify) [[ -s "$ISO_OUTPUT_DIR/${ISO_NAME}-${ISO_VERSION}-${TARGET_ARCH}.iso.sha256" && -s "$LOG_DIR/iso-el-torito.log" ]] ;;
@@ -568,18 +538,6 @@ resume_artifacts_present(){
   esac
 }
 state_done(){
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games extended linuxboot scripts squashfs iso verify native-iso report'; local ci ti
-  ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
-  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
-=======
-=======
->>>>>>> 09e3358ef (Validate saved build state before resuming completed stages)
-=======
->>>>>>> a5324060b ( Changes to be committed:)
   local completed="$1" target="$2" stored_fingerprint current_fingerprint
   [[ -n "$completed" && -f "$STATE_FILE" ]] || return 1
   stored_fingerprint="$(sed -n 's/^fingerprint=//p' "$STATE_FILE" | tail -1)"
@@ -587,54 +545,10 @@ state_done(){
   # Older state files or changed source trees are deliberately not trusted.
   [[ -n "$stored_fingerprint" && "$stored_fingerprint" == "$current_fingerprint" ]] || return 1
   local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
-=======
-<<<<<<< HEAD
-  local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
-  ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
-  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
-=======
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
-  local completed="$1" target="$2" stored_fingerprint current_fingerprint
-  [[ -n "$completed" && -f "$STATE_FILE" ]] || return 1
-
-  stored_fingerprint="$(sed -n 's/^fingerprint=//p' "$STATE_FILE" | tail -1)"
-  current_fingerprint="$(state_fingerprint)"
-
-  # Older state files or changed source trees are deliberately not trusted.
-  [[ -n "$stored_fingerprint" && "$stored_fingerprint" == "$current_fingerprint" ]] || return 1
-<<<<<<< HEAD
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report'; local ci ti
->>>>>>> a8f340cd0 (Validate saved build state before resuming completed stages)
   ci=$(printf '%s\n' "$order" | awk -v x="$completed" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   ti=$(printf '%s\n' "$order" | awk -v x="$target" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]] || return 1
   resume_artifacts_present "$target"
-<<<<<<< HEAD
->>>>>>> 181e59f46 (Validate saved build state before resuming completed stages)
-=======
-<<<<<<< HEAD
-=======
->>>>>>> 181e59f46 (Validate saved build state before resuming completed stages)
->>>>>>> a8f340cd0 (Validate saved build state before resuming completed stages)
-<<<<<<< HEAD
->>>>>>> 09e3358ef (Validate saved build state before resuming completed stages)
-=======
-=======
-
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'
-  local ci ti
-
-  ci=$(printf '%s
-' "$order" | awk -v x="$completed" '{for(i=1;i<=NF;i++)if($i==x)print i}')
-  ti=$(printf '%s
-' "$order" | awk -v x="$target" '{for(i=1;i<=NF;i++)if($i==x)print i}')
-
-  [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]] || return 1
-  resume_artifacts_present "$target"
->>>>>>> dbf7dcf2a ( Changes to be committed:)
->>>>>>> a5324060b ( Changes to be committed:)
 }
 run_stage(){
   local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
@@ -656,42 +570,9 @@ run_stage(){
     return "$rc"
   fi
 }
-<<<<<<< HEAD
-=======
-run_stage(){
-  local stage="$1" fn="$2" started="$SECONDS" started_utc rc elapsed
-  started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  CURRENT_STAGE="$stage"
-  header "BEGIN STAGE: $stage"
-  log_info "Stage started=$started_utc function=$fn pid=${BASHPID:-unknown}"
-  if "$fn"; then
-    elapsed=$((SECONDS-started))
-    state_mark "$stage"
-    log_success "Stage completed=$stage duration=${elapsed}s"
-    log_file "STAGE_COMPLETE stage=$stage duration_seconds=$elapsed finished=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    CURRENT_STAGE=""
-  else
-    rc=$?
-    elapsed=$((SECONDS-started))
-    log_error "Stage failed=$stage exit=$rc duration=${elapsed}s function=$fn"
-    log_file "STAGE_FAILED stage=$stage exit=$rc duration_seconds=$elapsed"
-    return "$rc"
-  fi
-}
->>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
-  if [[ "${CHIMERA_ROOTFS_MODE:-docker}" == "local" ]]; then
-    local missing=0
-    for t in debootstrap cpio grub-mkrescue xorriso mksquashfs chroot; do
-      command -v "$t" >/dev/null 2>&1 || { log_error "Required local-rootfs tool missing: $t"; missing=1; }
-    done
-    command -v busybox >/dev/null 2>&1 || log_warning 'busybox unavailable on host; create_installer needs busybox-static.'
-    (( missing == 0 )) || exit 2
-    log_info 'Local debootstrap rootfs mode: Docker daemon not required.'
-    return 0
-  fi
   if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
     if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
       bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
@@ -705,7 +586,7 @@ check_deps(){
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
   command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
-  command -v busybox >/dev/null || log_warning 'busybox unavailable on host; create_installer currently requires host BusyBox. Install busybox-static (Debian/Ubuntu) before the installer stage.'
+  command -v busybox >/dev/null || { log_error 'busybox-static is required for the installer stage; install it before building.'; exit 2; }
   # Docker CLI presence does not imply that a daemon is running. Diagnose the
   # endpoint and optionally start a local Linux daemon when explicitly enabled.
   if ! docker info >/dev/null 2>&1; then
@@ -766,10 +647,6 @@ build_docker(){
 }
 
 export_rootfs(){
-  if [[ "${CHIMERA_ROOTFS_MODE:-docker}" == "local" ]]; then
-    export_rootfs_local
-    return $?
-  fi
   header 'STEP 2: EXPORT DOCKER ROOTFS'
   cleanup_generated_build_artifacts
   mkdir -p "$ROOTFS_DIR"
@@ -1328,16 +1205,7 @@ stage_features(){
   for f in system/commands/chimera-command-list.json system/commands/chimera-arabic.json system/commands/compatibility-binary-policy.json system/commands/ss64-command-catalog.json system/commands/command-runtime-capabilities.json tools/commands/os-command-runtime.json; do
     [[ -f "$SCRIPT_DIR/$f" ]] && cp -f "$SCRIPT_DIR/$f" "$ISO_DIR/system/commands/$(basename "$f")" && cp -f "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/chimera/commands/$(basename "$f")"
   done
-  # Install the alias dispatcher as a *separate* helper. It must never overwrite
-  # /usr/bin/chimera-cmd (the compiled multicall ELF) and must never shadow
-  # canonical coreutils.
-  if [[ -f "$SCRIPT_DIR/tools/commands/chimera-cmd" ]]; then
-    mkdir -p "$ROOTFS_DIR/usr/lib/chimera"
-    install -m 0755 "$SCRIPT_DIR/tools/commands/chimera-cmd" "$ROOTFS_DIR/usr/lib/chimera/chimera-cmd-alias"
-    if [[ ! -e "$ROOTFS_DIR/usr/bin/chimera-cmd" ]]; then
-      ln -sfn ../lib/chimera/chimera-cmd-alias "$ROOTFS_DIR/usr/bin/chimera-cmd"
-    fi
-  fi
+  [[ -f "$SCRIPT_DIR/tools/commands/chimera-cmd" ]] && cp -f "$SCRIPT_DIR/tools/commands/chimera-cmd" "$ROOTFS_DIR/usr/bin/chimera-cmd" && chmod +x "$ROOTFS_DIR/usr/bin/chimera-cmd"
   if [[ -f "$SCRIPT_DIR/tools/commands/chimera-run" ]]; then
     install -m 0755 "$SCRIPT_DIR/tools/commands/chimera-run" "$ROOTFS_DIR/usr/bin/chimera-run"
     python3 -m py_compile "$ROOTFS_DIR/usr/bin/chimera-run"
@@ -1530,394 +1398,10 @@ EOF
   log_success "Native installer initramfs created: $ISO_DIR/install/installer/installation.img"
 }
 
-
-# ---------------------------------------------------------------------------
-# Local (Docker-free) rootfs provider
-# ---------------------------------------------------------------------------
-chimera_local_default_packages(){
-  cat <<'CHIMERA_PKGS'
-linux-image-amd64
-initramfs-tools
-live-boot
-live-config
-systemd-sysv
-systemd-timesyncd
-dbus
-sudo
-locales
-console-setup
-keyboard-configuration
-ca-certificates
-curl
-wget
-nano
-vim-tiny
-less
-procps
-psmisc
-iproute2
-iputils-ping
-net-tools
-network-manager
-wireless-tools
-wpasupplicant
-openssh-client
-rsync
-tar
-gzip
-xz-utils
-zstd
-zip
-unzip
-file
-findutils
-grep
-sed
-gawk
-bash-completion
-zsh
-fish
-tcsh
-mksh
-ksh
-dash
-python3
-python3-pip
-python3-tk
-python3-venv
-python3-flask
-python3-requests
-python3-pil
-python3-pam
-nodejs
-npm
-perl
-ruby
-php-cli
-lua5.4
-tcl
-nginx-light
-busybox-static
-squashfs-tools
-parted
-dosfstools
-mtools
-e2fsprogs
-grub-pc-bin
-grub-efi-amd64-bin
-grub2-common
-xorg
-xwayland
-xinit
-xterm
-sway
-swaybg
-swayidle
-swaylock
-labwc
-waybar
-foot
-i3-wm
-openbox
-cage
-greetd
-pcmanfm
-lxterminal
-fonts-dejavu
-fonts-liberation
-fonts-noto-color-emoji
-hicolor-icon-theme
-adwaita-icon-theme
-pipewire
-pipewire-pulse
-wireplumber
-alsa-utils
-pulseaudio-utils
-pavucontrol
-network-manager-gnome
-firefox-esr
-evince
-eog
-file-roller
-galculator
-mousepad
-mednafen
-zenity
-yad
-policykit-1
-udisks2
-gvfs
-CHIMERA_PKGS
-}
-
-export_rootfs_local(){
-  header 'STEP 2: BUILD LOCAL ROOTFS (DEBOOTSTRAP)'
-  cleanup_generated_build_artifacts
-  local suite="${CHIMERA_DEBOOTSTRAP_SUITE:-bookworm}"
-  local mirror="${CHIMERA_DEBOOTSTRAP_MIRROR:-http://deb.debian.org/debian}"
-  local arch="${CHIMERA_DEBOOTSTRAP_ARCH:-amd64}"
-  local pkgs=""
-  if [[ -n "${CHIMERA_LOCAL_PACKAGES:-}" ]]; then
-    pkgs="${CHIMERA_LOCAL_PACKAGES// /,}"
-  fi
-  mkdir -p "$ROOTFS_DIR"
-  rm -rf "${ROOTFS_DIR:?}"/* 2>/dev/null || true
-  log_info "debootstrap $suite/$arch -> $ROOTFS_DIR"
-  start_watchdog "debootstrap local rootfs"
-  set +e
-  debootstrap --arch="$arch" --variant=minbase --components=main,contrib,non-free \
-    ${pkgs:+--include="$pkgs"} "$suite" "$ROOTFS_DIR" "$mirror" 2>&1 | tee "$LOG_DIR/debootstrap.log"
-  local rc="${PIPESTATUS[0]}"
-  set -e
-  stop_watchdog
-  if (( rc != 0 )); then
-    log_error "debootstrap failed with exit code $rc; see $LOG_DIR/debootstrap.log"
-    exit "$rc"
-  fi
-
-  # Basic host identity and resolver
-  printf 'chimera\n' > "$ROOTFS_DIR/etc/hostname"
-  cat > "$ROOTFS_DIR/etc/hosts" <<'EOF'
-127.0.0.1 localhost
-127.0.1.1 chimera
-::1 localhost ip6-localhost ip6-loopback
-EOF
-  cp -f /etc/resolv.conf "$ROOTFS_DIR/etc/resolv.conf" 2>/dev/null || true
-  mkdir -p "$ROOTFS_DIR/dev" "$ROOTFS_DIR/proc" "$ROOTFS_DIR/sys" "$ROOTFS_DIR/run" \
-           "$ROOTFS_DIR/tmp" "$ROOTFS_DIR/var/log" "$ROOTFS_DIR/var/cache/apt/archives/partial"
-  chmod 1777 "$ROOTFS_DIR/tmp" 2>/dev/null || true
-  mount --bind /dev "$ROOTFS_DIR/dev" 2>/dev/null || true
-  mount -t proc proc "$ROOTFS_DIR/proc" 2>/dev/null || true
-  mount -t sysfs sysfs "$ROOTFS_DIR/sys" 2>/dev/null || true
-  mount --bind /run "$ROOTFS_DIR/run" 2>/dev/null || true
-
-  chroot "$ROOTFS_DIR" /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update -qq || true' 2>&1 | tee -a "$LOG_DIR/debootstrap.log" || true
-
-  # Resolve the curated package set against the archive, skipping packages that
-  # are not published for this suite (e.g. labwc is trixie+, not bookworm).
-  if [[ -z "${CHIMERA_LOCAL_PACKAGES:-}" ]]; then
-    local avail=() p
-    while IFS= read -r p; do
-      [[ -n "$p" ]] || continue
-      if chroot "$ROOTFS_DIR" apt-cache show "$p" >/dev/null 2>&1; then
-        avail+=("$p")
-      else
-        log_warning "Package not available in $suite: $p (skipped)"
-      fi
-    done < <(chimera_local_default_packages)
-    log_info "Installing ${#avail[@]} curated packages (no-install-recommends)"
-    set +e
-    chroot "$ROOTFS_DIR" /bin/bash -c "export DEBIAN_FRONTEND=noninteractive; apt-get install -y --no-install-recommends --allow-downgrades ${avail[*]}" 2>&1 | tee -a "$LOG_DIR/debootstrap.log"
-    local irc="${PIPESTATUS[0]}"
-    if (( irc != 0 )); then
-      log_warning "Bulk package install returned $irc; retrying package-by-package"
-      for p in "${avail[@]}"; do
-        chroot "$ROOTFS_DIR" /bin/bash -c "export DEBIAN_FRONTEND=noninteractive; apt-get install -y --no-install-recommends $p" >/dev/null 2>&1 || log_warning "Could not install: $p"
-      done
-    fi
-    set -e
-  fi
-
-  # Enable the services the live/installed system expects.
-  for unit in NetworkManager ssh systemd-timesyncd; do
-    chroot "$ROOTFS_DIR" systemctl enable "$unit" >/dev/null 2>&1 || true
-  done
-
-  # Make sure the live-boot initramfs hooks are present.
-  if [[ -x "$ROOTFS_DIR/usr/bin/update-initramfs" ]]; then
-    chroot "$ROOTFS_DIR" update-initramfs -u -k all >/dev/null 2>&1 || log_warning 'update-initramfs reported an issue'
-  fi
-
-  umount -R "$ROOTFS_DIR/run" 2>/dev/null || true
-  umount -R "$ROOTFS_DIR/sys" 2>/dev/null || true
-  umount -R "$ROOTFS_DIR/proc" 2>/dev/null || true
-  umount -R "$ROOTFS_DIR/dev" 2>/dev/null || true
-  rm -rf "$ROOTFS_DIR/var/lib/apt/lists/"* "$ROOTFS_DIR/var/cache/apt/archives/"*.deb 2>/dev/null || true
-
-  [[ -x "$ROOTFS_DIR/bin/bash" ]] || { log_error "Local rootfs is incomplete (no /bin/bash)"; exit 1; }
-  log_success "Local rootfs ready: $(du -sh "$ROOTFS_DIR" | awk '{print $1}')"
-}
-
-# ---------------------------------------------------------------------------
-# STEP 8a: extended application payload (all GitHub apps, GUI wrappers, etc.)
-# ---------------------------------------------------------------------------
-stage_extended(){
-  header 'STEP 8a: EXTENDED APPLICATION PAYLOAD'
-  local gen="$SCRIPT_DIR/tools/extended/chimera_extended.py"
-  local inst="$SCRIPT_DIR/tools/extended/install-extended.sh"
-  local out="$BUILD_DIR/extended-payload"
-  [[ -f "$gen" ]] || { log_error "Extended payload generator missing: $gen"; return 1; }
-  [[ -f "$inst" ]] || { log_error "Extended payload installer missing: $inst"; return 1; }
-  local repos="${CHIMERA_REPOS_DIR:-}"
-  if [[ -z "$repos" || ! -d "$repos" ]]; then
-    repos="$(cd "$SCRIPT_DIR/.." && pwd)"
-    log_warning "CHIMERA_REPOS_DIR not set; scanning $repos"
-  fi
-  mkdir -p "$out"
-  python3 "$gen" --repos "$repos" --out "$out" \
-    --build-pyinstaller "${CHIMERA_PYINSTALLER_BUILDS:-0}" 2>&1 | tee "$LOG_DIR/extended-generate.log"
-  bash "$inst" "$ROOTFS_DIR" "$out" "$repos" 2>&1 | tee "$LOG_DIR/extended-install.log"
-  if [[ "${CHIMERA_DROP_REPOS_AFTER_STAGE:-1}" == 1 && "$repos" == /workspace/gh ]]; then
-    log_info "Dropping cloned repositories from build storage after staging into the ISO"
-    rm -rf "$repos"
-  fi
-  log_success "Extended payload installed ($(du -sh "$ROOTFS_DIR/opt/chimera/apps" 2>/dev/null | awk '{print $1}'))"
-}
-
-# ---------------------------------------------------------------------------
-# STEP 8b: real Linux kernel + initrd for Live CD / Installer / Recovery
-# ---------------------------------------------------------------------------
-stage_linuxboot(){
-  header 'STEP 8b: STAGE LINUX LIVE KERNEL / INITRD'
-  local k="" i=""
-  for f in "$ROOTFS_DIR"/boot/vmlinuz-*; do [[ -s "$f" ]] && k="$f"; done
-  for f in "$ROOTFS_DIR"/boot/initrd.img-*; do [[ -s "$f" ]] && i="$f"; done
-  if [[ -z "$k" ]]; then
-    log_warning 'No kernel found in rootfs; installing linux-image-amd64'
-    if [[ "${CHIMERA_ROOTFS_MODE:-docker}" == "local" ]]; then
-      chroot "$ROOTFS_DIR" /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get update -qq && apt-get install -y --no-install-recommends linux-image-amd64 initramfs-tools' 2>&1 | tee -a "$LOG_DIR/linuxboot.log" || true
-      for f in "$ROOTFS_DIR"/boot/vmlinuz-*; do [[ -s "$f" ]] && k="$f"; done
-      for f in "$ROOTFS_DIR"/boot/initrd.img-*; do [[ -s "$f" ]] && i="$f"; done
-    fi
-  fi
-  [[ -n "$k" ]] || { log_error 'No Linux kernel available to stage for live boot'; return 1; }
-  if [[ -z "$i" ]]; then
-    log_warning 'No initrd found; generating one with update-initramfs'
-    chroot "$ROOTFS_DIR" update-initramfs -c -k all 2>&1 | tee -a "$LOG_DIR/linuxboot.log" || true
-    for f in "$ROOTFS_DIR"/boot/initrd.img-*; do [[ -s "$f" ]] && i="$f"; done
-  fi
-  [[ -n "$i" ]] || { log_error 'No initrd available to stage for live boot'; return 1; }
-  mkdir -p "$ISO_DIR/boot"
-  cp -f "$k" "$ISO_DIR/boot/vmlinuz"
-  cp -f "$i" "$ISO_DIR/boot/initrd.img"
-  log_info "Kernel: $(basename "$k") -> /boot/vmlinuz"
-  log_info "Initrd: $(basename "$i") -> /boot/initrd.img"
-
-  # Gates menu: desktops, sessions and app launchers.
-  mkdir -p "$ISO_DIR/boot/grub"
-  cat > "$ISO_DIR/boot/grub/gates.cfg" <<'EOF'
-# Chimera II OS - Gates menu (desktops / sessions / apps)
-set timeout=30
-menuentry "Aurora Desktop (default)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.session=aurora
-  initrd /boot/initrd.img
-}
-menuentry "Sway (Wayland tiling)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.session=sway
-  initrd /boot/initrd.img
-}
-menuentry "labwc (Wayland stacking)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.session=labwc
-  initrd /boot/initrd.img
-}
-menuentry "i3 (X11 tiling)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.session=i3
-  initrd /boot/initrd.img
-}
-menuentry "Openbox (X11 lightweight)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.session=openbox
-  initrd /boot/initrd.img
-}
-menuentry "Cage (single-app kiosk)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.session=cage
-  initrd /boot/initrd.img
-}
-menuentry "Text console (multi-user)" {
-  linux /boot/vmlinuz boot=live components quiet splash systemd.unit=multi-user.target
-  initrd /boot/initrd.img
-}
-menuentry "Back to main menu" {
-  configfile /boot/grub/grub.cfg
-}
-EOF
-
-  # Emulators / retro center menu.
-  cat > "$ISO_DIR/boot/grub/emulators.cfg" <<'EOF'
-# Chimera II OS - Emulators / Retro Center
-set timeout=30
-menuentry "Retro Center (desktop hub)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.emulator=hub
-  initrd /boot/initrd.img
-}
-menuentry "MAME / arcade" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.emulator=mame
-  initrd /boot/initrd.img
-}
-menuentry "Mednafen (multi-system)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.emulator=mednafen
-  initrd /boot/initrd.img
-}
-menuentry "DOSBox (DOS)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.emulator=dosbox
-  initrd /boot/initrd.img
-}
-menuentry "Sakhr (Arabic retro)" {
-  linux /boot/vmlinuz boot=live components quiet splash chimera.emulator=sakhr
-  initrd /boot/initrd.img
-}
-menuentry "Back to main menu" {
-  configfile /boot/grub/grub.cfg
-}
-EOF
-  log_success 'Gates and emulator boot menus staged'
-}
-
-# ---------------------------------------------------------------------------
-# STEP 8c: every *.sh in the repository, syntax-checked + manifest
-# ---------------------------------------------------------------------------
-stage_scripts(){
-  header 'STEP 8c: STAGE ALL SHELL SCRIPTS'
-  local dst="$ROOTFS_DIR/opt/chimera/scripts"
-  mkdir -p "$dst"
-  local n=0 bad=0
-  local manifest="$dst/SCRIPTS-MANIFEST.json"
-  printf '{\n  "generated": "%s",\n  "scripts": [\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$manifest"
-  local first=1
-  while IFS= read -r -d '' f; do
-    local rel="${f#"$SCRIPT_DIR"/}"
-    mkdir -p "$dst/$(dirname "$rel")"
-    cp -f "$f" "$dst/$rel"
-    chmod +x "$dst/$rel" 2>/dev/null || true
-    local ok=true
-    if head -n1 "$f" | grep -qE '^#!.*(bash|sh)'; then
-      bash -n "$f" 2>/dev/null || ok=false
-    fi
-    [[ "$ok" == "false" ]] && bad=$((bad+1))
-    (( first == 1 )) || printf ',\n' >> "$manifest"
-    printf '    {"path": "%s", "syntax_ok": %s}' "$rel" "$ok" >> "$manifest"
-    first=0
-    n=$((n+1))
-  done < <(find "$SCRIPT_DIR" -type f -name '*.sh' -not -path '*/build/*' -print0 | sort -z)
-  printf '\n  ],\n  "count": %d,\n  "syntax_failures": %d\n}\n' "$n" "$bad" >> "$manifest"
-  cp -f "$manifest" "$ISO_DIR/SCRIPTS-MANIFEST.json" 2>/dev/null || true
-  log_success "Staged $n shell scripts ($bad syntax failures) into /opt/chimera/scripts"
-}
-
 build_squashfs(){
   header 'STEP 8: BUILD ROOTFS SQUASHFS'
   [[ -d "$ROOTFS_DIR" ]] || { log_error "SquashFS source rootfs is missing: $ROOTFS_DIR"; exit 1; }
   mkdir -p "$ISO_DIR/live" "$ISO_TMP_DIR" "$LOG_DIR"
-  if [[ "${CHIMERA_PRUNE_ROOTFS:-1}" != "0" ]]; then
-    log_info 'Pruning rootfs caches and build-only files before SquashFS'
-    rm -rf "$ROOTFS_DIR/var/cache/apt/archives/"*.deb \
-           "$ROOTFS_DIR/var/lib/apt/lists/"* \
-           "$ROOTFS_DIR/root/.cache/"* \
-           "$ROOTFS_DIR/home/"*/.cache/* \
-           "$ROOTFS_DIR/tmp/"* \
-           "$ROOTFS_DIR/var/tmp/"* \
-           "$ROOTFS_DIR/usr/share/doc/"* \
-           "$ROOTFS_DIR/usr/share/man/"* \
-           "$ROOTFS_DIR/usr/share/help/"* \
-           "$ROOTFS_DIR/usr/share/nodejs/"* \
-           "$ROOTFS_DIR/usr/share/perl/"* \
-           "$ROOTFS_DIR/usr/share/ruby/"* \
-           "$ROOTFS_DIR/usr/lib/gcc/"* \
-           "$ROOTFS_DIR/usr/include/"* 2>/dev/null || true
-    if [[ -d "$ROOTFS_DIR/usr/share/locale" ]]; then
-      find "$ROOTFS_DIR/usr/share/locale" -mindepth 1 -maxdepth 1 -type d \
-        ! -name 'en' ! -name 'en_US' ! -name 'en_GB' -exec rm -rf {} + 2>/dev/null || true
-    fi
-  fi
   local tmp="$ISO_TMP_DIR/filesystem.squashfs.tmp" out="$ISO_DIR/live/filesystem.squashfs"
   local root_bytes free_bytes_now processors rc
   root_bytes="$(du -sB1 "$ROOTFS_DIR" 2>/dev/null | awk '{print $1+0}')"
@@ -1987,9 +1471,7 @@ build_iso(){
   log_info "Current output free space: $((free_bytes_now / 1024 / 1024 / 1024)) GiB"
   log_info "Required output space: $((required_bytes / 1024 / 1024 / 1024)) GiB"
 
-  if [[ "${CHIMERA_SKIP_SPACE_CHECKS:-0}" == 1 ]]; then
-    log_info "Final ISO space check skipped (CHIMERA_SKIP_SPACE_CHECKS=1)."
-  elif (( free_bytes_now < required_bytes )); then
+  if (( free_bytes_now < required_bytes )); then
     log_error "Insufficient space for final ISO."
     log_error "Required: $((required_bytes / 1024 / 1024 / 1024)) GiB"
     log_error "Available: $((free_bytes_now / 1024 / 1024 / 1024)) GiB"
@@ -2170,22 +1652,21 @@ build_native_sdk(){
   [[ -s "$sdk_src/CMakeLists.txt" ]] || { log_error "SDK CMake project is missing: $sdk_src/CMakeLists.txt"; return 1; }
   command -v cmake >/dev/null 2>&1 || { log_error "CMake is required for --full SDK compilation"; return 2; }
   command -v ctest >/dev/null 2>&1 || { log_error "CTest is required for --full SDK validation"; return 2; }
-<<<<<<< HEAD
   rm -rf -- "$sdk_build"
-=======
->>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
   mkdir -p "$sdk_build" "$sdk_dest" "$ISO_DIR/install/sdk"
   cmake -S "$sdk_src" -B "$sdk_build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/chimera-sdk
   cmake --build "$sdk_build" --parallel "${CHIMERA_BUILD_JOBS:-2}"
   ctest --test-dir "$sdk_build" --output-on-failure
   DESTDIR="$ROOTFS_DIR" cmake --install "$sdk_build"
+  mkdir -p "$sdk_dest/source"
+  cp -a "$sdk_src/." "$sdk_dest/source/"
   mkdir -p "$ISO_DIR/install/sdk/source"
   cp -a "$sdk_src/." "$ISO_DIR/install/sdk/source/"
   for manifest in manifest.json SDK_BUILD_MANIFEST.json runtime-profiles.json; do
     [[ -s "$sdk_src/$manifest" ]] && cp -f "$sdk_src/$manifest" "$ISO_DIR/install/sdk/"
   done
   [[ -s "$sdk_dest/share/chimera/sdk/SDK_BUILD_MANIFEST.json" ]] || { log_error "Installed SDK build manifest missing from rootfs"; return 1; }
-  log_success "Native SDK compiled, CTest-validated, installed into rootfs and staged in ISO."
+  log_success "C/C++ SDK core compiled and CTest-validated; additional language bindings staged as source, not claimed as compiled."
 }
 
 main(){
@@ -2198,7 +1679,7 @@ main(){
     log_success "Docker-only pipeline completed."
     return 0
   fi
-  if [[ "$BUILD_DOCKER" == 0 && "${CHIMERA_ROOTFS_MODE:-docker}" != "local" ]]; then
+  if [[ "$BUILD_DOCKER" == 0 ]]; then
     docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 || {
       log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
       return 2
@@ -2228,55 +1709,13 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games extended linuxboot scripts squashfs iso verify native-iso report; do
-=======
-=======
-=======
->>>>>>> a5324060b ( Changes to be committed:)
-=======
-<<<<<<< HEAD
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report; do
-=======
-<<<<<<< HEAD
-  for stage in docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
-=======
->>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
-<<<<<<< HEAD
->>>>>>> ce021b551 (build: add clean --full SDK build and ISO staging)
-=======
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
->>>>>>> a5324060b ( Changes to be committed:)
   local -a build_stages=(docker rootfs commands)
-
   if [[ "$FULL_BUILD" == 1 ]]; then
     build_stages+=(sdk)
     log_info "--full enabled: clean rebuild plus native SDK compilation, CTest and ISO staging."
   fi
-
   build_stages+=(docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report)
-
   for stage in "${build_stages[@]}"; do
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 80664aff1 (build: add clean --full SDK build and ISO staging)
-=======
-=======
->>>>>>> a5324060b ( Changes to be committed:)
-<<<<<<< HEAD
-=======
->>>>>>> 80664aff1 (build: add clean --full SDK build and ISO staging)
->>>>>>> 46c7af14d (build: add clean --full SDK build and ISO staging)
->>>>>>> b8760ea66 (build: add clean --full SDK build and ISO staging)
-<<<<<<< HEAD
->>>>>>> ce021b551 (build: add clean --full SDK build and ISO staging)
-=======
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
->>>>>>> a5324060b ( Changes to be committed:)
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
@@ -2293,9 +1732,6 @@ main(){
       features) run_stage features stage_features;;
       package-managers) run_stage package-managers stage_package_managers;;
       games) run_stage games stage_games;;
-      extended) run_stage extended stage_extended;;
-      linuxboot) run_stage linuxboot stage_linuxboot;;
-      scripts) run_stage scripts stage_scripts;;
       squashfs) run_stage squashfs build_squashfs;;
       iso) run_stage iso build_iso;;
       verify) run_stage verify verify_iso;;
@@ -2307,67 +1743,5 @@ main(){
   cleanup_final_success_artifacts
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
-=======
-=======
->>>>>>> 345d7690d (fix(build): preserve shell PID in verbose diagnostics)
-=======
->>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
-<<<<<<< HEAD
-=======
-=======
->>>>>>> c80de39aa (fix(build): preserve shell PID in verbose diagnostics)
-=======
->>>>>>> 7152a3376 (build: redact process arguments from failure diagnostics)
-
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
-stage_sdks(){
-  header 'STEP: COMPILE ALL REPOSITORY SDKS'
-  # Unsupported or missing toolchains must be reported as skipped, not passed.
-  local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
-  mkdir -p "$(dirname "$report")"
-
-  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
-    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
-      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" ||
-      log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
-    log_info "SDK report staged at $report"
-  else
-    log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
-  fi
-}
-
-# Do not print BASH_COMMAND or process arguments: they may contain secrets.
-# BASHPID identifies this shell even when trap execution involves subshells.
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then
-  log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"
-  log_debug "Failure command omitted to avoid exposing command-line secrets"
-  log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"
-  log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"
-  printf "%s\\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null ||
-    log_warning "Could not persist failed-stage marker at $FAILED_FILE"
-fi; exit "$rc"' EXIT
-
-<<<<<<< HEAD
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: $"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
-<<<<<<< HEAD
->>>>>>> 368dad58c (build: add timestamped verbose ISO diagnostics and stage telemetry)
-=======
-=======
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_error "Failure command: ${BASH_COMMAND}"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
->>>>>>> 840eb899f (fix(build): preserve shell PID in verbose diagnostics)
-<<<<<<< HEAD
->>>>>>> 345d7690d (fix(build): preserve shell PID in verbose diagnostics)
-=======
-=======
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; log_debug "Failure command omitted to avoid exposing command-line secrets"; log_error "Failure source: ${BASH_SOURCE[0]:-unknown}:${BASH_LINENO[0]:-0}"; log_error "Bash version: ${BASH_VERSION}; PID: ${BASHPID:-unknown}"; process_snapshot || true; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
->>>>>>> e2189180d (build: redact process arguments from failure diagnostics)
->>>>>>> cbb5371e9 (build: redact process arguments from failure diagnostics)
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
 main "$@"

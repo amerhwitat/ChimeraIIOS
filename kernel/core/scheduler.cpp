@@ -119,11 +119,12 @@ extern "C" uint32_t chimera_sched_run_serial_range(uint32_t first_cpu,uint32_t n
     lock();uint32_t total=cpus;unlock();
     if(first_cpu>=total||n==0)return 0;
     uint32_t end=first_cpu+n;if(end<first_cpu||end>total)end=total;
-    uint32_t ran=0;for(uint32_t cpu=first_cpu;cpu<end;cpu++)ran+=chimera_sched_run_once(cpu);
+    uint32_t ran=0;
+    for(uint32_t cpu=first_cpu;cpu<end;cpu++) ran+=chimera_sched_run_once(cpu);
     return ran;
 }
-/* No AP workers currently enter this scheduler from independent CPUs.
- * Never report serial callback invocations as parallel execution. */
+/* AP startup and independent per-CPU workers are not implemented.
+ * Never label serial callback execution as parallel SMP work. */
 extern "C" uint32_t chimera_sched_run_parallel(uint32_t first_cpu,uint32_t n){
     (void)first_cpu;(void)n;
     return 0;
@@ -140,36 +141,8 @@ extern "C" void chimera_sched_exit(void){legacy_action(ACTION_EXIT);}
 extern "C" uint32_t chimera_sched_runnable_count(void){
     lock();uint32_t n=0;for(uint32_t i=0;i<count;i++)if(tasks[i].info.state==CHIMERA_TASK_READY)++n;unlock();return n;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
-<<<<<<< HEAD
-    if (out == nullptr) {
-=======
-    if (!out) {
-<<<<<<< HEAD
->>>>>>> 1dbb465c6 (Fix misleading indentation in scheduler snapshot)
-=======
-=======
-<<<<<<< HEAD
-extern "C" uint32_t chimera_sched_snapshot(chimera_task_info*out,uint32_t cap){
-    if(!out)return 0;lock();uint32_t n=count<cap?count:cap;for(uint32_t i=0;i<n;i++)out[i]=tasks[i].info;unlock();return n;
-=======
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
 extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap) {
     if (out == nullptr) {
-<<<<<<< HEAD
-=======
-    if (!out) {
->>>>>>> 1dbb465c6 (Fix misleading indentation in scheduler snapshot)
->>>>>>> d398b71ce (Fix misleading indentation in scheduler snapshot)
-<<<<<<< HEAD
->>>>>>> a57f0a985 (Fix misleading indentation in scheduler snapshot)
-=======
-=======
->>>>>>> dbf7dcf2a ( Changes to be committed:)
->>>>>>> a5324060b ( Changes to be committed:)
         return 0;
     }
 
@@ -180,12 +153,4 @@ extern "C" uint32_t chimera_sched_snapshot(chimera_task_info *out, uint32_t cap)
     }
     unlock();
     return n;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8c2967fba (Fix misleading indentation in scheduler snapshot)
->>>>>>> d398b71ce (Fix misleading indentation in scheduler snapshot)
-=======
-}
->>>>>>> dbf7dcf2a ( Changes to be committed:)
 }

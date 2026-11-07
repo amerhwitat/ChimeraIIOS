@@ -1,9 +1,43 @@
 {
-  "schema":"CHM-SDK-BUILD-1",
-  "version":"1.0.0",
-  "targets":["chimera-x86_64","chimera-aarch64","chimera-riscv64"],
-  "languages":["C","C++","C#","Objective-C","Java","Python"],
-  "artifacts":["native-library","sdk-config","python-package","csharp-project","objective-c-source","java-source","java-jar","examples","manuals"],
-  "iso_destination":"/opt/chimera-sdk",
-  "source_destination":"/opt/chimera-sdk/source"
+  "schema": "CHM-SDK-BUILD-1",
+  "version": "1.0.0",
+  "targets": [
+    "chimera-x86_64"
+  ],
+  "languages": [
+    "C",
+    "C++",
+    "C#",
+    "Objective-C",
+    "Java",
+    "Python",
+    "Rust"
+  ],
+  "artifacts": [
+    "native-library",
+    "sdk-config",
+    "native-api-smoke-tests",
+    "c-examples",
+    "file-examples",
+    "csharp-source",
+    "objective-c-source",
+    "java-source",
+    "python-source",
+    "rust-source",
+    "manuals"
+  ],
+  "iso_destination": "/opt/chimera-sdk",
+  "source_destination": "/opt/chimera-sdk/source",
+  "compiled_languages": [
+    "C",
+    "C++"
+  ],
+  "staged_source_languages": [
+    "C#",
+    "Objective-C",
+    "Java",
+    "Python",
+    "Rust"
+  ],
+  "build_scope": "C and C++ targets are compiled and CTest-validated. Other listed language bindings are staged as source only; their toolchains and cross-architecture binaries are not asserted."
 }

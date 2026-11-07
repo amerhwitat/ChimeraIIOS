@@ -3,15 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "generated_at_utc": "2026-11-06T03:25:40Z",
-=======
-  "generated_at_utc": "2026-11-03T15:33:53Z",
->>>>>>> af48272ec ( Please enter the commit message for your changes. Lines starting)
-=======
-  "generated_at_utc": "2026-11-05T02:20:13Z",
->>>>>>> a5324060b ( Changes to be committed:)
+  "generated_at_utc": "2026-11-07T18:11:09Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_posix_shells": {
@@ -16518,6 +16510,10 @@
           "name": "REGINI",
           "platform": "windows_cmd",
           "source": "https://ss64.com/nt/regini.html",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
           "arabic_label": "أمر نظام — REGINI",
           "arabic_status": "identifier-preserved",
           "arabic_search": [
