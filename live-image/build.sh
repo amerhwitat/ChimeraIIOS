@@ -125,6 +125,7 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
   install -D -m 0644 "$REPO_DIR/system/commands/chimera-command-list.json" "$BASE/tmp/chimera-command-list.json"
+  install -D -m 0644 "$REPO_DIR/system/commands/ss64-command-catalog.json" "$BASE/tmp/ss64-command-catalog.json"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
@@ -158,8 +159,9 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
     bash /tmp/chimera-install-command-providers.sh
     python3 /tmp/chimera-resolve-command-providers.py \
       --catalog /tmp/chimera-command-list.json \
+      --ss64 /tmp/ss64-command-catalog.json \
       --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json
-    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json
+    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
