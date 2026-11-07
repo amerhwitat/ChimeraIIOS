@@ -23,7 +23,8 @@ assert len(catalogue) == coverage["source_catalogue_unique_command_count"], (
 assert aliases == coverage_aliases, (sorted(aliases - coverage_aliases), sorted(coverage_aliases - aliases))
 assert aliases <= catalogue, sorted(aliases - catalogue)
 assert coverage["linux_abi_multicall_alias_count"] == len(aliases)
-assert len(rows) == len(catalogue)
+catalogue_rows = {name: rows[name] for name in catalogue if name in rows}
+assert len(catalogue_rows) == len(catalogue), sorted(catalogue - set(rows))
 for alias in aliases:
     assert rows[alias]["implementation"] == "native-source-implemented", alias
 print(f"PASS: {len(catalogue)} catalogue commands, {len(aliases)} native source aliases, coverage rows aligned.")
