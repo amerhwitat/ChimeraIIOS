@@ -107,7 +107,14 @@ done
 # supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
 printf '%s\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
-test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
+# This script is also invoked directly by CI and developers, so it must be
+# self-contained: build the eight Linux ABI command candidates here rather
+# than relying on tools/build-chimera-iso.sh having run beforehand.
+python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \\
+  --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \\
+  --policy "$ROOT/system/commands/compatibility-binary-policy.json" \\
+  --output "$NATIVE_COMMAND_OUT" \\
+  --require-all
 for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
   test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
