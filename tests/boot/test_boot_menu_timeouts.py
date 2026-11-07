@@ -29,6 +29,9 @@ TARGET_MODULES = {
     "jasper/install.cfg": ("installer",),
     "jasper/live.cfg": ("live",),
     "jasper/recovery.cfg": ("recovery",),
+    "jasper/safe-mode.cfg": ("live",),
+    "jasper/last-known-good.cfg": ("live",),
+    "installation/services.cfg": ("installer",),
 }
 for rel, targets in TARGET_MODULES.items():
     menu = (BOOT / rel).read_text(encoding="utf-8")
