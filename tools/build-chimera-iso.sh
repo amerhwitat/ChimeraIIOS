@@ -19,6 +19,7 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
+python3 "$ROOT/tools/boot/verify-menu-timeouts.py" --root "$ROOT"
 
 # Public system block-size contract for the primary ISO builder.
 # Default to 4096 bytes (4 KiB), accept the legacy alias, validate once,
@@ -71,6 +72,23 @@ cmake --version | head -n1
 gcc --version | head -n1
 g++ --version | head -n1
 python3 --version
+say CHECK "Refreshing the SS64 command-reference catalogue"
+SS64_CACHE="$ROOT/build/ss64-command-catalog.json"
+mkdir -p "$ROOT/build"
+if [[ ! -s "$SS64_CACHE" || "${CHIMERA_REFRESH_SS64:-0}" == "1" ]]; then
+  rm -rf "$ROOT/build/.ss64-no-rootfs"
+  CHIMERA_ROOTFS_DIR="$ROOT/build/.ss64-no-rootfs" \
+    CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-45}" \
+    python3 "$ROOT/tools/commands/crawl_ss64.py" \
+      --output "$SS64_CACHE" --max-pages "${CHIMERA_SS64_MAX_PAGES:-500}" \
+      --timeout 10 --retries 1 --delay 0.02
+fi
+if [[ -s "$SS64_CACHE" ]]; then install -D -m 0644 "$SS64_CACHE" "$ROOT/system/commands/ss64-command-catalog.json"; fi
+python3 "$ROOT/tools/commands/import_command_candidates.py"
+say CHECK "Generating the full command capability catalogue"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$ROOT/system/commands/command-runtime-capabilities.json" >/dev/null
 say CHECK "Validating application catalog"
 python3 - "$ROOT/applications/catalog.json" "$ROOT" <<'PY'
 import json,sys
@@ -118,6 +136,14 @@ done
 "$ROOT/tools/build-compatibility-binaries.sh"
 "$ROOT/tools/build-mobile-edition.sh"
 "$ROOT/tools/build-desktop-binaries.sh"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
+say BUILD "Cross-building Linux ABI Chimera command candidates for eight architectures (x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE, s390x)"
+python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
+  --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
+  --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
+  --output "$ROOT/build/native-command-isa" \
+  --require-all
+bash "$ROOT/tests/commands/test-native-command-matrix.sh" "$ROOT/build/native-command-isa"
 "$ROOT/tools/build-live-boot-binaries.sh"
 say ISO "Generating BIOS/UEFI ISO"
 CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" "$ROOT/boot/iso/build-iso.sh"

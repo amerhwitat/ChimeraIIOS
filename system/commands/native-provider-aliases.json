@@ -1,0 +1,178 @@
+{
+  "schema": "CHIMERA-NATIVE-PROVIDER-ALIASES-1",
+  "policy": "Each alias is a symlink to an actual executable provider. Missing provider binaries are not replaced by stubs. These are hosted Linux provider aliases, not Koronos syscall implementations.",
+  "aliases": {
+    "chimera-user": {
+      "provider": "/usr/sbin/useradd",
+      "description": "Create a local user account"
+    },
+    "chimera-group": {
+      "provider": "/usr/sbin/groupadd",
+      "description": "Create a local group"
+    },
+    "chimera-network": {
+      "provider": "/usr/sbin/ip",
+      "description": "Linux network interface and route management"
+    },
+    "chimera-storage": {
+      "provider": "/usr/bin/lsblk",
+      "description": "Block-device inventory"
+    },
+    "chimera-boot": {
+      "provider": "/usr/sbin/grub-mkconfig",
+      "description": "Generate GRUB configuration"
+    },
+    "chimera-kernel": {
+      "provider": "/usr/bin/uname",
+      "description": "Report the running host kernel"
+    },
+    "chimera-modprobe": {
+      "provider": "/usr/sbin/modprobe",
+      "description": "Load or remove a Linux kernel module"
+    },
+    "chimera-db": {
+      "provider": "/usr/bin/sqlite3",
+      "description": "SQLite database CLI"
+    },
+    "chimera-iso": {
+      "provider": "/usr/bin/xorriso",
+      "description": "ISO image inspection and authoring"
+    },
+    "chimera-vm": {
+      "provider": "/usr/bin/qemu-system-x86_64",
+      "description": "QEMU x86-64 virtual machine"
+    },
+    "chimera-cpu": {
+      "provider": "/usr/bin/lscpu",
+      "description": "CPU topology and feature inventory"
+    },
+    "chimera-elf": {
+      "provider": "/usr/bin/readelf",
+      "description": "ELF object inspection"
+    },
+    "chimera-sync": {
+      "provider": "/usr/bin/rsync",
+      "description": "File synchronization"
+    },
+    "chimera-ad": {
+      "provider": "/usr/sbin/realm",
+      "description": "Realmd domain membership client"
+    },
+    "chimera-domain": {
+      "provider": "/usr/sbin/realm",
+      "description": "Realmd domain management client"
+    },
+    "chimera-policy": {
+      "provider": "/usr/bin/pkaction",
+      "description": "Polkit policy inspection"
+    },
+    "chimera-permissions": {
+      "provider": "/usr/bin/chmod",
+      "description": "File permission management"
+    },
+    "chimera-audit": {
+      "provider": "/usr/sbin/auditctl",
+      "description": "Linux audit subsystem control"
+    },
+    "chimera-firewall": {
+      "provider": "/usr/sbin/nft",
+      "description": "nftables firewall management"
+    },
+    "chimera-storagectl": {
+      "provider": "/usr/sbin/parted",
+      "description": "Partition table editor"
+    },
+    "chimera-device": {
+      "provider": "/usr/bin/udevadm",
+      "description": "udev device inspection and control"
+    },
+    "chimera-kmod": {
+      "provider": "/usr/bin/kmod",
+      "description": "Linux kernel module utility"
+    },
+    "chimera-firmware": {
+      "provider": "/usr/bin/fwupdmgr",
+      "description": "Firmware update management"
+    },
+    "chimera-wayland": {
+      "provider": "/usr/bin/wayland-info",
+      "description": "Wayland compositor capability inspection"
+    },
+    "chimera-packagekit": {
+      "provider": "/usr/bin/pkcon",
+      "description": "PackageKit client"
+    },
+    "chimera-container": {
+      "provider": "/usr/bin/podman",
+      "description": "Podman container engine"
+    },
+    "chimera-kubernetes": {
+      "provider": "/usr/bin/kubectl",
+      "description": "Kubernetes command-line client"
+    },
+    "chimera-apachectl": {
+      "provider": "/usr/sbin/apache2ctl",
+      "description": "Apache HTTP server control"
+    },
+    "chimera-php": {
+      "provider": "/usr/bin/php",
+      "description": "PHP CLI"
+    },
+    "chimera-node": {
+      "provider": "/usr/bin/node",
+      "description": "Node.js runtime"
+    },
+    "chimera-cpp": {
+      "provider": "/usr/bin/g++",
+      "description": "GNU C++ compiler"
+    },
+    "chimera-rust": {
+      "provider": "/usr/bin/rustc",
+      "description": "Rust compiler"
+    },
+    "chimera-asm64": {
+      "provider": "/usr/bin/chimera-asm",
+      "description": "Chimera assembler frontend"
+    },
+    "chimera-audio-drivers": {
+      "provider": "/usr/bin/chimera-driver-panel",
+      "description": "Chimera driver panel"
+    },
+    "chimera-diagnostics": {
+      "provider": "/usr/bin/chimera-doctor",
+      "description": "Chimera diagnostics frontend"
+    },
+    "chimera-driver": {
+      "provider": "/usr/bin/chimera-hardware-drivers",
+      "description": "Hardware driver manager"
+    },
+    "chimera-session": {
+      "provider": "/usr/local/bin/aurora-session",
+      "description": "Aurora desktop session"
+    },
+    "chimera-terminals": {
+      "provider": "/usr/bin/chimera-terminal",
+      "description": "Chimera terminal frontend"
+    },
+    "chimera-biometric": {
+      "provider": "/usr/bin/fprintd-list",
+      "description": "Fingerprint device inventory"
+    },
+    "chimera-log": {
+      "provider": "/usr/bin/journalctl",
+      "description": "System journal query"
+    },
+    "chimera-locale": {
+      "provider": "/usr/bin/localectl",
+      "description": "Locale and keyboard configuration"
+    },
+    "chimera-cisc": {
+      "provider": "/usr/bin/nasm",
+      "description": "NASM x86 CISC assembler"
+    },
+    "chimera-openshift": {
+      "provider": "/usr/bin/oc",
+      "description": "OpenShift CLI client from the official release mirror"
+    }
+  }
+}
