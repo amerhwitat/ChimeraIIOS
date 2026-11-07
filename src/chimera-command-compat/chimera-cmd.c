@@ -592,6 +592,130 @@ static int cmd_sleep(int argc,char**argv)
     return 0;
 }
 
+
+extern char **environ;
+
+static int cmd_printenv(int argc, char **argv)
+{
+    int rc = 0;
+    if (argc == 1) {
+        for (char **p = environ; p && *p; ++p)
+            puts(*p);
+        return ferror(stdout) ? 1 : 0;
+    }
+    for (int i = 1; i < argc; ++i) {
+        const char *value = getenv(argv[i]);
+        if (!value) { rc = 1; continue; }
+        puts(value);
+    }
+    return rc;
+}
+
+static int cmd_env(int argc, char **argv)
+{
+    if (argc == 1) return cmd_printenv(1, argv);
+    execvp(argv[1], &argv[1]);
+    fprintf(stderr, "env: %s: %s\n", argv[1], strerror(errno));
+    return errno == ENOENT ? 127 : 126;
+}
+
+static int cmd_which(int argc, char **argv)
+{
+    if (argc < 2) { fprintf(stderr, "usage: which COMMAND...\n"); return 2; }
+    const char *path = getenv("PATH");
+    if (!path) path = "/bin:/usr/bin";
+    int rc = 0;
+    for (int i = 1; i < argc; ++i) {
+        int found = 0;
+        const char *part = path;
+        while (!found) {
+            const char *end = strchr(part, ':');
+            size_t dirlen = end ? (size_t)(end - part) : strlen(part);
+            char candidate[PATH_MAX];
+            const char *dir = part;
+            if (dirlen == 0) { dir = "."; dirlen = 1; }
+            int n = snprintf(candidate, sizeof(candidate), "%.*s/%s",
+                             (int)dirlen, dir, argv[i]);
+            if (n > 0 && (size_t)n < sizeof(candidate) &&
+                access(candidate, X_OK) == 0) {
+                puts(candidate);
+                found = 1;
+            }
+            if (!end) break;
+            part = end + 1;
+        }
+        if (!found) rc = 1;
+    }
+    return rc;
+}
+
+static int parse_long_arg(const char *text, long *value)
+{
+    char *end = NULL;
+    errno = 0;
+    long parsed = strtol(text, &end, 10);
+    if (errno || !end || *end) return -1;
+    *value = parsed;
+    return 0;
+}
+
+static int cmd_seq(int argc, char **argv)
+{
+    long first = 1, step = 1, last = 0;
+    if (argc == 2) {
+        if (parse_long_arg(argv[1], &last)) goto invalid;
+    } else if (argc == 3) {
+        if (parse_long_arg(argv[1], &first) ||
+            parse_long_arg(argv[2], &last)) goto invalid;
+    } else if (argc == 4) {
+        if (parse_long_arg(argv[1], &first) ||
+            parse_long_arg(argv[2], &step) ||
+            parse_long_arg(argv[3], &last)) goto invalid;
+    } else goto invalid;
+    if (step == 0 || (step > 0 && first > last) ||
+        (step < 0 && first < last)) goto invalid;
+    for (long value = first;;) {
+        if (printf("%ld\n", value) < 0) return 1;
+        if (value == last) break;
+        if ((step > 0 && value > LONG_MAX - step) ||
+            (step < 0 && value < LONG_MIN - step)) return 1;
+        long next = value + step;
+        if ((step > 0 && next > last) || (step < 0 && next < last)) break;
+        value = next;
+    }
+    return ferror(stdout) ? 1 : 0;
+invalid:
+    fprintf(stderr, "usage: seq [FIRST [INCREMENT]] LAST (integer arguments)\n");
+    return 2;
+}
+
+static int cmd_yes(int argc, char **argv)
+{
+    const char *value = argc > 1 ? argv[1] : "y";
+    for (;;) {
+        if (write_all_fd(STDOUT_FILENO, value, strlen(value)) < 0 ||
+            write_all_fd(STDOUT_FILENO, "\n", 1) < 0)
+            return 1;
+    }
+}
+
+static int cmd_tty(void)
+{
+    if (isatty(STDIN_FILENO)) {
+        puts("/dev/tty");
+        return 0;
+    }
+    puts("not a tty");
+    return 1;
+}
+
+static int cmd_id(void)
+{
+    printf("uid=%lu gid=%lu\n",
+           (unsigned long)getuid(), (unsigned long)getgid());
+    return ferror(stdout) ? 1 : 0;
+}
+
 int main(int argc, char **argv)
 {
     const char *cmd = progname(argv[0]);
@@ -663,6 +787,21 @@ int main(int argc, char **argv)
         return cmd_tail(argc, argv);
     if (!strcmp(cmd, "sleep"))
         return cmd_sleep(argc, argv);
+
+    if (!strcmp(cmd, "env"))
+        return cmd_env(argc, argv);
+    if (!strcmp(cmd, "printenv"))
+        return cmd_printenv(argc, argv);
+    if (!strcmp(cmd, "which"))
+        return cmd_which(argc, argv);
+    if (!strcmp(cmd, "seq"))
+        return cmd_seq(argc, argv);
+    if (!strcmp(cmd, "yes"))
+        return cmd_yes(argc, argv);
+    if (!strcmp(cmd, "tty"))
+        return cmd_tty();
+    if (!strcmp(cmd, "id"))
+        return cmd_id();
 
     /* Route unknown command names through the shared runtime dispatcher.
        Preserve argv exactly and never parse command text through a shell. */
