@@ -133,6 +133,19 @@ static int copy_file(const char *src, const char *dst)
         return 1;
     }
 
+    struct stat dst_st;
+    if (stat(dst, &dst_st) == 0) {
+        if (dst_st.st_dev == st.st_dev && dst_st.st_ino == st.st_ino) {
+            fprintf(stderr, "cp: '%s' and '%s' are the same file\\n", src, dst);
+            close(in);
+            return 1;
+        }
+    } else if (errno != ENOENT) {
+        perror(dst);
+        close(in);
+        return 1;
+    }
+
     int out = open(
         dst,
         O_WRONLY | O_CREAT | O_TRUNC,
@@ -154,7 +167,11 @@ static int copy_file(const char *src, const char *dst)
         while (off < n) {
             ssize_t w = write(out, buf + off, (size_t)(n - off));
 
-            if (w < 0) {
+            if (w < 0 && errno == EINTR)
+                continue;
+            if (w <= 0) {
+                if (w == 0)
+                    errno = EIO;
                 perror(dst);
                 close(in);
                 close(out);
