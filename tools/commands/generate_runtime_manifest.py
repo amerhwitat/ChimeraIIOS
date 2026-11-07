@@ -49,6 +49,18 @@ NATIVE_SCRIPT_PROVIDERS = {
     "chimera-shell": "/usr/bin/chimera-shell",
     "chimera-terminal": "/usr/bin/chimera-terminal",
 }
+
+# Promote only aliases whose configured target is an actual executable provider.
+_ALIAS_FILE = Path(__file__).resolve().parents[2] / "system/commands/native-provider-aliases.json"
+try:
+    _alias_data = json.loads(_ALIAS_FILE.read_text(encoding="utf-8"))
+    for _name, _entry in _alias_data.get("aliases", {}).items():
+        _provider = _entry.get("provider") if isinstance(_entry, dict) else None
+        if isinstance(_provider, str) and _provider.startswith("/"):
+            NATIVE_SCRIPT_PROVIDERS.setdefault(_name, _provider)
+except (OSError, json.JSONDecodeError) as exc:
+    print(f"warning: native provider alias manifest unavailable: {exc}")
+
 SHELL = set("""alias bg break builtin caller case cd command continue declare dirs eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 PLATFORM_ARRAYS = {
     "linux_bash":"linux_bash", "macos":"macos_core", "windows_cmd":"windows_cmd_core",

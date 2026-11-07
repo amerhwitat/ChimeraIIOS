@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -32,6 +33,7 @@ SCRIPTS = {
     "chimera-tensor": ("tools/commands/chimera-tensor", "bash"),
     "chimera-hdc": ("tools/commands/chimera-hdc", "bash"),
     "chimera-neural": ("tools/commands/chimera-neural", "bash"),
+    "chimera-shell-ar": ("tools/commands/chimera-shell-ar", "bash"),
 }
 VERIFIED_PROVIDERS = [
     "chimeractl", "chmctl", "chimera-registry", "hivectl", "chimera-help", "chimera-info", "chimera-doctor", "chimera-update",
@@ -77,6 +79,31 @@ def main() -> int:
         target.chmod(0o755)
         rows.append({"command": command, "source": relative, "path": "/usr/bin/" + command,
                      "status": "source-backed-launcher-staged", "sha256": sha(source)})
+
+    # Create aliases only when the configured target-rootfs provider really exists.
+    alias_manifest = repo / "system/commands/native-provider-aliases.json"
+    if alias_manifest.is_file():
+        alias_data = json.loads(alias_manifest.read_text(encoding="utf-8"))
+        for command, entry in alias_data.get("aliases", {}).items():
+            provider = entry.get("provider", "") if isinstance(entry, dict) else ""
+            source = rootfs / provider.lstrip("/") if isinstance(provider, str) and provider.startswith("/") else None
+            target = bindir / command
+            if source and source.is_file() and os.access(source, os.X_OK):
+                if target.exists() or target.is_symlink():
+                    try:
+                        same = target.resolve() == source.resolve()
+                    except OSError:
+                        same = False
+                    if not same:
+                        rows.append({"command": command, "provider": provider, "status": "alias-path-conflict"})
+                        continue
+                else:
+                    target.symlink_to(os.path.relpath(source, bindir))
+                rows.append({"command": command, "provider": provider, "path": "/usr/bin/" + command,
+                             "status": "verified-provider-symlink", "sha256": sha(source)})
+            else:
+                rows.append({"command": command, "provider": provider, "path": "/usr/bin/" + command,
+                             "status": "provider-missing"})
 
     # These providers are compiled/installed by build-chimera-native-tools.sh
     # and tools/terminal/build-terminal.sh. Verify their real target-rootfs files
