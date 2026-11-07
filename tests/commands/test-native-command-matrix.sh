@@ -31,6 +31,35 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   alias="$tmp/$arch-true"; ln -sf "$bin" "$alias"; run "$alias"
   alias="$tmp/$arch-false"; ln -sf "$bin" "$alias"
   if run "$alias"; then echo "$arch false returned success" >&2; exit 1; fi
+  printf 'line-one\nline-two\nline-three\n' > "$tmp/input-$arch"
+  alias="$tmp/$arch-head"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" -n 1 "$tmp/input-$arch")"
+  [[ "$output" == "line-one" ]] || { echo "$arch head failed: $output" >&2; exit 1; }
+  alias="$tmp/$arch-tail"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" -n 1 "$tmp/input-$arch")"
+  [[ "$output" == "line-three" ]] || { echo "$arch tail failed: $output" >&2; exit 1; }
+  alias="$tmp/$arch-wc"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" -l "$tmp/input-$arch")"
+  [[ "$output" == *"3"* ]] || { echo "$arch wc failed: $output" >&2; exit 1; }
+  alias="$tmp/$arch-basename"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" /var/tmp/sample.txt)"
+  [[ "$output" == "sample.txt" ]] || { echo "$arch basename failed: $output" >&2; exit 1; }
+  alias="$tmp/$arch-dirname"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" /var/tmp/sample.txt)"
+  [[ "$output" == "/var/tmp" ]] || { echo "$arch dirname failed: $output" >&2; exit 1; }
+  alias="$tmp/$arch-uname"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" -s)"
+  [[ -n "$output" ]] || { echo "$arch uname failed" >&2; exit 1; }
+  alias="$tmp/$arch-ln"; ln -sf "$bin" "$alias"
+  run "$alias" -s "$tmp/input-$arch" "$tmp/link-$arch"
+  alias="$tmp/$arch-readlink"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" "$tmp/link-$arch")"
+  [[ "$output" == "$tmp/input-$arch" ]] || { echo "$arch readlink failed: $output" >&2; exit 1; }
+  mkdir "$tmp/rmdir-$arch"
+  alias="$tmp/$arch-rmdir"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/rmdir-$arch"
+  [[ ! -e "$tmp/rmdir-$arch" ]] || { echo "$arch rmdir failed" >&2; exit 1; }
+  alias="$tmp/$arch-sleep"; ln -sf "$bin" "$alias"; run "$alias" 0.001
   printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
 done
 python3 - "$OUT/manifest.json" <<'PY'
