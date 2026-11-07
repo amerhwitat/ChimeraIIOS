@@ -106,7 +106,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed-v3" ]; then
+if [ ! -f "$BASE/.packages-installed-v4" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   mount_chroot "$BASE"
@@ -145,7 +145,7 @@ if [ ! -f "$BASE/.packages-installed-v3" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed-v3"
+  touch "$BASE/.packages-installed-v4"
 fi
 
 # ------------------------------------------------------------- rootfs copy
