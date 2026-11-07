@@ -119,6 +119,27 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   output="$(run "$alias" chimera | head -n 2 || true)"
   expected="$(printf 'chimera\nchimera')"
   [[ "$output" == "$expected" ]] || { echo "$arch yes failed: $output" >&2; exit 1; }
+  printf 'abcdefghij\n' > "$tmp/fold-input-$arch"
+  alias="$tmp/fold"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" -w 4 "$tmp/fold-input-$arch")"
+  expected="$(printf 'abcd\nefgh\nij')"
+  [[ "$output" == "$expected" ]] || { echo "$arch fold failed: $output" >&2; exit 1; }
+  alias="$tmp/nl"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" "$tmp/fold-input-$arch")"
+  expected="$(printf '     1\tabcdefghij')"
+  [[ "$output" == "$expected" ]] || { echo "$arch nl failed: $output" >&2; exit 1; }
+  alias="$tmp/tr"; ln -sf "$bin" "$alias"
+  output="$(printf 'abc\n' | run "$alias" abc xyz)"
+  [[ "$output" == "xyz" ]] || { echo "$arch tr failed: $output" >&2; exit 1; }
+  alias="$tmp/tee"; ln -sf "$bin" "$alias"
+  printf 'tee-test\n' | run "$alias" "$tmp/tee-file-$arch" > "$tmp/tee-stdout-$arch"
+  cmp -s "$tmp/tee-file-$arch" "$tmp/tee-stdout-$arch" || { echo "$arch tee output mismatch" >&2; exit 1; }
+  alias="$tmp/cmp"; ln -sf "$bin" "$alias"
+  run "$alias" "$tmp/tee-file-$arch" "$tmp/tee-stdout-$arch"
+  printf 'different\n' > "$tmp/cmp-different-$arch"
+  if run "$alias" "$tmp/tee-file-$arch" "$tmp/cmp-different-$arch"; then
+    echo "$arch cmp failed to detect different files" >&2; exit 1
+  fi
   printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
 done
 python3 - "$OUT/manifest.json" <<'PY'
