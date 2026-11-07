@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'tools/commands/**'
+      - 'tools/build-chimera-command-compat.sh'
       - 'system/commands/**'
       - 'config/linux-command-registry.json'
       - 'ISA.csv'
@@ -114,6 +115,7 @@ on:
   pull_request:
     paths:
       - 'tools/commands/**'
+      - 'tools/build-chimera-command-compat.sh'
       - 'system/commands/**'
       - 'config/linux-command-registry.json'
       - 'ISA.csv'
