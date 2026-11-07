@@ -115,6 +115,9 @@ python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \\
   --policy "$ROOT/system/commands/compatibility-binary-policy.json" \\
   --output "$NATIVE_COMMAND_OUT" \\
   --require-all
+# Record actual native/QEMU-user smoke-test evidence before accepting or
+# staging the Linux ABI matrix. Cross-build/ELF checks alone are insufficient.
+bash "$ROOT/tests/commands/test-native-command-matrix.sh" "$NATIVE_COMMAND_OUT"
 for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
   test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
