@@ -16,6 +16,10 @@ chroot "$ROOTFS" /usr/bin/python3 -c 'import json; c=json.load(open("/etc/chimer
 chroot "$ROOTFS" /usr/bin/terminald --help >/dev/null
 chroot "$ROOTFS" /usr/bin/chimera-terminal --help >/dev/null
 chroot "$ROOTFS" /usr/bin/bwrap --version >/dev/null
+chroot "$ROOTFS" /usr/bin/bwrap --die-with-parent --new-session --proc /proc --dev /dev \
+  --dir /etc --dir /home --dir /tmp --dir /data --dir /work \
+  --ro-bind /usr /usr --ro-bind /bin /bin --ro-bind /lib /lib --ro-bind /lib64 /lib64 \
+  --unshare-net /bin/sh -c 'test -d /work && test -d /home && echo sandbox-ok' | grep -qx sandbox-ok
 socket="$ROOTFS/run/chimera/terminald-test.sock"
 set +e
 timeout 2s chroot "$ROOTFS" /usr/bin/terminald --socket /run/chimera/terminald-test.sock --config /etc/chimera/terminal/terminal-service.json >/dev/null 2>&1
