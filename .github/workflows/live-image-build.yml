@@ -612,7 +612,7 @@ jobs:
           assert d["native_chimera_provider_count"] >= 90
           assert d["hosted_linux_chimera_provider_count"] >= 8
           assert d["native_chimera_koronos_runtime_verified_count"] == 0
-          print("Octavian: 855 catalogue entries, 37 native multicall aliases; Koronos runtime remains separate.")
+          print("Octavian: 855 catalogue entries, 37 native multicall aliases; Koronos target probes are embedded, but native command ABI is not yet verified on Koronos.")
           PY
           test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
           python3 - "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json" <<'PY'
@@ -653,6 +653,55 @@ jobs:
           test "$(find "$root/usr/share/icons/hicolor/scalable/apps" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
           test -s "$root/usr/share/chimera/aurora/sounds/menu-select.wav"
           test -s "$root/etc/systemd/system/aurora-startup-sound.service"
+          # Boot the three real Koronos target entries from the actual Octavian ISO.
+          xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$tmp/grub.cfg" >/dev/null
+          grep -Fq 'set timeout=300' "$tmp/grub.cfg"
+          grep -Fq 'set timeout_style=menu' "$tmp/grub.cfg"
+          grep -Fq 'set gfxmode=5120x2880,1920x1080,1280x1024,1024x768,640x480,auto' "$tmp/grub.cfg"
+          grep -Fq 'set gfxpayload=keep' "$tmp/grub.cfg"
+          for target in live installer recovery; do
+            xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$tmp/octavian-target-init-$target.elf" >/dev/null
+            readelf -h "$tmp/octavian-target-init-$target.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
+            readelf -h "$tmp/octavian-target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+          done
+          for relative in \
+            /boot/live/chimera-live-initramfs.img \
+            /boot/recovery/chimera-recovery-initramfs.img \
+            /install/installer/installation.img \
+            /install/installer/installation-manifest.json \
+            /install/installer/installer-contract.json \
+            /install/installer/installation_phases.json \
+            /install/installer/installer_profiles.json; do
+            output="$tmp/octavian-$(basename "$relative")"
+            xorriso -osirrox on -indev "$iso" -extract "$relative" "$output" >/dev/null
+            test -s "$output"
+          done
+          for target in live installer recovery; do
+            log="$OUT_DIR/koronos-octavian-$target-iso-qemu.log"
+            qemu=(qemu-system-x86_64 -machine q35 -accel tcg -cpu qemu64 -m 1536 \
+              -cdrom "$iso" -boot d -display none -serial none -monitor stdio \
+              -no-reboot -no-shutdown -debugcon "file:$log" -global isa-debugcon.iobase=0xe9)
+            set +e
+            case "$target" in
+              live)
+                ( sleep 6; printf 'sendkey end\n'; sleep 1; printf 'sendkey up\n'; sleep 1; printf 'sendkey up\n'; sleep 1; printf 'sendkey ret\n'; sleep 1 ) | timeout 35s "${qemu[@]}" >/dev/null 2>&1
+                ;;
+              installer)
+                ( sleep 6; printf 'sendkey end\n'; sleep 1; printf 'sendkey up\n'; sleep 1; printf 'sendkey ret\n'; sleep 1 ) | timeout 35s "${qemu[@]}" >/dev/null 2>&1
+                ;;
+              recovery)
+                ( sleep 6; printf 'sendkey end\n'; sleep 1; printf 'sendkey ret\n'; sleep 1 ) | timeout 35s "${qemu[@]}" >/dev/null 2>&1
+                ;;
+            esac
+            qemu_rc=$?
+            set -e
+            [[ "$qemu_rc" -eq 124 || "$qemu_rc" -eq 137 || "$qemu_rc" -eq 0 ]] || {
+              echo "::error::QEMU failed for Octavian ISO target $target (exit $qemu_rc)"; exit 1;
+            }
+            python3 tests/boot/verify-userspace-handoff.py "$target" "$log"
+          done
+          cp "$root/usr/share/chimera/aurora/terminal-shell-staging.json" "$OUT_DIR/octavian-terminal-shell-staging.json"
+          cp "$root/usr/share/chimera/catalogs/command-isa-coverage.json" "$OUT_DIR/octavian-command-isa-coverage.json"
           cp "$iso" "$OUT_DIR/octavian-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/octavian-os-live-desktop-fixed.iso.sha256"
       - name: Upload verified OctavianOS live ISO candidate
@@ -663,6 +712,11 @@ jobs:
             ${{ runner.temp }}/octavian-live-output/octavian-os-live-amd64.iso
             ${{ runner.temp }}/octavian-live-output/octavian-os-live-amd64.iso.sha256
             ${{ runner.temp }}/octavian-live-output/ISO-BOOT-REPORT.txt
+            ${{ runner.temp }}/octavian-live-output/koronos-octavian-live-iso-qemu.log
+            ${{ runner.temp }}/octavian-live-output/koronos-octavian-installer-iso-qemu.log
+            ${{ runner.temp }}/octavian-live-output/koronos-octavian-recovery-iso-qemu.log
+            ${{ runner.temp }}/octavian-live-output/octavian-terminal-shell-staging.json
+            ${{ runner.temp }}/octavian-live-output/octavian-command-isa-coverage.json
           if-no-files-found: error
           retention-days: 30
 
