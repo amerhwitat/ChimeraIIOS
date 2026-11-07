@@ -149,6 +149,47 @@ cp -a "$ROOT/installer" "$STAGE/install/"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
 cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
+
+# Generate and embed the complete offline Aurora artwork and icon libraries.
+# This is a runtime payload, not merely a source-tree copy.
+AURORA_MEDIA="$BUILD/aurora-media"
+AURORA_ICONS="$BUILD/aurora-icons"
+AURORA_APP_ICONS="$BUILD/aurora-app-icons"
+bash "$ROOT/tools/aurora/build-visual-assets.sh" "$AURORA_MEDIA"
+python3 "$ROOT/tools/aurora/export-icon-theme.py" --output "$AURORA_ICONS"
+python3 "$ROOT/tools/aurora/export-app-icon-theme.py" \
+  --sprite "$ROOT/desktop/app-icons/catalog.svg" \
+  --manifest "$ROOT/desktop/app-icons/manifest.json" \
+  --output "$AURORA_APP_ICONS"
+install -d "$STAGE/boot/visual/aurora" "$STAGE/desktop/aurora/media" \
+  "$STAGE/desktop/aurora/icons" "$STAGE/desktop/aurora/assets" \
+  "$STAGE/desktop/app-icons/icons" "$STAGE/boot/grub"
+cp -a "$AURORA_MEDIA/." "$STAGE/desktop/aurora/media/"
+cp -a "$AURORA_MEDIA/." "$STAGE/boot/visual/aurora/"
+cp -a "$AURORA_ICONS/." "$STAGE/desktop/aurora/icons/"
+cp -a "$AURORA_APP_ICONS/." "$STAGE/desktop/app-icons/icons/"
+cp -f "$ROOT/desktop/app-icons/catalog.svg" "$STAGE/desktop/app-icons/catalog.svg"
+cp -f "$ROOT/desktop/app-icons/manifest.json" "$STAGE/desktop/app-icons/manifest.json"
+if [[ -d "$ROOT/desktop/aurora/assets/sounds" ]]; then
+  cp -a "$ROOT/desktop/aurora/assets/sounds" "$STAGE/desktop/aurora/assets/"
+fi
+if [[ -s "$AURORA_MEDIA/backgrounds/boot.png" ]]; then
+  cp -f "$AURORA_MEDIA/backgrounds/boot.png" "$STAGE/boot/grub/aurora-boot.png"
+fi
+if [[ -s "$AURORA_MEDIA/menus/default.png" ]]; then
+  cp -f "$AURORA_MEDIA/menus/default.png" "$STAGE/boot/grub/aurora-menu.png"
+fi
+if [[ -s "$AURORA_MEDIA/splash/aurora-splash.png" ]]; then
+  cp -f "$AURORA_MEDIA/splash/aurora-splash.png" "$STAGE/boot/grub/aurora-splash.png"
+fi
+test -s "$STAGE/desktop/app-icons/icons/chimera-settings.svg" || {
+  echo "[ERROR] Generated Aurora app icon theme is incomplete." >&2
+  exit 1
+}
+test -s "$STAGE/desktop/aurora/icons/chimera-settings.svg" || {
+  echo "[ERROR] Generated Aurora desktop icon theme is incomplete." >&2
+  exit 1
+}
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/system/security" "$STAGE/system/security"
 cp -a "$ROOT/tools/initialize-accounts.sh" "$STAGE/install/initialize-accounts.sh"
