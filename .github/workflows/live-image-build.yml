@@ -260,7 +260,7 @@ jobs:
           assert d['native_chimera_command_count']==90
           assert d['native_chimera_provider_count']==0
           assert d['hosted_linux_chimera_provider_count']>=8
-          assert d['linux_abi_multicall_alias_count']==15
+          assert d['linux_abi_multicall_alias_count']==25
           assert d['isa_candidate_definition_count']>=7000
           print('Octavian command and ISA coverage accounting verified.')
           PY
@@ -277,7 +277,7 @@ jobs:
           assert report["native_chimera_command_count"] == 90
           assert report["native_chimera_provider_count"] == 0, "Linux binaries must not be misreported as Koronos-native providers"
           assert report["hosted_linux_chimera_provider_count"] >= 8
-          assert report["linux_abi_multicall_alias_count"] == 15
+          assert report["linux_abi_multicall_alias_count"] == 25
           assert report["isa_candidate_definition_count"] >= 7000
           print("Verified catalogue coverage accounting and honest Koronos/Linux ABI separation.")
           PY
