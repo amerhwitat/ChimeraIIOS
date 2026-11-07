@@ -48,6 +48,9 @@ def main():
     row={"target":target,"compiler":spec["compiler"],"binary_status":"not-built","runtime_status":"not-tested","aliases":aliases,"reason":"cross compiler unavailable and pinned Zig toolchain not installed"}
     failures.append(target);rows.append(row);continue
    backend="zig-musl";command=[*zig,"cc","-target",spec["zig_target"]]
+  row={"target":target,"compiler":spec["compiler"],"compiler_backend":backend,
+       "compiler_command":" ".join(command),"zig_target":spec.get("zig_target"),
+       "binary_status":"not-built","runtime_status":"not-tested","aliases":aliases}
   d=a.output/target;d.mkdir(parents=True,exist_ok=True);binary=d/"chimera-cmd"
   proc=subprocess.run([*command,*spec.get("cflags",[]),"-std=c11","-O2","-Wall","-Wextra","-Werror","-static",str(a.source),"-o",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
   if proc.returncode:
