@@ -49,7 +49,7 @@ mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initram
 # explicitly declares linux_vmlinuz_required=false.
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
-if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
+if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; (cd "$OUT/boot/koronos" && sha256sum koronos.elf > koronos.elf.sha256); else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
 # The production ring-3 target ELFs are separate Multiboot2 modules. Stage
 # the exact artifacts built by kernel/build-koronos.sh; initramfs images are
 # payload data and cannot substitute for these user-mode entry points.
@@ -69,7 +69,7 @@ for target in live installer recovery; do
     echo "ERROR: target init is not an executable ELF: $target_elf" >&2; exit 2;
   }
   chimera_copy_if_distinct "$target_elf" "$TARGETS_OUT/target-init-$target.elf"
-  sha256sum "$TARGETS_OUT/target-init-$target.elf" > "$TARGETS_OUT/target-init-$target.elf.sha256"
+  (cd "$TARGETS_OUT" && sha256sum "target-init-$target.elf" > "target-init-$target.elf.sha256")
 done
 for target in live installer recovery; do
   test -s "$TARGETS_OUT/target-init-$target.elf"
