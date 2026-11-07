@@ -304,6 +304,7 @@ THEME
 
 # Publish desktop launchers only for executables actually present in this rootfs.
 CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/aurora/terminals/install-desktop-entries.sh"
+bash "$REPO_DIR/tests/desktop/test-aurora-terminal-shell-centers.sh" "$WORK"
 
 # Aurora desktop shell (multi-profile window manager + apps) for every edition.
 if [ -d "$REPO_DIR/desktop/aurora-shell" ]; then
