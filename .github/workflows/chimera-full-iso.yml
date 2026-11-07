@@ -310,6 +310,14 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      - name: Fail closed when native userspace acceptance is incomplete
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        shell: bash
+        run: |
+          echo "::error::Live, Installer, and Recovery did not all prove CPL3 init entry and matching nonzero PID readiness."
+          echo "The ISO artifact is retained for diagnosis; release publication is forbidden."
+          exit 1
+
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
