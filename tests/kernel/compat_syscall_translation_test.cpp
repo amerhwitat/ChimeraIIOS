@@ -15,6 +15,17 @@ int main() {
     assert(chimera_compat_recognize_syscall(
         CHM_ENTRY_X86_SYSCALL, 64u, 1u, &id) == 0);
     assert(id.canonical == CHM_SYS_WRITE);
+    assert(chimera_compat_recognize_syscall(
+        CHM_ENTRY_X86_SYSCALL, 64u, 0u, &id) == 0);
+    assert(id.canonical == CHM_SYS_READ);
+
+    assert(chimera_compat_recognize_syscall(
+        CHM_ENTRY_X86_SYSCALL, 64u, 24u, &id) == 0);
+    assert(id.canonical == CHM_SYS_YIELD);
+
+    assert(chimera_compat_recognize_syscall(
+        CHM_ENTRY_X86_SYSCALL, 64u, 0x43484D04u, &id) == 0);
+    assert(id.canonical == CHM_SYS_TIME_TICKS);
 
     assert(chimera_compat_recognize_syscall(
         CHM_ENTRY_X86_SYSCALL, 64u, 60u, &id) == 0);

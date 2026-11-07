@@ -220,6 +220,22 @@ def arabic_command_label(name):
 
 def attach_arabic_labels(catalog, root):
     merged={}
+    # Preserve the existing Arabic command inventory while refreshing SS64.
+    # Old labels remain explicitly classified; newly crawled names receive the
+    # current token-based label and source-platform membership.
+    previous_path=root/"system/commands/ss64-command-catalog.ar.json"
+    try:
+        previous=json.loads(previous_path.read_text(encoding="utf-8"))
+        for key,value in previous.get("commands",{}).items():
+            if isinstance(value,dict) and value.get("name"):
+                merged[key.casefold()]={
+                    "name":value["name"],
+                    "label":value.get("label","أمر نظام — "+str(value["name"])),
+                    "arabic_status":value.get("translation_status","preserved-existing-label"),
+                    "platforms":list(value.get("platforms",[])),
+                }
+    except (OSError,json.JSONDecodeError):
+        pass
     for platform_data in catalog.get("platforms",{}).values():
         for row in platform_data.get("commands",[]):
             name=row.get("name","")
@@ -228,7 +244,12 @@ def attach_arabic_labels(catalog, root):
             row["arabic_status"]=status
             row["arabic_search"]=list(dict.fromkeys([label,name,"أمر "+name]))
             merged.setdefault(name.casefold(),{"name":name,"label":label,"arabic_status":status,"platforms":[]})
-            merged[name.casefold()]["platforms"].append(row.get("platform",""))
+            if status=="token-translated" or merged[name.casefold()].get("arabic_status")=="preserved-existing-label":
+                merged[name.casefold()]["label"]=label
+                merged[name.casefold()]["arabic_status"]=status
+            platform=row.get("platform","")
+            if platform and platform not in merged[name.casefold()]["platforms"]:
+                merged[name.casefold()]["platforms"].append(platform)
     desktop={"schema":"CHIMERA-AR-CMD-4","locale":"ar","direction":"rtl","commands":{k:v["label"] for k,v in sorted(merged.items())},"translation_status":{k:v["arabic_status"] for k,v in sorted(merged.items())}}
     system={"schema":"CHIMERA-SS64-AR-2","locale":"ar","commands":{k:{"name":v["name"],"label":v["label"],"translation_status":v["arabic_status"],"platforms":sorted(set(v["platforms"]))} for k,v in sorted(merged.items())}}
     desktop_path=root/"desktop/aurora/arabic_command_catalog.json"

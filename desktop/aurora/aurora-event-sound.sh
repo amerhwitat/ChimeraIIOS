@@ -19,8 +19,8 @@ CHIMERA_HELP
 fi
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MANIFEST="$ROOT/assets/sounds/manifest.json"
-SOUND_DIR="$ROOT/assets/sounds"
+SOUND_DIR="${CHIMERA_SOUND_DIR:-$ROOT/assets/sounds}"
+MANIFEST="${CHIMERA_SOUND_MANIFEST:-$SOUND_DIR/manifest.json}"
 EVENT="${1:-}"
 VOLUME="${2:-${CHIMERA_SOUND_VOLUME:-0.55}}"
 

@@ -31,6 +31,9 @@ declare -a REQUIRED_COMMANDS=(
   bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
+  cargo rustc go
+  i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc
+  qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static qemu-ppc64le-static qemu-s390x-static
   unsquashfs mksquashfs rsvg-convert nasm
 )
 
@@ -38,24 +41,35 @@ declare -A COMMAND_PACKAGE=(
   [bash]=bash [python3]=python3 [cmake]=cmake [gcc]=gcc [g++]=g++
   [ld]=binutils [as]=binutils [make]=make [pkg-config]=pkg-config
   [git]=git [curl]=curl [wget]=wget [file]=file [rsync]=rsync
-  [cpio]=cpio [gzip]=gzip [xz]=xz-utils [tar]=tar [busybox]=busybox
+  [cpio]=cpio [gzip]=gzip [xz]=xz-utils [tar]=tar [busybox]=busybox-static
   [awk]=gawk [sed]=sed [grep]=grep [sha256sum]=coreutils [numfmt]=coreutils
   [stat]=coreutils [find]=findutils [sort]=coreutils
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
   [mcopy]=mtools [mformat]=mtools [grub-mkimage]=grub-common
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
+  [i686-linux-gnu-gcc]=gcc-i686-linux-gnu [arm-linux-gnueabi-gcc]=gcc-arm-linux-gnueabi [aarch64-linux-gnu-gcc]=gcc-aarch64-linux-gnu
+  [arm-linux-gnueabihf-gcc]=gcc-arm-linux-gnueabihf [riscv64-linux-gnu-gcc]=gcc-riscv64-linux-gnu
+  [powerpc64le-linux-gnu-gcc]=gcc-powerpc64le-linux-gnu [s390x-linux-gnu-gcc]=gcc-s390x-linux-gnu
+  [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
+  [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
+  [cargo]=cargo [rustc]=rustc [go]=golang-go
 )
 
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
-  build-essential binutils gcc g++ make cmake ninja-build pkg-config
+  build-essential binutils gcc g++ make cmake ninja-build pkg-config cargo rustc golang-go
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
-  git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
+  git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox-static
+  gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu qemu-user-static
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
   libncurses-dev libboost-dev gawk sed grep coreutils findutils util-linux
+  libgtk-3-dev libgtk-4-dev libadwaita-1-dev libvte-2.91-dev libvte-2.91-gtk4-dev
+  libwayland-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libxcb1-dev
+  libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev libfontconfig1-dev libfreetype6-dev libharfbuzz-dev
+  qt6-base-dev qt6-declarative-dev libyaml-cpp-dev libutf8proc-dev libpcre2-dev libicu-dev
 )
 
 declare -a OPTIONAL_PACKAGES=(
@@ -63,8 +77,6 @@ declare -a OPTIONAL_PACKAGES=(
   nodejs npm ruby perl php lua5.4 golang-go rustc cargo
   openjdk-21-jdk default-jdk openjdk-17-jdk qemu-system-x86
   dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
-  gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-  gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
 )
 
 missing=()

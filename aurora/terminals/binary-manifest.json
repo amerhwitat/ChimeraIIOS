@@ -1,18 +1,153 @@
 {
-  "schema_version": 1,
-  "architecture_policy": ["linux-amd64","linux-arm64","linux-armhf","linux-riscv64"],
-  "acquisition": "source-first; verified upstream release/package fallback",
+  "schema_version": 2,
+  "architecture_policy": [
+    "linux-amd64",
+    "linux-i386",
+    "linux-armel",
+    "linux-armhf",
+    "linux-arm64",
+    "linux-riscv64",
+    "linux-ppc64le",
+    "linux-s390x"
+  ],
+  "acquisition": "Prefer verified distribution packages already built for the target ABI; source-build only from the registry source with a recorded revision and verified license. Never mark a terminal available unless the target rootfs contains its executable.",
   "terminals": {
-    "alacritty":{"repo":"https://github.com/alacritty/alacritty","build":"cargo","license":"Apache-2.0/MIT"},
-    "kitty":{"repo":"https://github.com/kovidgoyal/kitty","build":"source/package","license":"GPL-3.0"},
-    "wezterm":{"repo":"https://github.com/wezterm/wezterm","build":"cargo","license":"MIT"},
-    "ghostty":{"repo":"https://github.com/ghostty-org/ghostty","build":"zig","license":"MIT"},
-    "foot":{"repo":"https://codeberg.org/dnkl/foot","build":"meson","license":"MIT"},
-    "contour":{"repo":"https://github.com/contour-terminal/contour","build":"cmake","license":"Apache-2.0"},
-    "xterm":{"source":"https://invisible-island.net/xterm/","build":"autotools-or-package"},
-    "gnome-terminal":{"source":"https://gitlab.gnome.org/GNOME/gnome-terminal","build":"meson-or-package"},
-    "konsole":{"source":"https://invent.kde.org/utilities/konsole","build":"cmake-or-package"},
-    "xfce4-terminal":{"source":"https://gitlab.xfce.org/apps/xfce4-terminal","build":"meson-or-package"}
+    "alacritty": {
+      "source": "https://github.com/alacritty/alacritty",
+      "binary": "alacritty",
+      "build": "cargo-source",
+      "display": "wayland-x11",
+      "license": "Apache-2.0/MIT"
+    },
+    "blackbox-terminal": {
+      "source": "https://gitlab.gnome.org/haecker-felix/blackbox",
+      "binary": "blackbox",
+      "build": "system-package-or-source",
+      "display": "wayland-x11",
+      "license": "GPL-3.0-or-later"
+    },
+    "contour": {
+      "source": "https://github.com/contour-terminal/contour",
+      "binary": "contour",
+      "build": "cmake-source",
+      "display": "wayland-x11",
+      "license": "Apache-2.0"
+    },
+    "foot": {
+      "source": "https://codeberg.org/dnkl/foot",
+      "binary": "foot",
+      "build": "meson-source",
+      "display": "wayland",
+      "license": "MIT"
+    },
+    "ghostty": {
+      "source": "https://github.com/ghostty-org/ghostty",
+      "binary": "ghostty",
+      "build": "zig-source-or-package",
+      "display": "wayland-x11",
+      "license": "MIT"
+    },
+    "gnome-console": {
+      "source": "https://gitlab.gnome.org/GNOME/gnome-console",
+      "binary": "kgx",
+      "build": "system-package-or-source",
+      "display": "wayland-x11",
+      "license": "GPL-3.0-or-later"
+    },
+    "gnome-terminal": {
+      "source": "https://gitlab.gnome.org/GNOME/gnome-terminal",
+      "binary": "gnome-terminal",
+      "build": "system-package-or-source",
+      "display": "wayland-x11"
+    },
+    "kitty": {
+      "source": "https://github.com/kovidgoyal/kitty",
+      "binary": "kitty",
+      "build": "source-or-upstream-binary",
+      "display": "wayland-x11",
+      "license": "GPL-3.0"
+    },
+    "konsole": {
+      "source": "https://invent.kde.org/utilities/konsole",
+      "binary": "konsole",
+      "build": "system-package-or-source",
+      "display": "wayland-x11"
+    },
+    "lxterminal": {
+      "source": "https://github.com/lxde/lxterminal",
+      "binary": "lxterminal",
+      "build": "system-package-or-source",
+      "display": "x11",
+      "license": "GPL-2.0-or-later"
+    },
+    "mate-terminal": {
+      "source": "https://github.com/mate-desktop/mate-terminal",
+      "binary": "mate-terminal",
+      "build": "system-package-or-source",
+      "display": "x11",
+      "license": "GPL-2.0-or-later"
+    },
+    "ptyxis": {
+      "source": "https://gitlab.gnome.org/chergert/ptyxis",
+      "binary": "ptyxis",
+      "build": "system-package-or-source",
+      "display": "wayland-x11",
+      "license": "GPL-3.0-or-later"
+    },
+    "qterminal": {
+      "source": "https://github.com/lxqt/qterminal",
+      "binary": "qterminal",
+      "build": "system-package-or-source",
+      "display": "wayland-x11",
+      "license": "GPL-2.0-or-later"
+    },
+    "sakura": {
+      "source": "https://github.com/doncram/sakura",
+      "binary": "sakura",
+      "build": "system-package-or-source",
+      "display": "x11",
+      "license": "GPL-2.0-or-later"
+    },
+    "terminator": {
+      "source": "https://github.com/gnome-terminator/terminator",
+      "binary": "terminator",
+      "build": "system-package-or-source",
+      "display": "x11",
+      "license": "GPL-2.0-or-later"
+    },
+    "terminology": {
+      "source": "https://git.enlightenment.org/enlightenment/terminology",
+      "binary": "terminology",
+      "build": "system-package-or-source",
+      "display": "wayland-x11",
+      "license": "BSD-2-Clause"
+    },
+    "tilix": {
+      "source": "https://github.com/gnunn1/tilix",
+      "binary": "tilix",
+      "build": "system-package-or-source",
+      "display": "wayland-x11",
+      "license": "GPL-2.0-or-later"
+    },
+    "wezterm": {
+      "source": "https://github.com/wezterm/wezterm",
+      "binary": "wezterm",
+      "build": "cargo-source",
+      "display": "wayland-x11",
+      "license": "MIT"
+    },
+    "xfce4-terminal": {
+      "source": "https://gitlab.xfce.org/apps/xfce4-terminal",
+      "binary": "xfce4-terminal",
+      "build": "system-package-or-source",
+      "display": "wayland-x11"
+    },
+    "xterm": {
+      "source": "https://invisible-island.net/xterm/",
+      "binary": "xterm",
+      "build": "system-package-or-source",
+      "display": "x11"
+    }
   },
-  "note":"Exact release asset URLs and SHA-256 values are resolved at build time from upstream release metadata; the build must refuse a downloaded artifact when checksum verification is unavailable."
+  "note": "Provider status is emitted per target rootfs by tools/aurora/verify-terminal-shell-providers.py. Presence is not a runtime launch test; missing package/source builds remain explicitly unavailable."
 }

@@ -1,0 +1,4 @@
+#!/bin/sh
+export CHIMERA_LANG=ar
+export LANG=ar_JO.UTF-8
+exec /usr/bin/chimera-shell "$@"
