@@ -106,6 +106,19 @@ if [ ! -f "$BASE/.packages-installed" ]; then
       sudo ca-certificates curl wget less nano htop pciutils usbutils file unzip xz-utils \
       iproute2 iputils-ping netbase procps psmisc rsync \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
+    # Real open-source astronomy tools are installed from Debian packages
+    # when available for this image architecture; no placeholder launchers.
+    astronomy_packages=()
+    for package in stellarium kstars xplanet astrometry.net; do
+      if apt-cache show "$package" >/dev/null 2>&1; then
+        astronomy_packages+=("$package")
+      else
+        echo "[ASTRONOMY][UNAVAILABLE] package=$package arch=$(dpkg --print-architecture)"
+      fi
+    done
+    if ((${#astronomy_packages[@]} > 0)); then
+      apt-get install -y -qq --no-install-recommends "${astronomy_packages[@]}"
+    fi
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
