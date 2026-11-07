@@ -32,7 +32,7 @@ PACKAGES=(
   alacritty blackbox-terminal contour foot ghostty gnome-console gnome-terminal kitty
   konsole lxterminal mate-terminal ptyxis qterminal sakura terminator terminology tilix
   wezterm xfce4-terminal xterm
-  procps psmisc iproute2 iputils-ping net-tools dnsutils traceroute
+  procps psmisc kmod systemd-resolved iproute2 iputils-ping net-tools dnsutils traceroute
   openssh-client openssh-server rsync curl wget ca-certificates
   openssl gnupg jq ripgrep fd-find tree less most nano vim-tiny
   bzip2 gzip xz-utils zip unzip zstd tar cpio pax
@@ -50,7 +50,7 @@ PACKAGES=(
   wine wine64 powershell mono-runtime dotnet-runtime-8.0
   wasmtime wasmer darling
   rpm dnf zypper flatpak snapd pacman-package-manager
-  build-essential clang cmake ninja-build python3 python3-pip python3-venv
+  build-essential clang cmake ninja-build python3 python3-pip python3-venv python-is-python3
   nodejs npm default-jdk golang-go rustc cargo php-cli ruby sqlite3
   postgresql-client mariadb-client
 )
