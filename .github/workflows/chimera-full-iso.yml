@@ -365,6 +365,95 @@ jobs:
               accepted=false
             fi
           done
+          # Boot the SAME immutable composed ISO for all six target/firmware cases.
+          iso_sha="$(sha256sum "$iso" | awk '{print $1}')"
+          ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd
+          ovmf_vars_template=/usr/share/OVMF/OVMF_VARS_4M.fd
+          if [[ ! -s "$ovmf_code" || ! -s "$ovmf_vars_template" ]]; then
+            ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
+            ovmf_vars_template=/usr/share/OVMF/OVMF_VARS.fd
+          fi
+          : > "$base/actual-firmware-matrix.tsv"
+          if [[ ! -s "$ovmf_code" || ! -s "$ovmf_vars_template" ]]; then
+            echo "::warning::OVMF firmware files unavailable; UEFI actual-ISO cases cannot pass."
+            accepted=false
+          else
+            for firmware in bios uefi; do
+              for target in live installer recovery; do
+                trace="$base/actual-$firmware-$target-debugcon.log"
+                qemu=(qemu-system-x86_64 -machine q35 -accel tcg -cpu qemu64 -m 1536 -smp 2 \
+                  -cdrom "$iso" -boot d -display none -serial none -monitor stdio \
+                  -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9)
+                if [[ "$firmware" == "uefi" ]]; then
+                  vars="$base/OVMF_VARS-$target.fd"
+                  cp "$ovmf_vars_template" "$vars"
+                  qemu+=( -drive "if=pflash,format=raw,readonly=on,file=$ovmf_code" \
+                          -drive "if=pflash,format=raw,file=$vars" )
+                fi
+                case "$target" in
+                  live) keys="live" ;;
+                  installer) keys="installer" ;;
+                  recovery) keys="recovery" ;;
+                esac
+                set +e
+                case "$target" in
+                  live)
+                    ( sleep 8; printf '%s\n' 'sendkey end'; sleep 1; printf '%s\n' 'sendkey up'; sleep 1; printf '%s\n' 'sendkey up'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                    ;;
+                  installer)
+                    ( sleep 8; printf '%s\n' 'sendkey end'; sleep 1; printf '%s\n' 'sendkey up'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                    ;;
+                  recovery)
+                    ( sleep 8; printf '%s\n' 'sendkey end'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                    ;;
+                esac
+                qemu_rc=$?
+                set -e
+                case_passed=true
+                if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 && "$qemu_rc" -ne 0 ]]; then
+                  case_passed=false
+                elif ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
+                  case_passed=false
+                fi
+                printf '%s|%s|%s|%s\n' "$firmware" "$target" "$case_passed" "$iso_sha" >> "$base/actual-firmware-matrix.tsv"
+                if [[ "$case_passed" != true ]]; then
+                  echo "::warning::Actual ISO $firmware/$target userspace boot failed."
+                  accepted=false
+                else
+                  echo "Actual ISO $firmware/$target userspace boot passed."
+                fi
+              done
+            done
+          fi
+          mkdir -p build/iso/acceptance
+          python3 - "$base/actual-firmware-matrix.tsv" "$iso_sha" build/iso/acceptance/firmware-matrix.json <<'PY_FIRMWARE_MATRIX'
+          import hashlib, json, pathlib, sys
+          tsv, iso_sha, output = pathlib.Path(sys.argv[1]), sys.argv[2], pathlib.Path(sys.argv[3])
+          cases = []
+          if tsv.exists():
+              for line in tsv.read_text().splitlines():
+                  if not line.strip():
+                      continue
+                  firmware, target, passed, case_sha = line.split("|")
+                  cases.append({"firmware": firmware, "target": target, "passed": passed == "true", "iso_sha256": case_sha})
+          report = {
+              "schema": "chimera-same-iso-firmware-matrix/v1",
+              "passed": len(cases) == 6 and all(case["passed"] for case in cases),
+              "same_iso_sha256": len(cases) == 6 and all(case["iso_sha256"] == iso_sha for case in cases),
+              "iso_sha256": iso_sha,
+              "cases": cases,
+          }
+          output.write_text(json.dumps(report, indent=2) + "\n")
+          print(json.dumps(report, indent=2))
+          PY_FIRMWARE_MATRIX
+          if ! python3 - <<'PY_CHECK_FIRMWARE_MATRIX'
+          import json, pathlib, sys
+          report = json.loads(pathlib.Path("build/iso/acceptance/firmware-matrix.json").read_text())
+          sys.exit(0 if report["passed"] and report["same_iso_sha256"] else 1)
+          PY_CHECK_FIRMWARE_MATRIX
+          then
+            accepted=false
+          fi
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
             echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
@@ -457,6 +546,7 @@ jobs:
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
+            build/iso/acceptance/firmware-matrix.json
             build/iso/acceptance/production-acceptance-status.json
 
       - name: Fail closed when native userspace acceptance is incomplete
