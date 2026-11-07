@@ -71,6 +71,10 @@ for target in live installer recovery; do
   chimera_copy_if_distinct "$target_elf" "$TARGETS_OUT/target-init-$target.elf"
   sha256sum "$TARGETS_OUT/target-init-$target.elf" > "$TARGETS_OUT/target-init-$target.elf.sha256"
 done
+for target in live installer recovery; do
+  test -s "$TARGETS_OUT/target-init-$target.elf"
+  (cd "$TARGETS_OUT" && sha256sum --check "target-init-$target.elf.sha256")
+done
 INIT="$OUT/initramfs/root"
 # Initramfs packing needs cpio and gzip on the build host; fail loudly rather
 # than emitting a truncated image when either is missing (the cpio pipeline used
