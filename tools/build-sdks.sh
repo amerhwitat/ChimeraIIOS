@@ -214,7 +214,7 @@ print("report: %s (%s)" % (out_path, summary))
 PY
 
 if [ "$STRICT" -eq 1 ]; then
-  python3 - "$OUT" <<'PY'
+  python3 - "$OUT" <<'PY' || exit $?
 import json, sys
 from pathlib import Path
 report = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
