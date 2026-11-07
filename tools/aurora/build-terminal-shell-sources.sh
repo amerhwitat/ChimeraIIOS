@@ -30,7 +30,7 @@ verify_target_elf() {
     aarch64|arm64) expected="AArch64" ;;
     armel|armv7|armv7l|armhf) expected="ARM" ;;
     riscv64) expected="RISC-V" ;;
-    i686|i386) expected="Intel 80386" ;;
+    i686|i386) expected="Intel 80386" ;; ppc64le) expected="PowerPC64" ;; s390x) expected="IBM S/390" ;;
     *) echo "Unsupported CHIMERA_TARGET_ARCH=$TARGET_ARCH; refusing unverified provider" >&2; exit 2 ;;
   esac
   machine="$(readelf -h "$binary" | awk -F: '/^[[:space:]]*Machine:/ {sub(/^[[:space:]]+/, "", $2); print $2}')"
