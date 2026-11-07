@@ -18,9 +18,12 @@ assert "command -v" in script and "source-build-required" in script
 assert 'chroot "$ROOTFS" /bin/sh -c "command -v' in launcher
 assert "continue" in launcher
 source_builder=(root/"tools/aurora/build-terminal-shell-sources.sh").read_text()
-for binary in ("yash","nu","wezterm","ghostty","contour"):
-    assert binary in source_builder, f"missing source build recipe for {binary}"
+for binary in ("bash","zsh","fish","dash","mksh","yash","nu","elvish",
+               "alacritty","foot","blackbox","wezterm","ghostty","contour"):
+    assert f"{binary}) build_" in source_builder, f"missing source build dispatch for {binary}"
+    assert f"build_{binary}()" in source_builder, f"missing source build implementation for {binary}"
 assert "git clone --depth 1" in source_builder
+assert "verify_target_elf" in source_builder and "rev-parse HEAD" in source_builder
 for alias in ("chimera-terminal","chimera-terminals","chimera-shell-ar"):
     assert alias in (root/"tools/aurora/install-terminal-shell-suite.sh").read_text()
 assert "rev-parse HEAD" in source_builder
