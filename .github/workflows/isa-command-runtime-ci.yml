@@ -204,8 +204,11 @@ jobs:
           import json
           d=json.load(open("system/commands/command-runtime-capabilities.json",encoding="utf-8"))
           assert d["native_alias_count"] == 25, d.get("native_alias_count")
-          assert d["native_script_provider_count"] == 19, d.get("native_script_provider_count")
-          assert d["mode_counts"]["native"] == 44, d["mode_counts"]
+          # 90 Chimera-specific names have explicit provider mappings; these
+          # are declarations, not proof of Koronos ABI compatibility. The
+          # live-image target-rootfs audit verifies every actual staged file.
+          assert d["native_script_provider_count"] == 90, d.get("native_script_provider_count")
+          assert d["mode_counts"]["native"] == d["native_alias_count"] + d["native_script_provider_count"], d["mode_counts"]
           assert d["koronos_abi_compatible"] is False
           print("25 native Linux ABI command entries generated; Koronos ABI remains explicitly separate.")
           PY
