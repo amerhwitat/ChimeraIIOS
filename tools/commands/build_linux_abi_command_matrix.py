@@ -30,7 +30,10 @@ def main():
   if not compiler:row["reason"]="target compiler unavailable";failures.append(target);rows.append(row);continue
   d=a.output/target;d.mkdir(parents=True,exist_ok=True);binary=d/"chimera-cmd"
   proc=subprocess.run([compiler,*spec.get("cflags",[]),"-std=c11","-O2","-Wall","-Wextra","-Werror","-static",str(a.source),"-o",str(binary)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-  if proc.returncode:row["reason"]="compiler failed";row["compiler_stderr"]=proc.stderr[-4000:];failures.append(target);rows.append(row);continue
+  if proc.returncode:
+   row["reason"]="compiler failed";row["compiler_stderr"]=proc.stderr[-4000:]
+   print(f"[{target}] compiler failed:\\n{row['compiler_stderr']}",file=sys.stderr)
+   failures.append(target);rows.append(row);continue
   hdr=subprocess.run([readelf,"-h",str(binary)],check=True,text=True,stdout=subprocess.PIPE).stdout
   machine=next((line.split(":",1)[1].strip() for line in hdr.splitlines() if line.strip().startswith("Machine:")),None)
   if not machine or spec["machine"].casefold() not in machine.casefold():row["reason"]=f"ELF machine mismatch: expected {spec['machine']}, got {machine}";failures.append(target);rows.append(row);continue
