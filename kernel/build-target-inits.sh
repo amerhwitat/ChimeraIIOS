@@ -34,7 +34,6 @@ CFLAGS=(
   -ffreestanding -fno-builtin -fno-stack-protector
   -fno-pic -fno-pie -fno-asynchronous-unwind-tables
   -m64 -mno-red-zone -mcmodel=large
-  -nostdlib -nostdinc
   -I"$ROOT/kernel/targets"
 )
 for target in live installer recovery; do
