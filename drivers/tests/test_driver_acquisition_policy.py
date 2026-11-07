@@ -70,3 +70,79 @@ def test_discover_sources_finds_linux_kernel():
     results = discover_sources("linux", "kernel")
     assert results
     assert all(item["url"].startswith("https://") for item in results)
+
+
+# The official-source importer is deliberately loaded without running main().
+import importlib.util
+from subprocess import CompletedProcess
+
+_OFFICIAL_SOURCE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "tools"
+    / "acquire_official_driver_sources.py"
+)
+_OFFICIAL_SOURCE_SPEC = importlib.util.spec_from_file_location(
+    "chimera_official_driver_sources", _OFFICIAL_SOURCE_PATH
+)
+assert _OFFICIAL_SOURCE_SPEC is not None and _OFFICIAL_SOURCE_SPEC.loader is not None
+_OFFICIAL_DRIVER_SOURCES = importlib.util.module_from_spec(_OFFICIAL_SOURCE_SPEC)
+_OFFICIAL_SOURCE_SPEC.loader.exec_module(_OFFICIAL_DRIVER_SOURCES)
+
+
+def test_failed_external_clone_is_not_reported_as_acquired(tmp_path: Path, monkeypatch):
+    def failed_clone(args):
+        destination = Path(args[-1])
+        (destination / ".git").mkdir(parents=True, exist_ok=True)
+        return CompletedProcess(
+            args,
+            128,
+            "",
+            "error: failed to encode netvadapter.inf from UTF-8 to UTF-16LE-BOM",
+        )
+
+    monkeypatch.setattr(_OFFICIAL_DRIVER_SOURCES, "run_git", failed_clone)
+    row = _OFFICIAL_DRIVER_SOURCES.acquire_source(
+        "windows-driver-samples",
+        "https://github.com/microsoft/Windows-driver-samples.git",
+        tmp_path,
+    )
+
+    assert row["status"] == "checkout_failed"
+    assert row["working_tree_present"] is True
+    assert _OFFICIAL_DRIVER_SOURCES.summarize([row]) == {
+        "acquired": 0,
+        "failed": 1,
+        "reference_only": 0,
+    }
+
+
+def test_successful_external_clone_records_revision(tmp_path: Path, monkeypatch):
+    def successful_git(args):
+        if args[1] == "clone":
+            destination = Path(args[-1])
+            (destination / ".git").mkdir(parents=True, exist_ok=True)
+            return CompletedProcess(args, 0, "", "")
+        return CompletedProcess(args, 0, "a" * 40 + "\\n", "")
+
+    monkeypatch.setattr(_OFFICIAL_DRIVER_SOURCES, "run_git", successful_git)
+    row = _OFFICIAL_DRIVER_SOURCES.acquire_source(
+        "linux", "https://github.com/torvalds/linux.git", tmp_path
+    )
+
+    assert row["status"] == "checked_out"
+    assert row["revision"] == "a" * 40
+    assert _OFFICIAL_DRIVER_SOURCES.summarize([row]) == {
+        "acquired": 1,
+        "failed": 0,
+        "reference_only": 0,
+    }
+
+
+def test_reference_only_apis_are_not_counted_as_acquired():
+    assert _OFFICIAL_DRIVER_SOURCES.summarize(
+        [{"name": "apple-driverkit", "status": "reference_only"}]
+    ) == {
+        "acquired": 0,
+        "failed": 0,
+        "reference_only": 1,
+    }
