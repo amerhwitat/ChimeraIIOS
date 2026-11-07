@@ -287,6 +287,11 @@ cleanup_generated_build_artifacts(){
     "$BUILD_DIR/aurora-app-icons" \\
     "$BUILD_DIR/aurora-selected-artwork.png" \\
     "$BUILD_DIR/native-command-isa" \\
+    "$SCRIPT_DIR/build/aurora-media" \
+    "$SCRIPT_DIR/build/aurora-icons" \
+    "$SCRIPT_DIR/build/aurora-app-icons" \
+    "$SCRIPT_DIR/build/aurora-selected-artwork.png" \
+    "$SCRIPT_DIR/build/native-command-isa" \
     "$SCRIPT_DIR/boot/iso/work" 2>/dev/null || true
   # Rootfs is disposable only when it resolves inside this build's own tree.
   local build_real rootfs_real
