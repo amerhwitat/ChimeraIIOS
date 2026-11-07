@@ -26,7 +26,6 @@ MANIFEST_DIR="$ROOTFS/usr/share/chimera/aurora"
 mkdir -p "$APPS" "$MANIFEST_DIR"
 TERMINAL_MANIFEST="$MANIFEST_DIR/terminal-shell-installed.tsv"
 SHELL_MANIFEST="$MANIFEST_DIR/shells-installed.tsv"
-: > "$TERMINAL_MANIFEST"
 : > "$SHELL_MANIFEST"
 cat > "$APPS/chimera-terminal-center.desktop" <<'EOF'
 [Desktop Entry]
@@ -76,7 +75,9 @@ for spec in \
     printf '[Aurora] Not exposing %s: executable %s is not installed.\\n' "$id" "$bin" >&2
     continue
   fi
-  printf '%s|%s\\n' "$id" "$bin" >> "$TERMINAL_MANIFEST"
+  if ! awk -F'|' -v b="$bin" '$2 == b { found=1 } END { exit !found }' "$TERMINAL_MANIFEST"; then
+    printf '%s|%s\\n' "$id" "$bin" >> "$TERMINAL_MANIFEST"
+  fi
   cat > "$APPS/chimera-terminal-$id.desktop" <<EOF
 [Desktop Entry]
 Type=Application
