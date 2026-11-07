@@ -51,8 +51,8 @@ if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
 fi
 # Fail early if the source-build and eight-ABI validation toolchain is incomplete.
-for cmd in i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc \
-  riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc go \
+for cmd in i686-linux-gnu-gcc-14 arm-linux-gnueabi-gcc-14 aarch64-linux-gnu-gcc-14 arm-linux-gnueabihf-gcc-14 \
+  riscv64-linux-gnu-gcc-14 powerpc64le-linux-gnu-gcc-14 s390x-linux-gnu-gcc-14 go \
   qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static \
   qemu-ppc64le-static qemu-s390x-static git cargo rustc cmake ninja readelf g++; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Missing build dependency: $cmd" >&2; exit 2; }
