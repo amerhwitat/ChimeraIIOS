@@ -227,6 +227,16 @@ jobs:
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
           test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-staging.json"
+          python3 - "$root/usr/share/chimera/aurora/terminal-shell-staging.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1],encoding="utf-8"))
+          entries=report["entries"]
+          assert len(entries)==28, f"expected 28 registered terminal/shell providers, got {len(entries)}"
+          failed=[x for x in entries if x["status"] not in ("verified-elf-provider","verified-script-provider") or x["runtime_status"] not in ("shell-command-smoke-pass","version-smoke-pass")]
+          assert not failed, [(x["id"],x["status"],x["runtime_status"]) for x in failed]
+          print("All 20 terminal emulators and 8 shells passed executable and runtime smoke tests.")
+          PY
           test -x "$root/usr/local/bin/aurora-terminal-center"
           test -x "$root/usr/local/bin/aurora-shell-center"
           test -s "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
@@ -502,6 +512,16 @@ jobs:
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
           test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-staging.json"
+          python3 - "$root/usr/share/chimera/aurora/terminal-shell-staging.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1],encoding="utf-8"))
+          entries=report["entries"]
+          assert len(entries)==28, f"expected 28 registered terminal/shell providers, got {len(entries)}"
+          failed=[x for x in entries if x["status"] not in ("verified-elf-provider","verified-script-provider") or x["runtime_status"] not in ("shell-command-smoke-pass","version-smoke-pass")]
+          assert not failed, [(x["id"],x["status"],x["runtime_status"]) for x in failed]
+          print("All 20 terminal emulators and 8 shells passed executable and runtime smoke tests.")
+          PY
           test -x "$root/usr/local/bin/aurora-terminal-center"
           test -x "$root/usr/local/bin/aurora-shell-center"
           test -s "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
