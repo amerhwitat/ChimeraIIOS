@@ -1,5 +1,6 @@
 name: Koronos VMware/QEMU Boot Matrix
 
+# Run the same QEMU boot matrix on the active integration and installer/recovery fix branches.
 on:
   workflow_dispatch:
   pull_request:
