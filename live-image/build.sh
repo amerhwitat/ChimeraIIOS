@@ -647,9 +647,9 @@ menuentry "Reboot" { reboot }
 menuentry "Power off" { halt }
 EOF
 
-# Native Koronos kernel: built with the Linux-style kbuild workflow and staged as a
-# multiboot2 payload. It is a diagnostic target: the microkernel does not reach a
-# verified userspace handoff, so the Linux live entries remain the default.
+# Build and embed the real Koronos Live/Installer/Recovery ring-3 targets. These
+# are still text/ABI probes; Linux remains the default until full desktop,
+# installer persistence, recovery repair, SMP and architecture gates pass.
 log "Koronos production target modules"
 if [[ ! -x "$REPO_DIR/kernel/build-koronos.sh" ]]; then
   echo "[ERROR] kernel/build-koronos.sh is required for the native target modules." >&2
@@ -695,17 +695,6 @@ KORONOS
 
 log "iso"
 rm -f "$OUT/$ISO_NAME"
-if [ -f "$ISODIR/boot/koronos/koronos.elf" ]; then
-  cat >> "$ISODIR/boot/grub/grub.cfg" <<'KORONOS'
-
-menuentry "Koronos native microkernel (diagnostic console — no graphical userspace)" {
-  echo "Loading Koronos microkernel (multiboot2)…"
-  multiboot2 /boot/koronos/koronos.elf
-  boot
-}
-KORONOS
-fi
-
 grub-mkrescue --compress=xz -o "$OUT/$ISO_NAME" "$ISODIR" -- -volid "$VOLID"
 ( cd "$OUT" && sha256sum "$ISO_NAME" > "$ISO_NAME.sha256" )
 ls -lh "$OUT/$ISO_NAME"
