@@ -32,7 +32,6 @@ declare -a REQUIRED_COMMANDS=(
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
   cargo rustc go
-  i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc
   qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static qemu-ppc64le-static qemu-s390x-static
   unsquashfs mksquashfs rsvg-convert nasm
 )
@@ -47,9 +46,8 @@ declare -A COMMAND_PACKAGE=(
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
   [mcopy]=mtools [mformat]=mtools [grub-mkimage]=grub-common
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
-  [i686-linux-gnu-gcc]=gcc-i686-linux-gnu [arm-linux-gnueabi-gcc]=gcc-arm-linux-gnueabi [aarch64-linux-gnu-gcc]=gcc-aarch64-linux-gnu
-  [arm-linux-gnueabihf-gcc]=gcc-arm-linux-gnueabihf [riscv64-linux-gnu-gcc]=gcc-riscv64-linux-gnu
-  [powerpc64le-linux-gnu-gcc]=gcc-powerpc64le-linux-gnu [s390x-linux-gnu-gcc]=gcc-s390x-linux-gnu
+  [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
+  [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
   [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
   [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
@@ -61,7 +59,7 @@ declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ make cmake ninja-build pkg-config cargo rustc golang-go
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox-static
-  gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu qemu-user-static
+  qemu-user-static
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
@@ -169,6 +167,7 @@ install_optional_toolchains() {
   fi
 }
 say DEPS "Mandatory dependency verification passed."
+bash "$ROOT/tools/commands/ensure-zig-toolchain.sh"
 if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
   if command -v apt-get >/dev/null 2>&1 && [[ -f /etc/debian_version ]]; then
     apt_prefix=()
