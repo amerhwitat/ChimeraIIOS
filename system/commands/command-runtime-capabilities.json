@@ -1,19 +1,114 @@
 {
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
-  "policy": "Catalog presence does not mean a binary or implementation exists. Native C entries are compiled as Linux userspace ELF aliases for eight Linux ABIs; native script entries name real executable providers in the hosted rootfs. Neither category implies Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
-  "native_binary": "rootfs/usr/lib/chimera/commands/linux-abi/<target>/chimera-cmd",
+  "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and built as Linux userspace ELF aliases for the eight declared Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
+  "native_binary": "rootfs/usr/bin/chimera-cmd",
+  "linux_abi_matrix_artifact_root": "build/native-command-isa/<target>/chimera-cmd",
+  "linux_abi_matrix_staged_in_rootfs": false,
   "native_abi": "Linux userspace ELF aliases and verified executable scripts; not a Koronos syscall ABI",
-  "native_alias_count": 25,
+  "native_script_provider_count": 90,
+  "native_script_providers": {
+    "chimera": "/usr/bin/chimera",
+    "chmctl": "/usr/bin/chmctl",
+    "chimera-registry": "/usr/bin/chimera-registry",
+    "hivectl": "/usr/bin/hivectl",
+    "chimera-nbit": "/usr/bin/chimera-nbit",
+    "chimera-risc": "/usr/bin/chimera-risc",
+    "chimera-llm": "/usr/bin/chimera-llm",
+    "chimera-rnn": "/usr/bin/chimera-rnn",
+    "chimera-p2p": "/usr/bin/chimera-p2p",
+    "chimera-install": "/usr/bin/chimera-install",
+    "chimera-apache": "/usr/bin/chimera-apache",
+    "chimera-ss64": "/usr/bin/chimera-ss64",
+    "chimera-128d": "/usr/bin/chimera-128d",
+    "chimera-vector": "/usr/bin/chimera-vector",
+    "chimera-tensor": "/usr/bin/chimera-tensor",
+    "chimera-hdc": "/usr/bin/chimera-hdc",
+    "chimera-neural": "/usr/bin/chimera-neural",
+    "chimera-shell-ar": "/usr/bin/chimera-shell-ar",
+    "aegisctl": "/usr/bin/aegisctl",
+    "auroractl": "/usr/bin/auroractl",
+    "jasperctl": "/usr/bin/jasperctl",
+    "koronosctl": "/usr/bin/koronosctl",
+    "nucleusctl": "/usr/bin/nucleusctl",
+    "spitfirectl": "/usr/bin/spitfirectl",
+    "spotnikctl": "/usr/bin/spotnikctl",
+    "chimera-security": "/usr/bin/chimera-security",
+    "chimera-live": "/usr/bin/chimera-live",
+    "chimera-hybrid": "/usr/bin/chimera-hybrid",
+    "chimeractl": "/usr/bin/chimeractl",
+    "chimera-help": "/usr/bin/chimera-help",
+    "chimera-info": "/usr/bin/chimera-info",
+    "chimera-doctor": "/usr/bin/chimera-doctor",
+    "chimera-update": "/usr/bin/chimera-update",
+    "chimera-package": "/usr/bin/chimera-package",
+    "korectl": "/usr/bin/korectl",
+    "chimera-service": "/usr/bin/chimera-service",
+    "chimera-asm": "/usr/bin/chimera-asm",
+    "chimera-disasm": "/usr/bin/chimera-disasm",
+    "chimera-display": "/usr/bin/chimera-display",
+    "chimera-python": "/usr/bin/chimera-python",
+    "chimera-java": "/usr/bin/chimera-java",
+    "chimera-background": "/usr/bin/chimera-background",
+    "chimera-gpu-driver-manager": "/usr/bin/chimera-gpu-driver-manager",
+    "chimera-hardware-drivers": "/usr/bin/chimera-hardware-drivers",
+    "chimera-driver-panel": "/usr/bin/chimera-driver-panel",
+    "chimera-shell": "/usr/bin/chimera-shell",
+    "chimera-terminal": "/usr/bin/chimera-terminal",
+    "chimera-user": "/usr/sbin/useradd",
+    "chimera-group": "/usr/sbin/groupadd",
+    "chimera-network": "/usr/sbin/ip",
+    "chimera-storage": "/usr/bin/lsblk",
+    "chimera-boot": "/usr/sbin/grub-mkconfig",
+    "chimera-kernel": "/usr/bin/uname",
+    "chimera-modprobe": "/usr/sbin/modprobe",
+    "chimera-db": "/usr/bin/sqlite3",
+    "chimera-iso": "/usr/bin/xorriso",
+    "chimera-vm": "/usr/bin/qemu-system-x86_64",
+    "chimera-cpu": "/usr/bin/lscpu",
+    "chimera-elf": "/usr/bin/readelf",
+    "chimera-sync": "/usr/bin/rsync",
+    "chimera-ad": "/usr/sbin/realm",
+    "chimera-domain": "/usr/sbin/realm",
+    "chimera-policy": "/usr/bin/pkaction",
+    "chimera-permissions": "/usr/bin/chmod",
+    "chimera-audit": "/usr/sbin/auditctl",
+    "chimera-firewall": "/usr/sbin/nft",
+    "chimera-storagectl": "/usr/sbin/parted",
+    "chimera-device": "/usr/bin/udevadm",
+    "chimera-kmod": "/usr/bin/kmod",
+    "chimera-firmware": "/usr/bin/fwupdmgr",
+    "chimera-wayland": "/usr/bin/wayland-info",
+    "chimera-packagekit": "/usr/bin/pkcon",
+    "chimera-container": "/usr/bin/podman",
+    "chimera-kubernetes": "/usr/bin/kubectl",
+    "chimera-apachectl": "/usr/sbin/apache2ctl",
+    "chimera-php": "/usr/bin/php",
+    "chimera-node": "/usr/bin/node",
+    "chimera-cpp": "/usr/bin/g++",
+    "chimera-rust": "/usr/bin/rustc",
+    "chimera-asm64": "/usr/bin/chimera-asm",
+    "chimera-audio-drivers": "/usr/bin/chimera-driver-panel",
+    "chimera-diagnostics": "/usr/bin/chimera-doctor",
+    "chimera-driver": "/usr/bin/chimera-hardware-drivers",
+    "chimera-session": "/usr/local/bin/aurora-session",
+    "chimera-terminals": "/usr/bin/chimera-terminal",
+    "chimera-biometric": "/usr/bin/fprintd-list",
+    "chimera-log": "/usr/bin/journalctl",
+    "chimera-locale": "/usr/bin/localectl",
+    "chimera-cisc": "/usr/bin/nasm",
+    "chimera-openshift": "/usr/bin/oc"
+  },
+  "native_alias_count": 37,
   "koronos_abi_compatible": false,
   "command_count": 4141,
   "executable_command_count": 3155,
   "language_feature_count": 986,
   "shell_builtin_count": 53,
   "mode_counts": {
-    "compatibility-provider-required": 2914,
+    "compatibility-provider-required": 2840,
     "language-feature": 971,
-    "native": 44,
-    "native-provider-required": 159,
+    "native": 127,
+    "native-provider-required": 150,
     "shell-builtin": 53
   },
   "commands": [
@@ -6769,11 +6864,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/aegisctl"
     },
     {
       "name": "afconvert",
@@ -8322,11 +8418,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/auroractl"
     },
     {
       "name": "auth",
@@ -12236,55 +12333,60 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera"
     },
     {
       "name": "chimera-128d",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-128d"
     },
     {
       "name": "chimera-ad",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/realm"
     },
     {
       "name": "chimera-apache",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-apache"
     },
     {
       "name": "chimera-apachectl",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/apache2ctl"
     },
     {
       "name": "chimera-asm",
@@ -12303,33 +12405,36 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-asm"
     },
     {
       "name": "chimera-audio-drivers",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-driver-panel"
     },
     {
       "name": "chimera-audit",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/auditctl"
     },
     {
       "name": "chimera-background",
@@ -12348,33 +12453,36 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/fprintd-list"
     },
     {
       "name": "chimera-boot",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/grub-mkconfig"
     },
     {
       "name": "chimera-cisc",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/nasm"
     },
     {
       "name": "chimera-cmd",
@@ -12392,33 +12500,36 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/podman"
     },
     {
       "name": "chimera-cpp",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/g++"
     },
     {
       "name": "chimera-cpu",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/lscpu"
     },
     {
       "name": "chimera-cpu-mode",
@@ -12436,33 +12547,36 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/sqlite3"
     },
     {
       "name": "chimera-device",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/udevadm"
     },
     {
       "name": "chimera-diagnostics",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-doctor"
     },
     {
       "name": "chimera-disasm",
@@ -12505,22 +12619,24 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/realm"
     },
     {
       "name": "chimera-driver",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-hardware-drivers"
     },
     {
       "name": "chimera-driver-panel",
@@ -12539,11 +12655,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/readelf"
     },
     {
       "name": "chimera-emulator",
@@ -12561,22 +12678,24 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/nft"
     },
     {
       "name": "chimera-firmware",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/fwupdmgr"
     },
     {
       "name": "chimera-gpu-driver-manager",
@@ -12595,11 +12714,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/groupadd"
     },
     {
       "name": "chimera-hardware-drivers",
@@ -12618,11 +12738,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-hdc"
     },
     {
       "name": "chimera-help",
@@ -12641,11 +12762,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-hybrid"
     },
     {
       "name": "chimera-info",
@@ -12664,22 +12786,24 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-install"
     },
     {
       "name": "chimera-iso",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/xorriso"
     },
     {
       "name": "chimera-java",
@@ -12698,154 +12822,168 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/uname"
     },
     {
       "name": "chimera-kmod",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/kmod"
     },
     {
       "name": "chimera-kubernetes",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/kubectl"
     },
     {
       "name": "chimera-live",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-live"
     },
     {
       "name": "chimera-llm",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-llm"
     },
     {
       "name": "chimera-locale",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/localectl"
     },
     {
       "name": "chimera-log",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/journalctl"
     },
     {
       "name": "chimera-modprobe",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/modprobe"
     },
     {
       "name": "chimera-nbit",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-nbit"
     },
     {
       "name": "chimera-network",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/ip"
     },
     {
       "name": "chimera-neural",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-neural"
     },
     {
       "name": "chimera-node",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/node"
     },
     {
       "name": "chimera-openshift",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/oc"
     },
     {
       "name": "chimera-p2p",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-p2p"
     },
     {
       "name": "chimera-package",
@@ -12864,44 +13002,48 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/pkcon"
     },
     {
       "name": "chimera-permissions",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chmod"
     },
     {
       "name": "chimera-php",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/php"
     },
     {
       "name": "chimera-policy",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/pkaction"
     },
     {
       "name": "chimera-python",
@@ -12920,33 +13062,36 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-registry"
     },
     {
       "name": "chimera-risc",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-risc"
     },
     {
       "name": "chimera-rnn",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-rnn"
     },
     {
       "name": "chimera-rom",
@@ -12986,22 +13131,24 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/rustc"
     },
     {
       "name": "chimera-security",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-security"
     },
     {
       "name": "chimera-service",
@@ -13020,11 +13167,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/local/bin/aurora-session"
     },
     {
       "name": "chimera-shell",
@@ -13043,66 +13191,72 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-shell-ar"
     },
     {
       "name": "chimera-ss64",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-ss64"
     },
     {
       "name": "chimera-storage",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/lsblk"
     },
     {
       "name": "chimera-storagectl",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/parted"
     },
     {
       "name": "chimera-sync",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/rsync"
     },
     {
       "name": "chimera-tensor",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-tensor"
     },
     {
       "name": "chimera-terminal",
@@ -13121,11 +13275,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-terminal"
     },
     {
       "name": "chimera-update",
@@ -13144,44 +13299,48 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/sbin/useradd"
     },
     {
       "name": "chimera-vector",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chimera-vector"
     },
     {
       "name": "chimera-vm",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/qemu-system-x86_64"
     },
     {
       "name": "chimera-wayland",
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/wayland-info"
     },
     {
       "name": "chimeractl",
@@ -13245,11 +13404,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/chmctl"
     },
     {
       "name": "chmod",
@@ -14059,15 +14219,16 @@
       "name": "cmp",
       "platforms": [
         "busybox",
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix",
         "windows_cmd"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "installed BusyBox multicall binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — cmp",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/cmp.html",
@@ -21197,15 +21358,16 @@
     {
       "name": "env",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "native provider binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — env",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/env.html",
@@ -22938,14 +23100,15 @@
     {
       "name": "fold",
       "platforms": [
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "darwin-or-posix-provider",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — fold",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/fold.html",
@@ -28790,11 +28953,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/hivectl"
     },
     {
       "name": "homebrew",
@@ -29219,15 +29383,16 @@
     {
       "name": "id",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "native provider binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — id",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/id.html",
@@ -30596,11 +30761,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/jasperctl"
     },
     {
       "name": "java",
@@ -31156,11 +31322,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/koronosctl"
     },
     {
       "name": "ksetup",
@@ -36910,14 +37077,15 @@
     {
       "name": "nl",
       "platforms": [
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "darwin-or-posix-provider",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — nl",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/nl.html",
@@ -37466,11 +37634,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/nucleusctl"
     },
     {
       "name": "Null",
@@ -40049,13 +40218,14 @@
       "name": "printenv",
       "platforms": [
         "busybox",
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "installed BusyBox multicall binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — printenv",
       "source_urls": [
         "https://ss64.com/bash/printenv.html",
@@ -41670,6 +41840,7 @@
       "platforms": [
         "chimera_native",
         "gnu-coreutils",
+        "linux_bash",
         "posix"
       ],
       "mode": "native",
@@ -45537,13 +45708,14 @@
       "name": "seq",
       "platforms": [
         "busybox",
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "installed BusyBox multicall binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — seq",
       "source_urls": [
         "https://ss64.com/bash/seq.html",
@@ -47864,11 +48036,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/spitfirectl"
     },
     {
       "name": "split",
@@ -47934,11 +48107,12 @@
       "platforms": [
         "chimera_native"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "platform-runtime-not-selected",
+      "provider": "chimera-userland-script",
       "arabic_label": null,
-      "source_urls": []
+      "source_urls": [],
+      "provider_binary": "/usr/bin/spotnikctl"
     },
     {
       "name": "Spread Sheet Widget",
@@ -50181,15 +50355,16 @@
     {
       "name": "tee",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "native provider binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — tee",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/tee.html",
@@ -51049,15 +51224,16 @@
     {
       "name": "tr",
       "platforms": [
+        "chimera_native",
         "gnu-coreutils",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "native provider binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — tr",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/tr.html",
@@ -51517,14 +51693,15 @@
     {
       "name": "tty",
       "platforms": [
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos",
         "posix"
       ],
-      "mode": "compatibility-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "darwin-or-posix-provider",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — tty",
       "source_urls": [
         "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/tty.html",
@@ -54089,14 +54266,15 @@
       "name": "which",
       "platforms": [
         "busybox",
+        "chimera_native",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
         "macos"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "installed BusyBox multicall binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — which",
       "source_urls": [
         "https://ss64.com/bash/which.html",
@@ -55615,13 +55793,14 @@
       "name": "yes",
       "platforms": [
         "busybox",
+        "chimera_native",
         "linux_bash",
         "linux_posix_shells",
         "macos"
       ],
-      "mode": "native-provider-required",
+      "mode": "native",
       "entry_kind": "executable-command",
-      "provider": "installed BusyBox multicall binary",
+      "provider": "chimera-cmd",
       "arabic_label": "أمر نظام — yes",
       "source_urls": [
         "https://ss64.com/bash/yes.html",
@@ -55838,27 +56017,5 @@
         "https://www.FreeBSD.org/donations"
       ]
     }
-  ],
-  "native_script_provider_count": 19,
-  "native_script_providers": {
-    "chimeractl": "/usr/bin/chimeractl",
-    "chimera-help": "/usr/bin/chimera-help",
-    "chimera-info": "/usr/bin/chimera-info",
-    "chimera-doctor": "/usr/bin/chimera-doctor",
-    "chimera-update": "/usr/bin/chimera-update",
-    "chimera-package": "/usr/bin/chimera-package",
-    "korectl": "/usr/bin/korectl",
-    "chimera-service": "/usr/bin/chimera-service",
-    "chimera-asm": "/usr/bin/chimera-asm",
-    "chimera-disasm": "/usr/bin/chimera-disasm",
-    "chimera-display": "/usr/bin/chimera-display",
-    "chimera-python": "/usr/bin/chimera-python",
-    "chimera-java": "/usr/bin/chimera-java",
-    "chimera-background": "/usr/bin/chimera-background",
-    "chimera-gpu-driver-manager": "/usr/bin/chimera-gpu-driver-manager",
-    "chimera-hardware-drivers": "/usr/bin/chimera-hardware-drivers",
-    "chimera-driver-panel": "/usr/bin/chimera-driver-panel",
-    "chimera-shell": "/usr/bin/chimera-shell",
-    "chimera-terminal": "/usr/bin/chimera-terminal"
-  }
+  ]
 }
