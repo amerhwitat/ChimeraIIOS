@@ -192,6 +192,7 @@ install -d "$WORK/usr/lib/chimera/commands/linux-abi"
 cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 bash "$REPO_DIR/tools/commands/install-busybox-applets.sh" "$WORK"
 bash "$REPO_DIR/tools/commands/build-chimera-native-tools.sh" "$WORK"
+bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
 install -d "$WORK/usr/share/chimera/catalogs"
 python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
 for rel in \
