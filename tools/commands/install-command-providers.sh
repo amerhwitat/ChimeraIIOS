@@ -37,7 +37,7 @@ PACKAGES=(
   openssl gnupg jq ripgrep fd-find tree less most nano vim-tiny
   bzip2 gzip xz-utils zip unzip zstd tar cpio pax
   acl attr e2fsprogs dos2unix time bc dc
-  pciutils usbutils dmidecode lsof strace ltrace
+  pciutils usbutils dmidecode lsof strace ltrace bubblewrap python3-tk
   ethtool iw nftables iptables arping mtr-tiny
   screen tmux ncdu htop iotop sysstat
   rsnapshot logrotate cron at
