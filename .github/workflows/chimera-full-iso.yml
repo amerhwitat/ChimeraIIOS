@@ -71,6 +71,9 @@ jobs:
           python3 tests/commands/test_rootless_rootfs_staging.py
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
+        run: |
+          python3 tests/boot/test_iso_target_routing_artwork.py
+          python3 tests/boot/test_target_init_staging.py
 
       - name: Test fail-closed userspace handoff evidence verifier and release gate
         run: |
