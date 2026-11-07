@@ -45,6 +45,10 @@ PACKAGES=(
   lvm2 mdadm smartmontools parted gdisk dosfstools exfatprogs
   squashfs-tools xorriso mtools
   shellcheck dosbox dosbox-x qemu-user-static
+  # Optional cross-platform compatibility runtimes; absent packages remain explicit in coverage.
+  wine wine64 powershell mono-runtime dotnet-runtime-8.0
+  wasmtime wasmer darling
+  rpm dnf zypper flatpak snapd pacman-package-manager
   build-essential clang cmake ninja-build python3 python3-pip python3-venv
   nodejs npm default-jdk golang-go rustc cargo php-cli ruby sqlite3
   postgresql-client mariadb-client
