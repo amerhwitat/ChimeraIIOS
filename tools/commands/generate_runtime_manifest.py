@@ -11,6 +11,27 @@ ARABIC = ROOT / "system" / "commands" / "ss64-command-catalog.ar.json"
 OUT = ROOT / "system" / "commands" / "command-runtime-capabilities.json"
 REGISTRY = ROOT / "tools" / "commands" / "os-command-runtime.json"
 NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
+NATIVE_SCRIPT_PROVIDERS = {
+    "chimeractl": "/usr/bin/chimeractl",
+    "chimera-help": "/usr/bin/chimera-help",
+    "chimera-info": "/usr/bin/chimera-info",
+    "chimera-doctor": "/usr/bin/chimera-doctor",
+    "chimera-update": "/usr/bin/chimera-update",
+    "chimera-package": "/usr/bin/chimera-package",
+    "korectl": "/usr/bin/korectl",
+    "chimera-service": "/usr/bin/chimera-service",
+    "chimera-asm": "/usr/bin/chimera-asm",
+    "chimera-disasm": "/usr/bin/chimera-disasm",
+    "chimera-display": "/usr/bin/chimera-display",
+    "chimera-python": "/usr/bin/chimera-python",
+    "chimera-java": "/usr/bin/chimera-java",
+    "chimera-background": "/usr/bin/chimera-background",
+    "chimera-gpu-driver-manager": "/usr/bin/chimera-gpu-driver-manager",
+    "chimera-hardware-drivers": "/usr/bin/chimera-hardware-drivers",
+    "chimera-driver-panel": "/usr/bin/chimera-driver-panel",
+    "chimera-shell": "/usr/bin/chimera-shell",
+    "chimera-terminal": "/usr/bin/chimera-terminal",
+}
 SHELL = set("""alias bg break builtin caller case cd command continue declare dirs eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 PLATFORM_ARRAYS = {
     "linux_bash":"linux_bash", "macos":"macos_core", "windows_cmd":"windows_cmd_core",
@@ -100,7 +121,9 @@ def main():
     commands=[]
     for key,row in sorted(rows.items()):
         kind=catalogue_kind(row["name"], row["platforms"], row["source_urls"])
+        provider_binary=None
         if key in NATIVE: mode="native"; provider="chimera-cmd"
+        elif key in NATIVE_SCRIPT_PROVIDERS: mode="native"; provider="chimera-userland-script"; provider_binary=NATIVE_SCRIPT_PROVIDERS[key]
         elif key in SHELL: mode="shell-builtin"; provider="chimera-shell"
         elif kind in ("language-feature", "shell-syntax"):
             mode="language-feature"; provider="shell-interpreter-or-language-runtime"
@@ -121,17 +144,21 @@ def main():
                 provider="platform-runtime-not-selected"
         label=arabic.get(key)
         if isinstance(label,dict): label=label.get("label")
-        commands.append({
+        command_row={
             "name":row["name"],"platforms":sorted(row["platforms"]),"mode":mode,
             "entry_kind":kind,
             "provider":provider,"arabic_label":label,
             "source_urls":sorted(set(row["source_urls"]))
-        })
+        }
+        if provider_binary: command_row["provider_binary"]=provider_binary
+        commands.append(command_row)
     OUT.write_text(json.dumps({
         "schema":"CHM-COMMAND-RUNTIME-CAPABILITIES-1",
         "policy":"Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c and built as Linux userspace ELF aliases for the eight declared Linux ABIs. This does not imply Koronos syscall ABI compatibility; all other external commands require the named runtime/provider.",
         "native_binary":"rootfs/usr/lib/chimera/commands/linux-abi/<target>/chimera-cmd",
-        "native_abi":"Linux userspace ELF; cross-built for eight Linux ABIs; not a Koronos syscall ABI",
+        "native_abi":"Linux userspace ELF aliases and verified executable scripts; not a Koronos syscall ABI",
+        "native_script_provider_count":len(NATIVE_SCRIPT_PROVIDERS),
+        "native_script_providers":NATIVE_SCRIPT_PROVIDERS,
         "native_alias_count":len(NATIVE),
         "koronos_abi_compatible":False,
         "command_count":len(commands),
