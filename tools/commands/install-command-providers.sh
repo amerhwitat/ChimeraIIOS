@@ -26,6 +26,12 @@ set -u
 
 PACKAGES=(
   coreutils util-linux findutils grep sed gawk mawk diffutils file busybox-static
+  # Open-source interactive shells from the Aurora Shells registry.
+  bash zsh fish dash mksh yash elvish nushell
+  # Open-source terminal emulators from the Aurora Terminals registry.
+  alacritty blackbox-terminal contour foot ghostty gnome-console gnome-terminal kitty
+  konsole lxterminal mate-terminal ptyxis qterminal sakura terminator terminology tilix
+  wezterm xfce4-terminal xterm
   procps psmisc iproute2 iputils-ping net-tools dnsutils traceroute
   openssh-client openssh-server rsync curl wget ca-certificates
   openssl gnupg jq ripgrep fd-find tree less most nano vim-tiny
