@@ -47,8 +47,21 @@ def spawn(sid,shell,role,unsafe):
   def pre():
    os.setsid(); limits(); os.chdir(root)
    if hasattr(os,'unshare'): os.unshare(os.CLONE_NEWNS|os.CLONE_NEWPID|os.CLONE_NEWNET)
- proc=subprocess.Popen(cmd,stdin=slave,stdout=slave,stderr=slave,env=env,close_fds=True,preexec_fn=pre); os.close(slave); os.set_blocking(master,False); return {'master':master,'pid':proc.pid,'root':root,'started':time.monotonic()}
+ proc=subprocess.Popen(cmd,stdin=slave,stdout=slave,stderr=slave,env=env,close_fds=True,preexec_fn=pre); os.close(slave); os.set_blocking(master,False); return {'master':master,'pid':proc.pid,'proc':proc,'root':root,'started':time.monotonic()}
 def send(c,o): c.sendall((json.dumps(o,separators=(',',':'))+'\n').encode())
+def stop_session(sid,s):
+ try: os.killpg(s['pid'],signal.SIGHUP)
+ except ProcessLookupError: pass
+ try: s['proc'].wait(timeout=3)
+ except subprocess.TimeoutExpired:
+  try: os.killpg(s['pid'],signal.SIGKILL)
+  except ProcessLookupError: pass
+  try: s['proc'].wait(timeout=2)
+  except subprocess.TimeoutExpired: pass
+ try: os.close(s['master'])
+ except OSError: pass
+ shutil.rmtree(s['root'],ignore_errors=True)
+ SESSIONS.pop(sid,None)
 def handle(c,cfg):
  line=c.makefile('rb').readline(1048576)
  if not line:return
@@ -62,9 +75,7 @@ def handle(c,cfg):
  sid=str(q.get('session','')); s=SESSIONS.get(sid)
  if not s: send(c,{'ok':False,'error':'session not found'}); return
  if time.monotonic()-s.get('started',time.monotonic())>LIMITS['wall_seconds']:
-  try: os.killpg(s['pid'],signal.SIGTERM)
-  except ProcessLookupError: pass
-  SESSIONS.pop(sid,None); send(c,{'ok':False,'error':'terminal session wall-time limit exceeded'}); return
+  stop_session(sid,s); send(c,{'ok':False,'error':'terminal session wall-time limit exceeded'}); return
  if action=='write':
   if not allowed(role,'terminal.write'): send(c,{'ok':False,'error':'terminal.write denied'}); return
   os.write(s['master'],base64.b64decode(q.get('data',''))); send(c,{'ok':True})
@@ -77,9 +88,7 @@ def handle(c,cfg):
   if not allowed(role,'terminal.resize'): send(c,{'ok':False,'error':'terminal.resize denied'}); return
   import fcntl; fcntl.ioctl(s['master'],termios.TIOCSWINSZ,struct.pack('HHHH',int(q.get('rows',24)),int(q.get('cols',80)),0,0)); send(c,{'ok':True})
  elif action=='close':
-  try: os.killpg(s['pid'],signal.SIGHUP)
-  except ProcessLookupError: pass
-  SESSIONS.pop(sid,None); send(c,{'ok':True})
+  stop_session(sid,s); send(c,{'ok':True})
  else: send(c,{'ok':False,'error':'unknown action'})
 def main():
  p=argparse.ArgumentParser(); p.add_argument('--socket',default='/run/chimera/terminald.sock'); p.add_argument('--config',default=str(CONFIG_DIR/'terminal-service.json')); a=p.parse_args(); cfg=load(Path(a.config)); LIMITS.update({k:int(v) for k,v in cfg.get('limits',{}).items() if k in LIMITS}); sock=Path(a.socket); sock.parent.mkdir(parents=True,exist_ok=True)
