@@ -19,7 +19,7 @@ coverage_aliases = {str(name).casefold() for name in coverage["linux_abi_multica
 rows = {str(row.get("command", row.get("name", ""))).casefold(): row for row in coverage["commands"]}
 
 assert len(catalogue) == coverage["source_catalogue_unique_command_count"], (
-    len(catalogue), coverage["counts"]["unique_commands"])
+    len(catalogue), coverage["source_catalogue_unique_command_count"])
 assert aliases == coverage_aliases, (sorted(aliases - coverage_aliases), sorted(coverage_aliases - aliases))
 assert aliases <= catalogue, sorted(aliases - catalogue)
 assert coverage["linux_abi_multicall_alias_count"] == len(aliases)
