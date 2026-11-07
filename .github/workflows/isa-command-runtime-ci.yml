@@ -297,6 +297,8 @@ jobs:
           python3 -m unittest tools.commands.test_import_command_candidates tools.commands.test_command_candidate_router -v
           python3 tests/commands/test_command_isa_coverage_report.py
           python3 tests/commands/test_native_catalogue_alignment.py
+          bash -n tools/build-chimera-command-compat.sh
+          python3 tests/commands/test_native_provider_aliases.py
           python3 tools/commands/command_candidate_router.py "list files" --limit 10
           python3 - <<'PY'
           import json
