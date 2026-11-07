@@ -105,16 +105,34 @@ static int cmd_ls(int argc, char **argv)
     }
 
     struct dirent *e;
+    int rc = 0;
 
-    while ((e = readdir(d)) != NULL) {
+    for (;;) {
+        errno = 0;
+        e = readdir(d);
+        if (e == NULL) {
+            if (errno != 0) {
+                perror(path);
+                rc = 1;
+            }
+            break;
+        }
+
         if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, ".."))
             continue;
 
-        printf("%s\n", e->d_name);
+        if (printf("%s\n", e->d_name) < 0) {
+            perror("ls: stdout");
+            rc = 1;
+            break;
+        }
     }
 
-    closedir(d);
-    return 0;
+    if (closedir(d) < 0) {
+        perror(path);
+        rc = 1;
+    }
+    return rc;
 }
 
 static int copy_file(const char *src, const char *dst)
