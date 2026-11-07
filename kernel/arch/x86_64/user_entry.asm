@@ -8,6 +8,7 @@ global koronos_user_timeout_abort
 extern koronos_syscall_user_dispatch
 extern koronos_bootstrap_pml4
 extern koronos_user_exit_code
+extern koronos_user_exit_requested
 extern koronos_target_log
 
 %define USER_DATA 0x1B
@@ -152,6 +153,7 @@ koronos_arch_enter_user:
     mov rax, cr3
     mov [rel koronos_cpu_syscall_state + 48], rax
     mov qword [rel koronos_user_exit_code], 0
+    mov qword [rel koronos_user_exit_requested], 0
     lea rax, [rel koronos_syscall_stack_top]
     mov [rel koronos_cpu_syscall_state + 0], rax
     mov [rel koronos_tss64 + 4], rax
@@ -190,9 +192,10 @@ koronos_syscall_entry:
     sub rsp, 8
     call koronos_syscall_user_dispatch
     add rsp, 8
-    ; Keep the syscall return value intact until the exit-sentinel check.
-    mov rdx, EXIT_SENTINEL
-    cmp rax, rdx
+    ; Exit is signalled by a kernel-owned flag, not a magic value crossing
+    ; the C/assembly ABI. This remains reliable if compiler return handling
+    ; or future syscall wrappers change the numeric return convention.
+    cmp qword [rel koronos_user_exit_requested], 1
     je koronos_syscall_user_exit
 
     mov [gs:24], rax
