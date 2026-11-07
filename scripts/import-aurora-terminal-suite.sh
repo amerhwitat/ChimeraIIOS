@@ -72,7 +72,17 @@ source_build(){
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
-    ghostty) have zig || return 1; (cd "$src" && zig build -Doptimize=ReleaseFast); cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+    ghostty)
+      have python3 || return 1
+      local zigver venv
+      zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+      [[ -n "$zigver" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
+      venv="$CACHE/zig-venv"
+      python3 -m venv "$venv"
+      "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
+      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
+      cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
     zsh) (cd "$src" && ./Util/preconfig || autoconf && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/Src/zsh" "$PREFIX/bin/" ;;
     bash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/bash" "$PREFIX/bin/" ;;
