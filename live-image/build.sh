@@ -65,7 +65,6 @@ python3 "$REPO_DIR/tools/commands/build_linux_abi_command_matrix.py" \
   --output "$NATIVE_COMMAND_OUT" \
   --require-all
 bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$NATIVE_COMMAND_OUT"
-bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$NATIVE_COMMAND_OUT"
 
 case "$ED" in
   chimera)
