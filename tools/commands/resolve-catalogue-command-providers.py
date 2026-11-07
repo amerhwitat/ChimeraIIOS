@@ -72,7 +72,7 @@ def main() -> int:
                         command = Path(filename).name
                         if command not in package_candidates:
                             continue
-                        parent = str(Path(filename).parent)
+                        parent = "/" + str(Path(filename).parent).lstrip("/")
                         if parent not in SEARCH_DIRS:
                             continue
                         package = package.split(":", 1)[0]
