@@ -9,9 +9,9 @@ DEFAULT_SOURCE = ROOT / "system/commands/chimera-command-list.json"
 DEFAULT_SS64 = ROOT / "system/commands/ss64-command-catalog.json"
 DEFAULT_ARABIC = ROOT / "system/commands/ss64-command-catalog.ar.json"
 DEFAULT_OUT = ROOT / "system/commands/native-command-candidates.json"
-NATIVE = {"pwd", "echo", "ls", "cp", "mv", "touch", "mkdir", "rm", "cat", "clear", "whoami", "hostname", "date", "true", "false", "rmdir", "ln", "readlink", "basename", "dirname", "uname", "wc", "head", "tail", "sleep"}
+NATIVE = {"pwd", "echo", "ls", "cp", "mv", "touch", "mkdir", "rm", "cat", "clear", "whoami", "hostname", "date", "true", "false", "rmdir", "ln", "readlink", "basename", "dirname", "uname", "wc", "head", "tail", "sleep", "env", "printenv", "which", "seq", "yes", "tty", "id"}
 CATALOGUE_FIELDS = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core", "vbscript_core", "sql_server_core", "native_chimera")
-COMMON = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","printf","grep","find","head","tail","sort","wc","cut","tr","env","uname","id","ps","kill","chmod","chown","df","du","mount","umount","tar","gzip","sha256sum","curl","wget","git","python3","sh","bash","test","help","man","history","cd","exit","read","export","alias","which","command","rmdir","ln","readlink","basename","dirname","sleep"}
+COMMON = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","printf","grep","find","head","tail","sort","wc","cut","tr","env","uname","id","ps","kill","chmod","chown","df","du","mount","umount","tar","gzip","sha256sum","curl","wget","git","python3","sh","bash","test","help","man","history","cd","exit","read","export","alias","which","command","rmdir","ln","readlink","basename","dirname","sleep","printenv","seq","yes","tty"}
 def names(items):
     if not isinstance(items, list): return
     for item in items:
