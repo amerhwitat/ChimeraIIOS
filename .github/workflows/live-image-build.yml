@@ -258,6 +258,10 @@ jobs:
           import json,sys
           d=json.load(open(sys.argv[1],encoding='utf-8'))
           assert d['native_chimera_command_count']==90
+          assert d['source_catalogue_unique_command_count']==853
+          assert d['source_catalogue_candidate_inventory_allowlist_count']==15
+          assert d['source_catalogue_candidate_only_count']==838
+          print('Core catalogue: 853 unique names; 838 remain candidate-only; verified hosted providers:', d['source_catalogue_verified_hosted_provider_count'])
           assert d['native_chimera_provider_count']==0
           assert d['hosted_linux_chimera_provider_count']>=8
           assert d['linux_abi_multicall_alias_count']==25
@@ -275,6 +279,10 @@ jobs:
           import json,sys
           report=json.load(open(sys.argv[1],encoding="utf-8"))
           assert report["native_chimera_command_count"] == 90
+          assert report["source_catalogue_unique_command_count"] == 853
+          assert report["source_catalogue_candidate_inventory_allowlist_count"] == 15
+          assert report["source_catalogue_candidate_only_count"] == 838
+          print("Core catalogue: 853 unique names; 838 remain candidate-only; verified hosted providers:", report["source_catalogue_verified_hosted_provider_count"])
           assert report["native_chimera_provider_count"] == 0, "Linux binaries must not be misreported as Koronos-native providers"
           assert report["hosted_linux_chimera_provider_count"] >= 8
           assert report["linux_abi_multicall_alias_count"] == 25
