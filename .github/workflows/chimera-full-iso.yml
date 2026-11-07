@@ -213,6 +213,7 @@ jobs:
             echo "All six raw traces prove the target-specific CPL3 syscall and matching nonzero PID readiness chain."
           else
             echo "At least one same-ISO target/firmware trace lacks genuine CPL3 readiness evidence."
+            echo "no release will be published until all six same-ISO traces prove CPL3 acknowledgement and matching nonzero PID."
           fi
 
       - name: Verify immutable native Koronos six-case matrix
