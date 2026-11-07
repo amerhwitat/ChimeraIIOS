@@ -2,7 +2,7 @@ name: Chimera II OS live ISO and fullscreen desktop validation
 
 on:
   push:
-    branches: [main, 'fix/live-image-fullscreen-app-bundle-*', 'fix/live-image-validation-and-koronos-menu-timeouts']
+    branches: [main, 'fix/live-image-fullscreen-app-bundle-*', 'fix/live-image-validation-and-koronos-menu-timeouts', 'integrate/koronos-command-terminal-runtime-*']
     paths:
       - 'live-image/**'
       - 'tools/aurora/**'
