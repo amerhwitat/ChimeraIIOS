@@ -125,11 +125,12 @@ STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
+FULL_BUILD=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 GENERATED_DOCKER_IMAGE_ID=""
@@ -222,6 +223,7 @@ while [[ $# -gt 0 ]]; do
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
+    --full) FULL_BUILD=1; CLEAN_STATE=1; RESUME_BUILD=0; shift;;
     --storage-auto) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
     --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
@@ -237,6 +239,12 @@ while [[ $# -gt 0 ]]; do
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# --full always invalidates prior checkpoints and cannot be weakened by option order.
+if [[ "$FULL_BUILD" == 1 ]]; then
+  CLEAN_STATE=1
+  RESUME_BUILD=0
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
@@ -541,7 +549,8 @@ build_docker(){
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
-  docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
+  docker buildx version >/dev/null 2>&1 && build_opts+=(--progress=plain)
+  [[ "$FULL_BUILD" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" \\
     --label chimera.build.managed=true \\
     --label chimera.build.repository=ChimeraIIOS \\
@@ -1621,18 +1630,30 @@ main(){
 
 stage_sdks(){
   header 'STEP: COMPILE ALL REPOSITORY SDKS'
-  # Compiles every build definition the host toolchains support (CMake, Cargo, Swift,
-  # Dart, Maven, Gradle, dotnet, npm, Go, Python) and stages an honest report in the
-  # ISO. Missing toolchains are reported as skipped, never as passed.
+  # A full build must prove every discovered SDK build succeeded; skipped
+  # toolchains, failures, timeouts, or an empty inventory fail closed.
   local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
   mkdir -p "$(dirname "$report")"
-  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
-    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
-      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
-    log_info "SDK report staged at $report"
-  else
+  if [[ ! -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+    if [[ "$FULL_BUILD" == 1 ]]; then
+      log_error 'Full build requires tools/build-sdks.sh; refusing to skip SDK compilation.'
+      return 1
+    fi
     log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+    return 0
   fi
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --strict --out "$report" --max "${CHIMERA_SDK_MAX:-1000}" \\
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || {
+        log_error 'Full build SDK gate failed; inspect sdk-build-report.json.'
+        return 1
+      }
+  else
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \\
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+  fi
+  log_info "SDK report staged at $report"
+}
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
