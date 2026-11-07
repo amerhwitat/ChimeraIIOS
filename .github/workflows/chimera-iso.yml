@@ -116,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install ISO, EFI and visual-runtime tools
-        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pil python3-pytest clang lldb gdb cmake ninja-build qemu-system-x86 git nodejs npm openjdk-17-jdk golang-go rustc cargo perl librsvg2-bin ffmpeg gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good busybox-static cpio gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu qemu-user-static
+        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pil python3-pytest clang lldb gdb cmake ninja-build qemu-system-x86 git nodejs npm openjdk-17-jdk golang-go rustc cargo perl librsvg2-bin ffmpeg gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good busybox-static cpio qemu-user-static python3-venv python3-pip
       - name: Validate platform registries
         run: |
           python3 -m json.tool repositories/platform-manifest.json >/dev/null
@@ -217,6 +217,7 @@ jobs:
       - name: Cross-build and execute Linux ABI command providers
         run: |
           set -euo pipefail
+          bash tools/commands/ensure-zig-toolchain.sh
           python3 tools/commands/build_linux_abi_command_matrix.py \
             --source src/chimera-command-compat/chimera-cmd.c \
             --policy system/commands/compatibility-binary-policy.json \
