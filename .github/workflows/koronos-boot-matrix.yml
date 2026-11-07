@@ -19,7 +19,7 @@ on:
       - "tools/build-full-iso.sh"
       - ".github/workflows/koronos-boot-matrix.yml"
   push:
-    branches: [main]
+    branches: [main, 'fix/koronos-interactive-target-timeout-v3-*', 'integrate/koronos-command-terminal-runtime-*']
     paths:
       - "kernel/**"
       - "boot/iso/**"
