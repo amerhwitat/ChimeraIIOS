@@ -2,7 +2,8 @@
 import argparse,base64,hmac,json,os,pty,resource,shutil,signal,socket,struct,subprocess,termios,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-ADAPTERS=ROOT/'system/terminal/shell_adapters.json'; PERMISSIONS=ROOT/'system/terminal/permissions.json'
+CONFIG_DIR=Path(os.environ.get('CHIMERA_TERMINAL_CONFIG_DIR','/etc/chimera/terminal'))
+ADAPTERS=CONFIG_DIR/'shell_adapters.json'; PERMISSIONS=CONFIG_DIR/'permissions.json'
 LIMITS={'cpu_seconds':30,'address_space_bytes':1073741824,'file_size_bytes':134217728,'open_files':256,'processes':64}; SESSIONS={}
 def load(p): return json.loads(p.read_text(encoding='utf-8'))
 def allowed(role,cap):
@@ -70,7 +71,7 @@ def handle(c,cfg):
   SESSIONS.pop(sid,None); send(c,{'ok':True})
  else: send(c,{'ok':False,'error':'unknown action'})
 def main():
- p=argparse.ArgumentParser(); p.add_argument('--socket',default='/run/chimera/terminald.sock'); p.add_argument('--config',default=str(ROOT/'system/terminal/terminal-service.json')); a=p.parse_args(); cfg=load(Path(a.config)); sock=Path(a.socket); sock.parent.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(); p.add_argument('--socket',default='/run/chimera/terminald.sock'); p.add_argument('--config',default=str(CONFIG_DIR/'terminal-service.json')); a=p.parse_args(); cfg=load(Path(a.config)); sock=Path(a.socket); sock.parent.mkdir(parents=True,exist_ok=True)
  try:sock.unlink()
  except FileNotFoundError:pass
  srv=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); srv.bind(sock); os.chmod(sock,0o660); srv.listen(64)
