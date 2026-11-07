@@ -131,7 +131,7 @@ jobs:
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static \
+            gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
             autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
             libvte-2.91-dev libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
@@ -449,7 +449,7 @@ jobs:
           sudo apt-get install --yes \
             debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
-            gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static \
+            gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
             autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
             libvte-2.91-dev libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
