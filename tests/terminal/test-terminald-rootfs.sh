@@ -18,5 +18,5 @@ chroot "$ROOTFS" /usr/bin/bwrap --version >/dev/null
 chroot "$ROOTFS" getent group chimera-terminal >/dev/null
 chroot "$ROOTFS" id -Gn live | tr ' ' '\n' | grep -qx chimera-terminal
 test "$(stat -c '%a' "$ROOTFS/etc/chimera/terminal/auth.token")" = 640
-test "$(stat -c '%G' "$ROOTFS/etc/chimera/terminal/auth.token")" = chimera-terminal
+test "$(chroot "$ROOTFS" stat -c '%G' /etc/chimera/terminal/auth.token)" = chimera-terminal
 echo "PASS terminald service, sandbox binary, config, token permissions and live-user group membership"
