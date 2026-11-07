@@ -136,7 +136,7 @@ static int copy_file(const char *src, const char *dst)
     struct stat dst_st;
     if (stat(dst, &dst_st) == 0) {
         if (dst_st.st_dev == st.st_dev && dst_st.st_ino == st.st_ino) {
-            fprintf(stderr, "cp: '%s' and '%s' are the same file\\n", src, dst);
+            fprintf(stderr, "cp: '%s' and '%s' are the same file\n", src, dst);
             close(in);
             return 1;
         }
