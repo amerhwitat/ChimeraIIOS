@@ -99,7 +99,7 @@ build_foot() {
 build_blackbox() {
   require meson; require ninja
   local src="$OUT/src/blackbox"
-  git clone --depth 1 https://gitlab.gnome.org/haecker-felix/blackbox.git "$src"
+  git clone --depth 1 https://gitlab.gnome.org/raggesilver/blackbox.git "$src"
   meson setup "$src/build" --buildtype=release --prefix=/usr/local
   ninja -C "$src/build" -j"${JOBS:-2}"
   DESTDIR="$OUT/stage" ninja -C "$src/build" install
