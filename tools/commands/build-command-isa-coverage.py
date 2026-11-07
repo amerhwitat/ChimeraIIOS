@@ -14,6 +14,8 @@ PLATFORMS={
     "native_chimera":"chimera-native",
 }
 LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
+NATIVE_COMMAND_CANDIDATE_ALLOWLIST={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false"}
+VERIFIED_HOSTED_PROVIDERS={"busybox-applet","busybox-applet-dispatch-only","shell-builtin","target-rootfs-executable","hosted-linux-rootfs-executable","linux-abi-multicall-crossbuilt"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
 def rootfs_executable(rootfs: Path | None, name: str, target_arch: str = "x86_64"):
@@ -43,12 +45,14 @@ def main():
     busybox=set(subprocess.check_output([str(args.busybox),"--list"],text=True).split())
     catalog=json.loads((root/"system/commands/chimera-command-list.json").read_text(encoding="utf-8"))
     rows={}
+    catalogue_names=set()
     for field,platform in PLATFORMS.items():
         for raw in catalog.get(field,[]):
             name=raw.get("name") if isinstance(raw,dict) else raw
             if not isinstance(name,str) or not name.strip() or "/" in name: continue
             name=name.strip()
             if not any(char.isalnum() or char == "_" for char in name): continue
+            catalogue_names.add(name.casefold())
             row=rows.setdefault(name.casefold(),{"command":name,"platforms":[]})
             if platform not in row["platforms"]: row["platforms"].append(platform)
     ss64_path=args.ss64 or (root/"system/commands/ss64-command-catalog.json")
@@ -163,6 +167,12 @@ def main():
         try: candidate_count=json.loads(online.read_text(encoding="utf-8")).get("candidate_definition_count")
         except (OSError,json.JSONDecodeError): pass
     command_rows=sorted(rows.values(),key=lambda x:x["command"].casefold())
+    catalogue_rows=[row for row in command_rows if row["command"].casefold() in catalogue_names]
+    catalogue_provider_status_counts={}
+    for row in catalogue_rows:
+        provider=row.get("provider","unclassified")
+        catalogue_provider_status_counts[provider]=catalogue_provider_status_counts.get(provider,0)+1
+    catalogue_verified_provider_count=sum(row.get("provider") in VERIFIED_HOSTED_PROVIDERS for row in catalogue_rows)
     counts={}
     for row in command_rows: counts[row["provider"]]=counts.get(row["provider"],0)+1
     result={
@@ -175,6 +185,13 @@ def main():
       "provider_scope":"A target-rootfs executable is verified for the specified hosted Linux image only; it does not prove Koronos-native ABI support.",
       "busybox_applet_count":len(busybox),
       "catalogued_command_count":len(command_rows),
+      "source_catalogue_unique_command_count":len(catalogue_names),
+      "source_catalogue_candidate_inventory_allowlist_count":len(catalogue_names & NATIVE_COMMAND_CANDIDATE_ALLOWLIST),
+      "source_catalogue_candidate_only_count":len(catalogue_names - NATIVE_COMMAND_CANDIDATE_ALLOWLIST),
+      "source_catalogue_verified_hosted_provider_count":catalogue_verified_provider_count,
+      "source_catalogue_unverified_provider_count":len(catalogue_rows)-catalogue_verified_provider_count,
+      "source_catalogue_provider_status_counts":catalogue_provider_status_counts,
+      "source_catalogue_provider_scope":"Verified providers apply to this hosted Linux rootfs; they do not imply Koronos-native syscall compatibility.",
       "commands":command_rows,
       "command_summary":counts,
       "linux_abi_multicall_alias_count":len(LINUX_ABI_MULTICALL_IMPLEMENTED),
