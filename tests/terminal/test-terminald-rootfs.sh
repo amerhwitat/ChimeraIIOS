@@ -12,6 +12,7 @@ for path in \
   test -s "$ROOTFS/$path" || { echo "missing terminal runtime asset: $path" >&2; exit 1; }
 done
 chroot "$ROOTFS" /usr/bin/python3 -m py_compile /usr/lib/chimera/chimera_terminald.py
+chroot "$ROOTFS" /usr/bin/python3 -c 'import json; c=json.load(open("/etc/chimera/terminal/terminal-service.json")); assert c["sandbox"]["required"] is True and c["sandbox"]["allow_unsafe_host"] is False'
 chroot "$ROOTFS" /usr/bin/terminald --help >/dev/null
 chroot "$ROOTFS" /usr/bin/chimera-terminal --help >/dev/null
 chroot "$ROOTFS" /usr/bin/bwrap --version >/dev/null
