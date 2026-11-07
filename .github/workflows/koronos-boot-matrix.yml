@@ -43,6 +43,8 @@ jobs:
           sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
       - name: Validate all interactive boot menu timeouts
         run: python3 tools/boot/verify-menu-timeouts.py --root .
+      - name: Validate native live, installer and recovery console contracts
+        run: python3 tests/kernel/test_native_target_console_contract.py
       - name: Build Koronos
         run: |
           chmod +x kernel/build-koronos.sh tools/build-desktop-binaries.sh tools/build-koronos-targets.sh
