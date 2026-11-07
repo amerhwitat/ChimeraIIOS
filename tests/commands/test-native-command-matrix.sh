@@ -24,6 +24,9 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   ln -sf "$bin" "$alias"
   output="$(run "$alias" "chimera-$arch")"
   [[ "$output" == "chimera-$arch" ]] || { echo "$arch echo mismatch: $output" >&2; exit 1; }
+  alias="$tmp/$arch-ls"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" "$tmp")"
+  [[ -n "$output" ]] || { echo "$arch ls failed" >&2; exit 1; }
   alias="$tmp/$arch-pwd"
   ln -sf "$bin" "$alias"
   output="$(run "$alias")"
