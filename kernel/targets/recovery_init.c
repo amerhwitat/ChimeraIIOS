@@ -5,6 +5,9 @@ __attribute__((noreturn, used)) void _start(void) {
     const long pid = init_getpid();
     if (pid <= 0) init_exit(1);
     init_emit_readiness(pid);
+    init_writestr("RECOVERY: pid=");
+    init_write_uint((unsigned long)pid);
+    init_writestr("\n");
     init_writestr("RECOVERY: native Koronos recovery console\n");
     init_writestr("RECOVERY: diagnostics are read-only; filesystem repair awaits VFS and block drivers\n");
     char line[128];
