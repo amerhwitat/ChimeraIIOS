@@ -27,7 +27,7 @@ missing = set(catalog) - mapped
 assert not missing, f"Chimera-native catalogue commands without a real provider declaration: {sorted(missing)}"
 
 # The compiled multicall, rootfs symlink set, runtime manifest and coverage
-# inventory must all agree on the same 37 source-backed Linux command aliases.
+# inventory must all agree on the same 37 cross-built Linux ABI command aliases.
 policy = json.loads((ROOT / "system/commands/compatibility-binary-policy.json").read_text(encoding="utf-8"))
 coverage = json.loads((ROOT / "system/commands/command-isa-coverage.json").read_text(encoding="utf-8"))
 multicall = set(policy["native_build"]["multicall_aliases"])
@@ -53,9 +53,10 @@ for line in registry_block.splitlines():
         registry_native.add(fields[0])
 assert multicall <= registry_native, sorted(multicall - registry_native)
 
-coverage_rows = {row["name"].casefold(): row for row in coverage["commands"]}
-assert multicall == {name.casefold() for name in coverage["native_source_commands"]}
-assert all(coverage_rows[name]["implementation"] == "native-source-implemented" for name in multicall)
+coverage_rows = {row["command"].casefold(): row for row in coverage["commands"]}
+assert multicall == {name.casefold() for name in coverage["linux_abi_multicall_aliases"]}
+assert all(name in coverage_rows for name in multicall)
+assert all("linux-bash" in coverage_rows[name]["platforms"] for name in multicall)
 
 shell_ar = (ROOT / "tools/commands/chimera-shell-ar").read_text(encoding="utf-8")
 assert "CHIMERA_LANG=ar" in shell_ar and "exec /usr/bin/chimera-shell" in shell_ar
