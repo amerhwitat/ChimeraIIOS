@@ -169,6 +169,10 @@
     "chimera-cisc": {
       "provider": "/usr/bin/nasm",
       "description": "NASM x86 CISC assembler"
+    },
+    "chimera-openshift": {
+      "provider": "/usr/bin/oc",
+      "description": "OpenShift CLI client from the official release mirror"
     }
   }
 }

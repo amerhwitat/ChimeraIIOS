@@ -114,6 +114,37 @@ else
   echo "[Chimera][COMMANDS][WARN] mongosh repository unsupported for this target architecture"
 fi
 
+# Install the official OpenShift CLI from a version-pinned release archive.
+# SHA-256 values are pinned per architecture; no unverified "latest" binary is used.
+oc_arch="$(dpkg --print-architecture 2>/dev/null || true)"
+oc_version="5.0.1"
+case "$oc_arch" in
+  amd64)
+    oc_url="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$oc_version/openshift-client-linux.tar.gz"
+    oc_sha="9be0ad418ece7aa19fbb99a9259a800c4d234d08766c9b782eb321659b9c59e8"
+    ;;
+  arm64)
+    oc_url="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$oc_version/openshift-client-linux-arm64.tar.gz"
+    oc_sha="77a0e93ef62716fcf057a5d336a7f715c066013df792241489df7b0da18a92f4"
+    ;;
+  *) oc_url=""; oc_sha="" ;;
+esac
+if [[ -n "$oc_url" ]] && command -v curl >/dev/null 2>&1 && command -v sha256sum >/dev/null 2>&1; then
+  oc_tmp="$(mktemp -d)"
+  if curl -fsSL "$oc_url" -o "$oc_tmp/openshift-client.tar.gz" &&
+     printf '%s  %s\n' "$oc_sha" "$oc_tmp/openshift-client.tar.gz" | sha256sum --check --status &&
+     tar -xzf "$oc_tmp/openshift-client.tar.gz" -C "$oc_tmp" oc &&
+     install -D -m 0755 "$oc_tmp/oc" /usr/bin/oc &&
+     /usr/bin/oc version --client >/dev/null 2>&1; then
+    echo "[Chimera][COMMANDS] installed verified OpenShift oc $oc_version for $oc_arch"
+  else
+    echo "[Chimera][COMMANDS][WARN] pinned OpenShift client failed download/checksum/runtime verification"
+  fi
+  rm -rf "$oc_tmp"
+else
+  echo "[Chimera][COMMANDS][WARN] OpenShift client not published for target architecture $oc_arch"
+fi
+
 rm -rf /var/lib/apt/lists/* || true
 echo "[Chimera][COMMANDS] Command-provider installation completed."
 exit 0
