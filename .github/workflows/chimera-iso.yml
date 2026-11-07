@@ -216,9 +216,9 @@ jobs:
       - name: Cross-build and execute Linux ABI command providers
         run: |
           set -euo pipefail
-          python3 tools/commands/build_linux_abi_command_matrix.py \\
-            --source src/chimera-command-compat/chimera-cmd.c \\
-            --policy system/commands/compatibility-binary-policy.json \\
+          python3 tools/commands/build_linux_abi_command_matrix.py \
+            --source src/chimera-command-compat/chimera-cmd.c \
+            --policy system/commands/compatibility-binary-policy.json \
             --output build/native-command-isa --require-all
           bash tests/commands/test-native-command-matrix.sh build/native-command-isa
           python3 -m json.tool build/native-command-isa/manifest.json >/dev/null
