@@ -27,11 +27,11 @@ missing = set(catalog) - mapped
 assert not missing, f"Chimera-native catalogue commands without a real provider declaration: {sorted(missing)}"
 
 # The compiled multicall, rootfs symlink set, runtime manifest and coverage
-# inventory must all agree on the same 32 source-backed Linux command aliases.
+# inventory must all agree on the same 37 source-backed Linux command aliases.
 policy = json.loads((ROOT / "system/commands/compatibility-binary-policy.json").read_text(encoding="utf-8"))
 coverage = json.loads((ROOT / "system/commands/command-isa-coverage.json").read_text(encoding="utf-8"))
 multicall = set(policy["native_build"]["multicall_aliases"])
-assert len(multicall) == 32
+assert len(multicall) == 37
 assert multicall <= set(commands["linux_bash"])
 
 build_script = (ROOT / "tools/build-chimera-command-compat.sh").read_text(encoding="utf-8")
