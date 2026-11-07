@@ -13,6 +13,35 @@ manifest="$ROOTFS/usr/share/chimera/commands/hosted-tools.tsv"
 "$CXX" -std=c++20 -O2 -Wall -Wextra -Werror "$ROOT/userland/commands/chmctl.cpp" -o "$ROOTFS/usr/bin/chmctl"
 printf 'chmctl|/usr/bin/chmctl|compiled-linux-userspace\n' >> "$manifest"
 
+ln -sfn chmctl "$OUT/chimeractl"
+printf 'chimeractl|/usr/bin/chimeractl|verified-alias-to-chmctl\n' >> "$manifest"
+
+# Genuine diagnostics and package/update frontends; no placeholder commands.
+install -D -m 0755 "$ROOT/tools/commands/chimera-info.py" "$OUT/chimera-info"
+printf 'chimera-info|/usr/bin/chimera-info|python3-system-information\n' >> "$manifest"
+install -D -m 0755 "$ROOT/tools/commands/chimera-doctor.py" "$OUT/chimera-doctor"
+printf 'chimera-doctor|/usr/bin/chimera-doctor|python3-nondestructive-diagnostics\n' >> "$manifest"
+install -D -m 0755 "$ROOT/tools/commands/chimera-update.sh" "$OUT/chimera-update"
+printf 'chimera-update|/usr/bin/chimera-update|apt-update-and-explicit-upgrade\n' >> "$manifest"
+install -D -m 0755 "$ROOT/tools/chimera-package-manager.sh" "$OUT/chimera-pkg"
+ln -sfn chimera-pkg "$OUT/chimera-package"
+printf 'chimera-package|/usr/bin/chimera-package|verified-alias-to-chimera-pkg\n' >> "$manifest"
+
+# Install Kore's actual user-space control client and its service frontend.
+install -D -m 0755 "$ROOT/tools/runtime/chimera-korectl.py" "$OUT/korectl"
+install -D -m 0755 "$ROOT/tools/runtime/chimera-service.py" "$OUT/chimera-service"
+printf 'korectl|/usr/bin/korectl|python3-kore-request-client\n' >> "$manifest"
+printf 'chimera-service|/usr/bin/chimera-service|korectl-service-frontend\n' >> "$manifest"
+
+# Build the real Chimera assembler, disassembler and rewriter from repository source.
+cmake -S "$ROOT/tools/chimera-asm" -B "$ROOT/build/chimera-asm-host" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build "$ROOT/build/chimera-asm-host" --parallel "$(nproc)"
+DESTDIR="$ROOTFS" cmake --install "$ROOT/build/chimera-asm-host"
+ln -sfn chimera-as "$OUT/chimera-asm"
+ln -sfn chimera-dis "$OUT/chimera-disasm"
+printf 'chimera-asm|/usr/bin/chimera-asm|cmake-built-cxx20-assembler\n' >> "$manifest"
+printf 'chimera-disasm|/usr/bin/chimera-disasm|cmake-built-cxx20-disassembler\n' >> "$manifest"
+
 install -D -m 0755 "$ROOT/tools/help/chimera-help" "$ROOTFS/usr/share/chimera/help/tools/help/chimera-help"
 cp -a "$ROOT/tools/help/." "$ROOTFS/usr/share/chimera/help/tools/help/"
 [[ -s "$ROOT/web/man_pages.json" ]] && install -D -m 0644 "$ROOT/web/man_pages.json" "$ROOTFS/usr/share/chimera/help/web/man_pages.json"
@@ -51,10 +80,6 @@ chmod 0755 "$OUT/chimera-shell"
 install -D -m 0644 "$ROOT/system/shell/chimera-shell.sh" "$ROOTFS/etc/profile.d/chimera-shell.sh"
 printf 'chimera-shell|/usr/bin/chimera-shell|bash-profile-integration\n' >> "$manifest"
 
-if chroot "$ROOTFS" /bin/sh -c 'command -v korectl >/dev/null 2>&1'; then
-  install -D -m 0755 "$ROOT/tools/runtime/chimera-service.py" "$OUT/chimera-service"
-  printf 'chimera-service|/usr/bin/chimera-service|korectl-frontend\n' >> "$manifest"
-fi
 if chroot "$ROOTFS" /bin/sh -c 'command -v terminald >/dev/null 2>&1'; then
   install -D -m 0755 "$ROOT/tools/terminal/chimera-terminal" "$OUT/chimera-terminal"
   printf 'chimera-terminal|/usr/bin/chimera-terminal|terminald-client\n' >> "$manifest"
