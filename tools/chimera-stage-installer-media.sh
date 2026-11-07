@@ -37,7 +37,7 @@ while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != "busybox" ]] || continue
   [[ "$applet" == */* ]] && continue
   ln -sf busybox "$P/bin/$applet"
-done < <("$BUSYBOX" --list)
+done < <("$BB" --list)
 # Keep compatibility aliases required by the init scripts even if a BusyBox
 # build omits an optional applet.
 for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head ip udhcpc nslookup gzip; do ln -sf busybox "$P/bin/$x"; done
