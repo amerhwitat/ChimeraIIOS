@@ -198,12 +198,21 @@ test -s "$STAGE/desktop/aurora/icons/chimera-settings.svg" || {
 }
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/system/security" "$STAGE/system/security"
+# Make the complete command/ISA and terminal-shell catalogues available offline
+# in the Koronos image; hosted providers are not misrepresented as Koronos binaries.
+mkdir -p "$STAGE/system/commands" "$STAGE/system/aurora" "$STAGE/system/isa" "$STAGE/system/config"
+cp -a "$ROOT/system/commands/." "$STAGE/system/commands/"
+cp -a "$ROOT/aurora/shells" "$STAGE/system/aurora/"
+cp -a "$ROOT/aurora/terminals" "$STAGE/system/aurora/"
+cp -a "$ROOT/isa/." "$STAGE/system/isa/"
+cp -a "$ROOT/config/." "$STAGE/system/config/"
+cp -f "$ROOT/ISA.csv" "$STAGE/system/isa/ISA.csv"
 cp -a "$ROOT/tools/initialize-accounts.sh" "$STAGE/install/initialize-accounts.sh"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
 cp -a "$ROOT/sdk" "$STAGE/install/sdk-source"
 cp -a "$ROOT/sdk" "$STAGE/sdk"
 
-for source_dir in kernel src include database cmake tools boot installer userland desktop services iso; do
+for source_dir in kernel src include database cmake tools boot installer userland desktop services iso system aurora config isa data; do
   if [[ -d "$ROOT/$source_dir" ]]; then
     mkdir -p "$STAGE/source"
     cp -a "$ROOT/$source_dir" "$STAGE/source/"
