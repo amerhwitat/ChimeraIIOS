@@ -129,7 +129,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes \
-            debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
+            debootstrap busybox-static xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
             gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
@@ -150,6 +150,17 @@ jobs:
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py tools/aurora/export-icon-theme.py tools/aurora/export-app-icon-theme.py tools/commands/build-command-isa-coverage.py tools/commands/build_linux_abi_command_matrix.py tools/commands/crawl_ss64.py tools/commands/import_command_candidates.py tools/commands/resolve-catalogue-command-providers.py tools/commands/verify-command-provider-coverage.py tools/commands/stage-native-script-providers.py tools/commands/chimera-p2p.py tools/commands/chimera-rnn.py tools/commands/chimera-math.py tools/commands/chimera-componentctl.py tools/commands/chimera-hybrid.py tools/runtime/chimera-nbit-mode.py tools/isa/riscv_codec.py tools/cognition/trainable_rnn_lm.py tests/commands/test_chimera_extended_cli.py tests/commands/test_native_provider_aliases.py tools/terminal/chimera_terminald.py tools/terminal/chimera-terminal tools/terminal/chimera-sql tests/commands/test_catalogue_provider_resolver.py tools/commands/chimera-info.py tools/commands/chimera-doctor.py tools/boot/verify-menu-timeouts.py
           python3 -m py_compile tools/drivers/chimera-driver-panel.py tools/runtime/chimera-service.py
           python3 -m py_compile tools/help/chimera-help
+          # Generate the real eight-ABI command binaries and refresh the
+          # source-backed coverage report before tests inspect its aliases.
+          python3 tools/commands/build_linux_abi_command_matrix.py \
+            --source src/chimera-command-compat/chimera-cmd.c \
+            --policy system/commands/compatibility-binary-policy.json \
+            --output "$RUNNER_TEMP/native-command-isa" --require-all
+          bash tests/commands/test-native-command-matrix.sh "$RUNNER_TEMP/native-command-isa"
+          python3 tools/commands/build-command-isa-coverage.py \
+            --root . --busybox "$(command -v busybox)" \
+            --native-matrix "$RUNNER_TEMP/native-command-isa/manifest.json" \
+            --output system/commands/command-isa-coverage.json
           bash -n tools/aurora/install-terminal-shell-suite.sh tools/aurora/build-terminal-shell-sources.sh aurora/terminals/install-desktop-entries.sh aurora/terminals/aurora-terminal-center.sh aurora/shells/aurora-shell-center.sh aurora/shells/launch-shell.sh live-image/verify-terminal-shell-suite.sh tests/commands/test-native-chimera-tools.sh tests/commands/test-native-command-matrix.sh tests/desktop/test-aurora-terminal-shell-centers.sh
           bash -n tools/commands/install-busybox-applets.sh
           bash -n tools/commands/build-chimera-native-tools.sh tools/commands/install-command-providers.sh tools/commands/chimera-ss64 tools/commands/chimera-shell-ar tools/commands/aegisctl tools/commands/auroractl tools/commands/jasperctl tools/commands/koronosctl tools/commands/nucleusctl tools/commands/spitfirectl tools/commands/spotnikctl tools/commands/chimera-security tools/commands/chimera-live tools/commands/chimera-hybrid tools/terminal/build-terminal.sh tests/terminal/test-terminald-rootfs.sh tools/chimera-stage-installer-media.sh tools/build-live-boot-binaries.sh
