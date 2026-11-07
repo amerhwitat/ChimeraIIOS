@@ -43,6 +43,28 @@ for ident,kind,binary in rows:
                     command=["chroot",str(root),rel,"--version"] if (root/"bin/sh").exists() else [str(path),"--version"]
                     probe=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=10)
                     row["runtime_status"]="version-smoke-pass" if probe.returncode==0 else "version-smoke-fail"
+        elif path.read_bytes().startswith(b"#!"):
+            first=path.read_bytes().splitlines()[0][2:].decode("utf-8","replace").strip().split()
+            interpreter=first[0] if first else ""
+            if interpreter.endswith("/env") and len(first)>1:
+                env_path=root/interpreter.lstrip("/")
+                candidate=first[1]
+                interp=next((root/d/candidate for d in ("usr/bin","bin","usr/local/bin") if (root/d/candidate).is_file()),None)
+                valid=env_path.is_file() and interp is not None
+            else:
+                interp=root/interpreter.lstrip("/") if interpreter.startswith("/") else None
+                valid=interp is not None and interp.is_file() and bool(interp.stat().st_mode&0o111)
+            if valid:
+                rel="/"+str(path.relative_to(root))
+                args=[rel,"-c","printf CHIMERA_SHELL_SMOKE"] if kind=="shell" else [rel,"--version"]
+                try:
+                    probe=subprocess.run(["chroot",str(root),*args],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=12)
+                    ok=probe.returncode==0 and (kind!="shell" or b"CHIMERA_SHELL_SMOKE" in probe.stdout)
+                    row["status"]="verified-script-provider" if ok else "script-smoke-failed"
+                    row["runtime_status"]=("shell-command-smoke-pass" if kind=="shell" else "version-smoke-pass") if ok else "script-smoke-failed"
+                except (OSError,subprocess.TimeoutExpired):
+                    row["status"]="script-smoke-failed"; row["runtime_status"]="script-smoke-failed"
+            else: row["status"]="script-interpreter-missing"
         else: row["status"]="present-but-not-ELF"
     entries.append(row)
 manifest={"schema":"AURORA-TERMINAL-SHELL-STAGING-2","target_architecture":target,
@@ -56,7 +78,7 @@ for row in entries:
     ident=row["id"]
     if row["kind"]=="terminal":
         desktop=root/"usr/share/applications"/f"chimera-terminal-{ident}.desktop"
-        if row["status"]=="verified-elf-provider" and row["runtime_status"]=="version-smoke-pass":
+        if row["status"] in ("verified-elf-provider","verified-script-provider") and row["runtime_status"]=="version-smoke-pass":
             desktop.write_text("[Desktop Entry]\nType=Application\nName="+names.get(ident,ident)+"\nExec=/"+row["path"].lstrip("/")+
               "\nTerminal=false\nCategories=System;TerminalEmulator;\nX-Chimera-Aurora=true\n")
         else:
@@ -64,12 +86,12 @@ for row in entries:
     elif row["kind"]=="shell":
         desktop=root/"usr/share/applications"/f"chimera-shell-{ident}.desktop"
         launcher=root/"usr/lib/chimera/aurora/launch-shell.sh"
-        if row["status"]=="verified-elf-provider" and row["runtime_status"]=="shell-command-smoke-pass" and launcher.is_file():
+        if row["status"] in ("verified-elf-provider","verified-script-provider") and row["runtime_status"]=="shell-command-smoke-pass" and launcher.is_file():
             desktop.write_text("[Desktop Entry]\nType=Application\nName=Aurora Shell — "+ident+"\nExec=/usr/lib/chimera/aurora/launch-shell.sh "+ident+
               "\nTerminal=true\nCategories=System;TerminalEmulator;Development;\nX-Chimera-Aurora=true\n")
         else:
             desktop.unlink(missing_ok=True)
-missing=[e["id"] for e in entries if e["status"]!="verified-elf-provider"]
+missing=[e["id"] for e in entries if e["status"] not in ("verified-elf-provider","verified-script-provider")]
 bad=[e["id"] for e in entries if e["runtime_status"].endswith("-fail")]
 print(f"[AURORA-TERMINALS] verified={len(entries)-len(missing)}/{len(entries)} missing_or_wrong_arch={','.join(missing) or 'none'} smoke_fail={','.join(bad) or 'none'}")
 PY
@@ -77,9 +99,9 @@ if [[ "${CHIMERA_TERMINAL_REQUIRE_ALL:-0}" == "1" ]]; then
   python3 - "$OUT" <<'PY'
 import json,sys
 report=json.load(open(sys.argv[1],encoding="utf-8"))
-failed=[row for row in report["entries"] if row["status"]!="verified-elf-provider" or row["runtime_status"] not in ("shell-command-smoke-pass","version-smoke-pass")]
+failed=[row for row in report["entries"] if row["status"] not in ("verified-elf-provider","verified-script-provider") or row["runtime_status"] not in ("shell-command-smoke-pass","version-smoke-pass")]
 if failed:
     raise SystemExit("terminal/shell acceptance failed: "+", ".join(f"{x['id']}={x['status']}/{x['runtime_status']}" for x in failed))
-print("All 20 terminals and 8 shells passed ELF and executable smoke checks.")
+print("All 20 terminals and 8 shells passed executable-provider and runtime smoke checks (ELF or verified script launcher).")
 PY
 fi
