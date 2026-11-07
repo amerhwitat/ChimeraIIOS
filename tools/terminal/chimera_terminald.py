@@ -34,11 +34,11 @@ def spawn(sid,shell,role,unsafe):
  if not b and not unsafe: raise RuntimeError('no supported sandbox backend; refusing host execution')
  root=make_root(sid); master,slave=pty.openpty(); env=os.environ.copy(); env.update({'HOME':'/home/chimera-terminal','USER':'chimera-terminal','LOGNAME':'chimera-terminal','SHELL':'/bin/bash','TMPDIR':'/tmp','TERM':'xterm-256color','CHIMERA_TERMINAL_SESSION':sid,'CHIMERA_TERMINAL_SANDBOX':str(root),'PATH':'/usr/local/bin:/usr/bin:/bin'}); cmd=shell_argv(shell)
  if b=='bwrap':
-  cmd=['bwrap','--die-with-parent','--new-session','--proc','/proc','--dev','/dev','--dir','/etc']
+  cmd=['bwrap','--die-with-parent','--new-session','--proc','/proc','--dev','/dev','--dir','/etc','--dir','/home','--dir','/tmp','--dir','/data','--dir','/work']
   for item in ('passwd','group','os-release','hostname','hosts'):
    source=Path('/etc')/item
    if source.is_file(): cmd.extend(['--ro-bind',str(source),'/etc/'+item])
-  for source in ('/usr','/bin','/lib','/lib64'):
+  for source in ('/usr','/bin','/sbin','/lib','/lib64'):
    if Path(source).exists(): cmd.extend(['--ro-bind',source,source])
   cmd.extend(['--bind',str(root/'home'),'/home','--bind',str(root/'tmp'),'/tmp','--bind',str(root/'data'),'/data','--bind',str(root/'work'),'/work','--chdir','/work','--unshare-net'])
   cmd+=shell_argv(shell)
