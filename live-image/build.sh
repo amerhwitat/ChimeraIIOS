@@ -119,7 +119,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed-v4" ]; then
+if [ ! -f "$BASE/.packages-installed-v5" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
@@ -151,6 +151,19 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
       libxkbcommon0 libwayland-client0 libwayland-cursor0 libx11-6 libxcb1 libfontconfig1 \
       libfreetype6 libharfbuzz0b libvulkan1 libdbus-1-3 libssl3t64 libasound2t64 libpulse0 \
       libxrandr2 libxi6 libxinerama1 libxcursor1 libxext6 libxrender1 libxfixes3 libxdamage1 libxcomposite1 \
+      # Optional runtime libraries for source-built GTK4/Wayland/Qt6 terminals.
+      for pkg in \
+        libvte-2.91-0 libvte-2.91-gtk4-0 libfcft4 libpixman-1-0 libutf8proc2 \
+        libjson-glib-1.0-0 libgee-0.8-2 libxml2 librsvg2-2 libgraphene-1.0-0 \
+        libqt6core6t64 libqt6gui6t64 libqt6widgets6t64 libqt6qml6t64 libqt6quick6t64 \
+        libqt6network6t64 libqt6dbus6t64 libqt6opengl6t64 libqt6svg6t64 \
+        libqt6waylandclient6 libqt6waylandcompositor6; do
+        if apt-cache show "$pkg" >/dev/null 2>&1; then
+          apt-get install -y -qq --no-install-recommends "$pkg" || echo "[AURORA-TERMINALS] runtime library install failed: $pkg"
+        else
+          echo "[AURORA-TERMINALS] no runtime library package candidate: $pkg"
+        fi
+      done
       ca-certificates curl wget less nano htop jq git rsync \
       tar gzip bzip2 xz-utils zip unzip man-db manpages \
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
@@ -166,7 +179,7 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed-v4"
+  touch "$BASE/.packages-installed-v5"
 fi
 
 # ------------------------------------------------------------- rootfs copy
