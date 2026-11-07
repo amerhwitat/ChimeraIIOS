@@ -30,9 +30,10 @@ jobs:
       - name: Install cross compilers and ELF inspection tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static
+          sudo apt-get install -y binutils qemu-user-static python3-venv python3-pip
       - name: Build native multicall commands for target ISAs
         run: |
+          bash tools/commands/ensure-zig-toolchain.sh
           python3 tools/commands/build_linux_abi_command_matrix.py \
             --source src/chimera-command-compat/chimera-cmd.c \
             --policy system/commands/compatibility-binary-policy.json \
