@@ -122,7 +122,7 @@ def test_successful_external_clone_records_revision(tmp_path: Path, monkeypatch)
             destination = Path(args[-1])
             (destination / ".git").mkdir(parents=True, exist_ok=True)
             return CompletedProcess(args, 0, "", "")
-        return CompletedProcess(args, 0, "a" * 40 + "\\n", "")
+        return CompletedProcess(args, 0, "a" * 40, "")
 
     monkeypatch.setattr(_OFFICIAL_DRIVER_SOURCES, "run_git", successful_git)
     row = _OFFICIAL_DRIVER_SOURCES.acquire_source(
