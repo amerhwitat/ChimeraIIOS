@@ -36,7 +36,7 @@ build_source(){
     bash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/bash" "$PREFIX/bin/bash" ;;
     zsh) (cd "$src" && (./Util/preconfig || autoconf) && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/Src/zsh" "$PREFIX/bin/zsh" ;;
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/fish" ;;
-    dash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/src/dash" "$PREFIX/bin/dash" ;;
+    dash) (cd "$src" && { if [[ ! -x ./configure ]]; then if [[ -x ./autogen.sh ]]; then ./autogen.sh; elif command -v autoreconf >/dev/null 2>&1; then autoreconf -fi; else echo "dash source requires autogen.sh or autoreconf" >&2; exit 1; fi; fi; } && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/src/dash" "$PREFIX/bin/dash" ;;
     mksh) (cd "$src" && sh Build.sh -r -j"$(nproc)"); find "$src" -type f -name mksh -perm -111 -exec cp {} "$PREFIX/bin/mksh" \; -quit ;;
     elvish) have go || return 1; (cd "$src" && go build -o "$PREFIX/bin/elvish" ./cmd/elvish) ;;
     nushell) have cargo || return 1; (cd "$src" && cargo build --release --bin nu); cp "$src/target/release/nu" "$PREFIX/bin/nu" ;;
