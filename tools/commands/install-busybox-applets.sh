@@ -16,14 +16,21 @@ done
 install -d "$ROOTFS/usr/local/bin" "$ROOTFS/usr/share/chimera/commands"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
-chroot "$ROOTFS" "$BB" --list > "$tmp"
+"$ROOTFS$BB" --list > "$tmp"
 manifest="$ROOTFS/usr/share/chimera/commands/busybox-applets.tsv"
 : > "$manifest"
 while IFS= read -r applet; do
   [[ -n "$applet" && "$applet" != */* ]] || continue
-  existing="$(chroot "$ROOTFS" /bin/sh -c "command -v '$applet' 2>/dev/null || true")"
+  existing=""
+  for dir in /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin; do
+    candidate="$ROOTFS$dir/$applet"
+    if [[ -e "$candidate" || -L "$candidate" ]]; then
+      existing="$dir/$applet"
+      break
+    fi
+  done
   if [[ -n "$existing" ]]; then
-    if [[ "$(readlink -f "$ROOTFS$existing" 2>/dev/null || true)" == "$(readlink -f "$ROOTFS$BB")" ]]; then
+    if [[ "$ROOTFS$existing" -ef "$ROOTFS$BB" ]]; then
       printf '%s|%s|busybox-static\n' "$applet" "$existing" >> "$manifest"
     fi
     continue
