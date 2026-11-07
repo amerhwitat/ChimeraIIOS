@@ -399,6 +399,7 @@ jobs:
               "architecture_boot_matrix": "architecture-boot-matrix.json",
               "isa_conformance": "isa-conformance.json",
               "native_koronos_default_boot": "native-koronos-default-boot.json",
+              "terminal_shell_gui_interaction": "terminal-shell-gui-interaction.json",
           }
           missing = [name for name, filename in required.items() if not (root / filename).is_file()]
           checks = {}
@@ -416,6 +417,8 @@ jobs:
                   checks[name] = checks[name] and data.get("all_supported_targets_passed") is True
               elif name == "aurora_marine_health":
                   checks[name] = checks[name] and data.get("aurora_live") is True and data.get("marine_live") is True and data.get("gui_interaction_passed") is True
+              elif name == "terminal_shell_gui_interaction":
+                  checks[name] = checks[name] and data.get("providers_tested") == 28 and data.get("mouse_keyboard_input_passed") is True
               elif name == "native_koronos_default_boot":
                   checks[name] = checks[name] and data.get("koronos_is_default") is True and data.get("linux_fallback_preserved") is True
               elif name == "isa_conformance":
