@@ -234,6 +234,7 @@
     "rcp",
     "read",
     "readarray",
+    "readlink",
     "readonly",
     "reboot",
     "rename",
