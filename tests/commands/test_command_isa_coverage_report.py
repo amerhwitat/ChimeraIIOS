@@ -54,4 +54,8 @@ with tempfile.TemporaryDirectory() as tmp:
     assert data["source_catalogue_provider_status_counts"]["hosted-linux-rootfs-executable"] == 1
     assert data["source_catalogue_provider_status_counts"]["compatibility-provider-required"] == 5
     assert data["source_catalogue_provider_status_counts"]["catalogued-provider-required"] == 1
+    assert data["native_chimera_command_count"] == 1
+    assert data["native_chimera_provider_count"] == 1
+    assert data["native_chimera_source_implementation_count"] == 0
+    assert data["native_chimera_koronos_runtime_verified_count"] == 0
     print("PASS unique catalogue count and verified-provider coverage are reported without fake binaries")
