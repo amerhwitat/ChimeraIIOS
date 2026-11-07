@@ -296,7 +296,7 @@ python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
   --output "$WORK/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
 # Audit every command record against actual files in the final target rootfs.
 python3 "$REPO_DIR/tools/commands/verify-command-provider-coverage.py" \
-  "$WORK" "$REPO_DIR/system/commands/command-runtime-capabilities.json" x86_64
+  "$WORK" "$REPO_DIR/system/commands/command-runtime-capabilities.json" x86_64 --require-native
 # Recompute the platform-specific command/ISA report after all providers are installed.
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
