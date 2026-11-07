@@ -24,6 +24,8 @@ __attribute__((noreturn, used)) void _start(void) {
             init_writestr("RECOVERY: filesystem and storage integrity checks are not yet implemented\n");
         } else if (init_text_equal(line, "repair")) {
             init_writestr("RECOVERY: repair not available; no filesystem or block-device writes will be attempted\n");
+        } else if (init_text_starts_with(line, "repair ")) {
+            init_writestr("RECOVERY: repair requests are disabled until storage and filesystem backends exist\n");
         } else if (init_text_equal(line, "exit")) {
             init_writestr("RECOVERY: leaving safe console\n");
             init_exit(0);
