@@ -33,7 +33,7 @@ CFLAGS=(
   -std=c11 -O2 -Wall -Wextra -Werror
   -ffreestanding -fno-builtin -fno-stack-protector
   -fno-pic -fno-pie -fno-asynchronous-unwind-tables
-  -m64 -mno-red-zone -mcmodel=large
+  -m64 -mno-red-zone -mno-sse -mno-mmx -msoft-float -mcmodel=large
   -I"$ROOT/kernel/targets"
 )
 for target in live installer recovery; do
