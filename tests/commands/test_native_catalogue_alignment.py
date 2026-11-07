@@ -16,7 +16,7 @@ catalogue = {
 }
 aliases = {str(name).casefold() for name in policy["native_build"]["multicall_aliases"]}
 coverage_aliases = {str(name).casefold() for name in coverage["linux_abi_multicall_aliases"]}
-rows = {str(row["name"]).casefold(): row for row in coverage["commands"]}
+rows = {str(row.get("command", row.get("name", ""))).casefold(): row for row in coverage["commands"]}
 
 assert len(catalogue) == coverage["source_catalogue_unique_command_count"], (
     len(catalogue), coverage["source_catalogue_unique_command_count"])
