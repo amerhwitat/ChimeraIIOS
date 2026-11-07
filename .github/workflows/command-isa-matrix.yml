@@ -5,12 +5,14 @@ on:
       - 'src/chimera-command-compat/chimera-cmd.c'
       - 'system/commands/compatibility-binary-policy.json'
       - 'tools/commands/build_native_command_matrix.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
       - '.github/workflows/command-isa-matrix.yml'
   pull_request:
     paths:
       - 'src/chimera-command-compat/chimera-cmd.c'
       - 'system/commands/compatibility-binary-policy.json'
       - 'tools/commands/build_native_command_matrix.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
       - '.github/workflows/command-isa-matrix.yml'
   workflow_dispatch:
 permissions:
@@ -29,7 +31,7 @@ jobs:
           sudo apt-get install -y gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static
       - name: Build native multicall commands for target ISAs
         run: |
-          python3 tools/commands/build_native_command_matrix.py \
+          python3 tools/commands/build_linux_abi_command_matrix.py \
             --source src/chimera-command-compat/chimera-cmd.c \
             --policy system/commands/compatibility-binary-policy.json \
             --output build/native-command-isa \
