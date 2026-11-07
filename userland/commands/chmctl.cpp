@@ -30,7 +30,7 @@ static int exec_tool(const std::string& tool, std::vector<std::string> args)
     argv.push_back(nullptr);
     std::string executable = tool;
     if (fs::path(executable).extension().empty()) executable += ".exe";
-    const intptr_t rc = _spawnvp(_P_WAIT, executable.c_str(), argv.data());
+    const auto rc = _spawnvp(_P_WAIT, executable.c_str(), argv.data());
     if (rc != -1) return static_cast<int>(rc);
 #else
     std::vector<char*> argv;
