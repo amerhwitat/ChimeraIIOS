@@ -20,9 +20,6 @@ case "$ED" in
 esac
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python3 "$REPO_DIR/tools/boot/verify-menu-timeouts.py" --root "$REPO_DIR"
-python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
-python3 -m json.tool "$REPO_DIR/system/commands/command-runtime-capabilities.json" >/dev/null
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
 NATIVE_COMMAND_OUT="$BUILD/native-command-isa"
@@ -32,6 +29,23 @@ ISODIR="$BUILD/iso-$ED"
 OUT="${OUT_DIR:-$BUILD/out}"
 ART="$HERE/artwork"
 JOBS="${JOBS:-$(nproc)}"
+python3 "$REPO_DIR/tools/boot/verify-menu-timeouts.py" --root "$REPO_DIR"
+# Refresh the empty/stale SS64 index once per shared build root. SS64 contributes
+# command names and source references only; it is never treated as a binary source.
+SS64_CACHE="$BUILD/ss64-command-catalog.json"
+if [[ ! -s "$SS64_CACHE" || "${CHIMERA_REFRESH_SS64:-0}" == "1" ]]; then
+  mkdir -p "$BUILD"
+  CHIMERA_ROOTFS_DIR="$BUILD/ss64-no-rootfs" CHIMERA_SS64_PLATFORM_BUDGET="${CHIMERA_SS64_PLATFORM_BUDGET:-45}" \
+    python3 "$REPO_DIR/tools/commands/crawl_ss64.py" \
+      --output "$SS64_CACHE" --max-pages "${CHIMERA_SS64_MAX_PAGES:-500}" \
+      --timeout 10 --retries 1 --delay 0.02
+fi
+if [[ -s "$SS64_CACHE" ]]; then
+  install -D -m 0644 "$SS64_CACHE" "$REPO_DIR/system/commands/ss64-command-catalog.json"
+fi
+python3 "$REPO_DIR/tools/commands/import_command_candidates.py"
+python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
+python3 -m json.tool "$REPO_DIR/system/commands/command-runtime-capabilities.json" >/dev/null
 
 if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
