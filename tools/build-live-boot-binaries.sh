@@ -50,6 +50,27 @@ mkdir -p "$OUT/boot/koronos" "$OUT/boot/live" "$OUT/boot/recovery" "$OUT/initram
 KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
+# The production ring-3 target ELFs are separate Multiboot2 modules. Stage
+# the exact artifacts built by kernel/build-koronos.sh; initramfs images are
+# payload data and cannot substitute for these user-mode entry points.
+TARGETS_OUT="$OUT/boot/targets"
+mkdir -p "$TARGETS_OUT"
+for target in live installer recovery; do
+  target_elf="$BUILD_DIR/koronos/x86_64/target-init-$target.elf"
+  if [[ ! -s "$target_elf" ]]; then
+    echo "ERROR: production Koronos target ELF is missing: $target_elf" >&2
+    echo "Build the koronos-x86_64 target before staging Live/Installer/Recovery media." >&2
+    exit 2
+  fi
+  readelf -h "$target_elf" | grep -Eq 'Class:[[:space:]]+ELF64' || {
+    echo "ERROR: target init is not ELF64: $target_elf" >&2; exit 2;
+  }
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: target init is not an executable ELF: $target_elf" >&2; exit 2;
+  }
+  chimera_copy_if_distinct "$target_elf" "$TARGETS_OUT/target-init-$target.elf"
+  sha256sum "$TARGETS_OUT/target-init-$target.elf" > "$TARGETS_OUT/target-init-$target.elf.sha256"
+done
 INIT="$OUT/initramfs/root"
 # Initramfs packing needs cpio and gzip on the build host; fail loudly rather
 # than emitting a truncated image when either is missing (the cpio pipeline used
