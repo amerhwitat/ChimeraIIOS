@@ -50,9 +50,12 @@ if (("${#AVAILABLE[@]}")); then
     [[ -f "$deb" ]] || continue
     dpkg-deb -x "$deb" "$WORK/extracted"
   done
-  # Never overwrite a source-built executable with a package copy; still stage
-  # its package libraries, resources, desktop files and other dependencies.
-  cp -an "$WORK/extracted/." "$DEST/"
+  # Overlay the complete authenticated package payload, including binaries.
+  # The previous cp -an skipped package executables whenever a stale/dangling
+  # path already existed in the rootfs, leaving downloaded providers unstaged.
+  # Package executables are genuine providers too; the post-stage verifier checks
+  # architecture and runtime behavior before they can count as accepted.
+  cp -a "$WORK/extracted/." "$DEST/"
 fi
 python3 - "$DEST" "$REQUIRE_ALL" "${CHIMERA_TARGET_ARCH:-$(uname -m)}" <<'PY'
 import hashlib,json,pathlib,shutil,subprocess,sys,platform
