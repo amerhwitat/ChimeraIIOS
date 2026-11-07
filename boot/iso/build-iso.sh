@@ -38,6 +38,7 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
 # Canonical system block-size contract. Forward this unchanged into the kernel
 # build and all downstream ISO stages; never silently accept malformed values.
 CHIMERA_SYSTEM_BLOCK_SIZE="${CHIMERA_SYSTEM_BLOCK_SIZE:-${SYSTEM_BLOCK_SIZE:-4096}}"
@@ -102,9 +103,55 @@ for target in live installer recovery; do
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
 
+# Stage cross-built Linux ABI command multicall binaries for all currently
+# supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
+printf '%s\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
+NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
+test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
+for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
+  test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
+  test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
+done
+mkdir -p "$DIST/iso/system/commands/linux-abi"
+cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
+# Carry every command and ISA catalogue with explicit platform/provider metadata.
+CATALOG_OUT="$DIST/iso/system/commands/catalogs"
+mkdir -p "$CATALOG_OUT"
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  system/commands/native-provider-aliases.json \
+  config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
+  [[ -s "$ROOT/$rel" ]] && install -D -m 0644 "$ROOT/$rel" "$CATALOG_OUT/$(basename "$rel")"
+done
+install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminals-registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$CATALOG_OUT/shells-registry.json"
+install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$CATALOG_OUT/terminals-binary-manifest.json"
+install -D -m 0644 "$ROOT/aurora/shells/binary-manifest.json" "$CATALOG_OUT/shells-binary-manifest.json"
+install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$CATALOG_OUT/linux-abi-command-matrix.json"
+python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
+import json,sys
+manifest=json.load(open(sys.argv[1],encoding="utf-8"))
+expected={"x86_64","i686","armel","aarch64","armv7","riscv64","ppc64le","s390x"}
+rows={row["target"]:row for row in manifest.get("targets",[])}
+if set(rows)!=expected: raise SystemExit(f"wrong native command target set: {sorted(rows)}")
+for arch,row in rows.items():
+    if row.get("binary_status")!="cross-compiled-and-elf-machine-validated":
+        raise SystemExit(f"{arch} command binary not ELF-validated: {row}")
+    if row.get("runtime_status") not in {"native-linux-abi-smoke-tested","qemu-user-linux-abi-smoke-tested"}:
+        raise SystemExit(f"{arch} Linux ABI smoke test missing: {row}")
+if "does not validate Koronos" not in manifest.get("runtime_scope",""):
+    raise SystemExit("manifest must distinguish Linux ABI smoke tests from Koronos runtime acceptance")
+print("Linux ABI smoke tests passed; Koronos kernel/userspace execution remains untested.")
+PY
+
 # Stage the AI knowledge database. The kernel classifies it as
 # CHIMERA_MODULE_AI_KNOWLEDGE_DB and reports its entry count on the boot trace.
-printf '%s\n' '[3c/7] Stage AI knowledge database'
+printf '%s\n' '[3d/7] Stage AI knowledge database'
 KB_SRC="$ROOT/config/ai/knowledge-db.json"
 test -s "$KB_SRC" || { echo "ERROR: knowledge database missing: $KB_SRC (run tools/ai/knowledge_db.py build)" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/ai"
@@ -115,7 +162,7 @@ sha256sum "$DIST/iso/boot/ai/knowledge-db.json" | awk '{print $1"  knowledge-db.
 
 # Stage the complete media / app-catalogue / documentation / CI-workflow payload
 # under /payload with a manifest and per-file digests.
-printf '%s\n' '[3d/7] Stage media, apps, docs and workflow payload'
+printf '%s\n' '[3e/7] Stage media, apps, docs and workflow payload'
 python3 "$ROOT/tools/iso/stage_payload.py" --root "$ROOT" --iso "$DIST/iso" --limit-mb "${CHIMERA_PAYLOAD_LIMIT_MB:-200}"
 test -s "$DIST/iso/payload/MANIFEST.json" || { echo "ERROR: payload manifest missing" >&2; exit 2; }
 test -s "$DIST/iso/payload/SHA256SUMS" || { echo "ERROR: payload checksums missing" >&2; exit 2; }
@@ -125,6 +172,13 @@ VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
 bash "$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
 MEDIA="$ROOT/build/aurora-media"
+# Export every native Aurora SVG icon for the desktop and the installed icon theme.
+ICON_OUT="$DIST/iso/desktop/aurora/icons/generated"
+python3 "$ROOT/tools/aurora/export-icon-theme.py" --output "$ROOT/build/aurora-icons"
+mkdir -p "$ICON_OUT" "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps"
+cp -a "$ROOT/build/aurora-icons/." "$ICON_OUT/"
+cp -a "$ROOT/build/aurora-icons/." "$DIST/iso/usr/share/icons/chimera-aurora/"
+cp -a "$ROOT/build/aurora-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps/"
 test -s "$MEDIA/Init.mp4" || { echo "ERROR: Aurora Init.mp4 was not generated or supplied." >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/visual/aurora-media"
 cp -a "$MEDIA/." "$DIST/iso/boot/visual/aurora-media/"
@@ -164,6 +218,8 @@ RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera
 if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
   mkdir -p "$RUNTIME_AURORA_ROOT"
   cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
+  mkdir -p "$RUNTIME_AURORA_ROOT/icons"
+  cp -a "$ROOT/build/aurora-icons/." "$RUNTIME_AURORA_ROOT/icons/"
 fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
@@ -175,6 +231,7 @@ for visual in \
   test -s "$DIST/iso/boot/visual/$visual" || { echo "ERROR: Aurora visual asset missing: $visual" >&2; exit 2; }
 done
 test -s "$DIST/iso/boot/visual/aurora-media/manifest.json"
+test -s "$ICON_OUT/manifest.json" || { echo "ERROR: generated Aurora icon manifest missing." >&2; exit 2; }
 for stage in spitfire jasper grub koronos; do
   test -s "$DIST/iso/boot/$stage/Init.mp4" || { echo "ERROR: Init.mp4 missing from $stage stage." >&2; exit 2; }
   test -s "$DIST/iso/boot/$stage/aurora-boot.png" || { echo "ERROR: Aurora artwork missing from $stage stage." >&2; exit 2; }
