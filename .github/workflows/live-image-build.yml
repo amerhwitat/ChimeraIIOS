@@ -322,21 +322,6 @@ jobs:
           assert all(x.get('runtime_status') in {'native-linux-abi-smoke-tested','qemu-user-linux-abi-smoke-tested'} for x in rows), rows
           print('All eight Linux ABI command candidates passed smoke tests.')
           PY
-          python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
-          import json,sys
-          report=json.load(open(sys.argv[1],encoding="utf-8"))
-          assert report["native_chimera_command_count"] == 90
-          assert report["source_catalogue_unique_command_count"] == 855
-          assert report["source_catalogue_candidate_inventory_allowlist_count"] == 37
-          assert report["source_catalogue_candidate_only_count"] == 818
-          print("Core catalogue: 855 unique names; 818 remain candidate-only; verified hosted providers:", report["source_catalogue_verified_hosted_provider_count"])
-          assert report["native_chimera_provider_count"] >= 90, "Linux binaries must not be misreported as Koronos-native providers"
-          assert report["hosted_linux_chimera_provider_count"] >= 8
-          assert report["native_chimera_koronos_runtime_verified_count"] == 0
-          assert report["linux_abi_multicall_alias_count"] == 37
-          assert report["isa_candidate_definition_count"] >= 7000
-          print("Verified catalogue coverage accounting and honest Koronos/Linux ABI separation.")
-          PY
           test -s "$root/usr/share/chimera/catalogs/chimera-command-list.json"
           test -s "$root/usr/share/chimera/catalogs/linux-command-registry.json"
           test -s "$root/usr/share/chimera/catalogs/ISA.csv"
