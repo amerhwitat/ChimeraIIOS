@@ -19,6 +19,10 @@ __attribute__((noreturn, used)) void _start(void) {
             init_yield();
             continue;
         }
+        if (init_command_common(line, pid)) {
+            init_yield();
+            continue;
+        }
         if (init_text_equal(line, "help")) {
             init_writestr("help       list built-in commands\n");
             init_writestr("uname      show kernel identity\n");
