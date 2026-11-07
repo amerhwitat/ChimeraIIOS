@@ -142,7 +142,7 @@ jobs:
             libdbus-1-dev libssl-dev libasound2-dev libpulse-dev libxrandr-dev \
             libxi-dev libxinerama-dev libxcursor-dev libxext-dev libxrender-dev \
             libxfixes-dev libxdamage-dev libxcomposite-dev \
-            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11
+            gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 curl minisign
 
       - name: Validate desktop source and application catalogs
         run: |
