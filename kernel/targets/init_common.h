@@ -113,6 +113,53 @@ static void init_writestr(const char *s) {
     (void)init_write(1, s, init_strlen(s));
 }
 
+/* Built-ins that need only the currently accepted ring-3 read/write/yield ABI.
+ * Filesystem, clock, process-launch and device commands stay unavailable until
+ * Koronos implements the corresponding kernel services. */
+static int init_command_common(const char *line, long pid) {
+    if (init_text_equal(line, "version")) {
+        init_writestr("Chimera II OS / Koronos x86_64 (native ring-3)\n");
+        return 1;
+    }
+    if (init_text_equal(line, "arch")) {
+        init_writestr("x86_64\n");
+        return 1;
+    }
+    if (init_text_equal(line, "uname")) {
+        init_writestr("Koronos x86_64 Chimera-II-OS native\n");
+        return 1;
+    }
+    if (init_text_equal(line, "pid")) {
+        init_writestr("pid=");
+        init_write_uint((unsigned long)pid);
+        init_writestr("\n");
+        return 1;
+    }
+    if (init_text_equal(line, "clear")) {
+        for (int i = 0; i < 25; ++i) init_writestr("\n");
+        return 1;
+    }
+    if (init_text_starts_with(line, "echo ")) {
+        (void)init_write(1, line + 5, init_strlen(line + 5));
+        init_writestr("\n");
+        return 1;
+    }
+    if (init_text_equal(line, "true")) {
+        init_writestr("status=0\n");
+        return 1;
+    }
+    if (init_text_equal(line, "false")) {
+        init_writestr("status=1 (nonzero)\n");
+        return 1;
+    }
+    if (init_text_equal(line, "yield")) {
+        init_yield();
+        init_writestr("scheduler yield returned\n");
+        return 1;
+    }
+    return 0;
+}
+
 static void init_emit_readiness(long pid) {
     char message[96];
     long used = 0;
