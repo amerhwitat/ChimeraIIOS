@@ -134,9 +134,12 @@ jobs:
       - name: QEMU headless Koronos boot smoke test
         run: |
           set +e
-          timeout 20s qemu-system-x86_64 \
+          # The production menu intentionally waits 300 seconds. Send Enter
+          # through QEMU's monitor after firmware/GRUB startup instead of
+          # weakening the ISO's user-facing timeout for CI.
+          ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 30s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
-            -display none -serial none -monitor none \
+            -display none -serial none -monitor stdio \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
             -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
@@ -172,8 +175,10 @@ jobs:
           accepted=true
           for target in live installer recovery; do
             tree="$base/$target/tree"
-            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
+            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/targets" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
             xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
+            xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$tree/boot/targets/target-init-$target.elf" >/dev/null 2>&1 || accepted=false
+            test -s "$tree/boot/targets/target-init-$target.elf" || accepted=false
             if [[ "$target" == "live" ]]; then
               xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
               xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
@@ -191,6 +196,7 @@ jobs:
           terminal_output console
           menuentry "Chimera target $target handoff acceptance" {
             multiboot2 /boot/koronos/koronos.elf
+            module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target
           GRUB
             if [[ "$target" == "live" ]]; then
               cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'

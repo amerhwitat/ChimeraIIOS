@@ -14,9 +14,7 @@ __attribute__((noreturn, used)) void _start(void) {
     init_writestr("RECOVERY: ring-3 syscall ABI self-check complete\n");
 
     init_yield();
-    init_writestr("RECOVERY: scheduler tick count=");
-    init_write_uint((unsigned long)init_time_ticks());
-    init_writestr("\n");
+    init_writestr("RECOVERY: scheduler yield returned\n");
 
     init_exit(0);
 }

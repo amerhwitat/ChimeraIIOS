@@ -117,6 +117,7 @@ static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
         case 11: return 11;
         case 12: return 12;
         case 16: return 11;
+        case 24: return 3;
         case 35: return 13;
         case 39: return 2;
         case 60: return 1;
