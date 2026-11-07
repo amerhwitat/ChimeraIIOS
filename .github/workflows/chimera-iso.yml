@@ -162,7 +162,7 @@ jobs:
       # Container-image construction is covered by Desktop Compatibility CI.
       # Keep this gate focused on native boot artifacts and the ISO/QEMU path.
       - name: Run boot and ISO tests
-        run: python3 -m pytest -q tests/boot tests/iso
+        run: python3 -m pytest -q tests/boot tests/iso drivers/tests/test_driver_acquisition_policy.py
       - name: Validate Spit Fire MBR sector
         run: nasm -f bin boot/spitfire/sf0_mbr.asm -o /tmp/sf0.bin && test "$(stat -c %s /tmp/sf0.bin)" = 512 && tail -c 2 /tmp/sf0.bin | od -An -tx1 | grep -qi '55 aa'
       - name: Build host C/C++ targets
