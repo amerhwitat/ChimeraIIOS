@@ -19,6 +19,12 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-x86_64}"
+if [[ "$TARGET_ARCH" != "x86_64" ]]; then
+  echo "[ERROR] Native Koronos ISO is currently x86_64-only; refusing to label a cross-built binary as a bootable $TARGET_ARCH image." >&2
+  exit 2
+fi
+python3 "$ROOT/tools/boot/verify-menu-timeouts.py" --root "$ROOT"
 BUILD="$ROOT/build/full"
 ISO_DIR="$ROOT/build/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
