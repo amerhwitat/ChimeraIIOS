@@ -29,6 +29,17 @@ for macro, (linux_number, canonical_id) in expected.items():
 assert not re.search(r"\bCHM_SYS_[A-Z0-9_]+\b", COMMON), (
     "native semantic syscall IDs must not be passed directly to Linux SYSCALL"
 )
+SMOKE = (ROOT / "kernel/tests/user_init_smoke.c").read_text()
+assert re.search(r'number\s+__asm__\("rax"\)\s*=\s*39\s*;.*Linux x86-64 getpid', SMOKE), (
+    "ring-3 smoke payload must use Linux x86-64 getpid=39, not Chimera semantic ID 2"
+)
+assert re.search(r'number\s*=\s*1\s*;\s*/\* Linux x86-64 write \*/', SMOKE), (
+    "ring-3 smoke payload must use Linux x86-64 write=1"
+)
+assert re.search(r'number\s*=\s*60\s*;\s*/\* Linux x86-64 exit \*/', SMOKE), (
+    "ring-3 smoke payload must use Linux x86-64 exit=60"
+)
+
 assert 'int $0x80' in COMMON, (
     "the CPL3-origin acknowledgement must still enter through the DPL3 INT 0x80 gate"
 )
