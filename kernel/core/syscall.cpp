@@ -90,6 +90,7 @@ extern "C" int chimera_syscall_get_snapshot(chimera_syscall_snapshot *out) {
 
 extern "C" {
 volatile uint64_t koronos_user_exit_code = 0;
+volatile uint64_t koronos_user_exit_requested = 0;
 }
 extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
@@ -151,6 +152,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:
             koronos_user_exit_code = frame->rdi & 0xFFu;
+            koronos_user_exit_requested = 1;
             koronos_target_log("[SYSC] userspace exit syscall received");
             return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
         default:
