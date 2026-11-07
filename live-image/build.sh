@@ -257,6 +257,8 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
 bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
+python3 "$REPO_DIR/tools/commands/stage-native-script-providers.py" \
+  --repo "$REPO_DIR" --rootfs "$WORK" --build-dir "$BUILD/native-userland-tools"
 CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
 python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
   --rootfs "$WORK" \
