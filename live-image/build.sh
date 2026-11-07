@@ -605,11 +605,12 @@ set default=0
 set timeout=300
 set timeout_style=menu
 insmod all_video
+insmod multiboot2
 insmod gfxterm
 insmod png
 insmod jpeg
 insmod font
-set gfxmode=1920x1080,1280x1024,1024x768,auto
+set gfxmode=5120x2880,1920x1080,1280x1024,1024x768,640x480,auto
 set gfxpayload=keep
 terminal_output gfxterm
 if [ -f /boot/grub/background.jpg ]; then background_image /boot/grub/background.jpg; fi
@@ -649,17 +650,48 @@ EOF
 # Native Koronos kernel: built with the Linux-style kbuild workflow and staged as a
 # multiboot2 payload. It is a diagnostic target: the microkernel does not reach a
 # verified userspace handoff, so the Linux live entries remain the default.
-log "koronos kernel"
-if [ -f "$REPO_DIR/kernel/Makefile" ] && command -v nasm >/dev/null 2>&1; then
-  ( cd "$REPO_DIR" && make -C kernel defconfig all >/tmp/koronos-build.log 2>&1 ) || \
-    echo "  [warn] Koronos build failed, see /tmp/koronos-build.log"
-  koronos_elf="$REPO_DIR/build/koronos/x86_64/koronos.elf"
-  if [ -s "$koronos_elf" ]; then
-    install -Dm644 "$koronos_elf" "$ISODIR/boot/koronos/koronos.elf"
-    install -Dm644 "$REPO_DIR/build/koronos/x86_64/System.map" "$ISODIR/boot/koronos/System.map" 2>/dev/null || true
-    echo "  staged $(du -h "$koronos_elf" | cut -f1) koronos.elf"
-  fi
+log "Koronos production target modules"
+if [[ ! -x "$REPO_DIR/kernel/build-koronos.sh" ]]; then
+  echo "[ERROR] kernel/build-koronos.sh is required for the native target modules." >&2
+  exit 2
 fi
+bash "$REPO_DIR/kernel/build-koronos.sh"
+CHIMERA_BUILD_DIR="$REPO_DIR/build" CHIMERA_LIVE_BOOT_DIR="$ISODIR" \
+  bash "$REPO_DIR/tools/build-live-boot-binaries.sh"
+for target in live installer recovery; do
+  test -s "$ISODIR/boot/targets/target-init-$target.elf" || {
+    echo "[ERROR] Koronos target init ELF missing from ISO staging: $target" >&2; exit 2;
+  }
+done
+test -s "$ISODIR/boot/live/chimera-live-initramfs.img"
+test -s "$ISODIR/boot/recovery/chimera-recovery-initramfs.img"
+test -s "$ISODIR/install/installer/installation.img"
+cat >> "$ISODIR/boot/grub/grub.cfg" <<'KORONOS'
+menuentry "Koronos native Live (experimental text/ABI console)" --id koronos-live {
+  multiboot2 /boot/koronos/koronos.elf
+  module2 /boot/targets/target-init-live.elf chimera-user-init-elf target=live
+  module2 /boot/live/chimera-live-initramfs.img chimera-live-initramfs
+  module2 /boot/live/live-manifest.json chimera-live-manifest
+  boot
+}
+menuentry "Koronos native Installer (non-writing ABI probe)" --id koronos-installer {
+  multiboot2 /boot/koronos/koronos.elf
+  module2 /boot/targets/target-init-installer.elf chimera-user-init-elf target=installer
+  module2 /install/installer/installation.img chimera-installation-image
+  module2 /install/installer/installation-manifest.json chimera-installation-manifest
+  module2 /install/installer/installer-contract.json chimera-installer-contract
+  module2 /install/installer/installation_phases.json chimera-install-phases
+  module2 /install/installer/installer_profiles.json chimera-installer-profiles
+  boot
+}
+menuentry "Koronos native Recovery (repair handoff pending)" --id koronos-recovery {
+  multiboot2 /boot/koronos/koronos.elf
+  module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery
+  module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
+  module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
+  boot
+}
+KORONOS
 
 log "iso"
 rm -f "$OUT/$ISO_NAME"
