@@ -74,7 +74,31 @@ for ident,kind,binary in rows:
     row={"id":ident,"kind":kind,"binary":binary,"status":"unavailable","runtime_status":"not-runtime-tested"}
     if path:
         row.update(status="binary-present",path="/"+str(path.relative_to(dest)),sha256=hashlib.sha256(path.read_bytes()).hexdigest())
-        if readelf:
+        data=path.read_bytes()
+        if data.startswith(b"#!"):
+            first=data.splitlines()[0][2:].decode("utf-8","replace").strip().split()
+            interpreter=first[0] if first else ""
+            if interpreter.endswith("/env") and len(first)>1:
+                candidate=first[1]
+                interp=next((dest/d/candidate for d in ("usr/bin","bin","usr/local/bin") if (dest/d/candidate).is_file()),None)
+                env_path=dest/interpreter.lstrip("/")
+                valid=env_path.is_file() and interp is not None
+            else:
+                interp=dest/interpreter.lstrip("/") if interpreter.startswith("/") else None
+                valid=interp is not None and interp.is_file() and bool(interp.stat().st_mode&0o111)
+            if valid:
+                rel="/"+str(path.relative_to(dest))
+                args=[rel,"-c","printf CHIMERA_SHELL_SMOKE"] if kind=="shell" else [rel,"--version"]
+                try:
+                    probe=subprocess.run(["chroot",str(dest),*args],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=12)
+                    ok=probe.returncode==0 and (kind!="shell" or b"CHIMERA_SHELL_SMOKE" in probe.stdout)
+                    row["status"]="verified-script-provider" if ok else "script-smoke-failed"
+                    row["runtime_status"]=("shell-command-smoke-pass" if kind=="shell" else "version-smoke-pass") if ok else "script-smoke-failed"
+                except (OSError,subprocess.TimeoutExpired):
+                    row["status"]="script-smoke-failed"; row["runtime_status"]="script-smoke-failed"
+            else:
+                row["status"]="script-interpreter-missing"
+        elif readelf:
             proc=subprocess.run([readelf,"-h",str(path)],text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
             machine=next((x.split(":",1)[1].strip() for x in proc.stdout.splitlines() if x.strip().startswith("Machine:")),None)
             if proc.returncode or not machine: row["status"]="present-but-not-valid-ELF"
@@ -97,7 +121,7 @@ for ident,kind,binary in rows:
     manifest.append(row)
 out={"schema":"AURORA-TERMINAL-SHELL-STAGING-1","policy":"Only real executable files are listed; SHA-256 identifies exact bytes; staging does not imply runtime compatibility.","entries":manifest}
 p=dest/"usr/share/chimera/aurora/terminal-shell-staging.json"; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(out,indent=2)+"\n")
-missing=[r["id"] for r in manifest if r["status"]!="binary-present"]
+missing=[r["id"] for r in manifest if r["status"] not in ("binary-present","verified-script-provider") or r["runtime_status"] not in ("shell-command-smoke-pass","version-smoke-pass")]
 print(f"[AURORA-TERMINALS] staged={len(manifest)-len(missing)}/{len(manifest)} missing={','.join(missing) if missing else 'none'}")
 if require_all and missing: raise SystemExit("required terminal/shell binaries missing: "+", ".join(missing))
 PY
