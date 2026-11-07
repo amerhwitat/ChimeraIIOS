@@ -27,10 +27,47 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/shells" "$CACHE"
 cp "$ROOT/aurora/shells/registry.json" "$PREFIX/share/chimera/aurora/shells/registry.json"
 log(){ printf '[AURORA-SHELL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-copy_if_present(){ local b="$1"; if have "$b"; then cp -L "$(command -v "$b")" "$PREFIX/bin/$b" 2>/dev/null || true; log "Imported existing $b"; return 0; fi; return 1; }
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+normalize_arch() {
+  case "$1" in
+    amd64|x86_64) printf x86_64 ;;
+    arm64|aarch64) printf aarch64 ;;
+    armhf|armv7l|armv7*) printf arm ;;
+    i386|i486|i586|i686) printf i386 ;;
+    riscv64) printf riscv64 ;;
+    ppc64le) printf ppc64le ;;
+    s390x) printf s390x ;;
+    *) return 1 ;;
+  esac
+}
+verify_target_binary() {
+  local binary="$1" arch machine expected
+  [[ -x "$binary" ]] || { log "Not executable: $binary"; return 1; }
+  command -v readelf >/dev/null 2>&1 || { log "readelf is required to verify $binary"; return 1; }
+  arch="$(normalize_arch "$TARGET_ARCH")" || { log "Unsupported target architecture: $TARGET_ARCH"; return 1; }
+  machine="$(readelf -h "$binary" 2>/dev/null | sed -n 's/^[[:space:]]*Machine:[[:space:]]*//p')"
+  case "$arch" in
+    x86_64) expected="Advanced Micro Devices X86-64" ;;
+    aarch64) expected="AArch64" ;;
+    arm) expected="ARM" ;;
+    i386) expected="Intel 80386" ;;
+    riscv64) expected="RISC-V" ;;
+    ppc64le) expected="PowerPC64" ;;
+    s390x) expected="IBM S/390" ;;
+  esac
+  [[ "$machine" == "$expected" ]] || { log "Architecture mismatch for $binary: target=$TARGET_ARCH ELF=$machine"; return 1; }
+}
+require_native_build_arch() {
+  local host target
+  host="$(normalize_arch "$(uname -m)")" || return 1
+  target="$(normalize_arch "$TARGET_ARCH")" || return 1
+  [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
+}
+copy_if_present(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
 clone(){ local id="$1" url="$2"; local src="$CACHE/src-$id"; if [[ ! -d "$src" ]]; then log "Cloning $id"; git clone --depth 1 "$url" "$src"; fi; printf '%s' "$src"; }
 build_source(){
   local id="$1" url="$2" src
+  require_native_build_arch || return 1
   src="$(clone "$id" "$url")"
   case "$id" in
     bash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/bash" "$PREFIX/bin/bash" ;;
@@ -43,6 +80,9 @@ build_source(){
     yash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); find "$src" -type f -name yash -perm -111 -exec cp {} "$PREFIX/bin/yash" \; -quit ;;
     *) return 1 ;;
   esac
+  local built
+  case "$id" in nushell) built="$PREFIX/bin/nu";; *) built="$PREFIX/bin/$id";; esac
+  verify_target_binary "$built" || { rm -f "$built"; return 1; }
 }
 for b in bash zsh fish dash mksh elvish nu yash; do copy_if_present "$b" || true; done
 [[ "$MODE" == "binary-only" ]] && { log "Binary-only mode selected; using packages/prebuilt artifacts already present"; exit 0; }
@@ -54,4 +94,12 @@ build_source mksh https://github.com/MirBSD/mksh.git || log "mksh source build u
 build_source elvish https://github.com/elves/elvish.git || log "Elvish source build unavailable; keeping system/package Elvish"
 build_source nushell https://github.com/nushell/nushell.git || log "Nushell source build unavailable; keeping system/package Nushell"
 build_source yash https://github.com/magicant/yash.git || log "Yash source build unavailable; keeping system/package Yash"
+# Do not let an unavailable package or failed source build masquerade as a
+# complete shell registry. Verify every registered shell against the target ELF.
+for item in "bash:bash" "zsh:zsh" "fish:fish" "dash:dash" "mksh:mksh" \
+            "elvish:elvish" "nushell:nu" "yash:yash"; do
+  id="${item%%:*}"; binary="${item#*:}"
+  copy_if_present "$binary" || { log "REQUIRED SHELL PROVIDER MISSING: $id ($binary)"; exit 2; }
+done
+log "All 8 registered shell providers are present and target-architecture verified."
 log "Shell registry staged at $PREFIX/share/chimera/aurora/shells/registry.json"

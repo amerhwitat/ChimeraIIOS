@@ -27,15 +27,62 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/a
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-install_existing(){ local b="$1"; if have "$b"; then cp -L "$(command -v "$b")" "$PREFIX/bin/$b" 2>/dev/null || true; return 0; fi; return 1; }
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+normalize_arch() {
+  case "$1" in
+    amd64|x86_64) printf x86_64 ;;
+    arm64|aarch64) printf aarch64 ;;
+    armhf|armv7l|armv7*) printf arm ;;
+    i386|i486|i586|i686) printf i386 ;;
+    riscv64) printf riscv64 ;;
+    ppc64le) printf ppc64le ;;
+    s390x) printf s390x ;;
+    *) return 1 ;;
+  esac
+}
+verify_target_binary() {
+  local binary="$1" arch machine expected
+  [[ -x "$binary" ]] || { log "Not executable: $binary"; return 1; }
+  command -v readelf >/dev/null 2>&1 || { log "readelf is required to verify $binary"; return 1; }
+  arch="$(normalize_arch "$TARGET_ARCH")" || { log "Unsupported target architecture: $TARGET_ARCH"; return 1; }
+  machine="$(readelf -h "$binary" 2>/dev/null | sed -n 's/^[[:space:]]*Machine:[[:space:]]*//p')"
+  case "$arch" in
+    x86_64) expected="Advanced Micro Devices X86-64" ;;
+    aarch64) expected="AArch64" ;;
+    arm) expected="ARM" ;;
+    i386) expected="Intel 80386" ;;
+    riscv64) expected="RISC-V" ;;
+    ppc64le) expected="PowerPC64" ;;
+    s390x) expected="IBM S/390" ;;
+  esac
+  [[ "$machine" == "$expected" ]] || { log "Architecture mismatch for $binary: target=$TARGET_ARCH ELF=$machine"; return 1; }
+}
+require_native_build_arch() {
+  local host target
+  host="$(normalize_arch "$(uname -m)")" || return 1
+  target="$(normalize_arch "$TARGET_ARCH")" || return 1
+  [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
+}
+install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
 source_build(){
+  require_native_build_arch || return 1;
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
-    wezterm) (cd "$src" && cargo build --release --bin wezterm); cp "$src/target/release/wezterm" "$PREFIX/bin/" ;;
+    wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
-    ghostty) have zig || return 1; (cd "$src" && zig build -Doptimize=ReleaseFast); cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+    ghostty)
+      have python3 || return 1
+      local zigver venv
+      zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+      [[ -n "$zigver" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
+      venv="$CACHE/zig-venv"
+      python3 -m venv "$venv"
+      "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
+      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
+      cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
     zsh) (cd "$src" && ./Util/preconfig || autoconf && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/Src/zsh" "$PREFIX/bin/" ;;
     bash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/bash" "$PREFIX/bin/" ;;
@@ -45,13 +92,23 @@ source_build(){
     nushell) (cd "$src" && cargo build --release --bin nu); cp "$src/target/release/nu" "$PREFIX/bin/" ;;
     *) return 1;;
   esac
+  local built
+  case "$id" in kitty) built="$PREFIX/bin/kitty";; *) built="$PREFIX/bin/$id";; esac
+  verify_target_binary "$built" || { rm -f "$built"; return 1; }
 }
 # Prefer distro-provided binaries for desktop terminals; source builds are enabled for projects with reliable recipes.
-for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" && log "Imported existing $b" || log "$b will be provided by the target package/build environment"; done
+for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" || log "$b remains unavailable until a matching target package is staged"; done
 if [[ "$MODE" != "binary-only" ]]; then
   source_build alacritty https://github.com/alacritty/alacritty.git || log "Alacritty source build unavailable; package/binary fallback required"
   source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"
   source_build contour https://github.com/contour-terminal/contour.git || log "Contour source build unavailable; package/binary fallback required"
   source_build ghostty https://github.com/ghostty-org/ghostty.git || log "Ghostty source build unavailable; package/binary fallback required"
 fi
+# The desktop registry is only complete when every entry resolves to a real
+# executable for this target architecture. Missing providers stop ISO staging.
+for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty \
+              alacritty wezterm ghostty contour; do
+  install_existing "$binary" || { log "REQUIRED TERMINAL PROVIDER MISSING: $binary"; exit 2; }
+done
+log "All 10 registered terminal providers are present and target-architecture verified."
 log "Terminal registry staged at $PREFIX/share/chimera/aurora/terminals/registry.json"
