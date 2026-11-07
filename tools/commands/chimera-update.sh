@@ -16,7 +16,7 @@ case "${1:-}" in
   -h|--help) usage; exit 0 ;;
   check)
     command -v apt-get >/dev/null 2>&1 || { echo "No supported package manager (apt-get) found." >&2; exit 127; }
-    sudo apt-get update
+    if [[ "$(id -u)" -eq 0 ]]; then apt-get update; else sudo apt-get update; fi
     apt list --upgradable 2>/dev/null || true
     ;;
   apply)
