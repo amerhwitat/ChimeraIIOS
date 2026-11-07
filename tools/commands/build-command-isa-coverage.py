@@ -14,7 +14,8 @@ PLATFORMS={
     "native_chimera":"chimera-native",
 }
 LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","env","printenv","which","seq","yes","tty","id","fold","nl","tr","tee","cmp"}
-SHELL_SYNTAX_TOKENS={"!!", ".", "&"}\nNATIVE_COMMAND_CANDIDATE_ALLOWLIST={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","env","printenv","which","seq","yes","tty","id","fold","nl","tr","tee","cmp"}
+SHELL_SYNTAX_TOKENS={"!!", ".", "&"}
+NATIVE_COMMAND_CANDIDATE_ALLOWLIST={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","env","printenv","which","seq","yes","tty","id","fold","nl","tr","tee","cmp"}
 VERIFIED_HOSTED_PROVIDERS={"busybox-applet","busybox-applet-dispatch-only","shell-builtin","target-rootfs-executable","hosted-linux-rootfs-executable","linux-abi-multicall-crossbuilt"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
@@ -80,7 +81,9 @@ def main():
             if "linux-bash" not in row["platforms"]: row["platforms"].append("linux-bash")
     for row in rows.values():
         name=row["command"]
-        if "linux-bash" in row["platforms"]:
+        if name in SHELL_SYNTAX_TOKENS:
+            row.update(provider="catalogue-syntax-token",path=None)
+        elif "linux-bash" in row["platforms"]:
             target_path=rootfs_executable(target_rootfs,name,args.target_arch)
             if name in busybox and target_path:
                 candidate=target_rootfs/target_path.lstrip("/")
