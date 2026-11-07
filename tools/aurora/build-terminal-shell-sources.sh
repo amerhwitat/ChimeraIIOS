@@ -110,7 +110,7 @@ build_blackbox() {
   tar -xzf "$archive" -C "$src" --strip-components=1
   patch -d "$src" -p1 < "$REPO_DIR/live-image/patches/blackbox-gcc14.patch"
   patch -d "$src" -p1 < "$REPO_DIR/live-image/patches/blackbox-appdata.patch"
-  meson setup "$src/build" --buildtype=release --prefix=/usr/local
+  meson setup "$src/build" "$src" --buildtype=release --prefix=/usr/local
   ninja -C "$src/build" -j"${JOBS:-2}"
   DESTDIR="$OUT/stage" ninja -C "$src/build" install
   local binary
