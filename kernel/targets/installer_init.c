@@ -21,6 +21,8 @@ __attribute__((noreturn, used)) void _start(void) {
             init_writestr("INSTALLER: no block-device or filesystem backend is registered; no disks are writable\n");
         } else if (init_text_equal(line, "plan")) {
             init_writestr("PLAN 1: enumerate disks (not available)\nPLAN 2: validate partition layout (not available)\nPLAN 3: create filesystems (not available)\nPLAN 4: install Koronos and boot files (not available)\nPLAN 5: verify boot entries (not available)\nPLAN STATUS: report-only; no disk writes performed\n");
+        } else if (init_text_starts_with(line, "plan ")) {
+            init_writestr("INSTALLER: usage is plan; no disk operation is available\n");
         } else if (init_text_equal(line, "exit")) {
             init_writestr("INSTALLER: leaving safe console\n");
             init_exit(0);
