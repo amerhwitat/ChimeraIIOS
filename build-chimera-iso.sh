@@ -240,6 +240,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# --full always invalidates prior checkpoints and cannot be weakened by option order.
+if [[ "$FULL_BUILD" == 1 ]]; then
+  CLEAN_STATE=1
+  RESUME_BUILD=0
+fi
+
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
