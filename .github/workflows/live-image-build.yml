@@ -109,7 +109,7 @@ permissions:
 
 concurrency:
   group: live-image-chimera-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
