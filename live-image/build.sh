@@ -235,6 +235,7 @@ if not p.exists() or not p.read_text(encoding="utf-8").strip(): p.write_text(sec
 PY
 chown root:chimera-terminal "$WORK/etc/chimera/terminal/auth.token"
 chmod 0640 "$WORK/etc/chimera/terminal/auth.token"
+bash "$REPO_DIR/tests/terminal/test-terminald-rootfs.sh" "$WORK"
 bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
 install -d "$WORK/usr/share/chimera/catalogs"
 python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
