@@ -55,12 +55,18 @@ for item in caps.get("commands",[]):
     if mode=="language-feature":
         status="not-a-standalone-executable"
     elif mode=="native":
-        binary=linux_abi_alias(name)
-        if binary:
-            status="linux-abi-multicall-alias-present-not-koronos-native"
+        script_rel=item.get("provider_binary")
+        if script_rel:
+            candidate=ROOTFS/str(script_rel).lstrip("/")
+            binary=candidate if candidate.is_file() and os.access(candidate,os.X_OK) else None
+            status="native-script-provider-present-not-koronos-native" if binary else "native-script-provider-not-staged"
         else:
-            binary=executable(name)
-            status="external-provider-binary-present-native-implementation-not-staged" if binary else "native-implementation-not-staged"
+            binary=linux_abi_alias(name)
+            if binary:
+                status="linux-abi-multicall-alias-present-not-koronos-native"
+            else:
+                binary=executable(name)
+                status="external-provider-binary-present-native-implementation-not-staged" if binary else "native-implementation-not-staged"
     elif mode=="shell-builtin":
         binary=executable("bash") or executable("dash") or executable("sh")
         status="shell-runtime-present-builtin-not-separate-binary" if binary else "shell-runtime-missing"
@@ -79,6 +85,7 @@ for item in caps.get("commands",[]):
     if mode=="native":
         row["linux_abi_target"]=ABI_TARGET
         row["linux_abi_runtime_status"]=abi_row.get("runtime_status","not-tested") if binary and status.startswith("linux-abi-") else "not-applicable"
+        if item.get("provider_binary"): row["native_script_provider_path"]=item["provider_binary"]
         row["koronos_runtime_status"]="not-tested-koronos-abi"
     if binary:
         rel="/"+str(binary.relative_to(ROOTFS))
