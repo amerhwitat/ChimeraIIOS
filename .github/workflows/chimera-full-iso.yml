@@ -158,6 +158,13 @@ jobs:
           extract /boot/grub/aurora-boot.png "$tmp/aurora-boot.png"
           extract /boot/grub/aurora-menu.png "$tmp/aurora-menu.png"
           extract /boot/grub/aurora-splash.png "$tmp/aurora-splash.png"
+          extract /system/commands/chimera-command-list.json "$tmp/chimera-command-list.json"
+          extract /system/commands/command-runtime-capabilities.json "$tmp/command-runtime-capabilities.json"
+          extract /system/commands/compatibility-binary-policy.json "$tmp/compatibility-binary-policy.json"
+          extract /system/aurora/shells/registry.json "$tmp/shell-registry.json"
+          extract /system/aurora/terminals/registry.json "$tmp/terminal-registry.json"
+          extract /system/isa/isa_database.json "$tmp/isa-database.json"
+          extract /system/isa/ISA.csv "$tmp/ISA.csv"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -168,6 +175,30 @@ jobs:
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          commands = json.loads((root / "chimera-command-list.json").read_text())
+          runtime = json.loads((root / "command-runtime-capabilities.json").read_text())
+          policy = json.loads((root / "compatibility-binary-policy.json").read_text())
+          shells = json.loads((root / "shell-registry.json").read_text())
+          terminals = json.loads((root / "terminal-registry.json").read_text())
+          isa = json.loads((root / "isa-database.json").read_text())
+          fields = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core",
+                    "vbscript_core", "sql_server_core", "native_chimera")
+          command_count = len({str(item.get("name") if isinstance(item, dict) else item).strip().casefold()
+                               for field in fields for item in commands.get(field, [])})
+          if command_count != 855:
+              raise SystemExit(f"expected all 855 command catalogue entries, found {command_count}")
+          if runtime.get("native_alias_count") != 37 or runtime.get("native_script_provider_count") != 90:
+              raise SystemExit("native command/provider manifest counts are stale")
+          if runtime.get("koronos_abi_compatible") is not False:
+              raise SystemExit("hosted Linux command binaries must not be claimed Koronos-ABI compatible")
+          if len(policy.get("native_build", {}).get("multicall_aliases", [])) != 37:
+              raise SystemExit("native multicall implementation policy does not match 37 source implementations")
+          if len(shells.get("entries", [])) != 8 or len(terminals.get("entries", [])) != 20:
+              raise SystemExit("the complete open-source shell/terminal registry is not embedded")
+          if len(isa.get("architectures", [])) != 104 or len(isa.get("instructions", [])) != 154:
+              raise SystemExit("the full ISA architecture/instruction catalogue is not embedded")
+          if not (root / "ISA.csv").stat().st_size:
+              raise SystemExit("ISA.csv is missing or empty")
           source_icons = json.loads((root / "app-icons-source-manifest.json").read_text())
           app_icons = json.loads((root / "app-icons-theme-manifest.json").read_text())
           aurora_icons = json.loads((root / "aurora-icons-manifest.json").read_text())
