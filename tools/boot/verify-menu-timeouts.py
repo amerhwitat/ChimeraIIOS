@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enforce a five-minute, visible, interactive timeout on every GRUB menu."""
+"""Enforce a five-minute, visible, interactive timeout on every GRUB menu, including generated heredocs."""
 from __future__ import annotations
 import argparse, json, re, sys
 from pathlib import Path
@@ -11,7 +11,12 @@ def main() -> int:
     root=args.root.resolve()
     failures=[]
     checked=[]
-    for path in sorted((root/"boot").rglob("*.cfg")):
+    menu_sources=list((root/"boot").rglob("*.cfg"))
+    # Also inspect shell-generated GRUB heredocs (notably the Jasper recovery
+    # menu embedded in boot/iso/prepare-layout.sh), which a *.cfg scan misses.
+    menu_sources.extend(path for path in (root/"boot").rglob("*.sh")
+                        if re.search(r"^\\s*menuentry\\b", path.read_text(encoding="utf-8",errors="replace"), re.M))
+    for path in sorted(set(menu_sources)):
         text=path.read_text(encoding="utf-8",errors="replace")
         if not re.search(r"^\s*menuentry\b",text,re.M):
             continue
