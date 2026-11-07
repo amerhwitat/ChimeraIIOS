@@ -249,6 +249,41 @@ static void task_modules(void *) {
     chimera_sched_block();
 }
 
+static bool cmdline_has_target(const char *cmdline, const char *target) {
+    if (!cmdline || !target || !*target) return false;
+    const char prefix[] = "target=";
+    uint32_t target_len = 0;
+    while (target[target_len]) ++target_len;
+    const uint32_t prefix_len = sizeof(prefix) - 1u;
+    const char *p = cmdline;
+    while (*p) {
+        while (*p == ' ') ++p;
+        if (!*p) break;
+        const char *start = p;
+        while (*p && *p != ' ') ++p;
+        const uint32_t token_len = static_cast<uint32_t>(p - start);
+        if (token_len == prefix_len + target_len) {
+            uint32_t i = 0;
+            while (i < prefix_len && start[i] == prefix[i]) ++i;
+            if (i == prefix_len) {
+                uint32_t j = 0;
+                while (j < target_len && start[prefix_len + j] == target[j]) ++j;
+                if (j == target_len) return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool native_init_selected_for(const char *target) {
+    for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
+        const chimera_boot_module *module = chimera_multiboot_module(i);
+        if (module && module->kind == CHIMERA_MODULE_USER_INIT_ELF &&
+            cmdline_has_target(module->cmdline, target)) return true;
+    }
+    return false;
+}
+
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
         if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
@@ -276,6 +311,11 @@ static void task_live(void *) {
 }
 
 static void task_recovery(void *) {
+    if (native_init_selected_for("recovery")) {
+        console_write("[REC ] Native recovery init ELF selected; repair operations remain unimplemented");
+        chimera_sched_block();
+        return;
+    }
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
@@ -287,6 +327,11 @@ static void task_recovery(void *) {
 }
 
 static void task_installer(void *) {
+    if (native_init_selected_for("installer")) {
+        console_write("[INST] Native installer init ELF selected; disk installation and reboot remain unimplemented");
+        chimera_sched_block();
+        return;
+    }
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
     const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
     const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
