@@ -2,36 +2,48 @@
   "schema": "CHM-COMMAND-ISA-COVERAGE-1",
   "policy": "Catalog presence is not a binary or execution claim. Native command aliases are backed by compiled source; external providers require verified binaries. ISA rows with zero forms are catalog-only and nonzero rows are partial until instruction semantics pass architecture-specific conformance tests.",
   "counts": {
-    "unique_commands": 854,
+    "unique_commands": 855,
     "isa_architectures": 104,
-    "native_source_commands": 25
+    "native_source_commands": 37
   },
   "native_source_commands": [
     "basename",
     "cat",
     "clear",
+    "cmp",
     "cp",
     "date",
     "dirname",
     "echo",
+    "env",
     "false",
+    "fold",
     "head",
     "hostname",
+    "id",
     "ln",
     "ls",
     "mkdir",
     "mv",
+    "nl",
+    "printenv",
     "pwd",
     "readlink",
     "rm",
     "rmdir",
+    "seq",
     "sleep",
     "tail",
+    "tee",
     "touch",
+    "tr",
     "true",
+    "tty",
     "uname",
     "wc",
-    "whoami"
+    "which",
+    "whoami",
+    "yes"
   ],
   "binary_build_matrix": {
     "workflow": ".github/workflows/command-isa-matrix.yml",
@@ -2622,7 +2634,7 @@
         "linux_bash",
         "macos_core"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -3636,7 +3648,7 @@
         "linux_bash",
         "macos_core"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -3844,7 +3856,7 @@
       "platforms": [
         "linux_bash"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -4571,7 +4583,7 @@
       "platforms": [
         "linux_bash"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -5604,7 +5616,7 @@
       "platforms": [
         "linux_bash"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -5914,6 +5926,14 @@
         "linux_bash"
       ],
       "implementation": "provider-required-or-unavailable",
+      "binary_status": "not-verified-in-repository"
+    },
+    {
+      "name": "printenv",
+      "platforms": [
+        "linux_bash"
+      ],
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -6539,7 +6559,7 @@
       "platforms": [
         "linux_bash"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -7098,7 +7118,7 @@
         "linux_bash",
         "macos_core"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -7224,7 +7244,7 @@
         "linux_bash",
         "macos_core"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -7312,7 +7332,7 @@
       "platforms": [
         "linux_bash"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -7678,7 +7698,7 @@
         "linux_bash",
         "macos_core"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
@@ -7923,7 +7943,7 @@
         "linux_bash",
         "macos_core"
       ],
-      "implementation": "provider-required-or-unavailable",
+      "implementation": "native-source-implemented",
       "binary_status": "not-verified-in-repository"
     },
     {
