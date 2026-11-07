@@ -47,12 +47,14 @@ def main() -> int:
         if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name):
             rows[name] = {"status": "shell-syntax-or-non-executable-catalogue-token"}
             continue
-        if name in BUILTINS:
-            rows[name] = {"status": "provided-by-shell-builtin"}
-            continue
+        # Prefer an actual executable provider when one exists (for example
+        # /usr/bin/printf), while still recognizing syntax/builtins that have
+        # no standalone executable (for example case, cd and eval).
         path = shutil.which(name)
         if path:
             rows[name] = {"status": "existing-executable-provider", "path": path}
+        elif name in BUILTINS:
+            rows[name] = {"status": "provided-by-shell-builtin"}
         else:
             rows[name] = {"status": "provider-not-found-yet"}
             missing.append(name)
