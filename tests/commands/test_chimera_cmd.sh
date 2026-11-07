@@ -27,6 +27,14 @@ test "$(env USER=spoofed "$TMP/whoami")" = "$expected_user"
 printf 'copy-payload' > "$TMP/source"
 "$TMP/cp" "$TMP/source" "$TMP/copied"
 test "$(cat "$TMP/copied")" = "copy-payload"
+printf 'hardlink-payload' > "$TMP/hard-source"
+ln "$TMP/hard-source" "$TMP/hard-destination"
+if "$TMP/cp" "$TMP/hard-source" "$TMP/hard-destination"; then
+  echo "cp truncated an aliased source file" >&2
+  exit 1
+fi
+test "$(cat "$TMP/hard-source")" = "hardlink-payload"
+test "$(cat "$TMP/hard-destination")" = "hardlink-payload"
 "$TMP/mv" "$TMP/copied" "$TMP/moved"
 test ! -e "$TMP/copied"
 test "$(cat "$TMP/moved")" = "copy-payload"
