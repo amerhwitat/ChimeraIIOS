@@ -13,6 +13,16 @@ manifest="$ROOTFS/usr/share/chimera/commands/hosted-tools.tsv"
 "$CXX" -std=c++20 -O2 -Wall -Wextra -Werror "$ROOT/userland/commands/chmctl.cpp" -o "$ROOTFS/usr/bin/chmctl"
 printf 'chmctl|/usr/bin/chmctl|compiled-linux-userspace\n' >> "$manifest"
 
+# Compile the durable Hive registry CLI from its real storage engine.
+"$CXX" -std=c++20 -O2 -Wall -Wextra -Werror -pthread \
+  -I"$ROOT/userspace/hive" \
+  "$ROOT/userspace/hive/registryctl.cpp" \
+  "$ROOT/userspace/hive/registry_store.cpp" \
+  -o "$OUT/chimera-registry"
+ln -sfn chimera-registry "$OUT/hivectl"
+printf 'chimera-registry|/usr/bin/chimera-registry|compiled-hive-registry-store\n' >> "$manifest"
+printf 'hivectl|/usr/bin/hivectl|verified-alias-to-chimera-registry\n' >> "$manifest"
+
 ln -sfn chmctl "$OUT/chimeractl"
 printf 'chimeractl|/usr/bin/chimeractl|verified-alias-to-chmctl\n' >> "$manifest"
 

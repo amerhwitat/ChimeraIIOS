@@ -12,6 +12,18 @@ OUT = ROOT / "system" / "commands" / "command-runtime-capabilities.json"
 REGISTRY = ROOT / "tools" / "commands" / "os-command-runtime.json"
 NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
 NATIVE_SCRIPT_PROVIDERS = {
+    "chimera": "/usr/bin/chimera",
+    "chmctl": "/usr/bin/chmctl",
+    "chimera-registry": "/usr/bin/chimera-registry",
+    "hivectl": "/usr/bin/hivectl",
+    "chimera-nbit": "/usr/bin/chimera-nbit",
+    "chimera-risc": "/usr/bin/chimera-risc",
+    "chimera-llm": "/usr/bin/chimera-llm",
+    "chimera-rnn": "/usr/bin/chimera-rnn",
+    "chimera-p2p": "/usr/bin/chimera-p2p",
+    "chimera-install": "/usr/bin/chimera-install",
+    "chimera-apache": "/usr/bin/chimera-apache",
+    "chimera-ss64": "/usr/bin/chimera-ss64",
     "chimeractl": "/usr/bin/chimeractl",
     "chimera-help": "/usr/bin/chimera-help",
     "chimera-info": "/usr/bin/chimera-info",
