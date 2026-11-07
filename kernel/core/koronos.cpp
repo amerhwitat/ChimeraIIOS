@@ -665,7 +665,12 @@ extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length) 
     uint64_t used = 0;
     while (used < length) {
         char c = 0;
-        if (!koronos_console_try_getchar(&c)) break;
+        if (!koronos_console_try_getchar(&c)) {
+            /* Wait for an IRQ rather than spin in ring 0; timer/keyboard
+             * interrupts wake the poll without monopolizing the CPU. */
+            __asm__ volatile("sti; hlt; cli" ::: "memory");
+            continue;
+        }
         if (c == '\r') c = '\n';
         if (c == '\b') {
             if (used) { --used; console_raw("\b \b"); }
