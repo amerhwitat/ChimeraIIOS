@@ -2,6 +2,18 @@ name: ISA and Native Command Runtime CI
 on:
   push:
     paths:
+      - 'tools/commands/**'
+      - 'system/commands/**'
+      - 'config/linux-command-registry.json'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
+      - 'kernel/arch/**'
+      - 'kernel/core/**'
+      - 'kernel/targets/**'
+      - 'boot/**'
+      - 'userland/commands/**'
+      - 'tools/chimera-asm/**'
       - 'isa/**'
       - 'build-chimera-iso.sh'
       - 'kernel/core/isa_registry.cpp'
@@ -100,6 +112,18 @@ on:
       - '.github/workflows/isa-command-runtime-ci.yml'
   pull_request:
     paths:
+      - 'tools/commands/**'
+      - 'system/commands/**'
+      - 'config/linux-command-registry.json'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
+      - 'kernel/arch/**'
+      - 'kernel/core/**'
+      - 'kernel/targets/**'
+      - 'boot/**'
+      - 'userland/commands/**'
+      - 'tools/chimera-asm/**'
       - 'isa/**'
       - 'kernel/core/isa_registry.cpp'
       - 'kernel/include/chimera/isa_registry.h'
