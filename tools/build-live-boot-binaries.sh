@@ -107,7 +107,7 @@ for rel in \
   system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
   system/commands/compatibility-binary-policy.json \
   config/linux-command-registry.json tools/commands/os-command-runtime.json \
-  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  ISA.csv isa/catalog.json isa/sources/imports/riscv-opcodes.json isa/generated/universal-instruction-catalog.json \
   isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
   if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"; fi
 done
