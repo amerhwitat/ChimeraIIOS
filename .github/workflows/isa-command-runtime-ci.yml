@@ -202,9 +202,9 @@ jobs:
             --root . --busybox "$(command -v busybox)" \
             --native-matrix build/native-command-isa/manifest.json \
             --output build/runtime/command-isa-coverage.json
-          python3 tools/commands/build-command-isa-coverage.py \\
-            --root . --busybox "$(command -v busybox)" \\
-            --native-matrix build/native-command-isa/manifest.json \\
+          python3 tools/commands/build-command-isa-coverage.py \
+            --root . --busybox "$(command -v busybox)" \
+            --native-matrix build/native-command-isa/manifest.json \
             --output system/commands/command-isa-coverage.json
           python3 tools/commands/generate_runtime_manifest.py
           python3 - <<'PY'
