@@ -28,11 +28,23 @@ chroot "$ROOTFS" /bin/sh -eu -c '
       fi
       if command -v "$bin" >/dev/null 2>&1; then
         binary_path="$(command -v "$bin")"
-        machine="$(readelf -h "$binary_path" | awk -F: '/^[[:space:]]*Machine:/ {sub(/^[[:space:]]+/, "", $2); print $2}')"
-        if [ -z "$machine" ] || [ "$machine" != "$expected_machine" ]; then
-          missing="${missing}${pkg}|${bin}|package-elf-machine-mismatch-source-build-required:${machine}\\n"
+        if readelf -h "$binary_path" >/tmp/chimera-terminal-elf.$ 2>/dev/null; then
+          machine="$(awk -F: '/^[[:space:]]*Machine:/ {sub(/^[[:space:]]+/, "", $2); print $2}' /tmp/chimera-terminal-elf.$)"
+          rm -f /tmp/chimera-terminal-elf.$
+          if [ -z "$machine" ] || [ "$machine" != "$expected_machine" ]; then
+            missing="${missing}${pkg}|${bin}|package-elf-machine-mismatch-source-build-required:${machine}\\n"
+          else
+            installed="${installed}${pkg}|${bin}|${machine}\\n"
+          fi
         else
-          installed="${installed}${pkg}|${bin}|${machine}\\n"
+          rm -f /tmp/chimera-terminal-elf.$
+          first_line="$(head -n 1 "$binary_path" 2>/dev/null || true)"
+          interpreter="$(printf "%s" "$first_line" | sed -n "s/^#!\\([^ ]*\\).*/\\1/p")"
+          if [ -n "$interpreter" ] && [ -x "$interpreter" ]; then
+            installed="${installed}${pkg}|${bin}|script-provider:${interpreter}\\n"
+          else
+            missing="${missing}${pkg}|${bin}|package-script-interpreter-missing-source-build-required\\n"
+          fi
         fi
       else
         missing="${missing}${pkg}|${bin}|package-installed-binary-missing\\n"
