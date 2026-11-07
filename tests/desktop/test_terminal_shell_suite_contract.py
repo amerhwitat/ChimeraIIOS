@@ -24,4 +24,4 @@ assert "git clone --depth 1" in source_builder
 for alias in ("chimera-terminal","chimera-terminals","chimera-shell-ar"):
     assert alias in (root/"tools/aurora/install-terminal-shell-suite.sh").read_text()
 assert "rev-parse HEAD" in source_builder
-print("PASS: 10 terminal and 8 shell providers are package-checked; launchers require installed executables")
+print("PASS: 20 terminal and 8 shell providers are package-checked; launchers require installed executables")
