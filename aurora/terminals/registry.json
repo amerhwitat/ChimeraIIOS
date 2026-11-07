@@ -15,7 +15,7 @@
       "id": "blackbox-terminal",
       "name": "Black Box Terminal",
       "kind": "terminal",
-      "source": "https://gitlab.gnome.org/haecker-felix/blackbox",
+      "source": "https://gitlab.gnome.org/raggesilver/blackbox",
       "build": "system-package-or-source",
       "binary": "blackbox",
       "display": "wayland-x11",
