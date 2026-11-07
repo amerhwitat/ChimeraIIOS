@@ -123,9 +123,6 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
-  install -D -m 0755 "$REPO_DIR/tools/terminals/install-registered-terminal-shell-packages.py" "$BASE/tmp/chimera-install-terminal-shells.py"
-  install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$BASE/tmp/chimera-terminals-registry.json"
-  install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$BASE/tmp/chimera-shells-registry.json"
   install -D -m 0644 "$REPO_DIR/system/commands/chimera-command-list.json" "$BASE/tmp/chimera-command-list.json"
   install -D -m 0644 "$REPO_DIR/system/commands/ss64-command-catalog.json" "$BASE/tmp/ss64-command-catalog.json"
   mount_chroot "$BASE"
@@ -158,17 +155,13 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
       tar gzip bzip2 xz-utils zip unzip man-db manpages \
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
-    python3 /tmp/chimera-install-terminal-shells.py \
-      --terminal-registry /tmp/chimera-terminals-registry.json \
-      --shell-registry /tmp/chimera-shells-registry.json \
-      --output /usr/share/chimera/catalogs/terminal-shell-installation.json
     bash /tmp/chimera-install-command-providers.sh
     python3 /tmp/chimera-resolve-command-providers.py \
       --catalog /tmp/chimera-command-list.json \
       --ss64 /tmp/ss64-command-catalog.json \
       --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
       --require-all
-    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-install-terminal-shells.py /tmp/chimera-terminals-registry.json /tmp/chimera-shells-registry.json /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
+    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
