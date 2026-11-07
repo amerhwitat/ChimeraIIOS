@@ -34,7 +34,7 @@ MENU_FILES = (
 )
 
 def menu_blocks(data):
-    for match in re.finditer(r"^\\s*menuentry\\b", data, re.M):
+    for match in re.finditer(r"^\s*menuentry\b", data, re.M):
         opening = data.find("{", match.start())
         if opening < 0:
             continue
