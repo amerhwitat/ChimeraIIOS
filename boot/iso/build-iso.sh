@@ -129,6 +129,8 @@ for rel in \
 done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminals-registry.json"
 install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$CATALOG_OUT/shells-registry.json"
+install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$CATALOG_OUT/terminals-binary-manifest.json"
+install -D -m 0644 "$ROOT/aurora/shells/binary-manifest.json" "$CATALOG_OUT/shells-binary-manifest.json"
 install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$CATALOG_OUT/linux-abi-command-matrix.json"
 python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
 import json,sys
