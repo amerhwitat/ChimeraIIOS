@@ -135,7 +135,7 @@ jobs:
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
             autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
             libvte-2.91-dev libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
-            libgtk-4-dev libadwaita-1-dev libxkbcommon-dev libwayland-dev libx11-dev \
+            libgtk-4-dev libgtk4-layer-shell-dev libadwaita-1-dev libxkbcommon-dev libwayland-dev libx11-dev \
             libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
             libx11-xcb-dev libxkbcommon-x11-dev libfontconfig1-dev libfreetype-dev \
             libharfbuzz-dev libvulkan-dev qt6-base-dev qt6-declarative-dev \
