@@ -66,7 +66,7 @@ declare -a BUILD_PACKAGES=(
   squashfs-tools librsvg2-bin nasm
   openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
   libncurses-dev libboost-dev gawk sed grep coreutils findutils util-linux
-  libgtk-3-dev libgtk-4-dev libadwaita-1-dev libvte-2.91-dev libvte-2.91-gtk4-dev
+  libgtk-3-dev libgtk-4-dev libadwaita-1-dev libvte-2.91-dev libvte-2.91-gtk4-dev blueprint-compiler
   libwayland-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libxcb1-dev
   libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev libfontconfig1-dev libfreetype6-dev libharfbuzz-dev
   qt6-base-dev qt6-declarative-dev libyaml-cpp-dev libutf8proc-dev libpcre2-dev libicu-dev
