@@ -5,6 +5,9 @@ __attribute__((noreturn, used)) void _start(void) {
     const long pid = init_getpid();
     if (pid <= 0) init_exit(1);
     init_emit_readiness(pid);
+    init_writestr("INSTALLER: pid=");
+    init_write_uint((unsigned long)pid);
+    init_writestr("\n");
     init_writestr("INSTALLER: native Koronos installer console\n");
     init_writestr("INSTALLER: disk operations remain disabled until block-device and VFS backends pass acceptance\n");
     char line[128];
