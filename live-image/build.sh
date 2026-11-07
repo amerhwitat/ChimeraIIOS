@@ -225,7 +225,6 @@ cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 bash "$REPO_DIR/tools/commands/install-busybox-applets.sh" "$WORK"
 bash "$REPO_DIR/tools/commands/build-chimera-native-tools.sh" "$WORK"
 CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/tools/terminal/build-terminal.sh"
-CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/tools/terminal/build-terminal.sh"
 # A per-image random bearer token is readable only by the dedicated terminal
 # service group and members of the live desktop group.
 python3 - "$WORK/etc/chimera/terminal/auth.token" <<'PY'
