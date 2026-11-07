@@ -73,31 +73,42 @@ def main() -> int:
         rows.append({"command": command, "source": relative, "path": "/usr/bin/" + command,
                      "status": "source-backed-launcher-staged", "sha256": sha(source)})
 
-    # Compile the native CLI front-end from its actual C++ implementation.
+    # Reuse the real chmctl binary already built by build-chimera-native-tools.sh.
+    # Build it here only when the earlier native-tool stage did not provide it.
     compiler = shutil.which("g++")
     chmctl_source = repo / "userland/commands/chmctl.cpp"
-    if compiler and chmctl_source.is_file():
-        target = bindir / "chimeractl"
-        proc = subprocess.run([compiler, "-std=c++17", "-O2", "-Wall", "-Wextra",
-                               str(chmctl_source), "-o", str(target)],
-                              text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if proc.returncode == 0 and target.is_file():
-            target.chmod(0o755)
-            rows.append({"command": "chimeractl", "source": "userland/commands/chmctl.cpp",
-                         "path": "/usr/bin/chimeractl", "status": "compiled-from-source",
-                         "sha256": sha(target)})
-            legacy = bindir / "chmctl"
-            legacy.unlink(missing_ok=True)
-            legacy.symlink_to("chimeractl")
-            rows.append({"command": "chmctl", "path": "/usr/bin/chmctl",
-                         "status": "verified-alias-to-compiled-chimeractl"})
+    chmctl = bindir / "chmctl"
+    chimeractl = bindir / "chimeractl"
+    if not (chmctl.is_file() and chmctl.stat().st_mode & 0o111):
+        if compiler and chmctl_source.is_file():
+            proc = subprocess.run([compiler, "-std=c++17", "-O2", "-Wall", "-Wextra",
+                                   str(chmctl_source), "-o", str(chmctl)],
+                                  text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if proc.returncode:
+                chmctl.unlink(missing_ok=True)
+                rows.append({"command": "chmctl", "source": "userland/commands/chmctl.cpp",
+                             "status": "compile-failed", "stderr": proc.stderr[-3000:]})
+            else:
+                chmctl.chmod(0o755)
+                rows.append({"command": "chmctl", "source": "userland/commands/chmctl.cpp",
+                             "path": "/usr/bin/chmctl", "status": "compiled-from-source",
+                             "sha256": sha(chmctl)})
         else:
-            target.unlink(missing_ok=True)
-            rows.append({"command": "chimeractl", "source": "userland/commands/chmctl.cpp",
-                         "status": "compile-failed", "stderr": proc.stderr[-3000:]})
+            rows.append({"command": "chmctl", "source": "userland/commands/chmctl.cpp",
+                         "status": "compiler-or-source-missing"})
     else:
-        rows.append({"command": "chimeractl", "source": "userland/commands/chmctl.cpp",
-                     "status": "compiler-or-source-missing"})
+        rows.append({"command": "chmctl", "source": "userland/commands/chmctl.cpp",
+                     "path": "/usr/bin/chmctl", "status": "verified-existing-compiled-provider",
+                     "sha256": sha(chmctl)})
+    if chmctl.is_file() and chmctl.stat().st_mode & 0o111:
+        if not chimeractl.exists() and not chimeractl.is_symlink():
+            chimeractl.symlink_to("chmctl")
+        elif chimeractl.is_symlink() and chimeractl.resolve() != chmctl.resolve():
+            chimeractl.unlink()
+            chimeractl.symlink_to("chmctl")
+        if chimeractl.is_file() and chimeractl.stat().st_mode & 0o111:
+            rows.append({"command": "chimeractl", "path": "/usr/bin/chimeractl",
+                         "status": "verified-alias-to-chmctl"})
 
     # Compile the real Chimera Bit assembler/disassembler/reverse-engineering tools.
     asm_source = repo / "tools/chimera-asm"
