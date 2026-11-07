@@ -18,6 +18,8 @@ for name, entry in aliases.items():
 generator = (ROOT / "tools/commands/generate_runtime_manifest.py").read_text(encoding="utf-8")
 stager = (ROOT / "tools/commands/stage-native-script-providers.py").read_text(encoding="utf-8")
 assert "native-provider-aliases.json" in generator
+assert '"native_binary":"rootfs/usr/bin/chimera-cmd"' in generator
+assert '"linux_abi_matrix_staged_in_rootfs":False' in generator
 assert "native-provider-aliases.json" in stager and "verified-provider-symlink" in stager
 explicit = set(re.findall(r'^\s*"([^"]+)": "/usr/(?:bin|sbin|local/bin)/[^"]+",?$', generator, re.M))
 mapped = explicit | set(aliases)
