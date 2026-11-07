@@ -69,7 +69,7 @@ def main() -> int:
             if installed.returncode:
                 print("apt-file could not be installed; unresolved commands remain reported.")
         if shutil.which("apt-file"):
-            update = run(["apt-file", "update", "-qq"])
+            update = run(["apt-file", "update"])
             if update.returncode:
                 print("apt-file index update failed; unresolved commands remain reported.")
             else:
