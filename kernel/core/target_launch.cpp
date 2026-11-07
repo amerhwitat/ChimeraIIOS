@@ -154,12 +154,12 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
     if (syscall_ack_seen && active_pid &&
         target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
         ready_seen=1;
-        if (active_target == TARGET_LIVE) {
-            // The live target becomes an interactive console after its
-            // readiness handshake; do not expire it on the bootstrap deadline.
-            koronos_user_timeout_disarm_keep_timer();
-            koronos_target_log("[RUN ] live console accepted; bootstrap deadline disarmed, PIT clock retained");
-        }
+        // Live, installer and recovery all become interactive consoles after
+        // readiness. Disarm only the bootstrap deadline, but retain PIT IRQ0:
+        // the current keyboard path polls the controller after HLT wakeups.
+        // Fully masking IRQ0 here would strand installer/recovery at their prompt.
+        koronos_user_timeout_disarm_keep_timer();
+        koronos_target_log("[RUN ] target console accepted; bootstrap deadline disarmed, PIT clock retained");
         return 1;
     }
     return 0;
