@@ -5,13 +5,13 @@ import argparse, hashlib, json, shutil, subprocess, sys
 from pathlib import Path
 TARGETS={
  "x86_64":{"compiler":"cc","machine":"Advanced Micro Devices X86-64","elf_machine":62},
- "i686":{"compiler":"i686-linux-gnu-gcc","machine":"Intel 80386","elf_machine":3},
- "armel":{"compiler":"arm-linux-gnueabi-gcc","machine":"ARM","elf_machine":40,"cflags":["-march=armv5te","-mfloat-abi=soft"]},
- "aarch64":{"compiler":"aarch64-linux-gnu-gcc","machine":"AArch64","elf_machine":183},
- "armv7":{"compiler":"arm-linux-gnueabihf-gcc","machine":"ARM","elf_machine":40,"cflags":["-march=armv7-a","-mfpu=vfpv3-d16","-mfloat-abi=hard"]},
- "riscv64":{"compiler":"riscv64-linux-gnu-gcc","machine":"RISC-V","elf_machine":243},
- "ppc64le":{"compiler":"powerpc64le-linux-gnu-gcc","machine":"PowerPC64","elf_machine":21},
- "s390x":{"compiler":"s390x-linux-gnu-gcc","machine":"IBM S/390","elf_machine":22}
+ "i686":{"compiler":"i686-linux-gnu-gcc-14","machine":"Intel 80386","elf_machine":3},
+ "armel":{"compiler":"arm-linux-gnueabi-gcc-14","machine":"ARM","elf_machine":40,"cflags":["-march=armv5te","-mfloat-abi=soft"]},
+ "aarch64":{"compiler":"aarch64-linux-gnu-gcc-14","machine":"AArch64","elf_machine":183},
+ "armv7":{"compiler":"arm-linux-gnueabihf-gcc-14","machine":"ARM","elf_machine":40,"cflags":["-march=armv7-a","-mfpu=vfpv3-d16","-mfloat-abi=hard"]},
+ "riscv64":{"compiler":"riscv64-linux-gnu-gcc-14","machine":"RISC-V","elf_machine":243},
+ "ppc64le":{"compiler":"powerpc64le-linux-gnu-gcc-14","machine":"PowerPC64","elf_machine":21},
+ "s390x":{"compiler":"s390x-linux-gnu-gcc-14","machine":"IBM S/390","elf_machine":22}
 }
 def sha256(path):
  h=hashlib.sha256()
