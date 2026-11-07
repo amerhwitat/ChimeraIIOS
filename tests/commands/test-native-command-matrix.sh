@@ -96,6 +96,51 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   run "$alias" "$tmp/rmdir-$arch"
   [[ ! -e "$tmp/rmdir-$arch" ]] || { echo "$arch rmdir failed" >&2; exit 1; }
   alias="$tmp/sleep"; ln -sf "$bin" "$alias"; run "$alias" 0.001
+  alias="$tmp/seq"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" 3)"
+  [[ "$output" ==   printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
+done
+python3 - "$OUT/manifest.json" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1]); data=json.loads(p.read_text())
+for row in data["targets"]:
+    row["runtime_status"]="qemu-user-linux-abi-smoke-tested" if row["target"]!="x86_64" else "native-linux-abi-smoke-tested"
+data["runtime_scope"]="Linux userspace under native execution/QEMU user mode; this does not validate Koronos syscalls or kernel boot."
+p.write_text(json.dumps(data,indent=2,sort_keys=True)+"\n")
+print("Updated manifest with Linux ABI smoke-test evidence; Koronos remains untested.")
+PY
+1\\n2\\n3' ]] || { echo "$arch seq failed: $output" >&2; exit 1; }
+  alias="$tmp/printenv"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" PATH)"
+  [[ -n "$output" && "$output" == *"/"* ]] || { echo "$arch printenv failed" >&2; exit 1; }
+  alias="$tmp/env"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"
+  [[ "$output" == *"PATH="* ]] || { echo "$arch env failed" >&2; exit 1; }
+  alias="$tmp/which"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" sh)"
+  [[ "$output" == /*/sh || "$output" == "/sh" ]] || { echo "$arch which failed: $output" >&2; exit 1; }
+  alias="$tmp/id"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"
+  [[ "$output" == uid=*gid=* ]] || { echo "$arch id failed: $output" >&2; exit 1; }
+  alias="$tmp/tty"; ln -sf "$bin" "$alias"
+  if run "$alias" >"$tmp/tty-output-$arch"; then echo "$arch tty should report non-tty on CI stdin" >&2; exit 1; fi
+  grep -q "not a tty" "$tmp/tty-output-$arch" || { echo "$arch tty output mismatch" >&2; exit 1; }
+  alias="$tmp/yes"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" chimera | head -n 2 || true)"
+  [[ "$output" ==   printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
+done
+python3 - "$OUT/manifest.json" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1]); data=json.loads(p.read_text())
+for row in data["targets"]:
+    row["runtime_status"]="qemu-user-linux-abi-smoke-tested" if row["target"]!="x86_64" else "native-linux-abi-smoke-tested"
+data["runtime_scope"]="Linux userspace under native execution/QEMU user mode; this does not validate Koronos syscalls or kernel boot."
+p.write_text(json.dumps(data,indent=2,sort_keys=True)+"\n")
+print("Updated manifest with Linux ABI smoke-test evidence; Koronos remains untested.")
+PY
+chimera\\nchimera' ]] || { echo "$arch yes failed: $output" >&2; exit 1; }
   printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
 done
 python3 - "$OUT/manifest.json" <<'PY'
