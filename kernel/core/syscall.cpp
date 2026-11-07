@@ -94,6 +94,7 @@ volatile uint64_t koronos_user_exit_code = 0;
 extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
 extern "C" void koronos_syscall_trace(const char *message);
 
@@ -155,6 +156,13 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             return 0;
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
+        case CHM_SYS_READ: {
+            const uint64_t fd = frame->rdi;
+            const uint64_t address = frame->rsi;
+            const uint64_t length = frame->rdx;
+            if (fd != 0u || length > 4096u) return static_cast<uint64_t>(-22ll);
+            return static_cast<uint64_t>(koronos_console_read_user(address, length));
+        }
         case CHM_SYS_WRITE: {
             koronos_syscall_trace("[SYSC] dispatching native WRITE");
             const uint64_t fd = frame->rdi;
