@@ -15,6 +15,10 @@ __attribute__((noreturn, used)) void _start(void) {
         init_writestr("installer> ");
         const long length = init_read_line(line, (long)sizeof(line));
         if (length < 0) { init_writestr("INSTALLER: input error\n"); init_yield(); continue; }
+        if (init_command_common(line, pid)) {
+            init_yield();
+            continue;
+        }
         if (init_text_equal(line, "help")) {
             init_writestr("help    show commands\nstatus  show available install backends\nplan    print the non-writing installation plan\nexit    return to the boot monitor\n");
         } else if (init_text_equal(line, "status")) {
