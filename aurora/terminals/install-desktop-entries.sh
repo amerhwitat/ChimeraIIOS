@@ -19,8 +19,15 @@ CHIMERA_HELP
 fi
 set -Eeuo pipefail
 ROOTFS="${CHIMERA_ROOTFS_DIR:?CHIMERA_ROOTFS_DIR is required}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 APPS="$ROOTFS/usr/share/applications"
-mkdir -p "$APPS"
+MANIFEST_DIR="$ROOTFS/usr/share/chimera/aurora"
+mkdir -p "$APPS" "$MANIFEST_DIR"
+TERMINAL_MANIFEST="$MANIFEST_DIR/terminal-shell-installed.tsv"
+SHELL_MANIFEST="$MANIFEST_DIR/shells-installed.tsv"
+: > "$TERMINAL_MANIFEST"
+: > "$SHELL_MANIFEST"
 cat > "$APPS/chimera-terminal-center.desktop" <<'EOF'
 [Desktop Entry]
 Type=Application
@@ -69,6 +76,7 @@ for spec in \
     printf '[Aurora] Not exposing %s: executable %s is not installed.\\n' "$id" "$bin" >&2
     continue
   fi
+  printf '%s|%s\\n' "$id" "$bin" >> "$TERMINAL_MANIFEST"
   cat > "$APPS/chimera-terminal-$id.desktop" <<EOF
 [Desktop Entry]
 Type=Application
@@ -81,3 +89,23 @@ X-Chimera-Aurora=true
 X-Chimera-Terminal-ID=$id
 EOF
 done
+
+# Record installed shell providers and install the two Aurora selector commands.
+for spec in \
+  'bash|GNU Bash|bash' \
+  'zsh|Z Shell|zsh' \
+  'fish|fish|fish' \
+  'dash|Debian Almquist Shell|dash' \
+  'mksh|MirBSD Korn Shell|mksh' \
+  'yash|Yet Another Shell|yash' \
+  'elvish|Elvish|elvish' \
+  'nushell|Nushell|nu'; do
+  IFS='|' read -r id name bin <<< "$spec"
+  if chroot "$ROOTFS" /bin/sh -c "command -v '$bin' >/dev/null 2>&1"; then
+    printf '%s|%s\\n' "$id" "$bin" >> "$SHELL_MANIFEST"
+  else
+    printf '[Aurora] Shell provider not installed: %s (%s)\\n' "$id" "$bin" >&2
+  fi
+done
+install -D -m 0755 "$SCRIPT_DIR/aurora-terminal-center.sh" "$ROOTFS/usr/local/bin/aurora-terminal-center"
+install -D -m 0755 "$REPO_ROOT/aurora/shells/launch-shell.sh" "$ROOTFS/usr/local/bin/aurora-shell-center"
