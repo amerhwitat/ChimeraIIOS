@@ -224,6 +224,17 @@ install -d "$WORK/usr/lib/chimera/commands/linux-abi"
 cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 bash "$REPO_DIR/tools/commands/install-busybox-applets.sh" "$WORK"
 bash "$REPO_DIR/tools/commands/build-chimera-native-tools.sh" "$WORK"
+CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/tools/terminal/build-terminal.sh"
+# A per-image random bearer token is readable only by the dedicated terminal
+# service group and members of the live desktop group.
+python3 - "$WORK/etc/chimera/terminal/auth.token" <<'PY'
+import secrets,sys
+from pathlib import Path
+p=Path(sys.argv[1]); p.parent.mkdir(parents=True,exist_ok=True)
+if not p.exists() or not p.read_text(encoding="utf-8").strip(): p.write_text(secrets.token_urlsafe(32)+"\\n",encoding="utf-8")
+PY
+chown root:chimera-terminal "$WORK/etc/chimera/terminal/auth.token"
+chmod 0640 "$WORK/etc/chimera/terminal/auth.token"
 bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
 install -d "$WORK/usr/share/chimera/catalogs"
 python3 "$REPO_DIR/tools/commands/generate_runtime_manifest.py"
