@@ -5,11 +5,18 @@ Presence and ELF architecture are evidence only; they do not prove the command's
 semantics, syscall compatibility, or Koronos runtime readiness.
 """
 from __future__ import annotations
-import hashlib, json, os, pathlib, shutil, subprocess, sys
-ROOTFS=pathlib.Path(sys.argv[1]).resolve()
-CAPS=pathlib.Path(sys.argv[2]).resolve()
+import argparse, hashlib, json, os, pathlib, shutil, subprocess, sys
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument("rootfs",type=pathlib.Path)
+parser.add_argument("capabilities",type=pathlib.Path)
+parser.add_argument("target",nargs="?",default="x86_64")
+parser.add_argument("--require-native",action="store_true",
+                    help="fail unless every native-mode command has a real executable provider in the target rootfs")
+args=parser.parse_args()
+ROOTFS=args.rootfs.resolve()
+CAPS=args.capabilities.resolve()
 OUT=ROOTFS/"usr/share/chimera/commands/command-provider-coverage.json"
-TARGET=sys.argv[3] if len(sys.argv)>3 else "x86_64"
+TARGET=args.target
 MACHINES={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devices X86-64",
           "aarch64":"AArch64","arm64":"AArch64","i686":"Intel 80386","i386":"Intel 80386",
           "armel":"ARM","armv7":"ARM","riscv64":"RISC-V","ppc64le":"PowerPC64","ppc64el":"PowerPC64","s390x":"IBM S/390"}
@@ -68,7 +75,7 @@ for item in caps.get("commands",[]):
                 status="linux-abi-multicall-alias-present-not-koronos-native"
             else:
                 binary=executable(name)
-                status="external-provider-binary-present-native-implementation-not-staged" if binary else "native-implementation-not-staged"
+                status="external-provider-binary-present-not-koronos-native" if binary else "native-implementation-not-staged"
     elif mode=="shell-builtin":
         binary=executable("bash") or executable("dash") or executable("sh")
         status="shell-runtime-present-builtin-not-separate-binary" if binary else "shell-runtime-missing"
@@ -130,3 +137,13 @@ result={"schema":"CHIMERA-COMMAND-PROVIDER-COVERAGE-2","target_architecture":TAR
 OUT.parent.mkdir(parents=True,exist_ok=True)
 OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 print("[COMMAND-PROVIDERS] catalogued=%d counts=%s"%(len(rows),json.dumps(counts,sort_keys=True)))
+if args.require_native:
+    accepted={"native-script-provider-present-not-koronos-native",
+              "linux-abi-multicall-alias-present-not-koronos-native",
+              "external-provider-binary-present-not-koronos-native"}
+    unresolved=[row for row in rows if row.get("mode")=="native" and row.get("status") not in accepted]
+    if unresolved:
+        print("native command providers missing: "+", ".join(
+            f"{row['name']}={row['status']}" for row in unresolved),file=sys.stderr)
+        raise SystemExit(1)
+    print("All native-mode catalogue commands have real target-rootfs executable providers; Koronos syscall compatibility is not implied.")
