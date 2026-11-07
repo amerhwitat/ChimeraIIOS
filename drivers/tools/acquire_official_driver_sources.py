@@ -62,6 +62,18 @@ def acquire_source(name, url, out_dir):
         )
         if not revision:
             raise RuntimeError("git rev-parse HEAD returned an empty revision")
+        worktree_status = require_success(
+            run_git([
+                "git", "-C", str(destination), "status",
+                "--porcelain", "--untracked-files=no",
+            ]),
+            "git status",
+        )
+        if worktree_status:
+            raise RuntimeError(
+                "tracked files are missing or modified after checkout: "
+                + worktree_status[-1000:]
+            )
         return {
             "name": name,
             "url": url,
