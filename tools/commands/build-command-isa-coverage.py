@@ -149,6 +149,7 @@ def main():
     result={
       "schema":"CHIMERA-COMMAND-ISA-COVERAGE-2",
       "edition_targets":["ChimeraIIOS","OctavianOS"],
+      "target_architecture":args.target_arch,
       "command_catalog_source":"system/commands/chimera-command-list.json + config/linux-command-registry.json",
       "busybox_binary":str(args.busybox),
       "target_rootfs":str(target_rootfs) if target_rootfs else None,
