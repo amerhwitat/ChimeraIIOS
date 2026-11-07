@@ -410,18 +410,25 @@ extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
+    koronos_target_log("[SYSC] WRITE entered kernel copy path");
     if (length == 0) return 0;
-    if (length > 4096u) return -22;
+    if (length > 4096u) {
+        koronos_target_log("[SYSC] WRITE rejected: length exceeds one-page limit");
+        return -22;
+    }
     uint64_t root = 0;
     __asm__ volatile("mov %%cr3, %0" : "=r"(root));
     if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0) {
         koronos_target_log("[SYSC] WRITE rejected: user buffer is outside mapped user pages");
         return -14;
     }
+    koronos_target_log("[SYSC] WRITE user range validated");
     const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
     if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
         koronos_target_log("[USER] target-specific readiness marker accepted");
+    koronos_target_log("[SYSC] WRITE copying bytes to debug console");
     for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    koronos_target_log("[SYSC] WRITE completed");
     return static_cast<int64_t>(length);
 }
 
