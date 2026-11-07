@@ -111,6 +111,15 @@ if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB
 cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
+# Always build and stage real target-specific ring-3 init ELFs, including when
+# this script injects into an existing base ISO instead of calling the fresh ISO builder.
+bash "$ROOT/kernel/build-target-inits.sh"
+mkdir -p "$STAGE/boot/targets"
+for target in live installer recovery; do
+  image="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  test -s "$image" || { echo "ERROR: missing Koronos $target init ELF: $image" >&2; exit 2; }
+  cp -f "$image" "$STAGE/boot/targets/"
+done
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
