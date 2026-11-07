@@ -160,7 +160,8 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
     python3 /tmp/chimera-resolve-command-providers.py \
       --catalog /tmp/chimera-command-list.json \
       --ss64 /tmp/ss64-command-catalog.json \
-      --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json
+      --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
+      --require-all
     rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
