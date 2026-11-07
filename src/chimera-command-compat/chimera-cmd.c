@@ -523,7 +523,7 @@ static int cmd_wc(int argc, char **argv)
     int lines=0, words=0, bytes=0, i=1, files=0, rc=0;
     while (i < argc && argv[i][0]=='-' && argv[i][1]) {
         for (const char *p=argv[i]+1; *p; ++p) {
-            if (*p=='l') lines=1; else if (*p=='w') words=1; else if (*p=='c' || *p=='m') bytes=1;
+            if (*p=='l') lines=1; else if (*p=='w') words=1; else if (*p=='c') bytes=1;
             else { fprintf(stderr,"wc: unsupported option -%c\n",*p); return 1; }
         }
         ++i;
