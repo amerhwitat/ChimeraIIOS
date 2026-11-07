@@ -25,6 +25,8 @@ def main() -> int:
     ap.add_argument("--ss64", type=Path)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--no-install", action="store_true")
+    ap.add_argument("--require-all", action="store_true",
+                     help="fail when any executable Linux catalogue command has no verified provider")
     args = ap.parse_args()
     catalog = json.loads(args.catalog.read_text(encoding="utf-8"))
     raw = catalog.get("linux_bash", [])
@@ -127,6 +129,13 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"command_count": len(names), "counts": counts}, sort_keys=True))
+    unresolved = [name for name, row in rows.items()
+                  if row["status"] in ("provider-not-found-yet",
+                                       "no-package-provider-found",
+                                       "package-install-did-not-provide-command")]
+    if args.require_all and unresolved:
+        print("unresolved Linux command providers: " + ", ".join(unresolved), file=sys.stderr)
+        return 1
     return 0
 
 if __name__ == "__main__":
