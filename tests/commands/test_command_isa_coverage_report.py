@@ -45,8 +45,8 @@ with tempfile.TemporaryDirectory() as tmp:
     ], check=True)
     data = json.loads(report.read_text(encoding="utf-8"))
     assert data["source_catalogue_unique_command_count"] == 9
-    assert data["source_catalogue_candidate_inventory_allowlist_count"] == 1
-    assert data["source_catalogue_candidate_only_count"] == 8
+    assert data["source_catalogue_candidate_inventory_allowlist_count"] == 2
+    assert data["source_catalogue_candidate_only_count"] == 7
     assert data["source_catalogue_verified_hosted_provider_count"] == 3
     assert data["source_catalogue_unverified_provider_count"] == 6
     assert data["source_catalogue_provider_status_counts"]["busybox-applet"] == 1
