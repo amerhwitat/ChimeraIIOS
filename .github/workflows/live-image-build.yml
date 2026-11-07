@@ -157,6 +157,10 @@ jobs:
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
           test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          test -x "$root/usr/local/bin/aurora-terminal-center"
+          test -x "$root/usr/local/bin/aurora-shell-center"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
+          test -s "$root/usr/share/chimera/aurora/shells-installed.tsv"
           python3 - "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json" <<'PY'
           import json,sys
           d=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -352,6 +356,10 @@ jobs:
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
           test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
+          test -x "$root/usr/local/bin/aurora-terminal-center"
+          test -x "$root/usr/local/bin/aurora-shell-center"
+          test -s "$root/usr/share/chimera/aurora/terminal-shell-installed.tsv"
+          test -s "$root/usr/share/chimera/aurora/shells-installed.tsv"
           python3 - "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json" <<'PY'
           import json,sys
           d=json.load(open(sys.argv[1],encoding="utf-8"))
