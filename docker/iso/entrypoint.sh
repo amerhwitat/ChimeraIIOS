@@ -47,7 +47,7 @@ else
   # candidate matrix and its QEMU smoke-test evidence. Generate it here because
   # this Docker entrypoint invokes boot/iso/build-iso.sh directly (not the
   # higher-level tools/build-chimera-iso.sh wrapper).
-  echo "Building seven-target Linux ABI command candidates (not Koronos-native binaries)."
+  echo "Building eight-target Linux ABI command candidates (not Koronos-native binaries)."
   python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" --policy "$ROOT/system/commands/compatibility-binary-policy.json" --output "$ROOT/build/native-command-isa" --require-all
   bash "$ROOT/tests/commands/test-native-command-matrix.sh" "$ROOT/build/native-command-isa"
   # Always prefer the canonical source-first ISO builder in auto/default mode.
