@@ -119,28 +119,8 @@ readelf -lW "$BUILD/user-init-timeout.elf" | grep -Eq 'LOAD.*R E' || {
 }
 printf 'Built non-cooperative userspace timeout probe: %s/user-init-timeout.elf\n' "$BUILD"
 
-# Build the production Live/Installer/Recovery ring-3 payloads that the ISO
-# stages as CHIMERA_MODULE_USER_INIT_ELF modules. Unlike the smoke probes above
-# these are the payloads shipped on the media; each emits its own readiness
-# handshake from CPL 3.
-if [[ -d "$ROOT/kernel/targets" ]]; then
-  for target in live installer recovery; do
-    "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
-      -fno-stack-protector -fno-pic -fno-pie -mcmodel=large -mno-red-zone -mno-sse -mno-mmx -msoft-float \
-      -fno-asynchronous-unwind-tables -fno-unwind-tables \
-      -D"CHIMERA_TARGET_NAME=\"${target}\"" \
-      -c "$ROOT/kernel/targets/${target}_init.c" -o "$BUILD/target-init-${target}.o"
-    "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none \
-      -T "$ROOT/kernel/targets/target_init.ld" \
-      "$BUILD/target-init-${target}.o" -o "$BUILD/target-init-${target}.elf"
-    readelf -h "$BUILD/target-init-${target}.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
-      echo "ERROR: target-init-${target}.elf is not ET_EXEC" >&2; exit 1;
-    }
-    readelf -lW "$BUILD/target-init-${target}.elf" | grep -Eq 'LOAD.*R E' || {
-      echo "ERROR: target-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
-    }
-  done
-  printf 'Built production target inits: %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
-fi
+# Build the production Live/Installer/Recovery ring-3 payloads through the shared,
+# ELF-validated target builder used by the full and structured ISO pipelines.
+bash "$ROOT/kernel/build-target-inits.sh"
 
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
