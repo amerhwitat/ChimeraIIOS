@@ -206,14 +206,14 @@ jobs:
           python3 - <<'PY'
           import json
           d=json.load(open("system/commands/command-runtime-capabilities.json",encoding="utf-8"))
-          assert d["native_alias_count"] == 25, d.get("native_alias_count")
+          assert d["native_alias_count"] == 32, d.get("native_alias_count")
           # 90 Chimera-specific names have explicit provider mappings; these
           # are declarations, not proof of Koronos ABI compatibility. The
           # live-image target-rootfs audit verifies every actual staged file.
           assert d["native_script_provider_count"] == 90, d.get("native_script_provider_count")
           assert d["mode_counts"]["native"] == d["native_alias_count"] + d["native_script_provider_count"], d["mode_counts"]
           assert d["koronos_abi_compatible"] is False
-          print("25 native Linux ABI command entries generated; Koronos ABI remains explicitly separate.")
+          print("32 POSIX multicall command implementations generated; Koronos ABI remains explicitly separate.")
           PY
           bash tests/commands/test-native-command-matrix.sh build/native-command-isa
           python3 -m json.tool build/runtime/command-isa-coverage.json >/dev/null
@@ -275,7 +275,7 @@ jobs:
           from pathlib import Path
           d=json.loads(Path("system/commands/command-runtime-capabilities.json").read_text(encoding="utf-8"))
           assert d["command_count"] == len(d["commands"]) and d["command_count"] >= 800
-          # The 15 C-native built-ins remain present; the new native dispatcher adds its own registered entry.
+          # The 32 compiled POSIX multicall commands are tracked from their real source implementations.
           assert d["mode_counts"].get("native", 0) >= 15
           assert all(c.get("provider") and c.get("mode") for c in d["commands"])
           print("Command capability inventory valid:", d["command_count"], d["mode_counts"])
@@ -305,11 +305,11 @@ jobs:
           from pathlib import Path
           p=json.loads(Path("system/commands/native-command-candidates.json").read_text(encoding="utf-8"))
           assert p["counts"]["total"] == len(p["commands"])
-          assert p["counts"]["native_implemented"] == 25
+          assert p["counts"]["native_implemented"] == 32
           assert p["counts"]["candidate_only"] > 1000
-          assert p["counts"]["catalogue_unique"] == 854
-          assert p["counts"]["catalogue_native_implemented"] == 25
-          assert p["counts"]["catalogue_candidate_only"] == 829
+          assert p["counts"]["catalogue_unique"] == 855
+          assert p["counts"]["catalogue_native_implemented"] == 32
+          assert p["counts"]["catalogue_candidate_only"] == 823
           assert all((c["execution_allowed"] is False and c["learning"]["state"] == "unresolved") for c in p["commands"] if c["status"] == "candidate-only")
           print("Imported native/candidate command inventory:", p["counts"])
           PY
