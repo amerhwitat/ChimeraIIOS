@@ -15,7 +15,7 @@ def main() -> int:
     # Also inspect shell-generated GRUB heredocs (notably the Jasper recovery
     # menu embedded in boot/iso/prepare-layout.sh), which a *.cfg scan misses.
     menu_sources.extend(path for path in (root/"boot").rglob("*.sh")
-                        if re.search(r"^\\s*menuentry\\b", path.read_text(encoding="utf-8",errors="replace"), re.M))
+                        if re.search(r"^\s*menuentry\b", path.read_text(encoding="utf-8",errors="replace"), re.M))
     for path in sorted(set(menu_sources)):
         text=path.read_text(encoding="utf-8",errors="replace")
         if not re.search(r"^\s*menuentry\b",text,re.M):
