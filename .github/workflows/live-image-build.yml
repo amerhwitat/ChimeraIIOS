@@ -478,6 +478,10 @@ jobs:
             ready_pid="$(grep -oE "USERSPACE READY: target=$target init_pid=[0-9]+" "$log" | tail -1 | sed 's/.*=//')"
             echo "Actual Chimera ISO $target boot passed with PID $ready_pid."
           done
+          cp "$root/usr/share/chimera/aurora/terminal-shell-staging.json" "$OUT_DIR/terminal-shell-staging.json"
+          cp "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json" "$OUT_DIR/terminal-shell-provider-status.json"
+          cp "$root/usr/share/chimera/catalogs/command-isa-coverage.json" "$OUT_DIR/command-isa-coverage.json"
+          cp "$root/opt/aurora/desktop/app-icons/manifest.json" "$OUT_DIR/app-icon-manifest.json"
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
           cp "$iso.sha256" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso.sha256"
 
@@ -492,6 +496,10 @@ jobs:
             ${{ runner.temp }}/aurora-live-output/koronos-live-iso-qemu.log
             ${{ runner.temp }}/aurora-live-output/koronos-installer-iso-qemu.log
             ${{ runner.temp }}/aurora-live-output/koronos-recovery-iso-qemu.log
+            ${{ runner.temp }}/aurora-live-output/terminal-shell-staging.json
+            ${{ runner.temp }}/aurora-live-output/terminal-shell-provider-status.json
+            ${{ runner.temp }}/aurora-live-output/command-isa-coverage.json
+            ${{ runner.temp }}/aurora-live-output/app-icon-manifest.json
           if-no-files-found: error
           retention-days: 30
 
