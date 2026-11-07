@@ -10,7 +10,7 @@ SS64 = ROOT / "system" / "commands" / "ss64-command-catalog.json"
 ARABIC = ROOT / "system" / "commands" / "ss64-command-catalog.ar.json"
 OUT = ROOT / "system" / "commands" / "command-runtime-capabilities.json"
 REGISTRY = ROOT / "tools" / "commands" / "os-command-runtime.json"
-NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","env","printenv","which","seq","yes","tty","id"}
+NATIVE = {"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","env","printenv","which","seq","yes","tty","id","fold","nl","tr","tee","cmp"}
 NATIVE_SCRIPT_PROVIDERS = {
     "chimera": "/usr/bin/chimera",
     "chmctl": "/usr/bin/chmctl",
