@@ -133,7 +133,7 @@ jobs:
             mtools dosfstools imagemagick python3 python3-gi gir1.2-gtk-3.0 \
             gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
-            autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
+            autoconf automake libtool gettext meson golang-go libncurses-dev libreadline-dev \
             libvte-2.91-dev libvte-2.91-gtk4-dev blueprint-compiler valac libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
             libjson-glib-dev libgee-0.8-dev libxml2-dev librsvg2-dev libgraphene-1.0-dev libpqmarble-dev appstream-util desktop-file-utils patch \
             libgtk-4-dev libadwaita-1-dev libxkbcommon-dev libwayland-dev libx11-dev \
