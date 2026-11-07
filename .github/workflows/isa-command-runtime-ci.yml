@@ -189,6 +189,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.head_ref || github.ref_name }}
       - name: Validate native command and ISA coverage generation
         run: |
           sudo apt-get update
@@ -391,14 +394,14 @@ jobs:
           cp /tmp/chimera-command-rootfs/usr/share/chimera/cognition/trained-command-isa-rnn.json build/runtime/trained-command-isa-rnn.json
 
       - name: Persist regenerated source-backed catalogs
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: success() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add isa/sources/imports/riscv-opcodes.json isa/generated/universal-instruction-catalog.json system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json system/commands/command-isa-coverage.json
           if ! git diff --cached --quiet; then
             git commit -m "chore(isa): persist sourced ISA and command imports [catalog-bot]"
-            git push
+            git push origin "HEAD:${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
           else
             echo "Generated catalogs already match the committed sources."
           fi
