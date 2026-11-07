@@ -316,6 +316,13 @@ wc	wc	native	chimera-cmd	SS64/Linux
 head	head	native	chimera-cmd	SS64/Linux
 tail	tail	native	chimera-cmd	SS64/Linux
 sleep	sleep	native	chimera-cmd	SS64/Linux
+env	env	native	chimera-cmd	SS64/Linux
+printenv	printenv	native	chimera-cmd	SS64/Linux
+which	which	native	chimera-cmd	SS64/Linux
+seq	seq	native	chimera-cmd	SS64/Linux
+yes	yes	native	chimera-cmd	SS64/Linux
+tty	tty	native	chimera-cmd	SS64/Linux
+id	id	native	chimera-cmd	SS64/Linux
 ls	عرض	native	chimera-cmd	SS64/Linux
 cd	دخول	shell	cd	SS64/Linux
 pwd	موقعي	native	chimera-cmd	SS64/Linux
