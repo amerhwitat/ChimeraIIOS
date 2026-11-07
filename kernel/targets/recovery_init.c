@@ -15,6 +15,10 @@ __attribute__((noreturn, used)) void _start(void) {
         init_writestr("recovery> ");
         const long length = init_read_line(line, (long)sizeof(line));
         if (length < 0) { init_writestr("RECOVERY: input error\n"); init_yield(); continue; }
+        if (init_command_common(line, pid)) {
+            init_yield();
+            continue;
+        }
         if (init_text_equal(line, "help")) {
             init_writestr("help        show commands\nstatus      show recovery backend status\ncheck       run the available ABI self-check\nrepair      report repair capability\nexit        return to the boot monitor\n");
         } else if (init_text_equal(line, "status")) {
