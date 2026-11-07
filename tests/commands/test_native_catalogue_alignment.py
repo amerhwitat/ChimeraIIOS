@@ -15,14 +15,14 @@ catalogue = {
     for field in fields for item in catalog.get(field, [])
 }
 aliases = {str(name).casefold() for name in policy["native_build"]["multicall_aliases"]}
-coverage_aliases = {str(name).casefold() for name in coverage["native_source_commands"]}
+coverage_aliases = {str(name).casefold() for name in coverage["linux_abi_multicall_aliases"]}
 rows = {str(row["name"]).casefold(): row for row in coverage["commands"]}
 
-assert len(catalogue) == coverage["counts"]["unique_commands"], (
-    len(catalogue), coverage["counts"]["unique_commands"])
+assert len(catalogue) == coverage["source_catalogue_unique_command_count"], (
+    len(catalogue), coverage["source_catalogue_unique_command_count"])
 assert aliases == coverage_aliases, (sorted(aliases - coverage_aliases), sorted(coverage_aliases - aliases))
 assert aliases <= catalogue, sorted(aliases - catalogue)
-assert coverage["counts"]["native_source_commands"] == len(aliases)
+assert coverage["linux_abi_multicall_alias_count"] == len(aliases)
 assert len(rows) == len(catalogue)
 for alias in aliases:
     assert rows[alias]["implementation"] == "native-source-implemented", alias
