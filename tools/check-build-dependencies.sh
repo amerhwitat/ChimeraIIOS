@@ -48,8 +48,6 @@ declare -A COMMAND_PACKAGE=(
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
   [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
   [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
-  [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
-  [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
   [cargo]=cargo [rustc]=rustc [go]=golang-go
 )
