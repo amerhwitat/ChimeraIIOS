@@ -145,6 +145,7 @@ jobs:
           bash -n tools/commands/build-chimera-native-tools.sh tools/terminal/build-terminal.sh tests/terminal/test-terminald-rootfs.sh
           bash -n tools/display/chimera-gpu-driver-manager tools/drivers/chimera-hardware-drivers tools/display/chimera-display tools/branding/chimera-background
           python3 tests/commands/test_catalogue_provider_resolver.py
+          python3 tests/commands/test_command_provider_coverage.py
           python3 tests/desktop/test_aurora_sound_contract.py
           python3 tests/desktop/test_terminal_shell_suite_contract.py
           python3 tests/desktop/test_app_icon_export.py
