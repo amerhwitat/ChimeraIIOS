@@ -36,7 +36,7 @@ JOBS="${JOBS:-$(nproc)}"
 if [ "$(id -u)" -ne 0 ]; then
   exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
 fi
-# Fail early if the source-build and seven-ABI validation toolchain is incomplete.
+# Fail early if the source-build and eight-ABI validation toolchain is incomplete.
 for cmd in i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc \
   riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc go \
   qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static \
