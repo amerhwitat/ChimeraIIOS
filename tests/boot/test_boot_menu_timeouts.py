@@ -20,6 +20,22 @@ for rel in PRIMARY:
 for rel in SUBMENUS:
     actual=timeout(BOOT/rel)
     assert actual==120, f"{rel}: expected 120 seconds, got {actual}"
+# Every interactive boot path that can start a Koronos target must pass the
+# matching native ring-3 init ELF; initramfs-only entries are not accepted as
+# production Live/Installer/Recovery handoffs.
+TARGET_MODULES = {
+    "iso/grub.cfg": ("live", "installer", "recovery"),
+    "spitfire/spitfire-menu.cfg": ("live", "recovery"),
+    "jasper/install.cfg": ("installer",),
+    "jasper/live.cfg": ("live",),
+    "jasper/recovery.cfg": ("recovery",),
+}
+for rel, targets in TARGET_MODULES.items():
+    menu = (BOOT / rel).read_text(encoding="utf-8")
+    for target in targets:
+        marker = f"target-init-{target}.elf chimera-user-init-elf target={target}"
+        assert marker in menu, f"{rel}: missing native Koronos {target} init module entry"
+
 contract=json.loads((BOOT/"boot-menu-contract.json").read_text())
 assert contract["timeouts"]=={"primary_seconds":300,"submenu_seconds":120,"default_entry":"live","policy":"Wait for user input for five minutes on primary boot menus and two minutes on nested menus, then select the configured default entry."}
 gates=json.loads((SOURCE/"desktop/aurora/gates_menu.json").read_text())
