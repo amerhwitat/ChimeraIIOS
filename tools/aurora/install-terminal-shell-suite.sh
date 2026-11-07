@@ -29,7 +29,7 @@ chroot "$ROOTFS" /bin/sh -eu -c '
       if command -v "$bin" >/dev/null 2>&1; then
         binary_path="$(command -v "$bin")"
         if readelf -h "$binary_path" >/tmp/chimera-terminal-elf 2>/dev/null; then
-          machine="$(awk -F: '/^[[:space:]]*Machine:/ {sub(/^[[:space:]]+/, "", $2); print $2}' /tmp/chimera-terminal-elf)"
+          machine="$(sed -n "/Machine:/s/.*Machine: *//p" /tmp/chimera-terminal-elf)"
           rm -f /tmp/chimera-terminal-elf
           if [ -z "$machine" ] || [ "$machine" != "$expected_machine" ]; then
             missing="${missing}${pkg}|${bin}|package-elf-machine-mismatch-source-build-required:${machine}\\n"
