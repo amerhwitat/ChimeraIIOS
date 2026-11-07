@@ -23,6 +23,8 @@ with tempfile.TemporaryDirectory() as temp:
         {"name": "echo", "mode": "native", "platforms": ["linux-bash"]},
         {"name": "chimera-missing-native-test", "mode": "native", "platforms": ["chimera-native"]},
         {"name": "chimera-missing-required-test", "mode": "native-provider-required", "provider": "native provider binary", "platforms": ["linux-bash"]},
+        {"name": "Parted", "mode": "native-provider-required", "provider": "installed native utility", "platforms": ["storage-filesystem"]},
+        {"name": "TELNET", "mode": "native-provider-required", "provider": "installed BusyBox multicall binary", "platforms": ["busybox"]},
         {"name": "printf", "mode": "shell-builtin", "platforms": ["linux-bash"]},
         {"name": "if", "mode": "language-feature", "platforms": ["linux-bash"]},
     ]}), encoding="utf-8")
@@ -31,12 +33,12 @@ with tempfile.TemporaryDirectory() as temp:
     assert failed.returncode == 1, (failed.returncode, failed.stdout, failed.stderr)
     assert "chimera-missing-native-test=native-implementation-not-staged" in failed.stderr
     assert "chimera-missing-required-test=provider-binary-and-runtime-missing" in failed.stderr
-    for name in ("chimera-missing-native-test", "chimera-missing-required-test"):
+    for name in ("chimera-missing-native-test", "chimera-missing-required-test", "parted", "telnet"):
         (bindir / name).write_text("#!/bin/sh\\nexit 0\\n", encoding="utf-8")
         (bindir / name).chmod(0o755)
     passed = subprocess.run([sys.executable, str(SCRIPT), str(rootfs), str(caps),
                              "x86_64", "--require-native"], text=True, capture_output=True)
     assert passed.returncode == 0, (passed.returncode, passed.stdout, passed.stderr)
     report = json.loads((rootfs / "usr/share/chimera/commands/command-provider-coverage.json").read_text())
-    assert report["catalog_count"] == 5
+    assert report["catalog_count"] == 7
     print("PASS strict native provider coverage rejects missing executables and accepts real staged files")

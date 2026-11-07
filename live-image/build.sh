@@ -97,7 +97,7 @@ log() { printf '\n== [%s] %s\n' "$ED" "$*"; }
 if [ ! -x "$BASE/bin/bash" ] || [ "${REBUILD_BASE:-0}" = "1" ]; then
   log "debootstrap trixie -> $BASE"
   rm -rf "$BASE"; mkdir -p "$BASE"
-  debootstrap --arch=amd64 --variant=minbase \
+  debootstrap --arch=amd64 --variant=minbase --components=main,contrib \
     --include=apt-transport-https,ca-certificates,locales \
     trixie "$BASE" http://deb.debian.org/debian
 fi

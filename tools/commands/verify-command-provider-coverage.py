@@ -30,11 +30,18 @@ except (OSError,json.JSONDecodeError):
 abi_row=next((x for x in matrix.get("targets",[]) if x.get("target")==ABI_TARGET),{})
 abi_aliases=set(abi_row.get("aliases",[])) if abi_row.get("binary_status")=="cross-compiled-and-elf-machine-validated" else set()
 SEARCH=( "usr/bin","bin","usr/sbin","sbin","usr/local/bin","usr/local/sbin" )
+# Preserve upstream catalogue spelling while resolving known case variants to
+# their actual Linux executable names; do not fabricate a case-sensitive alias.
+EXECUTABLE_ALIASES={"Parted":"parted","TELNET":"telnet"}
 def executable(name):
     if not name or "/" in name or name in (".",".."): return None
-    for base in SEARCH:
-        p=ROOTFS/base/name
-        if p.is_file() and os.access(p,os.X_OK): return p
+    candidates=[name]
+    alias=EXECUTABLE_ALIASES.get(name)
+    if alias: candidates.append(alias)
+    for candidate in candidates:
+        for base in SEARCH:
+            p=ROOTFS/base/candidate
+            if p.is_file() and os.access(p,os.X_OK): return p
     return None
 def linux_abi_alias(name):
     if name not in abi_aliases: return None

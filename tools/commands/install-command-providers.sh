@@ -43,6 +43,7 @@ PACKAGES=(
   rsnapshot logrotate cron at
   p7zip-full unrar-free cifs-utils nfs-common
   lvm2 mdadm smartmontools parted gdisk dosfstools exfatprogs
+  btrfs-progs cryptsetup tcpdump redis-tools zfsutils-linux
   squashfs-tools xorriso mtools
   shellcheck dosbox dosbox-x qemu-user-static
   # Optional cross-platform compatibility runtimes; absent packages remain explicit in coverage.
@@ -85,6 +86,31 @@ for pkg in "${PACKAGES[@]}"; do
     # comprehensive image fail.
   fi
 done
+
+# MongoDB's official Debian 13 repository supplies the real mongosh CLI.
+# Only the signed MongoDB repository is added; no database server is installed.
+arch="$(dpkg --print-architecture 2>/dev/null || true)"
+if [[ "$arch" == "amd64" || "$arch" == "arm64" ]] && command -v curl >/dev/null 2>&1 && command -v gpg >/dev/null 2>&1; then
+  key_tmp="$(mktemp)"
+  keyring="/usr/share/keyrings/mongodb-enterprise-9.0.gpg"
+  if curl -fsSL https://pgp.mongodb.com/server-9.0.asc -o "$key_tmp" &&
+     gpg --dearmor --yes -o "$keyring" "$key_tmp"; then
+    printf 'deb [arch=%s signed-by=%s] https://repo.mongodb.com/apt/debian trixie/mongodb-enterprise/9.0 main\n' "$arch" "$keyring" \
+      > /etc/apt/sources.list.d/mongodb-enterprise-9.0.list
+    if apt-get update -o Acquire::Retries=5 &&
+       apt-get install -y --no-install-recommends mongodb-mongosh &&
+       command -v mongosh >/dev/null 2>&1 && mongosh --version; then
+      echo "[Chimera][COMMANDS] installed verified official MongoDB mongosh provider"
+    else
+      echo "[Chimera][COMMANDS][WARN] official mongosh package unavailable; strict provider gate will report it"
+    fi
+  else
+    echo "[Chimera][COMMANDS][WARN] MongoDB signing key could not be verified; mongosh was not installed"
+  fi
+  rm -f "$key_tmp"
+else
+  echo "[Chimera][COMMANDS][WARN] mongosh repository unsupported for this target architecture"
+fi
 
 rm -rf /var/lib/apt/lists/* || true
 echo "[Chimera][COMMANDS] Command-provider installation completed."
