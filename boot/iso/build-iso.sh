@@ -109,6 +109,7 @@ printf '%s\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, 
 NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 if [[ ! -s "$NATIVE_COMMAND_OUT/manifest.json" ]]; then
   echo "[COMMANDS] Native Linux ABI matrix absent; building all eight command targets before packaging."
+  bash "$ROOT/tools/commands/ensure-zig-toolchain.sh"
   python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
     --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
     --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
