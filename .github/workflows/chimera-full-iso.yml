@@ -182,6 +182,33 @@ jobs:
           shells = json.loads((root / "shell-registry.json").read_text())
           terminals = json.loads((root / "terminal-registry.json").read_text())
           isa = json.loads((root / "isa-database.json").read_text())
+          catalogue_roots = [root / "live-root/etc/chimera/catalogs", root / "recovery-root/etc/chimera/catalogs"]
+          catalogue_hashes = []
+          for catalog_root in catalogue_roots:
+              commands_full = json.loads((catalog_root / "native-command-candidates.json").read_text())
+              universal = json.loads((catalog_root / "universal-instruction-catalog.json").read_text())
+              riscv = json.loads((catalog_root / "riscv-opcodes.json").read_text())
+              coverage = json.loads((catalog_root / "command-isa-coverage.json").read_text())
+              if commands_full["counts"]["total"] != len(commands_full["commands"]) or commands_full["counts"]["total"] != 4081:
+                  raise SystemExit("full command candidate catalogue must contain exactly 4,081 source records")
+              if commands_full["counts"]["native_implemented"] != 37 or commands_full["counts"]["candidate_only"] != 4044:
+                  raise SystemExit("command candidate registry must distinguish 37 implementations from 4,044 non-executable candidates")
+              if any(item.get("execution_allowed") for item in commands_full["commands"] if item.get("status") == "candidate-only"):
+                  raise SystemExit("candidate-only command records must remain execution-disabled")
+              if universal["record_count"] != len(universal["instructions"]) or universal["record_count"] != 1613:
+                  raise SystemExit("universal ISA catalogue must contain 1,613 instruction records")
+              if len(universal["unique_architectures"]) != 15:
+                  raise SystemExit("universal ISA catalogue must cover all 15 imported architecture labels")
+              if riscv["record_count"] != len(riscv["instructions"]) or riscv["record_count"] != 1459 or riscv["failed_files"] != 0:
+                  raise SystemExit("RISC-V opcode source import is incomplete")
+              if coverage["counts"]["unique_commands"] != 855 or coverage["counts"]["native_source_commands"] != 37:
+                  raise SystemExit("platform command coverage report is stale")
+              catalogue_hashes.append([
+                  __import__("hashlib").sha256((catalog_root / name).read_bytes()).hexdigest()
+                  for name in ("native-command-candidates.json", "universal-instruction-catalog.json", "riscv-opcodes.json")
+              ])
+          if catalogue_hashes[0] != catalogue_hashes[1]:
+              raise SystemExit("Live and Recovery initramfs command/ISA catalogues differ")
           fields = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core",
                     "vbscript_core", "sql_server_core", "native_chimera")
           command_count = len({str(item.get("name") if isinstance(item, dict) else item).strip().casefold()
