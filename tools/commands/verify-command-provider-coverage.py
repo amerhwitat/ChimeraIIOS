@@ -154,9 +154,12 @@ if args.require_native:
     for row in rows:
         mode=row.get("mode")
         status=row.get("status")
+        is_chimera_native="chimera_native" in row.get("platforms",[])
         if mode=="native" and status not in accepted_native:
             unresolved.append(row)
         elif mode=="native-provider-required" and status not in accepted_required:
+            unresolved.append(row)
+        elif is_chimera_native and mode=="compatibility-provider-required" and status not in accepted_required:
             unresolved.append(row)
     if unresolved:
         print("native/native-provider-required commands missing verified providers: "+", ".join(
