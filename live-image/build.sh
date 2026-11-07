@@ -109,6 +109,8 @@ trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 if [ ! -f "$BASE/.packages-installed-v4" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
+  install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
+  install -D -m 0644 "$REPO_DIR/system/commands/chimera-command-list.json" "$BASE/tmp/chimera-command-list.json"
   mount_chroot "$BASE"
   DEBIAN_FRONTEND=noninteractive chroot "$BASE" /bin/bash -c '
     set -e
@@ -140,7 +142,10 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
     bash /tmp/chimera-install-command-providers.sh
-    rm -f /tmp/chimera-install-command-providers.sh
+    python3 /tmp/chimera-resolve-command-providers.py \
+      --catalog /tmp/chimera-command-list.json \
+      --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json
+    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
