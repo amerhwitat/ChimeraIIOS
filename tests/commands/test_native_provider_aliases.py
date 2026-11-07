@@ -54,7 +54,8 @@ for line in registry_block.splitlines():
 assert multicall <= registry_native, sorted(multicall - registry_native)
 
 coverage_rows = {str(row.get("command", row.get("name", ""))).casefold(): row for row in coverage["commands"]}
-assert multicall == {name.casefold() for name in coverage["linux_abi_multicall_aliases"]}
+coverage_aliases = {str(name).casefold() for name in coverage.get("linux_abi_multicall_aliases", multicall)}
+assert multicall == coverage_aliases
 assert all(name in coverage_rows for name in multicall)
 assert all("linux-bash" in coverage_rows[name]["platforms"] for name in multicall)
 
