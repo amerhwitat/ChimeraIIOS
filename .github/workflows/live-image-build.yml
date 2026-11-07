@@ -483,16 +483,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: \${{ github.event.pull_request.head.repo.full_name }}
-          ref: \${{ github.event.pull_request.head.ref }}
-          token: \${{ github.token }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ github.token }}
       - uses: actions/download-artifact@v4
         with:
           name: command-catalogue-refresh
-          path: \${{ runner.temp }}/command-catalogue-refresh
+          path: ${{ runner.temp }}/command-catalogue-refresh
       - name: Commit the refreshed SS64, Arabic and provider catalogues
         env:
-          TARGET_BRANCH: \${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
           cp -a "$RUNNER_TEMP/command-catalogue-refresh/system/commands/." system/commands/
