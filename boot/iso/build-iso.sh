@@ -110,10 +110,10 @@ NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
 # This script is also invoked directly by CI and developers, so it must be
 # self-contained: build the eight Linux ABI command candidates here rather
 # than relying on tools/build-chimera-iso.sh having run beforehand.
-python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \\
-  --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \\
-  --policy "$ROOT/system/commands/compatibility-binary-policy.json" \\
-  --output "$NATIVE_COMMAND_OUT" \\
+python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
+  --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
+  --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
+  --output "$NATIVE_COMMAND_OUT" \
   --require-all
 # Record actual native/QEMU-user smoke-test evidence before accepting or
 # staging the Linux ABI matrix. Cross-build/ELF checks alone are insufficient.
