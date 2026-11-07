@@ -161,7 +161,19 @@ static int copy_file(const char *src, const char *dst)
     char buf[65536];
     ssize_t n;
 
-    while ((n = read(in, buf, sizeof(buf))) > 0) {
+    for (;;) {
+        n = read(in, buf, sizeof(buf));
+        if (n < 0 && errno == EINTR)
+            continue;
+        if (n < 0) {
+            perror(src);
+            close(in);
+            close(out);
+            return 1;
+        }
+        if (n == 0)
+            break;
+
         ssize_t off = 0;
 
         while (off < n) {
@@ -180,13 +192,6 @@ static int copy_file(const char *src, const char *dst)
 
             off += w;
         }
-    }
-
-    if (n < 0) {
-        perror(src);
-        close(in);
-        close(out);
-        return 1;
     }
 
     close(in);
