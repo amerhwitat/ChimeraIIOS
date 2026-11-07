@@ -107,6 +107,9 @@ if [[ -s "$ROOT/desktop/aurora/assets/Init.mp4" ]]; then
   cp -f "$ROOT/desktop/aurora/assets/Init.mp4" "$STAGE/boot/grub/Init.mp4"
 fi
 
+# Generate and stage every Aurora artwork asset and both icon themes into the fresh ISO tree.
+bash "$ROOT/tools/aurora/stage-generated-iso-artwork.sh" "$STAGE"
+
 install_iso_dependencies() {
   local missing=()
   command -v grub-mkrescue >/dev/null 2>&1 || missing+=(grub-mkrescue)
