@@ -32,7 +32,7 @@ declare -a REQUIRED_COMMANDS=(
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
   cargo rustc go
-  i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc arm-linux-gnueabihf-gcc riscv64-linux-gnu-gcc powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc
+  i686-linux-gnu-gcc arm-linux-gnueabi-gcc aarch64-linux-gnu-gcc-14 arm-linux-gnueabihf-gcc riscv64-linux-gnu-gcc-14 powerpc64le-linux-gnu-gcc s390x-linux-gnu-gcc
   qemu-i386-static qemu-aarch64-static qemu-arm-static qemu-riscv64-static qemu-ppc64le-static qemu-s390x-static
   unsquashfs mksquashfs rsvg-convert nasm
 )
@@ -47,8 +47,8 @@ declare -A COMMAND_PACKAGE=(
   [xorriso]=xorriso [grub-mkrescue]=grub-common [grub-file]=grub-common
   [mcopy]=mtools [mformat]=mtools [grub-mkimage]=grub-common
   [unsquashfs]=squashfs-tools [mksquashfs]=squashfs-tools
-  [i686-linux-gnu-gcc]=gcc-i686-linux-gnu [arm-linux-gnueabi-gcc]=gcc-arm-linux-gnueabi [aarch64-linux-gnu-gcc]=gcc-aarch64-linux-gnu
-  [arm-linux-gnueabihf-gcc]=gcc-arm-linux-gnueabihf [riscv64-linux-gnu-gcc]=gcc-riscv64-linux-gnu
+  [i686-linux-gnu-gcc]=gcc-i686-linux-gnu [arm-linux-gnueabi-gcc]=gcc-arm-linux-gnueabi [aarch64-linux-gnu-gcc-14]=gcc-aarch64-linux-gnu
+  [arm-linux-gnueabihf-gcc]=gcc-arm-linux-gnueabihf [riscv64-linux-gnu-gcc-14]=gcc-riscv64-linux-gnu
   [powerpc64le-linux-gnu-gcc]=gcc-powerpc64le-linux-gnu [s390x-linux-gnu-gcc]=gcc-s390x-linux-gnu
   [qemu-i386-static]=qemu-user-static [qemu-aarch64-static]=qemu-user-static [qemu-arm-static]=qemu-user-static
   [qemu-riscv64-static]=qemu-user-static [qemu-ppc64le-static]=qemu-user-static [qemu-s390x-static]=qemu-user-static
