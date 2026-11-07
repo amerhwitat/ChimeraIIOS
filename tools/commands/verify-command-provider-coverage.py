@@ -14,7 +14,7 @@ MACHINES={"x86_64":"Advanced Micro Devices X86-64","amd64":"Advanced Micro Devic
           "aarch64":"AArch64","arm64":"AArch64","i686":"Intel 80386","i386":"Intel 80386",
           "armv7":"ARM","riscv64":"RISC-V","ppc64le":"PowerPC64","s390x":"IBM S/390"}
 EXPECTED=MACHINES.get(TARGET,TARGET)
-ABI_TARGET={"amd64":"x86_64","i386":"i686","armhf":"armv7","arm64":"aarch64"}.get(TARGET,TARGET)
+ABI_TARGET={"amd64":"x86_64","i386":"i686","armel":"armel","armhf":"armv7","arm64":"aarch64","ppc64el":"ppc64le"}.get(TARGET,TARGET)
 MATRIX_PATH=ROOTFS/"usr/share/chimera/catalogs/linux-abi-command-matrix.json"
 try:
     matrix=json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
