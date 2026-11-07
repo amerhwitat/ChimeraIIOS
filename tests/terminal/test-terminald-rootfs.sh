@@ -15,6 +15,14 @@ chroot "$ROOTFS" /usr/bin/python3 -m py_compile /usr/lib/chimera/chimera_termina
 chroot "$ROOTFS" /usr/bin/terminald --help >/dev/null
 chroot "$ROOTFS" /usr/bin/chimera-terminal --help >/dev/null
 chroot "$ROOTFS" /usr/bin/bwrap --version >/dev/null
+socket="$ROOTFS/run/chimera/terminald-test.sock"
+set +e
+timeout 2s chroot "$ROOTFS" /usr/bin/terminald --socket /run/chimera/terminald-test.sock --config /etc/chimera/terminal/terminal-service.json >/dev/null 2>&1
+status=$?
+set -e
+[[ "$status" == 124 || "$status" == 137 ]] || { echo "terminald failed to stay running (status $status)" >&2; exit 1; }
+test -S "$socket"
+rm -f "$socket"
 chroot "$ROOTFS" getent group chimera-terminal >/dev/null
 chroot "$ROOTFS" id -Gn live | tr ' ' '\n' | grep -qx chimera-terminal
 test "$(stat -c '%a' "$ROOTFS/etc/chimera/terminal/auth.token")" = 640
