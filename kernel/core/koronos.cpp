@@ -571,7 +571,8 @@ static char koronos_scancode_ascii(uint8_t code, bool shift, bool caps) {
     const bool upper = shift ^ caps;
     switch (code) {
         case 0x02: return shift ? '!' : '1'; case 0x03: return shift ? '@' : '2';
-        case 0x04: return shift ? '#' : '3'; case 0x05: return shift ? ' case 0x07: return shift ? '^' : '6';
+        case 0x04: return shift ? '#' : '3'; case 0x05: return shift ? '$' : '4';
+        case 0x06: return shift ? '%' : '5'; case 0x07: return shift ? '^' : '6';
         case 0x08: return shift ? '&' : '7'; case 0x09: return shift ? '*' : '8';
         case 0x0A: return shift ? '(' : '9'; case 0x0B: return shift ? ')' : '0';
         case 0x0C: return shift ? '_' : '-'; case 0x0D: return shift ? '+' : '=';
