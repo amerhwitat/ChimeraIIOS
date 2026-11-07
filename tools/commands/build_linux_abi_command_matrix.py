@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse, hashlib, json, os, shutil, subprocess, sys
 from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
 TARGETS={
  "x86_64":{"compiler":"cc","machine":"Advanced Micro Devices X86-64","elf_machine":62,"zig_target":"x86_64-linux-musl"},
  "i686":{"compiler":"i686-linux-gnu-gcc","machine":"Intel 80386","elf_machine":3,"zig_target":"i386-linux-musl"},
