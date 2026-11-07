@@ -286,6 +286,14 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
 bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
+# Put the real repository sources at the absolute paths used by executable
+# provider launchers before running the target-rootfs provider audit.
+PAY="$WORK/opt/aurora"
+rm -rf "$PAY"
+mkdir -p "$PAY/wallpapers" "$PAY/repo"
+tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . \
+  | tar -C "$PAY/repo" -xf -
+
 python3 "$REPO_DIR/tools/commands/stage-native-script-providers.py" \
   --repo "$REPO_DIR" --rootfs "$WORK" --build-dir "$BUILD/native-userland-tools"
 CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
@@ -305,8 +313,6 @@ python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
 
 # ------------------------------------------------------------- payload
 log "staging payload"
-PAY="$WORK/opt/aurora"
-rm -rf "$PAY"; mkdir -p "$PAY/wallpapers"
 
 # Build and install every generated Aurora visual asset for both OS editions.
 AURORA_MEDIA="$BUILD/aurora-media-$ED"
@@ -394,10 +400,7 @@ json.dump(out, open(os.path.join(wallpapers, "index.json"), "w", encoding="utf-8
 print("wallpapers:", len(out), "(repository + generated Aurora artwork)")
 PY
 
-# verbatim source snapshot for provenance (excluding build output)
-mkdir -p "$PAY/repo"
-tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . 2>/dev/null \
-  | tar -C "$PAY/repo" -xf - 2>/dev/null || true
+# The verified source snapshot was staged before provider coverage validation.
 # Execute the real staged Chimera command frontends against the completed source snapshot.
 bash "$REPO_DIR/tests/commands/test-native-chimera-tools.sh" "$WORK"
 
