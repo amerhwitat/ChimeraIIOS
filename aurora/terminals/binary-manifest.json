@@ -2,10 +2,11 @@
   "schema_version": 2,
   "architecture_policy": [
     "linux-amd64",
-    "linux-arm64",
-    "linux-armhf",
-    "linux-riscv64",
     "linux-i386",
+    "linux-armel",
+    "linux-armhf",
+    "linux-arm64",
+    "linux-riscv64",
     "linux-ppc64le",
     "linux-s390x"
   ],
