@@ -18,10 +18,13 @@ assert "command -v" in script and "source-build-required" in script
 assert 'chroot "$ROOTFS" /bin/sh -c "command -v' in launcher
 assert "continue" in launcher
 source_builder=(root/"tools/aurora/build-terminal-shell-sources.sh").read_text()
-for binary in ("bash","zsh","fish","dash","mksh","yash","nu","elvish",
-               "alacritty","foot","blackbox","wezterm","ghostty","contour"):
-    assert f"{binary}) build_" in source_builder, f"missing source build dispatch for {binary}"
-    assert f"build_{binary}()" in source_builder, f"missing source build implementation for {binary}"
+recipes={"bash":"bash","zsh":"zsh","fish":"fish","dash":"dash","mksh":"mksh",
+         "yash":"yash","nu":"nushell","elvish":"elvish","alacritty":"alacritty",
+         "foot":"foot","blackbox":"blackbox","wezterm":"wezterm",
+         "ghostty":"ghostty","contour":"contour"}
+for binary, recipe in recipes.items():
+    assert f"{binary}) build_{recipe}" in source_builder, f"missing source build dispatch for {binary}"
+    assert f"build_{recipe}()" in source_builder, f"missing source build implementation for {binary}"
 assert "git clone --depth 1" in source_builder
 assert "verify_target_elf" in source_builder and "rev-parse HEAD" in source_builder
 for alias in ("chimera-terminal","chimera-terminals","chimera-shell-ar"):
