@@ -16,10 +16,10 @@ PLATFORMS={
 LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
-def rootfs_executable(rootfs: Path | None, name: str):
+def rootfs_executable(rootfs: Path | None, name: str, target_arch: str = "x86_64"):
     if rootfs is None:
         return None
-    for directory in ("usr/local/bin", "usr/local/sbin", "usr/bin", "usr/sbin", "bin", "sbin", "usr/lib/chimera/commands/linux-abi/x86_64"):
+    for directory in ("usr/local/bin", "usr/local/sbin", "usr/bin", "usr/sbin", "bin", "sbin", ("usr/lib/chimera/commands/linux-abi/" + target_arch)):
         candidate=rootfs/directory/name
         try:
             if candidate.is_file() and (candidate.stat().st_mode & (stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)):
@@ -34,6 +34,7 @@ def main():
     ap.add_argument("--busybox",type=Path,required=True)
     ap.add_argument("--native-matrix","--linux-abi-matrix",dest="native_matrix",type=Path)
     ap.add_argument("--rootfs",type=Path,help="Target root filesystem to inspect for real executable providers")
+    ap.add_argument("--target-arch",choices=("x86_64","i686","armel","aarch64","armv7","riscv64","ppc64le","s390x"),default="x86_64")
     ap.add_argument("--output",type=Path,required=True)
     args=ap.parse_args()
     root=args.root.resolve()
@@ -57,7 +58,7 @@ def main():
     for row in rows.values():
         name=row["command"]
         if "linux-bash" in row["platforms"]:
-            target_path=rootfs_executable(target_rootfs,name)
+            target_path=rootfs_executable(target_rootfs,name,args.target_arch)
             if name in busybox and target_path:
                 candidate=target_rootfs/target_path.lstrip("/")
                 busybox_paths=[target_rootfs/"bin/busybox",target_rootfs/"usr/bin/busybox"]
@@ -103,7 +104,7 @@ def main():
         if "chimera-native" in row["platforms"]:
             built=[arch for arch,entry in native_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
             row["native_binary_targets"]=sorted(built)
-            row["native_runtime_status"]=native_targets.get(built[0],{}).get("runtime_status","cross-build-only") if built else "not-built-or-not-verified"
+            row["native_runtime_status"]=native_targets.get(args.target_arch,{}).get("runtime_status","not-tested-for-target") if args.target_arch in built else "not-built-or-not-verified"
             row["native_koronos_status"]="not-tested-koronos-abi"
             if "linux-bash" not in row["platforms"]:
                 row["provider"]="linux-abi-multicall-crossbuilt" if built else row["provider"]
