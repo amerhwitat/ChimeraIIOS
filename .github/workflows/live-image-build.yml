@@ -148,6 +148,7 @@ jobs:
       - name: Validate desktop source and application catalogs
         run: |
           set -euo pipefail
+          python3 -m py_compile tests/boot/verify-userspace-handoff.py
           python3 -m py_compile live-image/lib/aurora-kiosk.py live-image/lib/patch_html.py tools/aurora/export-icon-theme.py tools/aurora/export-app-icon-theme.py tools/commands/build-command-isa-coverage.py tools/commands/build_linux_abi_command_matrix.py tools/commands/crawl_ss64.py tools/commands/import_command_candidates.py tools/commands/resolve-catalogue-command-providers.py tools/commands/verify-command-provider-coverage.py tools/commands/stage-native-script-providers.py tools/commands/chimera-p2p.py tools/commands/chimera-rnn.py tools/commands/chimera-math.py tools/commands/chimera-componentctl.py tools/commands/chimera-hybrid.py tools/runtime/chimera-nbit-mode.py tools/isa/riscv_codec.py tools/cognition/trainable_rnn_lm.py tests/commands/test_chimera_extended_cli.py tests/commands/test_native_provider_aliases.py tools/terminal/chimera_terminald.py tools/terminal/chimera-terminal tools/terminal/chimera-sql tests/commands/test_catalogue_provider_resolver.py tools/commands/chimera-info.py tools/commands/chimera-doctor.py tools/boot/verify-menu-timeouts.py
           python3 -m py_compile tools/drivers/chimera-driver-panel.py tools/runtime/chimera-service.py
           python3 -m py_compile tools/help/chimera-help
@@ -473,13 +474,8 @@ jobs:
             [[ "$qemu_rc" -eq 124 || "$qemu_rc" -eq 137 || "$qemu_rc" -eq 0 ]] || {
               echo "::error::QEMU failed for actual ISO target $target (exit $qemu_rc)"; exit 1;
             }
-            grep -Fq "[KRN ] KORONOS READY" "$log"
-            syscall_pid="$(grep -oE "USER INIT SYSCALL: target=$target init_pid=[0-9]+" "$log" | tail -1 | sed 's/.*=//')"
+            python3 tests/boot/verify-userspace-handoff.py "$target" "$log"
             ready_pid="$(grep -oE "USERSPACE READY: target=$target init_pid=[0-9]+" "$log" | tail -1 | sed 's/.*=//')"
-            test -n "$syscall_pid" && test "$syscall_pid" -gt 0
-            test "$syscall_pid" = "$ready_pid" || {
-              echo "::error::Target $target did not report matching nonzero ring-3 PID"; exit 1;
-            }
             echo "Actual Chimera ISO $target boot passed with PID $ready_pid."
           done
           cp "$iso" "$OUT_DIR/chimera-ii-os-live-desktop-fixed.iso"
