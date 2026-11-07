@@ -253,6 +253,7 @@ install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$WORK/usr/share/c
 install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chimera/catalogs/shells-registry.json"
 install -D -m 0644 "$REPO_DIR/aurora/terminals/binary-manifest.json" "$WORK/usr/share/chimera/catalogs/terminals-binary-manifest.json"
 install -D -m 0644 "$REPO_DIR/aurora/shells/binary-manifest.json" "$WORK/usr/share/chimera/catalogs/shells-binary-manifest.json"
+install -D -m 0644 "$REPO_DIR/system/commands/native-provider-aliases.json" "$WORK/usr/share/chimera/catalogs/native-provider-aliases.json"
 install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$WORK/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \

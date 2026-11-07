@@ -153,6 +153,7 @@ jobs:
           python3 tests/commands/test_catalogue_provider_resolver.py
           python3 tests/commands/test_command_provider_coverage.py
           python3 tests/commands/test_chimera_extended_cli.py
+          python3 tests/commands/test_native_provider_aliases.py
           python3 tests/desktop/test_aurora_sound_contract.py
           python3 tests/desktop/test_terminal_shell_suite_contract.py
           python3 tests/desktop/test_app_icon_export.py

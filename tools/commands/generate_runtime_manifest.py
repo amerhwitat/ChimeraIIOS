@@ -29,6 +29,7 @@ NATIVE_SCRIPT_PROVIDERS = {
     "chimera-tensor": "/usr/bin/chimera-tensor",
     "chimera-hdc": "/usr/bin/chimera-hdc",
     "chimera-neural": "/usr/bin/chimera-neural",
+    "chimera-shell-ar": "/usr/bin/chimera-shell-ar",
     "chimeractl": "/usr/bin/chimeractl",
     "chimera-help": "/usr/bin/chimera-help",
     "chimera-info": "/usr/bin/chimera-info",

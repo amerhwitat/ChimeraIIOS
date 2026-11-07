@@ -51,6 +51,8 @@ PACKAGES=(
   wasmtime wasmer darling
   rpm dnf zypper flatpak snapd pacman-package-manager
   build-essential clang cmake ninja-build python3 python3-pip python3-venv python-is-python3
+  apache2 auditd fwupd fprintd policykit-1 realmd wayland-utils qemu-system-x86 podman
+  kubernetes-client packagekit-tools grub2-common passwd nasm
   nodejs npm default-jdk golang-go rustc cargo php-cli ruby sqlite3
   postgresql-client mariadb-client
 )
