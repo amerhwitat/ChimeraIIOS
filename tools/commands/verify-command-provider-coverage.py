@@ -138,12 +138,21 @@ OUT.parent.mkdir(parents=True,exist_ok=True)
 OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 print("[COMMAND-PROVIDERS] catalogued=%d counts=%s"%(len(rows),json.dumps(counts,sort_keys=True)))
 if args.require_native:
-    accepted={"native-script-provider-present-not-koronos-native",
-              "linux-abi-multicall-alias-present-not-koronos-native",
-              "external-provider-binary-present-not-koronos-native"}
-    unresolved=[row for row in rows if row.get("mode")=="native" and row.get("status") not in accepted]
+    accepted_native={"native-script-provider-present-not-koronos-native",
+                     "linux-abi-multicall-alias-present-not-koronos-native",
+                     "external-provider-binary-present-not-koronos-native"}
+    accepted_required={"provider-binary-present-runtime-unverified",
+                       "provider-multicall-applet-present"}
+    unresolved=[]
+    for row in rows:
+        mode=row.get("mode")
+        status=row.get("status")
+        if mode=="native" and status not in accepted_native:
+            unresolved.append(row)
+        elif mode=="native-provider-required" and status not in accepted_required:
+            unresolved.append(row)
     if unresolved:
-        print("native command providers missing: "+", ".join(
+        print("native/native-provider-required commands missing verified providers: "+", ".join(
             f"{row['name']}={row['status']}" for row in unresolved),file=sys.stderr)
         raise SystemExit(1)
-    print("All native-mode catalogue commands have real target-rootfs executable providers; Koronos syscall compatibility is not implied.")
+    print("All native and native-provider-required catalogue commands have real target-rootfs executable providers; semantic and Koronos syscall compatibility are separate tests.")
