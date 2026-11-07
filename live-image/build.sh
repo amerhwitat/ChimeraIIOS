@@ -210,11 +210,6 @@ python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
   --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
-python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
-  --rootfs "$WORK" \
-  --shell-registry "$REPO_DIR/aurora/shells/registry.json" \
-  --terminal-registry "$REPO_DIR/aurora/terminals/registry.json" \
-  --output "$WORK/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
 install -D -m 0755 "$REPO_DIR/tools/graphics/verify-opengl-runtime.sh" "$WORK/usr/local/bin/chimera-verify-opengl"
@@ -244,6 +239,11 @@ log "installing Aurora terminal and shell suite"
 bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
 bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
 CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
+python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
+  --rootfs "$WORK" \
+  --shell-registry "$REPO_DIR/aurora/shells/registry.json" \
+  --terminal-registry "$REPO_DIR/aurora/terminals/registry.json" \
+  --output "$WORK/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
 # Audit every command record against actual files in the final target rootfs.
 python3 "$REPO_DIR/tools/commands/verify-command-provider-coverage.py" \
   "$WORK" "$REPO_DIR/system/commands/command-runtime-capabilities.json" x86_64
