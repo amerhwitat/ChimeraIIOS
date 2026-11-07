@@ -27,6 +27,11 @@ SCRIPTS = {
     "chimera-apache": ("services/apache/install-apache-ecosystem.sh", "bash"),
     "apache-sync.py": ("services/apache/apache-sync.py", "python"),
     "chimera-ss64": ("tools/commands/chimera-ss64", "bash"),
+    "chimera-128d": ("tools/commands/chimera-128d", "bash"),
+    "chimera-vector": ("tools/commands/chimera-vector", "bash"),
+    "chimera-tensor": ("tools/commands/chimera-tensor", "bash"),
+    "chimera-hdc": ("tools/commands/chimera-hdc", "bash"),
+    "chimera-neural": ("tools/commands/chimera-neural", "bash"),
 }
 VERIFIED_PROVIDERS = [
     "chimeractl", "chmctl", "chimera-registry", "hivectl", "chimera-help", "chimera-info", "chimera-doctor", "chimera-update",
