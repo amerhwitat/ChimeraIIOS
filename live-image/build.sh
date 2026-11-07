@@ -660,6 +660,7 @@ fi
 bash "$REPO_DIR/kernel/build-koronos.sh"
 CHIMERA_BUILD_DIR="$REPO_DIR/build" CHIMERA_LIVE_BOOT_DIR="$ISODIR" \
   bash "$REPO_DIR/tools/build-live-boot-binaries.sh"
+bash "$REPO_DIR/tools/chimera-stage-installer-media.sh" "$ISODIR"
 for target in live installer recovery; do
   test -s "$ISODIR/boot/targets/target-init-$target.elf" || {
     echo "[ERROR] Koronos target init ELF missing from ISO staging: $target" >&2; exit 2;
