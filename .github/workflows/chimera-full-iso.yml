@@ -127,6 +127,11 @@ jobs:
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          extract /desktop/aurora/icons/generated/manifest.json "$tmp/aurora-native-icons.json"
+          extract /desktop/app-icons/icons/manifest.json "$tmp/aurora-app-icons.json"
+          extract /usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg "$tmp/chimera-settings-native.svg"
+          extract /usr/share/icons/hicolor/scalable/apps/chimera-settings.svg "$tmp/chimera-settings-app.svg"
+          extract /boot/visual/aurora-media/manifest.json "$tmp/aurora-media-manifest.json"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -134,6 +139,14 @@ jobs:
                        "installation-manifest.json", "installer-contract.json",
                        "chimera-artwork-manifest.json"):
               json.loads((root / name).read_text())
+          native_icons=json.loads((root / "aurora-native-icons.json").read_text())
+          app_icons=json.loads((root / "aurora-app-icons.json").read_text())
+          media=json.loads((root / "aurora-media-manifest.json").read_text())
+          if native_icons.get("count",0)<1: raise SystemExit("native Aurora icon export is empty")
+          if app_icons.get("count")!=133: raise SystemExit(f"expected 133 app icons, got {app_icons.get('count')}")
+          if not media.get("assets"): raise SystemExit("generated Aurora media manifest has no assets")
+          for icon in ("chimera-settings-native.svg","chimera-settings-app.svg"):
+              if "<svg" not in (root/icon).read_text(): raise SystemExit(f"invalid exported icon: {icon}")
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
