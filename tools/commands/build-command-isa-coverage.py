@@ -134,6 +134,25 @@ def main():
                 row["provider"]="linux-abi-multicall-crossbuilt" if built else row["provider"]
                 row["path"]=None
 
+    # Record source-backed POSIX multicall implementations independently
+    # from target-rootfs package providers. A cross-built ELF is only marked
+    # present for the architectures whose machine headers were validated;
+    # runtime acceptance remains a separate QEMU/native smoke-test gate.
+    for row in rows.values():
+        command = row["command"].casefold()
+        if command not in LINUX_ABI_MULTICALL_IMPLEMENTED:
+            continue
+        built = [
+            arch for arch, entry in native_targets.items()
+            if entry.get("binary_status") == "cross-compiled-and-elf-machine-validated"
+            and command in {str(name).casefold() for name in entry.get("aliases", [])}
+        ]
+        row["implementation"] = "native-source-implemented"
+        row["native_binary_targets"] = sorted(built)
+        row["native_runtime_status"] = (
+            "not-tested-cross-build-only" if built else "not-built-or-not-verified"
+        )
+
     csv_path=root/"ISA.csv"
     isa={}
     if csv_path.exists():
