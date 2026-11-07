@@ -124,6 +124,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         return static_cast<uint64_t>(-38ll);
     }
 
+    koronos_target_log("[SYSC] Linux syscall translated");
     switch (identity.canonical) {
         case CHM_SYS_GETPID: {
             /* PID comes from the active kernel-owned process record. Never
@@ -142,6 +143,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
+            koronos_target_log("[SYSC] dispatching native WRITE");
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
