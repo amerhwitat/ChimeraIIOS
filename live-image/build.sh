@@ -215,7 +215,15 @@ for rel in \
   system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
   system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
   system/commands/compatibility-binary-policy.json \
+  system/commands/chimera-arabic.json system/commands/native-provider-aliases.json \
+  system/commands/online-command-catalog.json system/commands/command-isa-coverage.json \
   config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  desktop/aurora/arabic_command_catalog.json desktop/ui_command_registry.json \
+  services/unix_command_registry.json web/command_catalog.json web/isa-catalog.json \
+  data/isa/online-source-catalog.json isa/koronos/architecture.json \
+  isa/sources/imports/riscv-opcodes.json isa/sources/isa-source-manifest.json \
+  tools/isa/chimera_r8192_opcode_index.csv tools/isa/isa_extension_0092_011c.csv \
+  tools/isa/isa_opcodes.csv tools/isa/isa_opcodes_expanded_with_encodings.csv \
   ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
   isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json \
   isa/generated/isa-encoding-samples.json \
