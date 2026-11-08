@@ -5,6 +5,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = (ROOT / "kernel/core/koronos.cpp").read_text(encoding="utf-8")
+LAUNCHER = (ROOT / "kernel/core/target_launch.cpp").read_text(encoding="utf-8")
 
 
 class TargetInitRoutingTests(unittest.TestCase):
@@ -29,6 +30,20 @@ class TargetInitRoutingTests(unittest.TestCase):
         )[0]
         self.assertIn('module_cmdline_selects_target(user_init, "recovery")', recovery)
         self.assertIn("koronos_launch_selected_userspace()", recovery)
+
+    def test_installer_fails_instead_of_waiting_when_target_init_is_missing(self):
+        installer = SOURCE.split("static void task_installer(void *)", 1)[1].split(
+            "static const char *task_state_name", 1
+        )[0]
+        self.assertIn("if (!user_init)", installer)
+        self.assertIn("target-init-installer.elf is missing", installer)
+        self.assertIn("Refusing to wait", installer)
+        self.assertNotIn("Waiting for the Koronos userspace installer loader", installer)
+
+    def test_launcher_does_not_treat_missing_init_as_success(self):
+        self.assertIn("no USER_INIT_ELF Multiboot2 module was supplied", LAUNCHER)
+        self.assertNotIn("if (count==0) return 0", LAUNCHER)
+        self.assertIn("attempted=true", LAUNCHER)
 
     def test_installer_does_not_claim_unstarted_services_are_running(self):
         self.assertNotIn("Hardware discovery service started", SOURCE)
