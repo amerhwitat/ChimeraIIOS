@@ -94,6 +94,29 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
+      - name: Import pinned source-backed RISC-V opcode catalogue
+        env:
+          CHIMERA_FETCH_SOURCES: "1"
+        run: |
+          set -euo pipefail
+          python3 tools/isa/import_riscv_opcodes.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("isa/sources/imports/riscv-opcodes.json")
+          data = json.loads(p.read_text(encoding="utf-8"))
+          expected = "5783cf3bea312a48d28e3e2c8a2fcb55603e4bed"
+          rows = data.get("instructions", [])
+          if data.get("schema") != "CHM-ISA-SOURCED-IMPORT-1":
+              raise SystemExit("RISC-V import schema mismatch")
+          if data.get("record_count") != len(rows) or len(rows) != 1459:
+              raise SystemExit(f"Expected 1,459 source-backed records, got {len(rows)}")
+          if data.get("failed_files") or any(row.get("source_revision") != expected for row in rows):
+              raise SystemExit("RISC-V source provenance or file-fetch validation failed")
+          print(f"Verified {len(rows)} RISC-V encoding records from pinned revision {expected}")
+          PY
+          python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
+
       - name: Build ASM/C/C++ and compose ISO
         env:
           CHIMERA_AURORA_BACKGROUND: ""
