@@ -129,16 +129,23 @@ cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
 # Carry every command and ISA catalogue with explicit platform/provider metadata.
 CATALOG_OUT="$DIST/iso/system/commands/catalogs"
 mkdir -p "$CATALOG_OUT"
-for rel in \
-  system/commands/chimera-command-list.json \
-  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
-  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
-  system/commands/compatibility-binary-policy.json \
-  system/commands/native-provider-aliases.json \
-  config/linux-command-registry.json tools/commands/os-command-runtime.json \
-  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
-  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
-  [[ -s "$ROOT/$rel" ]] && install -D -m 0644 "$ROOT/$rel" "$CATALOG_OUT/$(basename "$rel")"
+# Stage every command and ISA catalogue; do not silently omit a newer source
+# catalogue merely because an older explicit allow-list was not updated.
+for rel in "$ROOT"/system/commands/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$CATALOG_OUT/$(basename "$rel")"
+done
+for rel in "$ROOT"/isa/*.json "$ROOT"/isa/generated/*.json \
+           "$ROOT"/isa/sources/*.json "$ROOT"/isa/sources/imports/*.json \
+           "$ROOT"/isa/koronos/*.json "$ROOT"/data/isa/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$CATALOG_OUT/$(basename "$rel")"
+done
+install -D -m 0644 "$ROOT/ISA.csv" "$CATALOG_OUT/ISA.csv"
+for rel in "$ROOT/config/linux-command-registry.json" \
+           "$ROOT/tools/commands/os-command-runtime.json" \
+           "$ROOT/tools/commands/dos-legacy-payload-manifest.json"; do
+  [[ -s "$rel" ]] && install -D -m 0644 "$rel" "$CATALOG_OUT/$(basename "$rel")"
 done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminals-registry.json"
 install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$CATALOG_OUT/shells-registry.json"
