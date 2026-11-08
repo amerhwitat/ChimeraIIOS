@@ -19,7 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_FOREIGN_ROOT:-$ROOT/build/foreign}"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="${CHIMERA_FOREIGN_ROOT:-$BUILD_ROOT/foreign}"
 SRC="$OUT/source"
 BIN="$OUT/binaries"
 META="$OUT/metadata"
