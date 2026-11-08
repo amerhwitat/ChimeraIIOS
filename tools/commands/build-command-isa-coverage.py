@@ -13,7 +13,7 @@ PLATFORMS={
     "sql_server_core":"sql-server",
     "native_chimera":"chimera-native",
 }
-LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep"}
+LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","chmod","env","id","kill","logname","mktemp","printenv","seq","stat","sync","tty","uptime","yes"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
 def rootfs_executable(rootfs: Path | None, name: str, target_arch: str = "x86_64"):
