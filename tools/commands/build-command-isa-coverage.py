@@ -32,7 +32,7 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[2])
     ap.add_argument("--busybox",type=Path,required=True)
-    ap.add_argument("--native-matrix","--linux-abi-matrix",dest="native_matrix",type=Path)
+    ap.add_argument("--native-matrix","--linux-abi-matrix",dest="linux_abi_matrix",type=Path)
     ap.add_argument("--ss64",type=Path,help="Crawled SS64 command-name/source index")
     ap.add_argument("--rootfs",type=Path,help="Target root filesystem to inspect for real executable providers")
     ap.add_argument("--target-arch",choices=("x86_64","i686","armel","aarch64","armv7","riscv64","ppc64le","s390x"),default="x86_64")
@@ -109,22 +109,22 @@ def main():
         else:
             row.update(provider="compatibility-provider-required",path=None)
         row["platforms"].sort()
-    matrix_path=args.native_matrix or (root/"build/linux-abi-command-matrix/manifest.json")
-    native_matrix=None
-    native_targets={}
+    matrix_path=args.linux_abi_matrix or (root/"build/linux-abi-command-matrix/manifest.json")
+    linux_abi_matrix=None
+    linux_abi_targets={}
     if matrix_path.exists():
         try:
-            native_matrix=json.loads(matrix_path.read_text(encoding="utf-8"))
-            native_targets={row.get("target"):row for row in native_matrix.get("targets",[])}
+            linux_abi_matrix=json.loads(matrix_path.read_text(encoding="utf-8"))
+            native_targets={row.get("target"):row for row in linux_abi_matrix.get("targets",[])}
         except (OSError,json.JSONDecodeError):
-            native_matrix=None
+            linux_abi_matrix=None
             native_targets={}
     for row in rows.values():
         if "chimera-native" in row["platforms"]:
             built=[arch for arch,entry in native_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
-            row["native_binary_targets"]=sorted(built)
-            row["native_runtime_status"]=native_targets.get(args.target_arch,{}).get("runtime_status","not-tested-for-target") if args.target_arch in built else "not-built-or-not-verified"
-            row["native_koronos_status"]="not-tested-koronos-abi"
+            row["linux_abi_binary_targets"]=sorted(built)
+            row["linux_abi_runtime_status"]=native_targets.get(args.target_arch,{}).get("runtime_status","not-tested-for-target") if args.target_arch in built else "not-built-or-not-verified"
+            row["koronos_runtime_status"]="not-tested-koronos-abi"
             if "linux-bash" not in row["platforms"]:
                 row["provider"]="linux-abi-multicall-crossbuilt" if built else row["provider"]
                 row["path"]=None
@@ -156,7 +156,7 @@ def main():
         matrix.append({"architecture":arch,"instruction_forms":info["instruction_forms"],
                        "unique_mnemonics":len(info["mnemonics"]),"backend_status":status,
                        "native_command_binary_status":command_status,
-                       "native_command_runtime_status":cmd_row.get("runtime_status","not-tested")})
+                       "linux_abi_command_runtime_status":cmd_row.get("runtime_status","not-tested")})
     online=root/"data/isa/online-isa-index.json"
     candidate_count=None
     if online.exists():
@@ -181,7 +181,7 @@ def main():
       "native_chimera_command_count":sum("chimera-native" in row["platforms"] for row in command_rows),
       "native_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="native-command-source-present" for row in command_rows),
       "hosted_linux_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="hosted-linux-rootfs-executable" for row in command_rows),
-      "linux_abi_command_build_matrix":native_matrix or {"status":"not-run","targets":[]},
+      "linux_abi_command_build_matrix":linux_abi_matrix or {"status":"not-run","targets":[]},
       "isa_source":"ISA.csv",
       "isa_architectures":matrix,
       "isa_candidate_definition_count":candidate_count,
