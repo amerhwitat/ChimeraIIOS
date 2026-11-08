@@ -301,6 +301,27 @@ jobs:
           test "$(find "$root/opt/aurora/desktop/app-icons/icons" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
           test "$(find "$root/usr/share/icons/hicolor/scalable/apps" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
           test -s "$root/usr/share/chimera/catalogs/ISA.csv"
+          python3 - "$root" <<'PY'
+          import hashlib,pathlib,sys
+          root=pathlib.Path(sys.argv[1])
+          repo=pathlib.Path.cwd()
+          sources=(list((repo/"system/commands").glob("*.json"))
+                   +list((repo/"isa").rglob("*.json"))
+                   +list((repo/"data/isa").glob("*.json"))
+                   +[repo/"ISA.csv",repo/"config/linux-command-registry.json",
+                     repo/"tools/commands/os-command-runtime.json",
+                     repo/"tools/commands/dos-legacy-payload-manifest.json"])
+          sources=[p for p in sources if p.name!="command-isa-coverage.json"]
+          names=[p.name for p in sources]
+          assert len(names)==len(set(names)), "catalogue basename collision"
+          dest=root/"usr/share/chimera/catalogs"
+          for source in sources:
+              staged=dest/source.name
+              assert staged.is_file(), f"catalogue not staged: {source.name}"
+              assert hashlib.sha256(source.read_bytes()).digest()==hashlib.sha256(staged.read_bytes()).digest(), f"catalogue differs: {source.name}"
+          assert (dest/"command-isa-coverage.json").is_file(), "generated provider report missing"
+          print(f"Verified all {len(sources)} source command/ISA catalogues in the hosted image.")
+          PY
           test -s "$root/usr/share/chimera/catalogs/online-isa-index.json"
           test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
           python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
@@ -328,6 +349,27 @@ jobs:
           test -s "$root/usr/share/chimera/catalogs/chimera-command-list.json"
           test -s "$root/usr/share/chimera/catalogs/linux-command-registry.json"
           test -s "$root/usr/share/chimera/catalogs/ISA.csv"
+          python3 - "$root" <<'PY'
+          import hashlib,pathlib,sys
+          root=pathlib.Path(sys.argv[1])
+          repo=pathlib.Path.cwd()
+          sources=(list((repo/"system/commands").glob("*.json"))
+                   +list((repo/"isa").rglob("*.json"))
+                   +list((repo/"data/isa").glob("*.json"))
+                   +[repo/"ISA.csv",repo/"config/linux-command-registry.json",
+                     repo/"tools/commands/os-command-runtime.json",
+                     repo/"tools/commands/dos-legacy-payload-manifest.json"])
+          sources=[p for p in sources if p.name!="command-isa-coverage.json"]
+          names=[p.name for p in sources]
+          assert len(names)==len(set(names)), "catalogue basename collision"
+          dest=root/"usr/share/chimera/catalogs"
+          for source in sources:
+              staged=dest/source.name
+              assert staged.is_file(), f"catalogue not staged: {source.name}"
+              assert hashlib.sha256(source.read_bytes()).digest()==hashlib.sha256(staged.read_bytes()).digest(), f"catalogue differs: {source.name}"
+          assert (dest/"command-isa-coverage.json").is_file(), "generated provider report missing"
+          print(f"Verified all {len(sources)} source command/ISA catalogues in the hosted image.")
+          PY
           test -s "$root/usr/share/chimera/catalogs/online-isa-index.json"
           test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
           python3 - "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json" <<'PY'
