@@ -73,7 +73,8 @@ if command -v nm >/dev/null 2>&1; then
   done
 fi
 
-grep -aF '[INST] Installer runtime initialization' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: installer bootstrap is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[INST] Installer image, manifest and contract verified as present' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: target-specific installer dispatch is missing from Koronos ELF" >&2; exit 1; }
+grep -aF '[INST] ERROR: installer payload exists but target-init-installer.elf is missing' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: fail-closed missing-installer-init diagnostic is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[SCH ] Bootstrap tasks submitted' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: scheduler bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[KORE] Service registry initialized' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: Kore bootstrap is missing from Koronos ELF" >&2; exit 1; }
 grep -aF '[ABI ] Compatibility syscall/interrupt registry ready' "$BUILD/koronos.elf" >/dev/null || { echo "ERROR: compatibility ABI bootstrap is missing from Koronos ELF" >&2; exit 1; }
