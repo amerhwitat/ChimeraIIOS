@@ -25,8 +25,9 @@ if [[ "$TARGET_ARCH" != "x86_64" ]]; then
   exit 2
 fi
 python3 "$ROOT/tools/boot/verify-menu-timeouts.py" --root "$ROOT"
-BUILD="$ROOT/build/full"
-ISO_DIR="$ROOT/build/iso"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+BUILD="$BUILD_ROOT/full"
+ISO_DIR="$BUILD_ROOT/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
 DISK_MANAGER="$ROOT/tools/disk-space-manager.sh"
 # Keep the working tree bounded for low-storage hosts.
@@ -34,28 +35,28 @@ MAX_BUILD_GB="${CHIMERA_MAX_BUILD_GB:-30}"
 CLEAN_FREE_GB="${CHIMERA_CLEAN_FREE_GB:-6}"
 cleanup_finished() {
   local free_gb
-  free_gb="$(df -Pk "$ROOT" | awk 'NR==2 {printf "%.2f", ($4*1024)/1073741824}')"
+  free_gb="$(df -Pk "$BUILD_ROOT" | awk 'NR==2 {printf "%.2f", ($4*1024)/1073741824}')"
   if awk -v f="$free_gb" -v t="$CLEAN_FREE_GB" 'BEGIN {exit !(f<t)}'; then
     echo "[CLEAN] Only ${free_gb} GiB free; removing completed/intermediate build files." >&2
     rm -rf "$BUILD/cmake/CMakeFiles" "$BUILD/cmake/_deps" "$BUILD/cmake/Testing" 2>/dev/null || true
     find "$BUILD/cmake" -type f \( -name '*.o' -o -name '*.obj' -o -name '*.d' -o -name '*.gcda' -o -name '*.gcno' \) -delete 2>/dev/null || true
-    rm -rf "$ROOT/build/tmp" "$ROOT/build/cache" "$ROOT/build/logs" 2>/dev/null || true
+    rm -rf "$BUILD_ROOT/tmp" "$BUILD_ROOT/cache" "$BUILD_ROOT/logs" 2>/dev/null || true
     rm -rf "$ROOT/.cache" 2>/dev/null || true
     find "$ROOT" -type d -name '__pycache__' -prune -exec rm -rf {} + 2>/dev/null || true
     find "$ROOT" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
   fi
-  free_gb="$(df -Pk "$ROOT" | awk 'NR==2 {printf "%.2f", ($4*1024)/1073741824}')"
+  free_gb="$(df -Pk "$BUILD_ROOT" | awk 'NR==2 {printf "%.2f", ($4*1024)/1073741824}')"
   if awk -v f="$free_gb" 'BEGIN {exit !(f<1)}'; then
     echo "[CLEAN][ERROR] Less than 1 GiB free on the build filesystem." >&2
     exit 2
   fi
 }
 if [[ -x "$DISK_MANAGER" ]]; then
-  CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" CHIMERA_MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-30}" CHIMERA_DISK_RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-0}" "$DISK_MANAGER"
+  CHIMERA_ROOT="$ROOT" CHIMERA_BUILD_DIR="$BUILD_ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" CHIMERA_MIN_FREE_GB="${CHIMERA_MIN_FREE_GB:-30}" CHIMERA_DISK_RESERVE_GB="${CHIMERA_DISK_RESERVE_GB:-0}" "$DISK_MANAGER"
 fi
-FOREIGN="$ROOT/build/foreign"
-MOBILE="$ROOT/build/mobile"
-DRIVERS="$ROOT/build/drivers"
+FOREIGN="$BUILD_ROOT/foreign"
+MOBILE="$BUILD_ROOT/mobile"
+DRIVERS="$BUILD_ROOT/drivers"
 
 cmake -S "$ROOT" -B "$BUILD/cmake" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD/cmake" --target all koronos-x86_64 --parallel "${CHIMERA_JOBS:-2}"
@@ -93,9 +94,9 @@ if command -v javac >/dev/null 2>&1 && command -v jar >/dev/null 2>&1; then bash
 python3 -m compileall -q "$ROOT/sdk/python/chimera_sdk"
 if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" "$DISK_MANAGER"; fi
 
-KERNEL="$(find "$BUILD/cmake" "$ROOT/build" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
+KERNEL="$(find "$BUILD/cmake" "$BUILD_ROOT" "$ROOT/kernel" -type f \( -name "koronos*.elf" -o -name "kernel.bin" -o -name "koronos.elf" \) 2>/dev/null | head -n1 || true)"
 SPIT_IMG="${CHIMERA_SPITFIRE_IMG:-}"
-if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
+if [[ -z "$SPIT_IMG" ]]; then SPIT_IMG="$(find "$BUILD_ROOT" "$ROOT" -type f \( -iname "*spit*fire*.img" -o -iname "spitfire*.img" \) 2>/dev/null | head -n1 || true)"; fi
 
 BASE="${CHIMERA_BASE_ISO:-}"
 for c in "$ROOT/chimera-ii-os.iso" "$ROOT/releases/chimera-ii-os.iso"; do
@@ -118,7 +119,7 @@ cleanup_finished
 rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
-if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+if [[ -d "$BUILD_ROOT/live-boot/boot" ]]; then cp -a "$BUILD_ROOT/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
@@ -154,7 +155,7 @@ fi
 cp -a "$ROOT/installer" "$STAGE/install/"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
-cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"
+cp -a "$BUILD_ROOT/desktop/." "$STAGE/desktop/"
 
 # Generate and embed the complete offline Aurora artwork and icon libraries.
 # This is a runtime payload, not merely a source-tree copy.
@@ -220,14 +221,14 @@ for source_dir in kernel src include database cmake tools boot installer userlan
 done
 
 mkdir -p "$STAGE/build-artifacts" "$STAGE/compat" "$STAGE/mobile" "$STAGE/drivers" "$STAGE/toolchains" "$STAGE/network-tools"
-cp -a "$ROOT/build/desktop" "$STAGE/build-artifacts/" 2>/dev/null || true
-cp -a "$ROOT/build/koronos/ports" "$STAGE/build-artifacts/" 2>/dev/null || true
+cp -a "$BUILD_ROOT/desktop" "$STAGE/build-artifacts/" 2>/dev/null || true
+cp -a "$BUILD_ROOT/koronos/ports" "$STAGE/build-artifacts/" 2>/dev/null || true
 cp -a "$BUILD/cmake" "$STAGE/build-artifacts/cmake" 2>/dev/null || true
 cp -a "$FOREIGN" "$STAGE/compat/foreign-runtime" 2>/dev/null || true
 cp -a "$MOBILE" "$STAGE/mobile/" 2>/dev/null || true
 cp -a "$DRIVERS" "$STAGE/drivers/" 2>/dev/null || true
-cp -a "$ROOT/build/toolchains" "$STAGE/toolchains/" 2>/dev/null || true
-cp -a "$ROOT/build/network-tools" "$STAGE/network-tools/" 2>/dev/null || true
+cp -a "$BUILD_ROOT/toolchains" "$STAGE/toolchains/" 2>/dev/null || true
+cp -a "$BUILD_ROOT/network-tools" "$STAGE/network-tools/" 2>/dev/null || true
 cp -a "$ROOT/network" "$STAGE/system/network" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/route-manager.desktop.json" "$STAGE/system/desktop/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/networking_panel.json" "$STAGE/system/desktop/" 2>/dev/null || true
@@ -275,7 +276,7 @@ if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
     -map "$STAGE/build-artifacts" /build-artifacts \
     -commit -end
 else
-  CHIMERA_KERNEL="$KERNEL" CHIMERA_OUTPUT_ISO="$FINAL" "$ROOT/iso/chimera-live-iso.sh"
+  CHIMERA_BUILD_DIR="$BUILD_ROOT" CHIMERA_EXTRA_STAGE_DIR="$STAGE" CHIMERA_KERNEL="$KERNEL" CHIMERA_OUTPUT_ISO="$FINAL" "$ROOT/iso/chimera-live-iso.sh"
 fi
 
 [[ -s "$FINAL" ]] || { echo "ERROR: ISO was not produced: $FINAL" >&2; exit 1; }
