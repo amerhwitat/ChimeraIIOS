@@ -8,16 +8,26 @@ impl Complex {
     pub fn norm2(self) -> f64 {
         self.re * self.re + self.im * self.im
     }
-    pub fn mul(self, b: Self) -> Self {
+}
+
+impl core::ops::Mul for Complex {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
         Self {
-            re: self.re * b.re - self.im * b.im,
-            im: self.re * b.im + self.im * b.re,
+            re: self.re * rhs.re - self.im * rhs.im,
+            im: self.re * rhs.im + self.im * rhs.re,
         }
     }
-    pub fn add(self, b: Self) -> Self {
+}
+
+impl core::ops::Add for Complex {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
         Self {
-            re: self.re + b.re,
-            im: self.im + b.im,
+            re: self.re + rhs.re,
+            im: self.im + rhs.im,
         }
     }
 }
@@ -98,8 +108,8 @@ impl StateVector {
             let j = base | bit;
             let x = self.amplitudes[base];
             let y = self.amplitudes[j];
-            self.amplitudes[base] = a.mul(x).add(b.mul(y));
-            self.amplitudes[j] = c.mul(x).add(d.mul(y));
+            self.amplitudes[base] = a * x + b * y;
+            self.amplitudes[j] = c * x + d * y;
         }
         Ok(())
     }
