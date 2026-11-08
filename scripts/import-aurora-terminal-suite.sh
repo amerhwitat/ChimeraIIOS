@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-
-# --- Chimera II OS standard help ---
+# Build the complete registered Aurora terminal/shell suite in a target rootfs.
+# Package providers are preferred; missing providers are built from source using
+# the canonical source builder and its recorded source/build manifests.
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
 Chimera II OS script: scripts/import-aurora-terminal-suite.sh
@@ -8,129 +9,88 @@ Chimera II OS script: scripts/import-aurora-terminal-suite.sh
 Usage:
   scripts/import-aurora-terminal-suite.sh [options] [arguments]
 
-Options:
-  -h, --help    Show this help and exit successfully.
+Environment:
+  CHIMERA_ROOTFS_DIR       Target Linux rootfs (default: build/iso/rootfs)
+  CHIMERA_TERMINAL_CACHE   Source-build cache (default: build/terminal-cache)
+  CHIMERA_TARGET_ARCH      Target architecture (default: read from target dpkg)
 
-Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
-  The script's existing command-line interface and environment variables remain unchanged.
+Builds and verifies all 8 registered shells and 20 registered terminal emulators.
+A missing provider is a hard error; this script never creates placeholder binaries.
 CHIMERA_HELP
   exit 0
 fi
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="${CHIMERA_ROOTFS_DIR:-${ROOT}/build/iso/rootfs}"
-PREFIX="${DEST}/usr"
-CACHE="${CHIMERA_TERMINAL_CACHE:-${ROOT}/build/terminal-cache}"
-MODE="${CHIMERA_TERMINAL_MODE:-source-first}"
-mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/applications" "$CACHE"
-cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
-log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
-have(){ command -v "$1" >/dev/null 2>&1; }
-TARGET_ARCH="${CHIMERA_TARGET_ARCH:-$(uname -m)}"
-normalize_arch() {
-  case "$1" in
-    amd64|x86_64) printf x86_64 ;;
-    arm64|aarch64) printf aarch64 ;;
-    armhf|armv7l|armv7*) printf arm ;;
-    i386|i486|i586|i686) printf i386 ;;
-    riscv64) printf riscv64 ;;
-    ppc64le) printf ppc64le ;;
-    s390x) printf s390x ;;
-    *) return 1 ;;
-  esac
-}
-verify_target_binary() {
-  local binary="$1" arch machine expected
-  [[ -x "$binary" ]] || { log "Not executable: $binary"; return 1; }
-  command -v readelf >/dev/null 2>&1 || { log "readelf is required to verify $binary"; return 1; }
-  arch="$(normalize_arch "$TARGET_ARCH")" || { log "Unsupported target architecture: $TARGET_ARCH"; return 1; }
-  machine="$(readelf -h "$binary" 2>/dev/null | sed -n 's/^[[:space:]]*Machine:[[:space:]]*//p')"
-  case "$arch" in
-    x86_64) expected="Advanced Micro Devices X86-64" ;;
-    aarch64) expected="AArch64" ;;
-    arm) expected="ARM" ;;
-    i386) expected="Intel 80386" ;;
-    riscv64) expected="RISC-V" ;;
-    ppc64le) expected="PowerPC64" ;;
-    s390x) expected="IBM S/390" ;;
-  esac
-  [[ "$machine" == "$expected" ]] || { log "Architecture mismatch for $binary: target=$TARGET_ARCH ELF=$machine"; return 1; }
-}
-require_native_build_arch() {
-  local host target
-  host="$(normalize_arch "$(uname -m)")" || return 1
-  target="$(normalize_arch "$TARGET_ARCH")" || return 1
-  [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
-}
-install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
-source_revision(){
-  python3 - "$ROOT/aurora/terminals/binary-manifest.json" "$1" <<'PY'
-import json,sys
-with open(sys.argv[1],encoding="utf-8") as stream:
-    manifest=json.load(stream)
-revision=manifest.get("terminals",{}).get(sys.argv[2],{}).get("revision","")
-if len(revision)!=40 or any(ch not in "0123456789abcdef" for ch in revision):
-    raise SystemExit(f"missing or invalid pinned source revision for {sys.argv[2]}")
-print(revision)
-PY
-}
-source_build(){
-  require_native_build_arch || return 1;
-  local id="$1" url="$2" revision="$3"; local src="$CACHE/src-$id"
-  [[ "$revision" =~ ^[0-9a-f]{40}$ ]] || { log "Missing pinned source revision for $id"; return 1; }
-  mkdir -p "$src"
-  if [[ ! -d "$src/.git" ]]; then git -C "$src" init -q; fi
-  if git -C "$src" remote get-url origin >/dev/null 2>&1; then
-    git -C "$src" remote set-url origin "$url"
-  else
-    git -C "$src" remote add origin "$url"
-  fi
-  log "Fetching pinned $id revision $revision from $url"
-  git -C "$src" fetch --depth 1 origin "$revision"
-  git -C "$src" checkout --detach -q FETCH_HEAD
-  [[ "$(git -C "$src" rev-parse HEAD)" == "$revision" ]] || { log "Source revision verification failed for $id"; return 1; }
-  case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
-    wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
-    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
-    ghostty)
-      have python3 || return 1
-      local zigver venv
-      zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
-      [[ -n "$zigver" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
-      venv="$CACHE/zig-venv"
-      python3 -m venv "$venv"
-      "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
-      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
-      cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+DEST="${CHIMERA_ROOTFS_DIR:-$ROOT/build/iso/rootfs}"
+CACHE="${CHIMERA_TERMINAL_CACHE:-$ROOT/build/terminal-cache}"
+MODE="${CHIMERA_TERMINAL_MODE:-package-first-source-fallback}"
 
-    fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
-    zsh) (cd "$src" && ./Util/preconfig || autoconf && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/Src/zsh" "$PREFIX/bin/" ;;
-    bash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/bash" "$PREFIX/bin/" ;;
-    dash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/src/dash" "$PREFIX/bin/" ;;
-    mksh) (cd "$src" && sh Build.sh -r -j"$(nproc)"); find "$src" -type f -name mksh -perm -111 -exec cp {} "$PREFIX/bin/mksh" \; -quit ;;
-    elvish) (cd "$src" && go build -o "$PREFIX/bin/elvish" ./cmd/elvish);;
-    nushell) (cd "$src" && cargo build --release --bin nu); cp "$src/target/release/nu" "$PREFIX/bin/" ;;
-    *) return 1;;
-  esac
-  local built
-  case "$id" in kitty) built="$PREFIX/bin/kitty";; *) built="$PREFIX/bin/$id";; esac
-  verify_target_binary "$built" || { rm -f "$built"; return 1; }
-}
-# Prefer distro-provided binaries for desktop terminals; source builds are enabled for projects with reliable recipes.
-for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" || log "$b remains unavailable until a matching target package is staged"; done
-if [[ "$MODE" != "binary-only" ]]; then
-  source_build alacritty https://github.com/alacritty/alacritty.git "$(source_revision alacritty)" || log "Alacritty source build unavailable; package/binary fallback required"
-  source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"
-  source_build contour https://github.com/contour-terminal/contour.git "$(source_revision contour)" || log "Contour source build unavailable; package/binary fallback required"
-  source_build ghostty https://github.com/ghostty-org/ghostty.git "$(source_revision ghostty)" || log "Ghostty source build unavailable; package/binary fallback required"
+if [[ "$MODE" != "package-first-source-fallback" && "$MODE" != "binary-only" ]]; then
+  echo "Unsupported CHIMERA_TERMINAL_MODE=$MODE" >&2
+  exit 2
 fi
-# The desktop registry is only complete when every entry resolves to a real
-# executable for this target architecture. Missing providers stop ISO staging.
-for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty \
-              alacritty wezterm ghostty contour; do
-  install_existing "$binary" || { log "REQUIRED TERMINAL PROVIDER MISSING: $binary"; exit 2; }
-done
-log "All 10 registered terminal providers are present and target-architecture verified."
-log "Terminal registry staged at $PREFIX/share/chimera/aurora/terminals/registry.json"
+if [[ ! -x "$DEST/bin/sh" ]]; then
+  echo "Target rootfs is missing or has no /bin/sh: $DEST" >&2
+  exit 2
+fi
+if [[ "$(id -u)" -ne 0 ]]; then
+  exec sudo -E env \
+    CHIMERA_ROOTFS_DIR="$DEST" \
+    CHIMERA_TERMINAL_CACHE="$CACHE" \
+    CHIMERA_TERMINAL_MODE="$MODE" \
+    CHIMERA_TARGET_ARCH="${CHIMERA_TARGET_ARCH:-}" \
+    bash "${BASH_SOURCE[0]}" "$@"
+fi
+
+TARGET_ARCH="${CHIMERA_TARGET_ARCH:-}"
+if [[ -z "$TARGET_ARCH" ]]; then
+  target_dpkg="$(chroot "$DEST" dpkg --print-architecture 2>/dev/null || true)"
+  case "$target_dpkg" in
+    amd64) TARGET_ARCH=x86_64 ;;
+    arm64) TARGET_ARCH=aarch64 ;;
+    armel) TARGET_ARCH=armel ;;
+    armhf) TARGET_ARCH=armv7 ;;
+    i386) TARGET_ARCH=i686 ;;
+    riscv64) TARGET_ARCH=riscv64 ;;
+    ppc64el) TARGET_ARCH=ppc64le ;;
+    s390x) TARGET_ARCH=s390x ;;
+    *) echo "Cannot determine target architecture from dpkg ($target_dpkg); set CHIMERA_TARGET_ARCH." >&2; exit 2 ;;
+  esac
+fi
+
+mkdir -p "$DEST/usr/share/chimera/aurora/terminals" "$DEST/usr/share/chimera/aurora/shells"
+install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$DEST/usr/share/chimera/aurora/terminals/registry.json"
+install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$DEST/usr/share/chimera/aurora/terminals/binary-manifest.json"
+install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$DEST/usr/share/chimera/aurora/shells/registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/binary-manifest.json" "$DEST/usr/share/chimera/aurora/shells/binary-manifest.json"
+
+bash "$ROOT/tools/aurora/install-terminal-shell-suite.sh" "$DEST"
+if [[ "$MODE" == "binary-only" ]]; then
+  if [[ -s "$DEST/usr/share/chimera/aurora/terminal-shell-source-required.tsv" ]]; then
+    echo "Unresolved terminal/shell packages remain in binary-only mode:" >&2
+    cat "$DEST/usr/share/chimera/aurora/terminal-shell-source-required.tsv" >&2
+    exit 2
+  fi
+else
+  CHIMERA_TARGET_ARCH="$TARGET_ARCH" bash "$ROOT/tools/aurora/build-terminal-shell-sources.sh" "$DEST" "$CACHE"
+fi
+
+CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$ROOT/live-image/verify-terminal-shell-suite.sh" "$DEST" "$TARGET_ARCH"
+python3 "$ROOT/tools/aurora/verify-terminal-shell-providers.py" \
+  --rootfs "$DEST" \
+  --shell-registry "$ROOT/aurora/shells/registry.json" \
+  --terminal-registry "$ROOT/aurora/terminals/registry.json" \
+  --output "$DEST/usr/share/chimera/aurora/terminal-shell-provider-status.json"
+
+python3 - "$DEST/usr/share/chimera/aurora/terminal-shell-provider-status.json" <<'PY'
+import json,sys
+data=json.load(open(sys.argv[1],encoding="utf-8"))
+summary=data.get("summary",{})
+if summary.get("shells_registered")!=8 or summary.get("terminals_registered")!=20:
+    raise SystemExit(f"unexpected registry counts: {summary}")
+missing=[x.get("id") for section in ("shells","terminals") for x in data.get(section,[])
+         if x.get("status") not in ("verified-elf-provider","verified-script-provider")]
+if missing:
+    raise SystemExit("terminal/shell providers missing or unverified: "+", ".join(missing))
+print("Verified all 8 shell and 20 terminal registry providers.")
+PY
