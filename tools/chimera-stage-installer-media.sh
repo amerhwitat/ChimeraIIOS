@@ -68,6 +68,8 @@ echo "[INSTALL] Interactive recovery shell ready; disk operations remain disable
 exec /bin/sh
 EOF
 chmod +x "$P/init"
+( cd "$P" && find . -print0 | cpio --null -o -H newc ) > "$DEST/install/installer/installation.cpio"
+sha256sum "$DEST/install/installer/installation.cpio" > "$DEST/install/installer/installation.cpio.sha256"
 ( cd "$P" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installation.img"
 cp -f "$DEST/install/installer/installation.img" "$DEST/install/installer/installer-initrd.img"
 for f in "$ROOT/install/installation-manifest.json" "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$DEST/install/installer/"; done
