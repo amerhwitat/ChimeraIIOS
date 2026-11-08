@@ -51,6 +51,11 @@ install(PROGRAMS services/apache/apache-sync.py DESTINATION bin)
 install(FILES services/apache/apache-projects.json services/apache/README.md DESTINATION share/chimera/apache)
 install(FILES system/security/apache-sandbox.json DESTINATION share/chimera/config)
 
+# X.Org server session manager and Aurora X11 fallback desktop.
+install(PROGRAMS tools/display/chimera-xserver-session tools/display/chimera-xsession.py desktop/aurora/aurora-x11-session.sh DESTINATION bin)
+install(FILES desktop/aurora/chimera-aurora-x11.desktop DESTINATION share/xsessions)
+install(FILES desktop/aurora/xserver-sessions.json DESTINATION share/chimera/aurora)
+
 # Native C/C++/ASM compiler and linker drivers.
 install(PROGRAMS
   tools/toolchain/chimera-cc
