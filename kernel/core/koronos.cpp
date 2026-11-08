@@ -242,6 +242,9 @@ static void console_hex32(uint32_t v) {
 static const char *module_kind_name(uint32_t k) {
     switch (k) {
         case CHIMERA_MODULE_LIVE_INITRAMFS: return "LIVE INITRAMFS";
+        case CHIMERA_MODULE_LIVE_INITRAMFS_CPIO: return "LIVE CPIO VFS";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS_CPIO: return "RECOVERY CPIO VFS";
+        case CHIMERA_MODULE_INSTALL_INITRAMFS_CPIO: return "INSTALLER CPIO VFS";
         case CHIMERA_MODULE_LIVE_MANIFEST: return "LIVE MANIFEST";
         case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
         case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
