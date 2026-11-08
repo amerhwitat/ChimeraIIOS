@@ -9,7 +9,7 @@ import shutil
 import sys
 from pathlib import Path
 
-SESSION_DIRS = (Path("/usr/local/share/xsessions"), Path("/usr/share/xsessions"))
+SESSION_DIRS = tuple(Path(p) for p in os.environ.get("CHIMERA_XSESSION_DIRS", "/usr/local/share/xsessions:/usr/share/xsessions").split(os.pathsep) if p)
 FIELD_CODES = re.compile(r"%(?:[fFuUdDnNickvm]|%)")
 
 def entries():
