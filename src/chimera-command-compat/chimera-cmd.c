@@ -600,6 +600,40 @@ extern char **environ;
 
 static int cmd_env(int argc, char **argv)
 {
+    int index = 1;
+    if (index < argc && (!strcmp(argv[index], "-i") || !strcmp(argv[index], "--ignore-environment"))) {
+        if (clearenv() != 0) { perror("env: clearenv"); return 1; }
+        ++index;
+    }
+    while (index < argc) {
+        if (!strcmp(argv[index], "--")) { ++index; break; }
+        if (!strcmp(argv[index], "-u") || !strcmp(argv[index], "--unset")) {
+            if (++index >= argc) { fprintf(stderr, "env: -u requires a variable name\n"); return 2; }
+            if (unsetenv(argv[index++]) != 0) { perror("env: unsetenv"); return 1; }
+            continue;
+        }
+        char *equals = strchr(argv[index], '=');
+        if (!equals) break;
+        size_t name_length = (size_t)(equals - argv[index]);
+        if (!name_length) break;
+        char *name = strndup(argv[index], name_length);
+        if (!name) return 1;
+        int rc = setenv(name, equals + 1, 1);
+        free(name);
+        if (rc != 0) { perror("env: setenv"); return 1; }
+        ++index;
+    }
+    if (index == argc) {
+        for (char **p = environ; p && *p; ++p) puts(*p);
+        return 0;
+    }
+    execvp(argv[index], &argv[index]);
+    perror(argv[index]);
+    return errno == ENOENT ? 127 : 126;
+}
+
+static int cmd_printenv(int argc, char **argv)
+{
     if (argc == 1) {
         for (char **p = environ; p && *p; ++p) puts(*p);
         return 0;
@@ -611,7 +645,6 @@ static int cmd_env(int argc, char **argv)
     }
     return rc;
 }
-static int cmd_printenv(int argc, char **argv) { return cmd_env(argc, argv); }
 
 static int cmd_id(int argc, char **argv)
 {
