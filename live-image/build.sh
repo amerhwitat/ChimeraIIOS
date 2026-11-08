@@ -308,6 +308,9 @@ bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/te
 python3 "$REPO_DIR/tools/commands/stage-native-script-providers.py" \
   --repo "$REPO_DIR" --rootfs "$WORK" --build-dir "$BUILD/native-userland-tools"
 CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
+bash -n "$REPO_DIR/tools/display/chimera-xserver-session" "$REPO_DIR/desktop/aurora/aurora-x11-session.sh"
+python3 -m py_compile "$REPO_DIR/tools/display/chimera-xsession.py"
+python3 "$REPO_DIR/tests/desktop/test_xserver_session_manager.py"
 python3 "$REPO_DIR/tools/aurora/verify-terminal-shell-providers.py" \
   --rootfs "$WORK" \
   --shell-registry "$REPO_DIR/aurora/shells/registry.json" \
@@ -514,6 +517,15 @@ EOF
 # ------------------------------------------------------------- system config
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
+# Install the X.Org server session manager and Aurora X11 fallback. The
+# launcher discovers only actual installed /usr/share/xsessions entries.
+install -Dm755 "$REPO_DIR/tools/display/chimera-xserver-session" "$WORK/usr/local/bin/chimera-xserver-session"
+install -Dm755 "$REPO_DIR/tools/display/chimera-xsession.py" "$WORK/usr/local/bin/chimera-xsession"
+install -Dm755 "$REPO_DIR/desktop/aurora/aurora-x11-session.sh" "$WORK/usr/local/bin/aurora-x11-session"
+install -Dm644 "$REPO_DIR/desktop/aurora/chimera-aurora-x11.desktop" "$WORK/usr/share/xsessions/chimera-aurora-x11.desktop"
+install -Dm644 "$REPO_DIR/desktop/aurora/xserver-sessions.json" "$WORK/usr/share/chimera/aurora/xserver-sessions.json"
+install -Dm644 "$REPO_DIR/desktop/aurora/xserver-sessions.json" "$WORK/usr/share/chimera/catalogs/xserver-sessions.json"
+install -Dm644 "$REPO_DIR/desktop/aurora/chimera-aurora-x11.desktop" "$WORK/usr/share/applications/chimera-aurora-x11.desktop"
 
 # Linux-style userspace: systemd units, sysusers/tmpfiles, D-Bus policy and helpers.
 if [ -d "$REPO_DIR/userspace" ] && [ -f "$REPO_DIR/userspace/Makefile" ]; then
