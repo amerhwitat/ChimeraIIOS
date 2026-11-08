@@ -33,6 +33,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  architecture-port-probes:
+    name: AArch64 and RV64 boot-entry probes (not full kernel ports)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross compilers and emulators
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils \\
+            gcc-multilib qemu-system-arm qemu-system-misc make
+      - name: Build and boot architecture probes
+        run: |
+          chmod +x tools/build-koronos-targets.sh
+          ./tools/build-koronos-targets.sh --require-all
+      - name: Upload architecture probe manifests and serial logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-architecture-port-probes
+          path: build/koronos/ports/
+          if-no-files-found: warn
+
   x86_64-boot:
     runs-on: ubuntu-latest
     steps:
