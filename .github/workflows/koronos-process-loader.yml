@@ -4,8 +4,11 @@ on:
   push:
     branches: [main]
     paths:
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/target_launch.cpp'
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
+      - 'tests/boot/test_installer_target_init_routing.py'
       - 'kernel/tests/process_loader_test.cpp'
       - 'kernel/tests/multiboot_modules_test.cpp'
       - 'kernel/core/multiboot_modules.cpp'
@@ -41,6 +44,8 @@ jobs:
           /tmp/chimera-multiboot-modules-test
       - name: Test fail-closed userspace handoff marker verifier
         run: python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
+      - name: Test target-specific installer/live init routing
+        run: python3 -m unittest discover -s tests/boot -p "test_installer_target_init_routing.py" -v
       - name: Compile and validate freestanding Koronos
         run: |
           sudo apt-get update
