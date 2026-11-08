@@ -86,14 +86,26 @@ jobs:
           set -euo pipefail
           inspect="docker-output/iso-inspect"
           mkdir -p "$inspect"
-          # The builder runs inside Docker, so its staging tree is not on the
-          # runner. Inspect the artifact itself instead of testing host-only paths.
+          # Inspect the mastered ISO itself, not the builder's private staging tree.
           for item in \
             "/src/chimera-source.tar.zst:src/chimera-source.tar.zst" \
             "/src/README.txt:src/README.txt" \
             "/boot/spitfire/spitfire-sf0-mbr.bin:boot/spitfire/spitfire-sf0-mbr.bin" \
             "/boot/spitfire/spitfire-sf1-longmode.o:boot/spitfire/spitfire-sf1-longmode.o" \
             "/boot/koronos/koronos.elf:boot/koronos/koronos.elf" \
+            "/boot/targets/target-init-live.elf:boot/targets/target-init-live.elf" \
+            "/boot/targets/target-init-installer.elf:boot/targets/target-init-installer.elf" \
+            "/boot/targets/target-init-recovery.elf:boot/targets/target-init-recovery.elf" \
+            "/boot/live/chimera-live-initramfs.img:boot/live/chimera-live-initramfs.img" \
+            "/boot/live/live-manifest.json:boot/live/live-manifest.json" \
+            "/boot/recovery/chimera-recovery-initramfs.img:boot/recovery/chimera-recovery-initramfs.img" \
+            "/boot/recovery/recovery-manifest.json:boot/recovery/recovery-manifest.json" \
+            "/boot/jasper/recovery.cfg:boot/jasper/recovery.cfg" \
+            "/install/installer/installation.img:install/installer/installation.img" \
+            "/install/installer/installation-manifest.json:install/installer/installation-manifest.json" \
+            "/install/installer/installer-contract.json:install/installer/installer-contract.json" \
+            "/install/installer/installation_phases.json:install/installer/installation_phases.json" \
+            "/install/installer/installer_profiles.json:install/installer/installer_profiles.json" \
             "/boot/grub/grub.cfg:boot/grub/grub.cfg" \
             "/boot/visual/aurora-boot.png:boot/visual/aurora-boot.png" \
             "/boot/visual/Init.mp4:boot/visual/Init.mp4"; do
@@ -103,8 +115,21 @@ jobs:
             xorriso -osirrox on -indev docker-output/output.iso -extract "$iso_path" "$inspect/$local_path" >/dev/null
             test -s "$inspect/$local_path" || { echo "ERROR: ISO payload missing: $iso_path" >&2; exit 2; }
           done
-          grep -q 'multiboot2 /boot/koronos/koronos.elf' "$inspect/boot/grub/grub.cfg"
-          grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$inspect/boot/grub/grub.cfg"
+          grub="$inspect/boot/grub/grub.cfg"
+          recovery="$inspect/boot/jasper/recovery.cfg"
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' "$grub"
+          grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$grub"
+          grep -Fq 'set timeout=300' "$grub"
+          grep -Fq 'set timeout_style=menu' "$grub"
+          grep -Fq 'set timeout=300' "$recovery"
+          grep -Fq 'set timeout_style=menu' "$recovery"
+          for target in live installer recovery; do
+            grep -Fq "module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target" "$grub" "$recovery"
+          done
+          # Every Jasper recovery entry, including the legacy alias, must select
+          # the recovery ELF and its matching initramfs rather than booting kernel-only.
+          test "$(grep -Fc 'module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery' "$recovery")" -eq 3
+          test "$(grep -Fc 'module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs' "$recovery")" -eq 3
       - name: Inspect ISO BIOS El Torito and UEFI metadata
         run: |
           xorriso -indev docker-output/output.iso -report_el_torito plain -report_system_area plain -print '' | tee docker-output/ISO-BOOT-REPORT.txt
