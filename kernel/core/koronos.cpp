@@ -153,7 +153,7 @@ static void mount_boot_initramfs_vfs() {
     if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS_CPIO);
     if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS_CPIO);
     if (!module || module->base == 0 || module->size == 0) {
-        console_write("[VFS ] No raw CPIO initramfs module selected");
+        debugcon_write("[VFS ] No raw CPIO initramfs module selected");
         return;
     }
     const void *archive = reinterpret_cast<const void *>(static_cast<uintptr_t>(module->base));
@@ -161,16 +161,16 @@ static void mount_boot_initramfs_vfs() {
         &g_boot_initramfs_vfs, g_boot_initramfs_nodes,
         static_cast<uint32_t>(sizeof(g_boot_initramfs_nodes) / sizeof(g_boot_initramfs_nodes[0])));
     if (rc != 0) {
-        console_write("[VFS ] ERROR: transactional CPIO initramfs mount rejected");
-        console_write("[VFS ] No root was published; userspace handoff remains gated");
+        debugcon_write("[VFS ] ERROR: transactional CPIO initramfs mount rejected");
+        debugcon_write("[VFS ] No root was published; userspace handoff remains gated");
         return;
     }
-    console_write("[VFS ] Read-only CPIO initramfs tree published");
+    debugcon_write("[VFS ] Read-only CPIO initramfs tree published");
     const chimera_vfs_node *init_node = chimera_vfs_lookup("/init");
     if (init_node && init_node->kind == CHIMERA_VFS_REGULAR) {
-        console_write("[VFS ] /init is present in the selected initramfs archive");
+        debugcon_write("[VFS ] /init is present in the selected initramfs archive");
     } else {
-        console_write("[VFS ] WARNING: selected initramfs has no regular /init entry");
+        debugcon_write("[VFS ] WARNING: selected initramfs has no regular /init entry");
     }
 }
 
