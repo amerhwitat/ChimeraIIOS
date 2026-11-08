@@ -234,6 +234,24 @@ static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
 static volatile uint32_t installer_phase = 0;
 
+static bool module_cmdline_selects_target(const chimera_boot_module *module,
+                                          const char *target) {
+    if (!module || !module->cmdline || !target || !*target) return false;
+    const char prefix[] = "target=";
+    for (const char *p = module->cmdline; *p; ++p) {
+        if (p != module->cmdline && p[-1] != ' ') continue;
+        const char *a = prefix;
+        const char *b = p;
+        while (*a && *b == *a) { ++a; ++b; }
+        if (*a) continue;
+        const char *wanted = target;
+        while (*wanted && *b == *wanted) { ++wanted; ++b; }
+        if (*wanted == 0 && (*b == 0 || *b == ' ')) return true;
+    }
+    return false;
+}
+
+
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
     // Registration is a one-shot bootstrap action, not a continuously runnable task.
@@ -251,10 +269,11 @@ static void task_modules(void *) {
 
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
-        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+        const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+        if (module_cmdline_selects_target(user_init, "live")) {
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
-                console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
+                console_write("[RUN ] Live userspace target failed its launch/readiness acceptance gate");
             chimera_sched_block();
             return;
         }
@@ -300,6 +319,15 @@ static void task_installer(void *) {
         return;
     }
 
+    const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    if (module_cmdline_selects_target(user_init, "installer")) {
+        const int launch_rc = koronos_launch_selected_userspace();
+        if (launch_rc != 0)
+            console_write("[RUN ] Installer userspace failed its launch/readiness acceptance gate");
+        chimera_sched_block();
+        return;
+    }
+
     switch (installer_phase++) {
         case 0:
             console_write("[INST] Installer target detected");
@@ -312,11 +340,11 @@ static void task_installer(void *) {
             break;
         case 1:
             console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
+            console_write("[INST] Installer service providers are not yet executing; native userspace handoff is required");
             break;
         case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
+            console_write("[INST] Hardware discovery provider registered; device enumeration not yet verified");
+            console_write("[INST] Storage discovery provider registered; disk enumeration not yet verified");
             break;
         case 3:
             if (phases) console_write("[INST] Installation phases loaded");
@@ -324,8 +352,8 @@ static void task_installer(void *) {
             console_write("[INST] Installer UI scaffolding initialized; graphical userspace is not running");
             break;
         case 4:
-            console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
-            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
+            console_write("[INST] Installer metadata parsed; graphical installer userspace is not running");
+            console_write("[INST] USERSPACE HANDOFF NOT VERIFIED: no installer-target USER_INIT_ELF module with target=installer");
             chimera_sched_block();
             break;
         default:
