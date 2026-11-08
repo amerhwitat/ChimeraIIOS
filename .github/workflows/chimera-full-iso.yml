@@ -212,6 +212,31 @@ jobs:
           terminals = json.loads((root / "terminal-registry.json").read_text())
           isa = json.loads((root / "isa-database.json").read_text())
           catalogue_roots = [root / "live-root/etc/chimera/catalogs", root / "recovery-root/etc/chimera/catalogs", root / "installer-root/etc/chimera/catalogs"]
+          source_root = pathlib.Path.cwd()
+          source_catalogues = (
+              list((source_root / "system/commands").glob("*.json"))
+              + list((source_root / "isa").rglob("*.json"))
+              + list((source_root / "data/isa").glob("*.json"))
+              + [source_root / "ISA.csv", source_root / "config/linux-command-registry.json",
+                 source_root / "tools/commands/os-command-runtime.json",
+                 source_root / "tools/commands/dos-legacy-payload-manifest.json"]
+          )
+          source_catalogues = [p for p in source_catalogues if p.name != "command-isa-coverage.json"]
+          source_names = [p.name for p in source_catalogues]
+          if len(source_names) != len(set(source_names)):
+              raise SystemExit("command/ISA catalogue basenames collide; refusing lossy initramfs staging")
+          import hashlib
+          for catalog_root in catalogue_roots:
+              for source in source_catalogues:
+                  staged = catalog_root / source.name
+                  if not staged.is_file():
+                      raise SystemExit(f"{catalog_root.parent.name} is missing catalogue {source.name}")
+                  if hashlib.sha256(source.read_bytes()).digest() != hashlib.sha256(staged.read_bytes()).digest():
+                      raise SystemExit(f"staged catalogue differs from source: {source.name}")
+              for required in ("terminals-registry.json", "terminals-binary-manifest.json",
+                               "shells-registry.json", "shells-binary-manifest.json"):
+                  if not (catalog_root / required).is_file():
+                      raise SystemExit(f"{catalog_root.parent.name} is missing terminal/shell registry: {required}")
           catalogue_hashes = []
           for catalog_root in catalogue_roots:
               commands_full = json.loads((catalog_root / "native-command-candidates.json").read_text())
