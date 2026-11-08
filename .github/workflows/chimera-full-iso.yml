@@ -222,7 +222,7 @@ jobs:
                   raise SystemExit("universal ISA catalogue must contain 1,613 instruction records")
               if len(universal["unique_architectures"]) != 15:
                   raise SystemExit("universal ISA catalogue must cover all 15 imported architecture labels")
-              if riscv["record_count"] != len(riscv["instructions"]) or riscv["record_count"] != 1459 or riscv["failed_files"] != 0:
+              if riscv["record_count"] != len(riscv["instructions"]) or riscv["record_count"] != 1459 or len(riscv["failed_files"]) != 0:
                   raise SystemExit("RISC-V opcode source import is incomplete")
               if coverage["counts"]["unique_commands"] != 855 or coverage["counts"]["native_source_commands"] != 37:
                   raise SystemExit("platform command coverage report is stale")
