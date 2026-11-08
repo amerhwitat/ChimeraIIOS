@@ -8,6 +8,39 @@ INSTALLED="$ROOTFS/usr/share/chimera/aurora/terminal-shell-installed.tsv"
 [[ -s "$MISSING" ]] || { echo "No source-build-required terminal/shell providers."; exit 0; }
 mkdir -p "$OUT/src" "$OUT/stage/usr/local/bin"
 require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing source-build dependency: $1" >&2; exit 2; }; }
+manifest_revision() {
+  python3 - "$REPO_DIR/aurora/terminals/binary-manifest.json" "$REPO_DIR/aurora/shells/binary-manifest.json" "$1" <<'PY_REV'
+import json,re,sys
+for filename,section in ((sys.argv[1],"terminals"),(sys.argv[2],"shells")):
+    data=json.load(open(filename,encoding="utf-8"))
+    item=data.get(section,{}).get(sys.argv[3],{})
+    revision=item.get("revision","")
+    if revision:
+        if not re.fullmatch(r"[0-9a-f]{40}",revision):
+            raise SystemExit(f"invalid pinned revision for {sys.argv[3]}: {revision}")
+        print(revision)
+        raise SystemExit(0)
+raise SystemExit(f"no pinned upstream revision in terminal/shell binary manifests for {sys.argv[3]}")
+PY_REV
+}
+fetch_pinned_git() {
+  local id="$1" url="$2" src="$3" revision
+  revision="$(manifest_revision "$id")"
+  mkdir -p "$src"
+  [[ -d "$src/.git" ]] || git -C "$src" init -q
+  if git -C "$src" remote get-url origin >/dev/null 2>&1; then
+    git -C "$src" remote set-url origin "$url"
+  else
+    git -C "$src" remote add origin "$url"
+  fi
+  echo "Fetching pinned $id revision $revision"
+  git -C "$src" fetch --depth 1 origin "$revision"
+  git -C "$src" checkout --detach -q FETCH_HEAD
+  [[ "$(git -C "$src" rev-parse HEAD)" == "$revision" ]] || {
+    echo "Pinned source revision mismatch for $id" >&2
+    return 2
+  }
+}
 TARGET_ARCH="${CHIMERA_TARGET_ARCH:-}"
 if [[ -z "$TARGET_ARCH" ]]; then
   target_dpkg="$(chroot "$ROOTFS" dpkg --print-architecture 2>/dev/null || true)"
@@ -50,14 +83,14 @@ build_bash() {
 build_zsh() {
   require make; require gcc; require autoconf
   local src="$OUT/src/zsh"
-  git clone --depth 1 https://github.com/zsh-users/zsh.git "$src"
+  fetch_pinned_git zsh https://github.com/zsh-users/zsh.git "$src"
   (cd "$src" && ./Util/preconfig && ./configure --prefix=/usr/local && make -j"${JOBS:-2}" && make install DESTDIR="$OUT/stage")
   install -D -m 0755 "$OUT/stage/usr/local/bin/zsh" "$ROOTFS/usr/local/bin/zsh"
 }
 build_fish() {
   require cmake; require ninja; require c++
   local src="$OUT/src/fish"
-  git clone --depth 1 https://github.com/fish-shell/fish-shell.git "$src"
+  fetch_pinned_git fish https://github.com/fish-shell/fish-shell.git "$src"
   cmake -S "$src" -B "$src/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_DOCS=OFF
   cmake --build "$src/build" --parallel "${JOBS:-2}"
   DESTDIR="$OUT/stage" cmake --install "$src/build"
@@ -83,7 +116,7 @@ build_mksh() {
 build_alacritty() {
   require cargo
   local src="$OUT/src/alacritty"
-  git clone --depth 1 https://github.com/alacritty/alacritty.git "$src"
+  fetch_pinned_git alacritty https://github.com/alacritty/alacritty.git "$src"
   (cd "$src" && cargo build --release --locked)
   install -D -m 0755 "$src/target/release/alacritty" "$ROOTFS/usr/local/bin/alacritty"
 }
@@ -121,21 +154,21 @@ build_blackbox() {
 build_yash() {
   require make
   local src="$OUT/src/yash"
-  git clone --depth 1 https://github.com/magicant/yash.git "$src"
+  fetch_pinned_git yash https://github.com/magicant/yash.git "$src"
   (cd "$src" && ./configure --prefix=/usr/local && make -j"${JOBS:-2}" && make install DESTDIR="$OUT/stage")
   install -D -m 0755 "$OUT/stage/usr/local/bin/yash" "$ROOTFS/usr/local/bin/yash"
 }
 build_nushell() {
   require cargo
   local src="$OUT/src/nushell"
-  git clone --depth 1 https://github.com/nushell/nushell.git "$src"
+  fetch_pinned_git nushell https://github.com/nushell/nushell.git "$src"
   (cd "$src" && cargo build --release --locked)
   install -D -m 0755 "$src/target/release/nu" "$ROOTFS/usr/local/bin/nu"
 }
 build_elvish() {
   require go
   local src="$OUT/src/elvish"
-  git clone --depth 1 https://github.com/elves/elvish.git "$src"
+  fetch_pinned_git elvish https://github.com/elves/elvish.git "$src"
   (cd "$src" && go build -trimpath -o "$ROOTFS/usr/local/bin/elvish" ./cmd/elvish)
 }
 build_wezterm() {
@@ -143,7 +176,8 @@ build_wezterm() {
   local src="$OUT/src/wezterm"
   # WezTerm's workspace includes git submodules. A shallow non-recursive
   # clone leaves Cargo members missing and fails before compilation.
-  git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/wez/wezterm.git "$src"
+  fetch_pinned_git wezterm https://github.com/wezterm/wezterm.git "$src"
+  git -C "$src" submodule update --init --recursive --depth 1
   git -C "$src" submodule update --init --recursive
   local cargo_cmd=(cargo)
   if command -v rustup >/dev/null 2>&1; then
@@ -202,7 +236,7 @@ build_ghostty() {
 build_contour() {
   require cmake; require ninja
   local src="$OUT/src/contour"
-  git clone --depth 1 https://github.com/contour-terminal/contour.git "$src"
+  fetch_pinned_git contour https://github.com/contour-terminal/contour.git "$src"
   cmake -S "$src" -B "$src/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
   cmake --build "$src/build" --parallel "${JOBS:-2}"
   cmake --install "$src/build" --prefix "$OUT/stage/usr/local"
