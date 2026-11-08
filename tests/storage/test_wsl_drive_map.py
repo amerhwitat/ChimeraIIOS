@@ -38,7 +38,7 @@ esac
                 "FAKE_D": str(d_drive),
                 "PATH": str(fake_bin) + os.pathsep + env["PATH"],
             })
-            subprocess.run([str(MAPPER)], env=env, check=True, text=True, capture_output=True)
+            subprocess.run(["bash", str(MAPPER)], env=env, check=True, text=True, capture_output=True)
             for alias, target in (("c", c_drive), ("C", c_drive), ("d", d_drive), ("D", d_drive)):
                 link = mnt / "drive" / alias
                 self.assertTrue(link.is_symlink(), str(link))
