@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="$(realpath -m "${1:-$ROOT/build/native-command-isa}")"
+OUT="$(realpath -m "${1:-$ROOT/build/linux-abi-command-matrix}")"
 declare -A EMULATORS=(
   [x86_64]=""
   [i686]="qemu-i386-static"
