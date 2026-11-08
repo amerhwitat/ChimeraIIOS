@@ -3,8 +3,13 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#if defined(_WIN32)
+#include <windows.h>
+#include <process.h>
+#else
 #include <sys/utsname.h>
 #include <unistd.h>
+#endif
 #include <utility>
 #include <vector>
 
@@ -21,7 +26,12 @@ static int exec_tool(const std::string& tool, std::vector<std::string> args)
     argv.reserve(args.size() + 1);
     for (auto& arg : args) argv.push_back(arg.data());
     argv.push_back(nullptr);
+#if defined(_WIN32)
+    const int spawn_result = _spawnvp(_P_WAIT, tool.c_str(), argv.data());
+    if (spawn_result >= 0) return spawn_result;
+#else
     execvp(tool.c_str(), argv.data());
+#endif
     const int saved = errno;
     std::cerr << "chmctl: provider '" << tool << "' unavailable: " << std::strerror(saved) << "\n";
     return saved == ENOENT ? 127 : 126;
