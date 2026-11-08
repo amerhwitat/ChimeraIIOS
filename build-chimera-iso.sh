@@ -434,6 +434,10 @@ check_deps(){
       exit 2
     fi
   fi
+  CHIMERA_AUTO_INSTALL_DEPS="${CHIMERA_INSTALL_BUILD_DEPS:-0}" bash "$SCRIPT_DIR/tools/check-build-dependencies.sh" || {
+    log_error 'Comprehensive cross-ABI, QEMU, graphics and terminal/shell build dependency validation failed'
+    exit 2
+  }
   command -v docker >/dev/null || { log_error 'Docker is required'; exit 2; }
   command -v cpio >/dev/null || { log_error 'cpio is required'; exit 2; }
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
