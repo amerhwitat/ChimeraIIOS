@@ -23,6 +23,13 @@ class TargetInitRoutingTests(unittest.TestCase):
         self.assertIn("koronos_launch_selected_userspace()", installer)
         self.assertIn("USERSPACE HANDOFF NOT VERIFIED", installer)
 
+    def test_recovery_task_launches_recovery_target_elf(self):
+        recovery = SOURCE.split("static void task_recovery(void *)", 1)[1].split(
+            "static void task_installer(void *)", 1
+        )[0]
+        self.assertIn('module_cmdline_selects_target(user_init, "recovery")', recovery)
+        self.assertIn("koronos_launch_selected_userspace()", recovery)
+
     def test_installer_does_not_claim_unstarted_services_are_running(self):
         self.assertNotIn("Hardware discovery service started", SOURCE)
         self.assertNotIn("Storage discovery service started", SOURCE)
