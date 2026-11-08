@@ -593,17 +593,33 @@ jobs:
               data = json.loads(path.read_text(encoding="utf-8"))
               checks[name] = data.get("passed") is True
               if name == "firmware_matrix":
-                  checks[name] = checks[name] and data.get("same_iso_sha256") is True and len(data.get("cases", [])) == 6
+                  expected_cases = {(firmware, target) for firmware in ("bios", "uefi")
+                                    for target in ("live", "installer", "recovery")}
+                  actual_cases = {(case.get("firmware"), case.get("target"))
+                                  for case in data.get("cases", [])}
+                  checks[name] = (checks[name] and data.get("same_iso_sha256") is True
+                                  and expected_cases.issubset(actual_cases)
+                                  and all(case.get("passed") is True for case in data.get("cases", [])))
               elif name == "filesystem_syscall_contract":
                   checks[name] = (checks[name]
                                   and data.get("etc_os_release_open") is True
                                   and data.get("etc_os_release_read") is True
                                   and data.get("etc_os_release_close") is True
                                   and data.get("tmp_writable") is True)
+              elif name == "installer_persistence":
+                  checks[name] = (checks[name] and data.get("cold_boot_persisted") is True
+                                  and data.get("disk_identity_verified") is True
+                                  and data.get("same_iso_sha256") is True)
+              elif name == "recovery_repair":
+                  checks[name] = (checks[name] and data.get("repair_postcondition") is True
+                                  and data.get("filesystem_consistent") is True)
               elif name == "smp_overlap":
                   checks[name] = checks[name] and data.get("cpu_count", 0) >= 2 and data.get("overlap_intervals", 0) > 0
               elif name == "architecture_boot_matrix":
-                  checks[name] = checks[name] and data.get("all_supported_targets_passed") is True
+                  required_architectures = {"x86_64", "i686", "armel", "aarch64", "armv7", "riscv64", "ppc64le", "s390x"}
+                  actual_architectures = set(data.get("architectures", []))
+                  checks[name] = (checks[name] and data.get("all_supported_targets_passed") is True
+                                  and required_architectures.issubset(actual_architectures))
               elif name == "aurora_marine_health":
                   checks[name] = checks[name] and data.get("aurora_live") is True and data.get("marine_live") is True and data.get("gui_interaction_passed") is True
               elif name == "terminal_shell_gui_interaction":
