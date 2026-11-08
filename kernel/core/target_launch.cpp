@@ -166,15 +166,20 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
 }
 
 extern "C" int koronos_launch_selected_userspace(void) {
-    if (attempted) return 0;
-    attempted=true;
+    if (attempted) {
+        koronos_target_log("[RUN ] ERROR: target userspace launch was already attempted");
+        return -12;
+    }
     const chimera_boot_module *selected=nullptr;
     uint32_t count=0;
     for (uint32_t i=0;i<chimera_multiboot_module_count();++i) {
         const chimera_boot_module *m=chimera_multiboot_module(i);
         if (m && m->kind==CHIMERA_MODULE_USER_INIT_ELF) { selected=m; ++count; }
     }
-    if (count==0) return 0; // Kernel-only smoke boots intentionally have no user ELF.
+    if (count==0) {
+        koronos_target_log("[RUN ] ERROR: no USER_INIT_ELF Multiboot2 module was supplied for the selected boot target");
+        return -1;
+    }
     if (count!=1 || !selected || !selected->base || selected->size<sizeof(koronos_elf64_ehdr) ||
         selected->size>MAX_INIT_IMAGE || selected->base>=KORONOS_FRAME_PHYS_LIMIT ||
         selected->size>KORONOS_FRAME_PHYS_LIMIT-selected->base) {
@@ -186,6 +191,9 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+    // Latch only after a unique, bounded, target-tagged module has been found.
+    // A missing module must never look like a successful or completed launch.
+    attempted=true;
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
