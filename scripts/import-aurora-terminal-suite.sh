@@ -64,10 +64,32 @@ require_native_build_arch() {
   [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
 }
 install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
+source_revision(){
+  python3 - "$ROOT/aurora/terminals/binary-manifest.json" "$1" <<'PY'
+import json,sys
+with open(sys.argv[1],encoding="utf-8") as stream:
+    manifest=json.load(stream)
+revision=manifest.get("terminals",{}).get(sys.argv[2],{}).get("revision","")
+if len(revision)!=40 or any(ch not in "0123456789abcdef" for ch in revision):
+    raise SystemExit(f"missing or invalid pinned source revision for {sys.argv[2]}")
+print(revision)
+PY
+}
 source_build(){
   require_native_build_arch || return 1;
-  local id="$1" url="$2"; local src="$CACHE/src-$id"
-  if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
+  local id="$1" url="$2" revision="$3"; local src="$CACHE/src-$id"
+  [[ "$revision" =~ ^[0-9a-f]{40}$ ]] || { log "Missing pinned source revision for $id"; return 1; }
+  mkdir -p "$src"
+  if [[ ! -d "$src/.git" ]]; then git -C "$src" init -q; fi
+  if git -C "$src" remote get-url origin >/dev/null 2>&1; then
+    git -C "$src" remote set-url origin "$url"
+  else
+    git -C "$src" remote add origin "$url"
+  fi
+  log "Fetching pinned $id revision $revision from $url"
+  git -C "$src" fetch --depth 1 origin "$revision"
+  git -C "$src" checkout --detach -q FETCH_HEAD
+  [[ "$(git -C "$src" rev-parse HEAD)" == "$revision" ]] || { log "Source revision verification failed for $id"; return 1; }
   case "$id" in
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
@@ -99,10 +121,10 @@ source_build(){
 # Prefer distro-provided binaries for desktop terminals; source builds are enabled for projects with reliable recipes.
 for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" || log "$b remains unavailable until a matching target package is staged"; done
 if [[ "$MODE" != "binary-only" ]]; then
-  source_build alacritty https://github.com/alacritty/alacritty.git || log "Alacritty source build unavailable; package/binary fallback required"
+  source_build alacritty https://github.com/alacritty/alacritty.git "$(source_revision alacritty)" || log "Alacritty source build unavailable; package/binary fallback required"
   source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"
-  source_build contour https://github.com/contour-terminal/contour.git || log "Contour source build unavailable; package/binary fallback required"
-  source_build ghostty https://github.com/ghostty-org/ghostty.git || log "Ghostty source build unavailable; package/binary fallback required"
+  source_build contour https://github.com/contour-terminal/contour.git "$(source_revision contour)" || log "Contour source build unavailable; package/binary fallback required"
+  source_build ghostty https://github.com/ghostty-org/ghostty.git "$(source_revision ghostty)" || log "Ghostty source build unavailable; package/binary fallback required"
 fi
 # The desktop registry is only complete when every entry resolves to a real
 # executable for this target architecture. Missing providers stop ISO staging.
