@@ -22,7 +22,7 @@ esac
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
-NATIVE_COMMAND_OUT="$BUILD/native-command-isa"
+LINUX_ABI_COMMAND_OUT="$BUILD/native-command-isa"
 BASE="$BUILD/rootfs-base"
 WORK="${WORK_DIR:-$BUILD/rootfs-$ED}"
 ISODIR="$BUILD/iso-$ED"
@@ -62,10 +62,10 @@ python3 -c 'import venv' || { echo "python3-venv is required for the pinned Ghos
 python3 "$REPO_DIR/tools/commands/build_linux_abi_command_matrix.py" \
   --source "$REPO_DIR/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
-  --output "$NATIVE_COMMAND_OUT" \
+  --output "$LINUX_ABI_COMMAND_OUT" \
   --require-all
-bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$NATIVE_COMMAND_OUT"
-bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$NATIVE_COMMAND_OUT"
+bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$LINUX_ABI_COMMAND_OUT"
+bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$LINUX_ABI_COMMAND_OUT"
 
 case "$ED" in
   chimera)
@@ -231,7 +231,7 @@ for rel in \
   if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
 done
 install -d "$WORK/usr/lib/chimera/commands/linux-abi"
-cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
+cp -a "$LINUX_ABI_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
 bash "$REPO_DIR/tools/commands/install-busybox-applets.sh" "$WORK"
 bash "$REPO_DIR/tools/commands/build-chimera-native-tools.sh" "$WORK"
 CHIMERA_ROOTFS_DIR="$WORK" bash "$REPO_DIR/tools/terminal/build-terminal.sh"
@@ -272,10 +272,10 @@ install -D -m 0644 "$REPO_DIR/aurora/shells/registry.json" "$WORK/usr/share/chim
 install -D -m 0644 "$REPO_DIR/aurora/terminals/binary-manifest.json" "$WORK/usr/share/chimera/catalogs/terminals-binary-manifest.json"
 install -D -m 0644 "$REPO_DIR/aurora/shells/binary-manifest.json" "$WORK/usr/share/chimera/catalogs/shells-binary-manifest.json"
 install -D -m 0644 "$REPO_DIR/system/commands/native-provider-aliases.json" "$WORK/usr/share/chimera/catalogs/native-provider-aliases.json"
-install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$WORK/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+install -D -m 0644 "$LINUX_ABI_COMMAND_OUT/manifest.json" "$WORK/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
-  --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --linux-abi-matrix "$LINUX_ABI_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # Install a diagnostic for the shared Mesa/OpenGL/EGL/GLES stack.
@@ -322,7 +322,7 @@ python3 "$REPO_DIR/tools/commands/verify-command-provider-coverage.py" \
 # Recompute the platform-specific command/ISA report after all providers are installed.
 python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --root "$REPO_DIR" --busybox "$WORK$BB_IN_ROOT" \
-  --linux-abi-matrix "$NATIVE_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
+  --linux-abi-matrix "$LINUX_ABI_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
 # ------------------------------------------------------------- payload
