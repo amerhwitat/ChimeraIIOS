@@ -33,6 +33,7 @@ assert terminal_manifest["ghostty"]["upstream_commit"] == "332b2aefc6e72d363aa93
 assert terminal_manifest["contour"]["release_tag"] == "v0.6.3.8249"
 assert terminal_manifest["contour"]["release_sha256"] == "526e5bdd241ecfd0b63cf3ec3cacf5cbf2609cb03070f46b06e19d4e6329f397"
 assert "sha256sum --check" in source_builder and "v0.6.3.8249" in source_builder
+assert 'install -D -m 0755 "$ROOTFS/usr/bin/contour" "$ROOTFS/usr/local/bin/contour"' in source_builder
 for alias in ("chimera-terminal","chimera-terminals","chimera-shell-ar"):
     assert alias in (root/"tools/aurora/install-terminal-shell-suite.sh").read_text()
 assert "rev-parse HEAD" in source_builder
