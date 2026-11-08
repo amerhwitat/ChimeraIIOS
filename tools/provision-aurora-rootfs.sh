@@ -53,7 +53,7 @@ if [ -r "$HOST_RESOLV" ]; then
       cp -a "$ROOT_RESOLV" "$RESOLV_BACKUP" 2>/dev/null || true
       rm -f "$ROOT_RESOLV"
     fi
-    awk '/^nameserver[[:space:]]+/ && $2 !~ /^(127\\.|::1$)/ {print}' "$HOST_RESOLV" > "$ROOT_RESOLV" || true
+    awk '/^nameserver[[:space:]]+/ && $2 !~ /^(127\.|::1$)/ {print}' "$HOST_RESOLV" > "$ROOT_RESOLV" || true
     if ! grep -q '^nameserver' "$ROOT_RESOLV" 2>/dev/null; then
       printf '%s\n' 'nameserver 1.1.1.1' 'nameserver 8.8.8.8' > "$ROOT_RESOLV"
     fi
