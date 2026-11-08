@@ -138,7 +138,9 @@ build_wezterm() {
 build_ghostty() {
   require python3
   local src="$OUT/src/ghostty" zigver venv
-  git clone --depth 1 https://github.com/ghostty-org/ghostty.git "$src"
+  # Ghostty 1.3.1 is the last upstream version with Ubuntu 24.04-compatible
+  # GTK/libadwaita requirements; newer releases target newer Ubuntu stacks.
+  git clone --depth 1 --branch v1.3.1 https://github.com/ghostty-org/ghostty.git "$src"
   zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
   [[ -n "$zigver" ]] || { echo "Ghostty source has no pinned .zig-version" >&2; exit 2; }
   venv="$OUT/zig-venv"
@@ -148,16 +150,27 @@ build_ghostty() {
   install -D -m 0755 "$src/zig-out/bin/ghostty" "$ROOTFS/usr/local/bin/ghostty"
 }
 build_contour() {
-  require cmake; require ninja
+  require curl; require sha256sum; require chroot
   local src="$OUT/src/contour"
-  git clone --depth 1 https://github.com/contour-terminal/contour.git "$src"
-  cmake -S "$src" -B "$src/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
-  cmake --build "$src/build" --parallel "${JOBS:-2}"
-  cmake --install "$src/build" --prefix "$OUT/stage/usr/local"
-  local binary
-  binary="$(find "$OUT/stage/usr/local" "$src/build" -type f -name contour -perm -111 -print -quit)"
-  [[ -n "$binary" ]] || { echo "Contour build produced no executable" >&2; exit 2; }
-  install -D -m 0755 "$binary" "$ROOTFS/usr/local/bin/contour"
+  local deb="$OUT/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
+  local url="https://github.com/contour-terminal/contour/releases/download/v0.6.3.8249/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
+  local digest="526e5bdd241ecfd0b63cf3ec3cacf5cbf2609cb03070f46b06e19d4e6329f397"
+  # Use the upstream Ubuntu 24.04 release asset rather than trying to build
+  # current Contour against Noble's older Qt. The GitHub release asset digest
+  # is pinned and checked before the package is installed in the target rootfs.
+  git clone --depth 1 --branch v0.6.3.8249 https://github.com/contour-terminal/contour.git "$src"
+  curl --fail --location --retry 3 "$url" --output "$deb"
+  printf '%s  %s\n' "$digest" "$deb" | sha256sum --check -
+  install -D -m 0644 "$deb" "$ROOTFS/tmp/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
+  chroot "$ROOTFS" /bin/sh -eu -c '
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -qq
+    apt-get install -y --no-install-recommends /tmp/contour-0.6.3.8249-ubuntu24.04-amd64.deb
+    apt-get clean
+    rm -rf /var/lib/apt/lists/* /tmp/contour-0.6.3.8249-ubuntu24.04-amd64.deb
+  '
+  [[ -x "$ROOTFS/usr/bin/contour" ]] || { echo "Verified Contour package installed no /usr/bin/contour" >&2; exit 2; }
+  ln -sfn /usr/bin/contour "$ROOTFS/usr/local/bin/contour"
 }
 tmp="$OUT/providers-built.tsv"
 : > "$tmp"
