@@ -8,17 +8,15 @@ tested runtime driver. A catalogue entry is not a capability claim.
 - QFS: a host-side image formatter and superblock inspector exist.
 - QFS kernel mount, directory/inode operations, extents, allocation, journaling,
   crash recovery, snapshots, and fsck are not implemented or runtime-qualified.
-- No native kernel VFS backend or filesystem driver was found in the current
-  source tree for FAT12/16/32, exFAT, NTFS/NTFS3, ext2/3/4, XFS, Btrfs, ZFS,
-  or the other catalogue entries.
+- A bounded CPIO `newc` archive parser and a transactional, read-only VFS tree/lookup API now exist and are linked into the x86-64 Koronos image. The host contract test covers archive bounds, CRC, traversal, duplicate paths, missing parents and publish-on-success behavior. This is an initramfs archive index, not a general file-descriptor VFS, writable filesystem or block-device backend; it is not yet mounted from the boot module path.
+- No native kernel filesystem driver was found for FAT12/16/32, exFAT, NTFS/NTFS3, ext2/3/4, XFS, Btrfs, ZFS, or the other catalogue entries.
 - Therefore the registry marks native probe/read/write/install/live-root
   capabilities false. The filesystem matrix uses `CatalogOnly` until a
   backend has implementation and test evidence.
 
 ## Required implementation sequence
 
-1. Establish the VFS object model: mount, superblock, inode, dentry, file,
-   directory iteration, permissions, reference counts, and error semantics.
+1. Extend the read-only CPIO VFS with open/read/close, directory iteration, mount namespaces, permissions, reference counts and stable error semantics; connect Multiboot2 initramfs modules to transactional mount publication.
 2. Implement block-device discovery, sector geometry, bounded I/O, cache,
    flush/barrier semantics, and fault injection.
 3. Complete QFS as the first native filesystem: checksummed superblock,
