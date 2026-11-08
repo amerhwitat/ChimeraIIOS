@@ -12,7 +12,6 @@ static int health_service(const chimera_service_manifest* s, void* p) {
     return c->fail_health && strcmp(c->fail_health,s->id)==0 ? -1 : 0;
 }
 static const char* d_device[]={"device"};
-static const char* d_graphics[]={"graphics"};
 static const char* d_network[]={"optional-network"};
 static const char* d_desktop[]={"graphics","storage"};
 static const char* d_cycle_a[]={"cycle-b"};
