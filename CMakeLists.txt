@@ -57,6 +57,8 @@ install(PROGRAMS tools/display/chimera-xsession.py DESTINATION bin RENAME chimer
 install(PROGRAMS desktop/aurora/aurora-x11-session.sh DESTINATION bin RENAME aurora-x11-session)
 install(FILES desktop/aurora/chimera-aurora-x11.desktop DESTINATION share/xsessions)
 install(FILES desktop/aurora/xserver-sessions.json DESTINATION share/chimera/aurora)
+install(PROGRAMS tools/display/chimera-desktop-session DESTINATION bin)
+install(FILES desktop/aurora/desktop-session-policy.json DESTINATION share/chimera/aurora)
 
 # Native C/C++/ASM compiler and linker drivers.
 install(PROGRAMS
