@@ -62,7 +62,7 @@ def main() -> int:
     rows: dict[str, dict] = {}
     missing: list[str] = []
     for name in names:
-        if name in BUILTINS:
+        if name in {":", "[[", "]]"}:
             rows[name] = {"status": "provided-by-shell-builtin"}
             continue
         if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name) and name != "[":
