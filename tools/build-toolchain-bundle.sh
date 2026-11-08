@@ -20,7 +20,9 @@ fi
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_TOOLCHAIN_DIR:-$ROOT/build/toolchains}"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="${CHIMERA_TOOLCHAIN_DIR:-$BUILD_ROOT/toolchains}"
 mkdir -p "$OUT"/{bin,lib,include,share,manifests,sources,sysroots}
 
 declare -a PKGS=(
