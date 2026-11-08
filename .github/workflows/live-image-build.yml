@@ -39,6 +39,7 @@ on:
       - 'tests/commands/test-native-chimera-tools.sh'
       - 'tests/desktop/test-aurora-terminal-shell-centers.sh'
       - 'tools/boot/verify-menu-timeouts.py'
+      - 'tools/boot/verify-native-boot-sequence.py'
       - 'tests/live-image/**'
       - 'tests/desktop/test_aurora_sound_contract.py'
       - 'desktop/aurora-shell/**'
@@ -86,6 +87,7 @@ on:
       - 'tests/commands/test-native-chimera-tools.sh'
       - 'tests/desktop/test-aurora-terminal-shell-centers.sh'
       - 'tools/boot/verify-menu-timeouts.py'
+      - 'tools/boot/verify-native-boot-sequence.py'
       - 'tests/live-image/**'
       - 'tests/desktop/test_aurora_sound_contract.py'
       - 'desktop/aurora-shell/**'
@@ -434,6 +436,7 @@ jobs:
           python3 tests/desktop/test_aurora_sound_contract.py
           python3 tests/desktop/test_xserver_session_manager.py
           python3 tools/boot/verify-menu-timeouts.py --root .
+          python3 tools/boot/verify-native-boot-sequence.py
       - name: Verify Octavian Aurora desktop fullscreen
         run: |
           xvfb-run -a -s "-screen 0 1280x720x24" \
