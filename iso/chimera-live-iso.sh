@@ -153,7 +153,6 @@ else
   exit 2
 fi
 
-LIVE_BOOT="$LIVE_BOOT"
 for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
   "$LIVE_BOOT/boot/live/live-manifest.json" \
@@ -197,7 +196,7 @@ if [[ -n "$EXTRA_STAGE" ]]; then
   for rel in visual grub; do
     if [[ -d "$EXTRA_STAGE/boot/$rel" ]]; then
       mkdir -p "$STAGE/boot/$rel"
-      find "$EXTRA_STAGE/boot/$rel" -maxdepth 1 -type f ! -name grub.cfg -exec cp -f {} "$STAGE/boot/$rel/" \\;
+      cp -a "$EXTRA_STAGE/boot/$rel/." "$STAGE/boot/$rel/"
     fi
   done
   for required in \
