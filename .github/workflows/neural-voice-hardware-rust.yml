@@ -27,7 +27,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check pytest
       - run: python -m pytest neural/tests
   rust:
     runs-on: ubuntu-latest
@@ -44,4 +45,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: c++ -std=c++17 -Wall -Wextra -Werror -x c++ -Ineural/cpp/include -c neural/cpp/chm_neural.hpp -o /tmp/chm_neural.o
-      - run: c++ -std=c11 -Wall -Wextra -Werror -DCHM_GHOST_PRINTER_STANDALONE drivers/printer/ghost_printer.c -o /tmp/chm-ghost-printer
+      - run: cc -std=c11 -Wall -Wextra -Werror -DCHM_GHOST_PRINTER_STANDALONE drivers/printer/ghost_printer.c -o /tmp/chm-ghost-printer
