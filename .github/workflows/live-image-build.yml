@@ -241,6 +241,16 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          test -s "$root/usr/share/chimera/catalogs/linux-command-provider-resolution.json"
+          python3 - "$root/usr/share/chimera/catalogs/linux-command-provider-resolution.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          unresolved=[x for x in d.get("commands",[]) if x.get("status") in
+                      ("provider-not-found-yet","no-package-provider-found","package-install-did-not-provide-command")]
+          if unresolved:
+              raise SystemExit("unresolved Linux command providers: "+", ".join(x["name"] for x in unresolved))
+          print(f"Verified {d['command_count']} executable Linux catalogue command providers.")
+          PY
           python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
           import json,sys
           d=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -644,6 +654,16 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          test -s "$root/usr/share/chimera/catalogs/linux-command-provider-resolution.json"
+          python3 - "$root/usr/share/chimera/catalogs/linux-command-provider-resolution.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          unresolved=[x for x in d.get("commands",[]) if x.get("status") in
+                      ("provider-not-found-yet","no-package-provider-found","package-install-did-not-provide-command")]
+          if unresolved:
+              raise SystemExit("unresolved Linux command providers: "+", ".join(x["name"] for x in unresolved))
+          print(f"Verified {d['command_count']} executable Linux catalogue command providers.")
+          PY
           python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
           import json,sys
           d=json.load(open(sys.argv[1],encoding="utf-8"))
