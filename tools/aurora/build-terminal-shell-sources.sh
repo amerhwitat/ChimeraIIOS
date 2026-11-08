@@ -150,7 +150,7 @@ build_ghostty() {
   install -D -m 0755 "$src/zig-out/bin/ghostty" "$ROOTFS/usr/local/bin/ghostty"
 }
 build_contour() {
-  require curl; require sha256sum; require chroot
+  require curl; require sha256sum; require chroot; require dpkg-deb
   local src="$OUT/src/contour"
   local deb="$OUT/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
   local url="https://github.com/contour-terminal/contour/releases/download/v0.6.3.8249/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
@@ -161,6 +161,9 @@ build_contour() {
   git clone --depth 1 --branch v0.6.3.8249 https://github.com/contour-terminal/contour.git "$src"
   curl --fail --location --retry 3 "$url" --output "$deb"
   printf '%s  %s\n' "$digest" "$deb" | sha256sum --check -
+  [[ "$(dpkg-deb -f "$deb" Package)" == "contour" ]] || { echo "Unexpected Contour package name" >&2; exit 2; }
+  [[ "$(dpkg-deb -f "$deb" Version)" == "0.6.3.8249" ]] || { echo "Unexpected Contour package version" >&2; exit 2; }
+  [[ "$(dpkg-deb -f "$deb" Architecture)" == "amd64" ]] || { echo "Unexpected Contour package architecture" >&2; exit 2; }
   install -D -m 0644 "$deb" "$ROOTFS/tmp/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
   chroot "$ROOTFS" /bin/sh -eu -c '
     export DEBIAN_FRONTEND=noninteractive
