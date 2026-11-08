@@ -119,7 +119,7 @@ ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 LOG_DIR="$BUILD_DIR/logs"
-LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-${TMPDIR:-/tmp}/chimera-build-logs-${UID:-$(id -u)}}"
+LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-/tmp/chimera-build-logs-${UID:-$(id -u)}}"
 WATCHDOG_PID=""
 STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
@@ -173,7 +173,9 @@ ensure_log_dir(){
     echo "[CHIMERA] Build logs redirected to $LOG_DIR because the selected storage is not writable." >&2
   fi
 }
-ensure_log_dir
+# Defer log-directory creation until CLI storage options are parsed. A read-only
+# inherited build mount must not abort --storage-auto before it can select a
+# writable destination; log_file() will fall back to /tmp when needed.
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
 log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
