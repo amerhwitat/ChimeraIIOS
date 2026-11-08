@@ -109,7 +109,7 @@ def main():
         else:
             row.update(provider="compatibility-provider-required",path=None)
         row["platforms"].sort()
-    matrix_path=args.native_matrix or (root/"build/native-command-isa/manifest.json")
+    matrix_path=args.native_matrix or (root/"build/linux-abi-command-matrix/manifest.json")
     native_matrix=None
     native_targets={}
     if matrix_path.exists():
