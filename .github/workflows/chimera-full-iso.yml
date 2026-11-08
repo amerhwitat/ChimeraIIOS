@@ -136,7 +136,7 @@ jobs:
           set +e
           # Production menus wait 300 seconds. Send Enter via the QEMU
           # monitor rather than weakening the user-facing timeout for CI.
-          ( sleep 5; printf '%s\\n' 'sendkey ret'; sleep 1 ) | timeout 30s qemu-system-x86_64 \
+          ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 30s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
             -display none -serial none -monitor stdio \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
