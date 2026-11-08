@@ -299,7 +299,7 @@ jobs:
           acceptance_dir = pathlib.Path("build/iso/acceptance")
           acceptance_dir.mkdir(parents=True, exist_ok=True)
           (acceptance_dir / "command-provider-coverage.json").write_text(
-              json.dumps(command_evidence, indent=2) + "\\n", encoding="utf-8")
+              json.dumps(command_evidence, indent=2) + "\n", encoding="utf-8")
           fields = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core",
                     "vbscript_core", "sql_server_core", "native_chimera")
           command_count = len({str(item.get("name") if isinstance(item, dict) else item).strip().casefold()
