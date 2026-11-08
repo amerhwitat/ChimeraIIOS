@@ -157,7 +157,7 @@ exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
 (cd "$INIT" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/live/chimera-live-initramfs.cpio"
-sha256sum "$OUT/boot/live/chimera-live-initramfs.cpio" > "$OUT/boot/live/chimera-live-initramfs.cpio.sha256"
+(cd "$OUT/boot/live" && sha256sum chimera-live-initramfs.cpio > chimera-live-initramfs.cpio.sha256)
 (cd "$INIT" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
 sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
 
@@ -203,7 +203,7 @@ exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
 (cd "$REC" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/recovery/chimera-recovery-initramfs.cpio"
-sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.cpio" > "$OUT/boot/recovery/chimera-recovery-initramfs.cpio.sha256"
+(cd "$OUT/boot/recovery" && sha256sum chimera-recovery-initramfs.cpio > chimera-recovery-initramfs.cpio.sha256)
 (cd "$REC" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
 sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recovery/chimera-recovery-initramfs.img.sha256"
 
