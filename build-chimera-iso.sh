@@ -108,6 +108,12 @@ chimera_copy_if_distinct() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Publish aliases for Windows volumes already mounted by WSL2 DrvFs.
+# This is a no-op on native Linux/CI and never mounts or copies a drive twice.
+if [[ -f "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh" ]]; then
+  bash "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh"
+fi
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 DOCKER_IMAGE="chimera2os-comprehensive"
 DOCKER_TAG="${DOCKER_TAG:-latest}"
