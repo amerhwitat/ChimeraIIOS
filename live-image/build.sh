@@ -319,6 +319,15 @@ mkdir -p "$PAY/wallpapers" "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . \
   | tar -C "$PAY/repo" -xf -
 
+# Resolve the complete Linux command catalogue against real target-rootfs
+# binaries and Debian packages. The resolver is executed inside the chroot so
+# PATH, apt-file and dpkg all describe the image being built, not the runner.
+chroot "$WORK" python3 /opt/aurora/repo/tools/commands/resolve-catalogue-command-providers.py \
+  --catalog /opt/aurora/repo/system/commands/chimera-command-list.json \
+  --ss64 /opt/aurora/repo/system/commands/ss64-command-catalog.json \
+  --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
+  --require-all
+
 python3 "$REPO_DIR/tools/commands/stage-native-script-providers.py" \
   --repo "$REPO_DIR" --rootfs "$WORK" --build-dir "$BUILD/native-userland-tools"
 CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$REPO_DIR/live-image/verify-terminal-shell-suite.sh" "$WORK" x86_64
