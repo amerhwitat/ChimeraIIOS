@@ -8,7 +8,24 @@ constexpr uint32_t S_IFMT = 0170000u;
 constexpr uint32_t S_IFREG = 0100000u;
 constexpr uint32_t S_IFDIR = 0040000u;
 constexpr uint32_t S_IFLNK = 0120000u;
-const chimera_vfs_tree *published_root = nullptr;
+#if defined(_MSC_VER)
+void * volatile published_root_storage = nullptr;
+static const chimera_vfs_tree *published_root_load() {
+    return static_cast<const chimera_vfs_tree *>(
+        _InterlockedCompareExchangePointer(&published_root_storage, nullptr, nullptr));
+}
+static void published_root_store(const chimera_vfs_tree *tree) {
+    (void)_InterlockedExchangePointer(&published_root_storage, const_cast<chimera_vfs_tree *>(tree));
+}
+#else
+const chimera_vfs_tree *published_root_storage = nullptr;
+static const chimera_vfs_tree *published_root_load() {
+    return __atomic_load_n(&published_root_storage, __ATOMIC_ACQUIRE);
+}
+static void published_root_store(const chimera_vfs_tree *tree) {
+    __atomic_store_n(&published_root_storage, tree, __ATOMIC_RELEASE);
+}
+#endif
 
 static uint32_t node_kind(uint32_t mode) {
     switch (mode & S_IFMT) {
@@ -122,7 +139,7 @@ extern "C" int chimera_vfs_mount_newc(const void *archive, uint64_t archive_size
                                        chimera_vfs_node *node_storage,
                                        uint32_t node_capacity) {
     if (!archive || !staging || !node_storage || node_capacity < 1u ||
-        staging == published_root || archive_size == 0) return -1;
+        staging == published_root_load() || archive_size == 0) return -1;
     staging->abi = CHIMERA_VFS_ABI;
     staging->count = 1u;
     staging->capacity = node_capacity;
@@ -139,22 +156,12 @@ extern "C" int chimera_vfs_mount_newc(const void *archive, uint64_t archive_size
     if (walked != 0) return -10 + walked;
     const int validated = validate_tree(staging);
     if (validated != 0) return validated;
-    #if defined(_MSC_VER)
-    (void)_InterlockedExchangePointer(reinterpret_cast<void *volatile *>(&published_root),
-                                      const_cast<chimera_vfs_tree *>(staging));
-#else
-    __atomic_store_n(&published_root, staging, __ATOMIC_RELEASE);
-#endif
+    published_root_store(staging);
     return 0;
 }
 
 extern "C" const chimera_vfs_tree *chimera_vfs_root(void) {
-#if defined(_MSC_VER)
-    return static_cast<const chimera_vfs_tree *>(
-        _InterlockedCompareExchangePointer(reinterpret_cast<void *volatile *>(&published_root), nullptr, nullptr));
-#else
-    return __atomic_load_n(&published_root, __ATOMIC_ACQUIRE);
-#endif
+return published_root_load();
 }
 
 extern "C" const chimera_vfs_node *chimera_vfs_lookup(const char *path) {
