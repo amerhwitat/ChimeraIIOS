@@ -10,6 +10,7 @@ on:
       - 'tools/storage/chimera-wsl-drive-map.sh'
       - 'tests/storage/test_wsl_drive_map.py'
       - 'docs/CHIMERA_MOBILE_AND_RUNTIME_GAPS.md'
+      - 'docs/WSL2_DRIVE_INTEGRATION.md'
       - 'boot/iso/grub.cfg'
       - '.github/workflows/aurora-runtime-ci.yml'
   pull_request:
@@ -51,7 +52,7 @@ jobs:
       - name: Shellcheck Aurora scripts
         run: |
           shellcheck -x desktop/aurora/aurora-start.sh desktop/aurora/aurora-session.sh desktop/aurora/aurora-desktop-init.sh desktop/aurora/aurora-progress.sh || true
-          shellcheck -x tools/provision-aurora-rootfs.sh tools/stage-chimera-runtime.sh tools/chimera-installer-runtime.sh || true
+          shellcheck -x tools/provision-aurora-rootfs.sh tools/stage-chimera-runtime.sh tools/storage/chimera-wsl-drive-map.sh tools/chimera-installer-runtime.sh || true
       - name: Test WSL drive aliases and Aurora provisioning contracts
         run: python3 tests/storage/test_wsl_drive_map.py
       - name: Validate JSON contracts
