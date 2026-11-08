@@ -45,6 +45,18 @@ def main() -> int:
         raise SystemExit("hosted X.Org must remain explicitly separate from Koronos")
     if "X.Org X Server" not in hosted.get("display_servers", []):
         raise SystemExit("hosted Linux X.Org integration missing from boot map")
+    if hosted.get("session_launcher") != "tools/display/chimera-desktop-session":
+        raise SystemExit("hosted Linux unified desktop session dispatcher missing from boot map")
+    if hosted.get("wayland_compositor") != "labwc":
+        raise SystemExit("hosted Linux Wayland compositor provider missing from boot map")
+    for rel in ("tools/display/chimera-desktop-session",
+                "tools/display/chimera-xserver-session",
+                "tools/display/chimera-xsession.py",
+                "desktop/aurora/desktop-session-policy.json"):
+        if not (ROOT / rel).is_file():
+            raise SystemExit(f"hosted desktop session integration file missing: {rel}")
+    if by_id["display-server"].get("status") != "not-implemented":
+        raise SystemExit("native Koronos display server must remain a release gate until runtime evidence exists")
     arch = {row["arch"]: row["status"] for row in data.get("architecture_status", [])}
     if arch.get("aarch64") != "entry-uart-probe-only-not-full-kernel":
         raise SystemExit("AArch64 probe must not be described as a full Koronos port")
