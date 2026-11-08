@@ -19,7 +19,7 @@ try_provider(){
   echo "[chimera-build-deps] Trying $manager for missing host build tools..."
   case "$manager" in
     apt)
-      "${SUDO[@]}" apt-get update && "${SUDO[@]}" apt-get install -y docker.io cpio grub-pc-bin grub-efi-amd64-bin xorriso squashfs-tools busybox-static git build-essential cmake ninja-build cargo rustc golang-go autoconf automake libtool binutils meson pkg-config python3 python3-venv python3-pip ;;
+      "${SUDO[@]}" apt-get update && "${SUDO[@]}" apt-get install -y docker.io cpio grub-pc-bin grub-efi-amd64-bin xorriso squashfs-tools busybox-static git build-essential cmake ninja-build cargo rustc golang-go autoconf automake libtool binutils meson pkg-config python3 python3-venv python3-pip libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev libncurses-dev libboost-dev libgtk-3-dev libgtk-4-dev libadwaita-1-dev libvte-2.91-dev libvte-2.91-gtk4-dev libwayland-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libxcb1-dev libegl1-mesa-dev libgl1-mesa-dev libvulkan-dev libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libyaml-cpp-dev libutf8proc-dev libpcre2-dev libicu-dev libcairo2-dev libpango1.0-dev libepoxy-dev libpixman-1-dev libdbus-1-dev libsystemd-dev libudev-dev librsvg2-bin nasm ;;
     dnf|yum)
       "${SUDO[@]}" "$manager" install -y docker cpio grub2-tools-extra grub2-efi-x64-modules xorriso squashfs-tools busybox ;;
     pacman)
