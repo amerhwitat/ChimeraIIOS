@@ -246,7 +246,7 @@ jobs:
               accepted=false
               continue
             fi
-            if ! grep -Fq "[VFS ] Read-only CPIO initramfs tree published" "$trace" || ! grep -Fq "[VFS ] /init is present in the selected initramfs archive" "$trace"; then
+            if ! grep -Fq "[VFS ] Read-only CPIO initramfs tree published" "$trace" || ! grep -Fq "[VFS ] /init and /bin/busybox verified in the mounted read-only root" "$trace"; then
               echo "::warning::$target did not mount its raw CPIO VFS archive"
               accepted=false
             fi
