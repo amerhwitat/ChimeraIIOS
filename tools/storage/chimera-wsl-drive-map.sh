@@ -26,14 +26,17 @@ fi
 
 mkdir -p "$DRIVE_ROOT"
 mapped=0
-while IFS=' ' read -r source target; do
+while IFS=' ' read -r source target fstype options; do
   [ -n "${source:-}" ] && [ -n "${target:-}" ] || continue
   case "$source" in
     [A-Za-z]:*) letter=$(printf '%s' "$source" | cut -c1 | tr '[:upper:]' '[:lower:]') ;;
     *) continue ;;
   esac
-  fstype=$(findmnt -rn -M "$target" -o FSTYPE 2>/dev/null | head -n 1 || true)
-  [ "$fstype" = "drvfs" ] || continue
+  case "$fstype" in
+    drvfs) ;;
+    9p) case "${options:-}" in *aname=drvfs*) ;; *) continue ;; esac ;;
+    *) continue ;;
+  esac
   [ -d "$target" ] || continue
 
   for alias in "$letter" "$(printf '%s' "$letter" | tr '[:lower:]' '[:upper:]')"; do
@@ -50,7 +53,7 @@ while IFS=' ' read -r source target; do
   echo "[WSL] $source -> $DRIVE_ROOT/$letter ($target)"
   mapped=$((mapped + 1))
 done <<EOF
-$(findmnt -rn -t drvfs -o SOURCE,TARGET 2>/dev/null || true)
+$(findmnt -rn -o SOURCE,TARGET,FSTYPE,OPTIONS 2>/dev/null || true)
 EOF
 
 if [ "$mapped" -eq 0 ]; then
