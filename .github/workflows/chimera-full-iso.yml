@@ -229,7 +229,23 @@ jobs:
               if len(universal["unique_architectures"]) != 15:
                   raise SystemExit("universal ISA catalogue must cover all 15 imported architecture labels")
               if riscv["record_count"] != len(riscv["instructions"]) or riscv["record_count"] != 1459 or len(riscv["failed_files"]) != 0:
-                  raise SystemExit("RISC-V opcode source import is incomplete")
+                  raise SystemExit(
+                      f"RISC-V opcode source import is incomplete in {catalog_root}: "
+                      f"record_count={riscv.get('record_count')}, "
+                      f"actual_records={len(riscv.get('instructions', []))}, "
+                      f"failed_files={len(riscv.get('failed_files', []))}, "
+                      f"source_tree_sha={riscv.get('source_tree_sha')}"
+                  )
+              source_import = root.parent.parent / "isa" / "sources" / "imports" / "riscv-opcodes.json"
+              if source_import.exists():
+                  import hashlib
+                  expected_hash = hashlib.sha256(source_import.read_bytes()).hexdigest()
+                  actual_hash = hashlib.sha256((catalog_root / "riscv-opcodes.json").read_bytes()).hexdigest()
+                  if actual_hash != expected_hash:
+                      raise SystemExit(
+                          f"RISC-V catalogue in {catalog_root} differs from pinned source import: "
+                          f"expected_sha256={expected_hash}, actual_sha256={actual_hash}"
+                      )
               if (coverage["source_catalogue_unique_command_count"] != 855
                       or coverage["source_catalogue_candidate_only_count"] != 818
                       or coverage["linux_abi_multicall_alias_count"] != 37
