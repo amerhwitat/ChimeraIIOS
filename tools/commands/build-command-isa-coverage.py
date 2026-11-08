@@ -115,15 +115,15 @@ def main():
     if matrix_path.exists():
         try:
             linux_abi_matrix=json.loads(matrix_path.read_text(encoding="utf-8"))
-            native_targets={row.get("target"):row for row in linux_abi_matrix.get("targets",[])}
+            linux_abi_targets={row.get("target"):row for row in linux_abi_matrix.get("targets",[])}
         except (OSError,json.JSONDecodeError):
             linux_abi_matrix=None
-            native_targets={}
+            linux_abi_targets={}
     for row in rows.values():
         if "chimera-native" in row["platforms"]:
-            built=[arch for arch,entry in native_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
+            built=[arch for arch,entry in linux_abi_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
             row["linux_abi_binary_targets"]=sorted(built)
-            row["linux_abi_runtime_status"]=native_targets.get(args.target_arch,{}).get("runtime_status","not-tested-for-target") if args.target_arch in built else "not-built-or-not-verified"
+            row["linux_abi_runtime_status"]=linux_abi_targets.get(args.target_arch,{}).get("runtime_status","not-tested-for-target") if args.target_arch in built else "not-built-or-not-verified"
             row["koronos_runtime_status"]="not-tested-koronos-abi"
             if "linux-bash" not in row["platforms"]:
                 row["provider"]="linux-abi-multicall-crossbuilt" if built else row["provider"]
@@ -151,7 +151,7 @@ def main():
         else:
             status="catalogue-only; no executable Koronos backend declared"
         target_key={"x86-64":"x86_64","x86_64":"x86_64","i686":"i686","x86":"i686","aarch64":"aarch64","armel":"armel","armv7":"armv7","arm":"armv7","riscv64":"riscv64","ppc64le":"ppc64le","powerpc64le":"ppc64le","s390x":"s390x"}.get(key)
-        cmd_row=native_targets.get(target_key,{}) if target_key else {}
+        cmd_row=linux_abi_targets.get(target_key,{}) if target_key else {}
         command_status=cmd_row.get("binary_status","not-built")
         matrix.append({"architecture":arch,"instruction_forms":info["instruction_forms"],
                        "unique_mnemonics":len(info["mnemonics"]),"backend_status":status,
