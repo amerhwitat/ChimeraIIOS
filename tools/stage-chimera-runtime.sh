@@ -20,7 +20,7 @@ fi
 set -eu
 DEST=${1:?destination root required}
 SRC=${2:-$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)}
-mkdir -p "$DEST/etc/chimera/drivers" "$DEST/var/log/mesgs/archive" "$DEST/var/log/chimera" "$DEST/usr/bin" "$DEST/usr/share/applications" "$DEST/usr/share/chimera/kore" "$DEST/usr/share/chimera/aurora" "$DEST/usr/share/chimera/aurora/assets" "$DEST/usr/share/chimera/aurora/config" "$DEST/usr/share/chimera/aurora/emulators/bin" "$DEST/usr/share/chimera/aurora/emulators/desktop" "$DEST/usr/share/chimera/aurora/labwc" "$DEST/usr/share/chimera/aurora/waybar" "$DEST/usr/share/chimera/mobile" "$DEST/etc/systemd/system" "$DEST/etc/xdg/xdg-desktop-portal"
+mkdir -p "$DEST/usr/local/bin" "$DEST/usr/share/xsessions" "$DEST/usr/share/wayland-sessions" "$DEST/etc/chimera/drivers" "$DEST/var/log/mesgs/archive" "$DEST/var/log/chimera" "$DEST/usr/bin" "$DEST/usr/share/applications" "$DEST/usr/share/chimera/kore" "$DEST/usr/share/chimera/aurora" "$DEST/usr/share/chimera/aurora/assets" "$DEST/usr/share/chimera/aurora/config" "$DEST/usr/share/chimera/aurora/emulators/bin" "$DEST/usr/share/chimera/aurora/emulators/desktop" "$DEST/usr/share/chimera/aurora/labwc" "$DEST/usr/share/chimera/aurora/waybar" "$DEST/usr/share/chimera/mobile" "$DEST/etc/systemd/system" "$DEST/etc/xdg/xdg-desktop-portal"
 ln -sfn /var/log/mesgs "$DEST/var/log/chimera/mesgs" 2>/dev/null || true
 ln -sfn mesgs "$DEST/var/log/messages" 2>/dev/null || true
 for f in chimera-logd.sh chimera-logrotate.sh chimera-driver-manager.sh chimera-kmsg-forwarder.sh chimera-xexec.sh chimera-playstation-center.sh chimera-crash-dump.sh chimera-screen-of-death.sh chimera-memory-dump.sh chimera-rom-search.sh chimera-game-center.sh chimera-free-3d-games.sh; do
@@ -28,6 +28,17 @@ for f in chimera-logd.sh chimera-logrotate.sh chimera-driver-manager.sh chimera-
 done
 [ -f "$SRC/tools/chimera-driver-center.sh" ] && cp -f "$SRC/tools/chimera-driver-center.sh" "$DEST/usr/bin/chimera-driver-center" && chmod +x "$DEST/usr/bin/chimera-driver-center"
 [ -f "$SRC/system/aurora/chimera-driver-center.desktop" ] && cp -f "$SRC/system/aurora/chimera-driver-center.desktop" "$DEST/usr/share/applications/"
+# Stage the X.Org/Wayland session dispatcher and real XDG session descriptors.
+for tool in chimera-xserver-session chimera-desktop-session; do
+  [ -f "$SRC/tools/display/$tool" ] && cp -f "$SRC/tools/display/$tool" "$DEST/usr/local/bin/$tool" && chmod +x "$DEST/usr/local/bin/$tool"
+done
+[ -f "$SRC/tools/display/chimera-xsession.py" ] && cp -f "$SRC/tools/display/chimera-xsession.py" "$DEST/usr/local/bin/chimera-xsession" && chmod +x "$DEST/usr/local/bin/chimera-xsession"
+[ -f "$SRC/desktop/aurora/aurora-x11-session.sh" ] && cp -f "$SRC/desktop/aurora/aurora-x11-session.sh" "$DEST/usr/local/bin/aurora-x11-session" && chmod +x "$DEST/usr/local/bin/aurora-x11-session"
+[ -f "$SRC/desktop/aurora/chimera-aurora-x11.desktop" ] && cp -f "$SRC/desktop/aurora/chimera-aurora-x11.desktop" "$DEST/usr/share/xsessions/"
+[ -f "$SRC/platform/wayland/aurora.desktop" ] && cp -f "$SRC/platform/wayland/aurora.desktop" "$DEST/usr/share/wayland-sessions/chimera-aurora.desktop"
+[ -f "$SRC/desktop/aurora/xserver-sessions.json" ] && cp -f "$SRC/desktop/aurora/xserver-sessions.json" "$DEST/usr/share/chimera/aurora/"
+[ -f "$SRC/desktop/aurora/desktop-session-policy.json" ] && cp -f "$SRC/desktop/aurora/desktop-session-policy.json" "$DEST/usr/share/chimera/aurora/"
+
 [ -f "$SRC/system/aurora/chimera-playstation.desktop" ] && cp -f "$SRC/system/aurora/chimera-playstation.desktop" "$DEST/usr/share/applications/"
 [ -f "$SRC/system/aurora/chimera-rom-search.desktop" ] && cp -f "$SRC/system/aurora/chimera-rom-search.desktop" "$DEST/usr/share/applications/"
 [ -f "$SRC/system/aurora/chimera-game-center.desktop" ] && cp -f "$SRC/system/aurora/chimera-game-center.desktop" "$DEST/usr/share/applications/"
