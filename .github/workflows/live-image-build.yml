@@ -166,6 +166,7 @@ jobs:
           bash -n tools/aurora/install-terminal-shell-suite.sh tools/aurora/build-terminal-shell-sources.sh aurora/terminals/install-desktop-entries.sh aurora/terminals/aurora-terminal-center.sh aurora/shells/aurora-shell-center.sh aurora/shells/launch-shell.sh live-image/verify-terminal-shell-suite.sh tests/commands/test-native-chimera-tools.sh tests/commands/test-native-command-matrix.sh tests/desktop/test-aurora-terminal-shell-centers.sh
           bash -n tools/commands/install-busybox-applets.sh
           bash -n live-image/build.sh kernel/build-koronos.sh
+          bash -n boot/iso/build-iso.sh boot/iso/prepare-layout.sh tools/build-boot-artifacts.sh tools/build-live-boot-binaries.sh
           bash -n tools/commands/build-chimera-native-tools.sh tools/commands/install-command-providers.sh tools/commands/chimera-ss64 tools/commands/chimera-shell-ar tools/commands/aegisctl tools/commands/auroractl tools/commands/jasperctl tools/commands/koronosctl tools/commands/nucleusctl tools/commands/spitfirectl tools/commands/spotnikctl tools/commands/chimera-security tools/commands/chimera-live tools/commands/chimera-hybrid tools/terminal/build-terminal.sh tests/terminal/test-terminald-rootfs.sh tools/chimera-stage-installer-media.sh tools/build-live-boot-binaries.sh
           bash -n tools/display/chimera-gpu-driver-manager tools/drivers/chimera-hardware-drivers tools/display/chimera-display tools/branding/chimera-background
           python3 tests/commands/test_catalogue_provider_resolver.py
