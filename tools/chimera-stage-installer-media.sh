@@ -42,13 +42,43 @@ done < <("$BB" --list)
 # build omits an optional applet.
 for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head ip udhcpc nslookup gzip; do ln -sf busybox "$P/bin/$x"; done
 
-# Embed the complete command/ISA catalogues and an evidence-based implementation map.
+# Embed the same full command/ISA source catalogues in Installer as in
+# Live and Recovery. Missing source databases fail the build rather than
+# silently producing a reduced installer inventory.
+for required in \
+  system/commands/chimera-command-list.json \
+  system/commands/native-command-candidates.json \
+  system/commands/command-runtime-capabilities.json \
+  isa/sources/imports/riscv-opcodes.json \
+  isa/generated/universal-instruction-catalog.json; do
+  [[ -s "$ROOT/$required" ]] || {
+    echo "ERROR: complete installer command/ISA catalogue is missing: $ROOT/$required" >&2
+    exit 2
+  }
+done
 install -d "$P/etc/chimera/catalogs"
-for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
-  if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"; fi
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json \
+  system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json \
+  system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json \
+  tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json \
+  isa/sources/imports/riscv-opcodes.json \
+  isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json \
+  data/isa/online-isa-index.json; do
+  if [[ -s "$ROOT/$rel" ]]; then
+    install -D -m 0644 "$ROOT/$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+  fi
 done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$P/etc/chimera/catalogs/terminals-registry.json"
+install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$P/etc/chimera/catalogs/terminals-binary-manifest.json"
 install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$P/etc/chimera/catalogs/shells-registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/binary-manifest.json" "$P/etc/chimera/catalogs/shells-binary-manifest.json"
 bash "$ROOT/tools/commands/install-busybox-applets.sh" "$P"
 python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
   --root "$ROOT" --busybox "$BB" --rootfs "$P" \
