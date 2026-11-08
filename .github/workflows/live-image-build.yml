@@ -246,10 +246,12 @@ jobs:
           python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
           import json,sys
           report=json.load(open(sys.argv[1],encoding="utf-8"))
+          policy=json.load(open("system/commands/compatibility-binary-policy.json",encoding="utf-8"))
+          expected_aliases=len(policy["native_build"]["multicall_aliases"])
           assert report["native_chimera_command_count"] == 90
-          assert report["native_chimera_provider_count"] == 0, "Linux binaries must not be misreported as Koronos-native providers"
+          assert report["koronos_native_command_implementation_count"] == 0, "Linux binaries must not be misreported as Koronos-native providers"
           assert report["hosted_linux_chimera_provider_count"] >= 8
-          assert report["linux_abi_multicall_alias_count"] == 15
+          assert report["linux_abi_multicall_alias_count"] == expected_aliases, (report["linux_abi_multicall_alias_count"],expected_aliases)
           assert report["isa_candidate_definition_count"] >= 7000
           print("Verified catalogue coverage accounting and honest Koronos/Linux ABI separation.")
           PY
