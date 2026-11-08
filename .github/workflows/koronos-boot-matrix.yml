@@ -11,6 +11,7 @@ on:
       - "boot/installation/**"
       - "boot/loader-menu.cfg"
       - "tools/boot/verify-menu-timeouts.py"
+      - "tools/boot/verify-native-boot-sequence.py"
       - "tools/build-chimera-iso.sh"
       - "desktop/**"
       - "tools/build-koronos-targets.sh"
@@ -65,6 +66,8 @@ jobs:
           sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
       - name: Validate all interactive boot menu timeouts
         run: python3 tools/boot/verify-menu-timeouts.py --root .
+      - name: Validate native boot sequence and release gates
+        run: python3 tools/boot/verify-native-boot-sequence.py
       - name: Build Koronos
         run: |
           chmod +x kernel/build-koronos.sh tools/build-desktop-binaries.sh tools/build-koronos-targets.sh
