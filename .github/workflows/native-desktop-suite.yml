@@ -5,6 +5,9 @@ on:
     paths:
       - 'desktop/**'
       - 'desktop/native/**'
+      - 'tools/display/**'
+      - 'tests/desktop/**'
+      - 'CMakeLists.txt'
       - 'tools/build-desktop-binaries.sh'
       - '.github/workflows/native-desktop-suite.yml'
   pull_request:
@@ -66,6 +69,12 @@ jobs:
             echo "invalid desktop profile was accepted" >&2
             exit 1
           fi
+
+      - name: Test XDG desktop session routing
+        run: |
+          set -euo pipefail
+          python3 tests/desktop/test_xserver_session_manager.py
+          python3 tests/desktop/test_desktop_session_dispatcher.py
 
       - name: Publish compiled desktop component bundle
         uses: actions/upload-artifact@v4
