@@ -22,6 +22,7 @@ on:
       - 'tools/storage/chimera-wsl-drive-map.sh'
       - 'tests/storage/test_wsl_drive_map.py'
       - 'docs/CHIMERA_MOBILE_AND_RUNTIME_GAPS.md'
+      - 'docs/WSL2_DRIVE_INTEGRATION.md'
       - 'boot/iso/grub.cfg'
       - '.github/workflows/aurora-runtime-ci.yml'
 
