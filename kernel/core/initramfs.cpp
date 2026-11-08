@@ -51,6 +51,11 @@ static int normalize_path(const uint8_t* name, uint32_t name_size,
     for (uint32_t i = 0; i + 1u < name_size; ++i)
         if (name[i] == 0u) return -3;
     if (name[0] == '/') return -4;
+    if (name_size == 2u && name[0] == '.') {
+        out[0] = 0;
+        *out_length = 0;
+        return 0;
+    }
 
     uint32_t start = 0;
     if (name_size >= 3u && name[0] == '.' && name[1] == '/') start = 2u;
