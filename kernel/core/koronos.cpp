@@ -235,7 +235,7 @@ static volatile uint32_t live_task_runs = 0;
 
 static bool module_cmdline_selects_target(const chimera_boot_module *module,
                                           const char *target) {
-    if (!module || !module->cmdline || !target || !*target) return false;
+    if (!module || !target || !*target) return false;
     const char prefix[] = "target=";
     for (const char *p = module->cmdline; *p; ++p) {
         if (p != module->cmdline && p[-1] != ' ') continue;
