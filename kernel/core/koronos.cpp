@@ -15,6 +15,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/vfs.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
@@ -135,6 +136,38 @@ static void console_write(const char *s) {
     vga_write(s);
     vga_write("\r\n");
     serial_write(s);
+}
+
+/* Bounded, read-only CPIO initramfs index. The archive is owned by the
+ * Multiboot2 module and remains resident; the node table is static kernel
+ * storage. This is not yet a writable disk VFS or a POSIX file-descriptor API.
+ */
+static chimera_vfs_tree g_boot_initramfs_vfs{};
+static chimera_vfs_node g_boot_initramfs_nodes[8192]{};
+static void mount_boot_initramfs_vfs() {
+    const chimera_boot_module *module = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_INITRAMFS_CPIO);
+    if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS_CPIO);
+    if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS_CPIO);
+    if (!module || module->base == 0 || module->size == 0) {
+        console_write("[VFS ] No raw CPIO initramfs module selected");
+        return;
+    }
+    const void *archive = reinterpret_cast<const void *>(static_cast<uintptr_t>(module->base));
+    const int rc = chimera_vfs_mount_newc(archive, module->size,
+        &g_boot_initramfs_vfs, g_boot_initramfs_nodes,
+        static_cast<uint32_t>(sizeof(g_boot_initramfs_nodes) / sizeof(g_boot_initramfs_nodes[0])));
+    if (rc != 0) {
+        console_write("[VFS ] ERROR: transactional CPIO initramfs mount rejected");
+        console_write("[VFS ] No root was published; userspace handoff remains gated");
+        return;
+    }
+    console_write("[VFS ] Read-only CPIO initramfs tree published");
+    const chimera_vfs_node *init_node = chimera_vfs_lookup("/init");
+    if (init_node && init_node->kind == CHIMERA_VFS_REGULAR) {
+        console_write("[VFS ] /init is present in the selected initramfs archive");
+    } else {
+        console_write("[VFS ] WARNING: selected initramfs has no regular /init entry");
+    }
 }
 
 static void console_raw(const char *s) {
@@ -473,6 +506,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         console_write("[MM  ] ERROR: physical frame allocator initialization failed");
         console_write("[MM  ] User-image launch must remain disabled until memory ownership is valid");
     }
+    if (physmap_init == 0 && frame_init == 0) mount_boot_initramfs_vfs();
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
