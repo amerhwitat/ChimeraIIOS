@@ -51,6 +51,9 @@ esac
         self.assertIn("swaybg swayidle mako wl-clipboard", source)
         self.assertNotIn("mako-notifier", source)
         self.assertIn("trap restore_resolver EXIT", source)
+        self.assertIn("using cached package indexes and archive files only", source)
+        self.assertIn("--no-download", source)
+        self.assertIn("no usable cached package index exists", source)
 
     def test_staging_reports_provision_log_on_failure(self):
         source = STAGER.read_text()
