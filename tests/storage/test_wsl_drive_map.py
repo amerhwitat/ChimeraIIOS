@@ -22,10 +22,9 @@ class WSLDriveMapTests(unittest.TestCase):
             fake_bin = temp / "bin"
             fake_bin.mkdir()
             findmnt = fake_bin / "findmnt"
-            findmnt.write_text("""#!/bin/sh
+            findmnt.write_text(r"""#!/bin/sh
 case " $* " in
   *" -o SOURCE,TARGET,FSTYPE,OPTIONS "*) printf 'C:\\ %s 9p rw,aname=drvfs\nD:\\ %s 9p rw,aname=drvfs\n' "$FAKE_C" "$FAKE_D" ;;
-    printf 'C:\\ %s 9p rw,aname=drvfs\\nD:\\ %s 9p rw,aname=drvfs\\n' "$FAKE_C" "$FAKE_D" ;;
   *) exit 1 ;;
 esac
 """)
