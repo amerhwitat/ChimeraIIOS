@@ -84,6 +84,7 @@ cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img" "$DIST/iso/boot/recovery/"
 cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.cpio" "$DIST/iso/boot/recovery/"
 cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.cpio.sha256" "$DIST/iso/boot/recovery/" 2>/dev/null || true
 cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/recovery/" 2>/dev/null || true
+(cd "$RECOVERY_BOOT" && sha256sum --check chimera-recovery-initramfs.cpio.sha256)
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
 cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 
@@ -243,6 +244,7 @@ done
 
 # Stage a real installer initramfs and the canonical installer JSON contracts.
 bash "$ROOT/tools/chimera-stage-installer-media.sh" "$DIST/iso"
+(cd "$DIST/iso/install/installer" && sha256sum --check installation.cpio.sha256)
 
 grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ROOT/boot/iso/grub.cfg"
 grep -q 'background_image --mode stretch /boot/visual/aurora-boot.png' "$ROOT/boot/iso/grub.cfg"
