@@ -389,13 +389,15 @@ static void task_monitor(void *) {
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
     console_write("[MON ] CPUs: ");
     console_u32(chimera_sched_cpu_count());
-    console_write("[MON ] Runnable: ");
+    console_write("[MON ] Runnable tasks: ");
     console_u32(chimera_sched_runnable_count());
+    console_write("[MON ] Registered process contexts: ");
+    console_u32(chimera_process_count());
     for (uint32_t i = 0; i < n; ++i) {
-        // Keep each process record on one VGA/serial line. The previous
-        // label/value-per-line format made the monitor look corrupted once
-        // the 25-row VGA console started scrolling.
-        console_raw("[PROC] id=");
+        // Scheduler callbacks are tasks, not user processes. Keep the
+        // monitor label semantically exact and report process contexts
+        // separately using chimera_process_count().
+        console_raw("[TASK] id=");
         console_u32_raw(info[i].id);
         console_raw(" cpu=");
         console_u32_raw(info[i].cpu);
