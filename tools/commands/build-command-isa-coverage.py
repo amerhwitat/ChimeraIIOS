@@ -13,7 +13,6 @@ PLATFORMS={
     "sql_server_core":"sql-server",
     "native_chimera":"chimera-native",
 }
-LINUX_ABI_MULTICALL_IMPLEMENTED={"pwd","echo","ls","cp","mv","touch","mkdir","rm","cat","clear","whoami","hostname","date","true","false","rmdir","ln","readlink","basename","dirname","uname","wc","head","tail","sleep","chmod","env","id","kill","logname","mktemp","printenv","seq","stat","sync","tty","uptime","yes"}
 SHELL_BUILTINS=set("""alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 
 def rootfs_executable(rootfs: Path | None, name: str, target_arch: str = "x86_64"):
@@ -109,6 +108,9 @@ def main():
         else:
             row.update(provider="compatibility-provider-required",path=None)
         row["platforms"].sort()
+    policy_path=root/"system/commands/compatibility-binary-policy.json"
+    native_policy=json.loads(policy_path.read_text(encoding="utf-8")) if policy_path.is_file() else {}
+    linux_abi_aliases=set(native_policy.get("native_build",{}).get("multicall_aliases",[]))
     matrix_path=args.linux_abi_matrix or (root/"build/linux-abi-command-matrix/manifest.json")
     linux_abi_matrix=None
     linux_abi_targets={}
@@ -177,9 +179,11 @@ def main():
       "catalogued_command_count":len(command_rows),
       "commands":command_rows,
       "command_summary":counts,
-      "linux_abi_multicall_alias_count":len(LINUX_ABI_MULTICALL_IMPLEMENTED),
+      "linux_abi_multicall_alias_count":len(linux_abi_aliases),
+      "linux_abi_multicall_aliases":sorted(linux_abi_aliases),
       "native_chimera_command_count":sum("chimera-native" in row["platforms"] for row in command_rows),
-      "native_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="native-command-source-present" for row in command_rows),
+      "koronos_native_command_implementation_count":0,
+      "native_chimera_unimplemented_count":sum("chimera-native" in row["platforms"] and row["provider"]=="native-candidate-not-yet-implemented" for row in command_rows),
       "hosted_linux_chimera_provider_count":sum("chimera-native" in row["platforms"] and row["provider"]=="hosted-linux-rootfs-executable" for row in command_rows),
       "linux_abi_command_build_matrix":linux_abi_matrix or {"status":"not-run","targets":[]},
       "isa_source":"ISA.csv",
@@ -188,7 +192,7 @@ def main():
       "limitations":[
         "Catalogue entries are not automatically executable binaries; provider-required and candidate rows are not replaced by fake stubs.",
         "The ISA candidate index is discovery metadata, not a complete encoding or conformance database.",
-        "The 25 POSIX multicall aliases and 19 hosted script frontends are Linux userspace providers; they do not establish Koronos syscall or service compatibility for the 90 Chimera-native catalogue commands.",
+        f"The {len(linux_abi_aliases)} POSIX multicall aliases are Linux userspace providers; they do not establish Koronos syscall or service compatibility for the Chimera-native command catalogue.",
         "Hosted Linux command frontends do not establish Koronos-native syscall or service integration.",
         "The Koronos Makefile currently accepts only x86_64; the eight Linux command ABIs are cross-build candidates, not bootable Koronos ports.",
         "Native instruction semantics, privileged operations, device services and per-architecture QEMU tests remain required."
