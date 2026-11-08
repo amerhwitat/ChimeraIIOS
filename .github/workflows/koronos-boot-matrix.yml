@@ -118,10 +118,10 @@ jobs:
           GRUB
           grub-mkrescue -o build/koronos-installer-qemu.iso build/qemu-installer-iso
           set +e
-          timeout 25s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \\
-            -cdrom build/koronos-installer-qemu.iso -boot d \\
-            -serial file:qemu-installer-serial.log \\
-            -debugcon file:qemu-installer-debug.log -global isa-debugcon.iobase=0xe9 \\
+          timeout 25s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 \
+            -cdrom build/koronos-installer-qemu.iso -boot d \
+            -serial file:qemu-installer-serial.log \
+            -debugcon file:qemu-installer-debug.log -global isa-debugcon.iobase=0xe9 \
             -display none -no-reboot 2>&1 | tee qemu-installer-qemu.log
           qemu_rc=${PIPESTATUS[0]}
           set -e
