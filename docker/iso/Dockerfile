@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_ARCH=${CHIMERA_ARCH} \
     CHIMERA_FIRMWARE=${CHIMERA_FIRMWARE}
 
-RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then sed -i 's/^Components: main$/Components: main universe/' /etc/apt/sources.list.d/ubuntu.sources; fi \
+RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then sed -i -E 's/^Components:.*/Components: main universe/' /etc/apt/sources.list.d/ubuntu.sources; fi \
     && apt-get update && apt-get install -y --no-install-recommends \
     bash ca-certificates git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
     grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin xorriso mtools dosfstools \
