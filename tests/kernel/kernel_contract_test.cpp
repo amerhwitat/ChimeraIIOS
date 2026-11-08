@@ -119,8 +119,10 @@ int main() {
 
     chimera_vfs_tree published_tree{};
     chimera_vfs_node published_nodes[8]{};
-    assert(chimera_vfs_mount_newc(good.data(), good.size(), &published_tree,
-                                  published_nodes, 8u) == 0);
+    const int mount_status = chimera_vfs_mount_newc(good.data(), good.size(), &published_tree,
+                                                    published_nodes, 8u);
+    if (mount_status != 0) std::fprintf(stderr, "chimera_vfs_mount_newc(valid archive) returned %d\\n", mount_status);
+    assert(mount_status == 0);
     assert(chimera_vfs_root() == &published_tree);
     const chimera_vfs_node *init_node = chimera_vfs_lookup("/init");
     assert(init_node && init_node->kind == CHIMERA_VFS_REGULAR);
