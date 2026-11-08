@@ -48,10 +48,10 @@ class RiscVOpcodeImportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "cached.json"
             path.write_text(json.dumps(cached), encoding="utf-8")
-            with mock.patch.object(MODULE, "get", side_effect=OSError("HTTP 503")), \\
-                 mock.patch.object(MODULE.sys, "argv", ["import_riscv_opcodes.py", "--output", str(path)]), \\
-                 contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(MODULE.main(), 0)
+            with mock.patch.object(MODULE, "get", side_effect=OSError("HTTP 503")):
+                with mock.patch.object(MODULE.sys, "argv", ["import_riscv_opcodes.py", "--output", str(path)]):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(MODULE.main(), 0)
 
     def test_require_refresh_disables_cached_fallback(self):
         revision = MODULE.DEFAULT_REVISION
@@ -60,10 +60,10 @@ class RiscVOpcodeImportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "cached.json"
             path.write_text(json.dumps(cached), encoding="utf-8")
-            with mock.patch.object(MODULE, "get", side_effect=OSError("HTTP 503")), \\
-                 mock.patch.object(MODULE.sys, "argv", ["import_riscv_opcodes.py", "--output", str(path), "--require-refresh"]):
-                with self.assertRaises(SystemExit):
-                    MODULE.main()
+            with mock.patch.object(MODULE, "get", side_effect=OSError("HTTP 503")):
+                with mock.patch.object(MODULE.sys, "argv", ["import_riscv_opcodes.py", "--output", str(path), "--require-refresh"]):
+                    with self.assertRaises(SystemExit):
+                        MODULE.main()
 
     def test_unfixed_source_revision_is_not_the_default(self):
         self.assertRegex(MODULE.DEFAULT_REVISION, r"^[0-9a-f]{40}$")
