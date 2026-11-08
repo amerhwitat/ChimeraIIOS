@@ -572,10 +572,12 @@ jobs:
           root = pathlib.Path("build/iso/acceptance")
           required = {
               "firmware_matrix": "firmware-matrix.json",
+              "filesystem_syscall_contract": "filesystem-syscall-contract.json",
               "installer_persistence": "installer-persistence.json",
               "recovery_repair": "recovery-repair-postcondition.json",
               "smp_overlap": "smp-overlap.json",
               "aurora_marine_health": "aurora-marine-runtime-health.json",
+              "native_x_server": "native-x-server.json",
               "architecture_boot_matrix": "architecture-boot-matrix.json",
               "isa_conformance": "isa-conformance.json",
               "command_provider_coverage": "command-provider-coverage.json",
@@ -592,6 +594,12 @@ jobs:
               checks[name] = data.get("passed") is True
               if name == "firmware_matrix":
                   checks[name] = checks[name] and data.get("same_iso_sha256") is True and len(data.get("cases", [])) == 6
+              elif name == "filesystem_syscall_contract":
+                  checks[name] = (checks[name]
+                                  and data.get("etc_os_release_open") is True
+                                  and data.get("etc_os_release_read") is True
+                                  and data.get("etc_os_release_close") is True
+                                  and data.get("tmp_writable") is True)
               elif name == "smp_overlap":
                   checks[name] = checks[name] and data.get("cpu_count", 0) >= 2 and data.get("overlap_intervals", 0) > 0
               elif name == "architecture_boot_matrix":
@@ -600,6 +608,12 @@ jobs:
                   checks[name] = checks[name] and data.get("aurora_live") is True and data.get("marine_live") is True and data.get("gui_interaction_passed") is True
               elif name == "terminal_shell_gui_interaction":
                   checks[name] = checks[name] and data.get("providers_tested") == 28 and data.get("mouse_keyboard_input_passed") is True
+              elif name == "native_x_server":
+                  required_profiles = {"aurora", "jasper", "gates", "marine"}
+                  checks[name] = (checks[name] and data.get("native_koronos") is True
+                                  and data.get("x_server_started") is True
+                                  and data.get("gui_interaction_passed") is True
+                                  and required_profiles.issubset(set(data.get("desktop_profiles", []))))
               elif name == "native_koronos_default_boot":
                   checks[name] = checks[name] and data.get("koronos_is_default") is True and data.get("linux_fallback_preserved") is True
               elif name == "isa_conformance":
@@ -607,10 +621,11 @@ jobs:
               elif name == "command_provider_coverage":
                   checks[name] = (checks[name] and data.get("native_chimera_command_count") == 90
                                   and data.get("native_chimera_koronos_runtime_verified_count") == 90)
-          accepted = not missing and all(checks.get(name, False) for name in required)
-          report = {"schema": "chimera-production-acceptance/v1", "accepted": accepted,
-                    "missing_evidence": missing, "checks": checks,
-                    "note": "Ring-3 target smoke tests alone do not prove native Koronos default boot, installer persistence, recovery repair, SMP, desktop interaction, or all-architecture boot support."}
+          failed_checks = [name for name in required if not checks.get(name, False)]
+          accepted = not missing and not failed_checks
+          report = {"schema": "chimera-production-acceptance/v2", "accepted": accepted,
+                    "missing_evidence": missing, "failed_checks": failed_checks, "checks": checks,
+                    "note": "Ring-3 console handoff is not production acceptance. File-backed OPEN/READ/CLOSE, writable /tmp, native Koronos X server with all four desktop profiles, installer persistence, recovery repair, SMP, command/ISA conformance and supported-architecture boot evidence are mandatory."}
           (root / "production-acceptance-status.json").write_text(json.dumps(report, indent=2) + "\n")
           print(json.dumps(report, indent=2))
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
@@ -645,12 +660,13 @@ jobs:
             build/iso/acceptance/production-acceptance-status.json
             build/iso/acceptance/command-provider-coverage.json
 
-      - name: Fail closed when native userspace acceptance is incomplete
-        if: steps.userspace_gate.outputs.accepted != 'true'
+      - name: Fail closed when production acceptance is incomplete
+        if: steps.userspace_gate.outputs.accepted != 'true' || steps.production_gate.outputs.accepted != 'true'
         shell: bash
         run: |
-          echo "::error::Live, Installer, and Recovery did not all prove CPL3 init entry and matching nonzero PID readiness."
+          echo "::error::Production acceptance is incomplete: userspace handoff or full production evidence gate failed."
           echo "The ISO artifact is retained for diagnosis; release publication is forbidden."
+          cat build/iso/acceptance/production-acceptance-status.json || true
           exit 1
 
       - name: Publish validated ISO candidate to GitHub Releases
