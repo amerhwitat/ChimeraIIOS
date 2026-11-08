@@ -218,7 +218,16 @@ for rel in \
   system/commands/compatibility-binary-policy.json \
   config/linux-command-registry.json tools/commands/os-command-runtime.json \
   ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
-  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json \
+  isa/generated/isa-encoding-samples.json \
+  isa/generated/source-discovery-index.json \
+  isa/instructions.json isa/isa_database.json isa/isa_database.sql isa/schema.json \
+  isa/world_architectures.json isa/spec/chimera_isa.yaml isa/spec/compatibility_targets.yaml \
+  tools/isa/architecture-backends.json tools/isa/instruction-semantics.schema.json \
+  tools/isa/isa_bitfields.schema.json tools/isa/local_isa_catalog.json \
+  tools/isa/cisc-coverage.json tools/isa/rv32i-coverage.json \
+  tools/isa/rv32-machine-tested-subset.json \
+; do
   if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
 done
 install -d "$WORK/usr/lib/chimera/commands/linux-abi"
@@ -246,7 +255,16 @@ for rel in \
   system/commands/compatibility-binary-policy.json \
   config/linux-command-registry.json \
   tools/commands/os-command-runtime.json \
-  ISA.csv data/isa/online-isa-index.json; do
+  ISA.csv data/isa/online-isa-index.json \
+  isa/generated/isa-encoding-samples.json \
+  isa/generated/source-discovery-index.json \
+  isa/instructions.json isa/isa_database.json isa/isa_database.sql isa/schema.json \
+  isa/world_architectures.json isa/spec/chimera_isa.yaml isa/spec/compatibility_targets.yaml \
+  tools/isa/architecture-backends.json tools/isa/instruction-semantics.schema.json \
+  tools/isa/isa_bitfields.schema.json tools/isa/local_isa_catalog.json \
+  tools/isa/cisc-coverage.json tools/isa/rv32i-coverage.json \
+  tools/isa/rv32-machine-tested-subset.json \
+; do
   [[ -s "$REPO_DIR/$rel" ]] && install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
 done
 install -D -m 0644 "$REPO_DIR/aurora/terminals/registry.json" "$WORK/usr/share/chimera/catalogs/terminals-registry.json"
