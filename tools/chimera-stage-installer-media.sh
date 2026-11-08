@@ -44,7 +44,8 @@ for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top t
 
 # Embed the complete command/ISA catalogues and an evidence-based implementation map.
 install -d "$P/etc/chimera/catalogs"
-for rel in system/commands/chimera-command-list.json system/commands/compatibility-binary-policy.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv data/isa/online-isa-index.json; do
+for rel in system/commands/chimera-command-list.json system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json system/commands/compatibility-binary-policy.json system/commands/native-provider-aliases.json config/linux-command-registry.json tools/commands/os-command-runtime.json ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json \
+isa/generated/isa-encoding-samples.json    isa/generated/source-discovery-index.json    isa/instructions.json isa/isa_database.json isa/isa_database.sql isa/schema.json    isa/world_architectures.json isa/spec/chimera_isa.yaml isa/spec/compatibility_targets.yaml    tools/isa/architecture-backends.json tools/isa/instruction-semantics.schema.json    tools/isa/isa_bitfields.schema.json tools/isa/local_isa_catalog.json    tools/isa/cisc-coverage.json tools/isa/rv32i-coverage.json    tools/isa/rv32-machine-tested-subset.json \; do
   if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"; fi
 done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$P/etc/chimera/catalogs/terminals-registry.json"
