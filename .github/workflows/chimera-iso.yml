@@ -213,3 +213,14 @@ jobs:
             test -s "boot/iso/dist/iso/boot/visual/$visual"
           done
           test -s boot/iso/dist/iso/boot/visual/aurora-media/manifest.json
+      - name: Preserve non-release ISO candidate and verification reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-structured-iso-${{ github.sha }}
+          path: |
+            boot/iso/dist/output.iso
+            boot/iso/dist/output.iso.sha256
+            boot/iso/dist/ISO-BOOT-REPORT.txt
+            boot/iso/dist/iso/boot/visual/aurora-manifest.json
+          if-no-files-found: error
+          retention-days: 14
