@@ -12,6 +12,8 @@ class BootPipelineContractTest(unittest.TestCase):
    self.assertRegex(data,r"(?m)^\s*serial --unit=0 --speed=115200\s*$",rel)
    self.assertRegex(data,r"(?m)^\s*terminal_input serial console\s*$",rel)
    self.assertRegex(data,r"(?m)^\s*terminal_output .*serial.*console\s*$",rel)
+   outputs=[line.strip() for line in data.splitlines() if line.strip().startswith("terminal_output ")]
+   self.assertTrue(outputs and "serial" in outputs[-1] and "console" in outputs[-1],f"{rel}: later terminal setup dropped serial output: {outputs}")
  def test_stage_order_contract(self):
   m=json.loads((ROOT/"boot/boot-artwork-manifest.json").read_text())
   self.assertEqual(list(m["boot_chain"]),["spitfire","jasper","grub","menus","koronos","aurora"])
