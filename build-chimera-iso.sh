@@ -415,12 +415,14 @@ fi
 choose_storage(){
   local need="${1:-20}"; local best="" free path
   if is_wsl; then
-    for path in /mnt/*; do
+    # Prefer explicit Windows-drive aliases; retain native WSL mount paths as
+    # a fallback for existing installations that have not refreshed aliases.
+    for path in /mnt/drive/[a-z] /mnt/[a-z]; do
       [[ -d "$path" ]] || continue
+      [[ "$path" != /mnt/c && "$path" != /mnt/drive/c ]] || continue
       free="$(free_gib "$path")"
       ((free>=need)) || continue
       is_writable_dir "$path" || { log_warning "Skipping non-writable storage candidate: $path"; continue; }
-      [[ "$path" != /mnt/c ]] || continue
       best="$path"; break
     done
   else
