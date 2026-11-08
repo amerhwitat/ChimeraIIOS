@@ -22,6 +22,8 @@ required_contract = (
     'required_architectures = {"x86_64", "i686", "armel", "aarch64", "armv7", "riscv64", "ppc64le", "s390x"}',
     'failed_checks = [name for name in required if not checks.get(name, False)]',
     "steps.production_gate.outputs.accepted == 'true'",
+    '"same_target_init_elf_sha256_across_firmware"',
+    '"init_elf_sha256"',
 )
 missing = [item for item in required_contract if item not in workflow]
 if missing:
