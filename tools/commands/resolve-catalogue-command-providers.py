@@ -13,8 +13,17 @@ import subprocess
 import sys
 from pathlib import Path
 
-BUILTINS = set(""". [ [[ ]] : alias bg break builtin caller case cd command continue declare dirs echo eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
+BUILTINS = set(""". [ [[ ]] : alias bg bind break builtin caller case cd command continue declare dirs echo enable eval exec exit export fc fg for function getopts hash help history if jobs let local logout mapfile popd printf pushd read readarray readonly return select set shift shopt source suspend test times trap type ulimit umask unalias unset until wait while""".split())
 SEARCH_DIRS = {"/bin", "/usr/bin", "/sbin", "/usr/sbin", "/usr/games"}
+
+# These catalogue entries are documentation/feature names, not standalone
+# Linux executables. Keep them visible without inventing binaries.
+NON_EXECUTABLE_CATALOGUE_ENTRIES = {
+    "cards.txt": "data-file-name, not a command",
+    "openssl-enc": "OpenSSL subcommand; invoke through the openssl executable",
+    "printcap": "print-capability configuration file, not an executable",
+    "sticky": "filesystem permission bit/concept, not an executable",
+}
 
 def run(args: list[str], *, capture: bool = False):
     return subprocess.run(args, text=True, stdout=subprocess.PIPE if capture else None,
@@ -62,6 +71,10 @@ def main() -> int:
     rows: dict[str, dict] = {}
     missing: list[str] = []
     for name in names:
+        if name in NON_EXECUTABLE_CATALOGUE_ENTRIES:
+            rows[name] = {"status": "non-executable-catalogue-entry",
+                          "reason": NON_EXECUTABLE_CATALOGUE_ENTRIES[name]}
+            continue
         if name in {":", "[[", "]]"}:
             rows[name] = {"status": "provided-by-shell-builtin"}
             continue
