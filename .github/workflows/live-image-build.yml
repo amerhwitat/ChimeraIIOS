@@ -233,6 +233,26 @@ jobs:
           test -x "$root/usr/local/bin/aurora-session"
           test -x "$root/usr/local/bin/chimera-verify-opengl"
           test -s "$root/usr/share/chimera/catalogs/command-isa-coverage.json"
+          python3 - "$root/usr/share/chimera/catalogs/command-isa-coverage.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1],encoding="utf-8"))
+          policy=json.load(open("system/commands/compatibility-binary-policy.json",encoding="utf-8"))
+          assert report["native_chimera_command_count"] == 90
+          assert report["koronos_native_command_implementation_count"] == 0
+          assert report["linux_abi_multicall_alias_count"] == len(policy["native_build"]["multicall_aliases"])
+          assert report["isa_candidate_definition_count"] >= 7000
+          print("Octavian command/ISA report: verified catalogues and honest native/hosted ABI split.")
+          PY
+          test -s "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json"
+          python3 - "$root/usr/share/chimera/catalogs/linux-abi-command-matrix.json" <<'PY'
+          import json,sys
+          rows=json.load(open(sys.argv[1],encoding="utf-8")).get("targets",[])
+          assert len(rows)==8, f"expected eight Linux ABI targets, got {len(rows)}"
+          assert all(x.get("runtime_status") in {"native-linux-abi-smoke-tested","qemu-user-linux-abi-smoke-tested"} for x in rows), rows
+          PY
+          for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
+            test -s "$root/usr/lib/chimera/commands/linux-abi/$arch/chimera-cmd"
+          done
           test -s "$root/usr/share/chimera/catalogs/terminal-shell-provider-status.json"
           test -x "$root/usr/local/bin/aurora-terminal-center"
           test -x "$root/usr/local/bin/aurora-shell-center"
