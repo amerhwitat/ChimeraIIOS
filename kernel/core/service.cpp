@@ -14,7 +14,14 @@ static int find(const chimera_service_manifest*s,uint32_t n,const char*id){
         if(same(s[i].id,id))return (int)i;
     return -1;
 }
-static bool copy_id(char* out, const char* in) {\n    if (!out || !in) return false;\n    uint32_t i=0;\n    while (in[i] && i<63u) { out[i]=in[i]; ++i; }\n    if (in[i]) return false;\n    out[i]=0; return true;\n}\nstatic void reset_report(chimera_service_report* r) {
+static bool copy_id(char* out, const char* in) {
+    if (!out || !in) return false;
+    uint32_t i=0;
+    while (in[i] && i<63u) { out[i]=in[i]; ++i; }
+    if (in[i]) return false;
+    out[i]=0; return true;
+}
+static void reset_report(chimera_service_report* r) {
     if (!r) return;
     r->attempted=0; r->ready=0; r->failed=0; r->blocked=0; r->failed_service=0;
 }
