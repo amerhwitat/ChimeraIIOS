@@ -14,7 +14,11 @@ with tempfile.TemporaryDirectory() as temp:
     report = temp / "report.json"
     ss64 = temp / "ss64.json"
     catalog.write_text(json.dumps({"linux_bash": ["printf", "case", "chimera-no-such-command-9f3"]}), encoding="utf-8")
-    ss64.write_text(json.dumps({"platforms":{"linux_bash":{"commands":[{"name":"chimera-ss64-only-command-7d2"}]}}}), encoding="utf-8")
+    ss64.write_text(json.dumps({"platforms":{"linux_bash":{"commands":[
+        {"name":"chimera-ss64-only-command-7d2","source":"https://ss64.com/bash/chimera-ss64-only-command-7d2.html"},
+        {"name":"Arguments","source":"https://ss64.com/bash/syntax-args.html"},
+        {"name":".bashrc","source":"https://ss64.com/bash/syntax-bashrc.html"}
+    ]}}}), encoding="utf-8")
     subprocess.run([sys.executable, str(SCRIPT), "--catalog", str(catalog),
                     "--ss64", str(ss64), "--output", str(report), "--no-install"], check=True)
     data = json.loads(report.read_text(encoding="utf-8"))
@@ -25,6 +29,7 @@ with tempfile.TemporaryDirectory() as temp:
     assert missing["status"] == "provider-not-found-yet"
     ss64_missing = rows["chimera-ss64-only-command-7d2"]
     assert ss64_missing["status"] == "provider-not-found-yet"
+    assert "Arguments" not in rows and ".bashrc" not in rows
     assert "path" not in missing and "binary" not in missing
     strict = subprocess.run([sys.executable, str(SCRIPT), "--catalog", str(catalog),
                              "--ss64", str(ss64), "--output", str(report),
