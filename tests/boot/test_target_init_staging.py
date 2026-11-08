@@ -29,8 +29,8 @@ class TargetInitStagingContract(unittest.TestCase):
             '(cd "$TARGETS_OUT" && sha256sum --check "target-init-$target.elf.sha256")',
             script,
         )
-        for target in ("live", "installer", "recovery"):
-            self.assertIn(f"target-init-{target}.elf", script)
+        self.assertIn('for target in live installer recovery; do', script)
+        self.assertIn('target-init-$target.elf', script)
 
 
 if __name__ == "__main__":
