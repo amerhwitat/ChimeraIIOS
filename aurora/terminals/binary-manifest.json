@@ -17,7 +17,8 @@
       "binary": "alacritty",
       "build": "cargo-source",
       "display": "wayland-x11",
-      "license": "Apache-2.0/MIT"
+      "license": "Apache-2.0/MIT",
+      "revision": "aa5d942f46c40184a3f214830ff5f7989f4733a1"
     },
     "blackbox-terminal": {
       "source": "https://gitlab.gnome.org/haecker-felix/blackbox",
@@ -31,7 +32,8 @@
       "binary": "contour",
       "build": "cmake-source",
       "display": "wayland-x11",
-      "license": "Apache-2.0"
+      "license": "Apache-2.0",
+      "revision": "415118fa71f38911216328e45707c7d4e3779e7a"
     },
     "foot": {
       "source": "https://codeberg.org/dnkl/foot",
@@ -45,7 +47,8 @@
       "binary": "ghostty",
       "build": "zig-source-or-package",
       "display": "wayland-x11",
-      "license": "MIT"
+      "license": "MIT",
+      "revision": "59044f5c5ee5764b69cc8153d307507cb1f400f5"
     },
     "gnome-console": {
       "source": "https://gitlab.gnome.org/GNOME/gnome-console",
@@ -134,7 +137,8 @@
       "binary": "wezterm",
       "build": "cargo-source",
       "display": "wayland-x11",
-      "license": "MIT"
+      "license": "MIT",
+      "revision": "458a100c1bf4134d36cb5c42dd90e4c8266d9e1a"
     },
     "xfce4-terminal": {
       "source": "https://gitlab.xfce.org/apps/xfce4-terminal",
