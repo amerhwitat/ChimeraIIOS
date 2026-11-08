@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pwd.h>
 #include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -132,15 +133,37 @@ static int copy_file(const char *src, const char *dst)
         return 1;
     }
 
+    /* Do not use O_TRUNC until the opened destination inode is compared
+     * with the source: two different paths may be hard links to one file. */
     int out = open(
         dst,
-        O_WRONLY | O_CREAT | O_TRUNC,
+        O_WRONLY | O_CREAT,
         st.st_mode & 0777
     );
 
     if (out < 0) {
         perror(dst);
         close(in);
+        return 1;
+    }
+
+    struct stat dst_st;
+    if (fstat(out, &dst_st) < 0) {
+        perror(dst);
+        close(in);
+        close(out);
+        return 1;
+    }
+    if (st.st_dev == dst_st.st_dev && st.st_ino == dst_st.st_ino) {
+        fprintf(stderr, "cp: '%s' and '%s' are the same file\\n", src, dst);
+        close(in);
+        close(out);
+        return 1;
+    }
+    if (ftruncate(out, 0) < 0) {
+        perror(dst);
+        close(in);
+        close(out);
         return 1;
     }
 
@@ -234,8 +257,14 @@ static int cmd_touch(int argc, char **argv)
             continue;
         }
 
-        close(fd);
-
+        if (futimens(fd, NULL) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
+        if (close(fd) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
     }
 
     return rc;
@@ -350,14 +379,17 @@ static int cmd_clear(void)
 
 static int cmd_whoami(void)
 {
-    const char *u = getenv("USER");
-
-    if (u) {
-        puts(u);
-        return 0;
+    /* USER is an environment variable and is not an identity credential.
+     * Resolve the effective UID through the account database instead. */
+    const uid_t uid = geteuid();
+    struct passwd *account = getpwuid(uid);
+    if (!account || !account->pw_name) {
+        fprintf(stderr, "whoami: cannot find name for user ID %lu\\n",
+                (unsigned long)uid);
+        return 1;
     }
-
-    return system("id -un");
+    puts(account->pw_name);
+    return ferror(stdout) ? 1 : 0;
 }
 
 static int cmd_hostname(void)
