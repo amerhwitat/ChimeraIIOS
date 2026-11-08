@@ -14,6 +14,9 @@ on:
     paths:
       - 'desktop/**'
       - 'desktop/native/**'
+      - 'tools/display/**'
+      - 'tests/desktop/**'
+      - 'CMakeLists.txt'
       - 'tools/build-desktop-binaries.sh'
       - '.github/workflows/native-desktop-suite.yml'
   workflow_dispatch:
