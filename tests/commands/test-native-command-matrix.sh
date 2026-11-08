@@ -103,7 +103,45 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   alias="$tmp/id"; ln -sf "$bin" "$alias"
   output="$(run "$alias" -u)"; [[ "$output" =~ ^[0-9]+$ ]] || { echo "$arch id failed: $output" >&2; exit 1; }
   alias="$tmp/seq"; ln -sf "$bin" "$alias"
-  output="$(run "$alias" 1 3)"; [[ "$output" ==   printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
+  expected="$(printf '1\n2\n3')"
+  output="$(run "$alias" 1 3)"
+  [[ "$output" == "$expected" ]] || { echo "$arch seq failed: $output" >&2; exit 1; }
+  alias="$tmp/yes"; ln -sf "$bin" "$alias"
+  set +o pipefail
+  output="$(run "$alias" yes | head -n1)"
+  set -o pipefail
+  [[ "$output" == "yes" ]] || { echo "$arch yes failed" >&2; exit 1; }
+  alias="$tmp/mktemp"; ln -sf "$bin" "$alias"
+  temp_file="$(run "$alias")"
+  [[ -f "$temp_file" ]] || { echo "$arch mktemp failed" >&2; exit 1; }
+  run "$alias" -d "$tmp/dir.XXXXXX" >/dev/null
+  rm -f "$temp_file"
+  alias="$tmp/chmod"; ln -sf "$bin" "$alias"
+  run "$alias" 600 "$tmp/input-$arch"
+  alias="$tmp/stat"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" "$tmp/input-$arch")"
+  [[ "$output" == *"Mode: 0600"* ]] || { echo "$arch stat failed: $output" >&2; exit 1; }
+  alias="$tmp/env"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"
+  [[ "$output" == *"PATH="* ]] || { echo "$arch env failed" >&2; exit 1; }
+  alias="$tmp/printenv"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" PATH)"
+  [[ -n "$output" ]] || { echo "$arch printenv failed" >&2; exit 1; }
+  alias="$tmp/id"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" -u)"
+  [[ "$output" =~ ^[0-9]+$ ]] || { echo "$arch id failed: $output" >&2; exit 1; }
+  alias="$tmp/sync"; ln -sf "$bin" "$alias"; run "$alias"
+  alias="$tmp/tty"; ln -sf "$bin" "$alias"
+  output="$(run "$alias" || true)"
+  [[ "$output" == "not a tty" || "$output" == /dev/* ]] || { echo "$arch tty failed: $output" >&2; exit 1; }
+  alias="$tmp/logname"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"
+  [[ -n "$output" ]] || { echo "$arch logname failed" >&2; exit 1; }
+  alias="$tmp/kill"; ln -sf "$bin" "$alias"; run "$alias" -0 "$$"
+  alias="$tmp/uptime"; ln -sf "$bin" "$alias"
+  output="$(run "$alias")"
+  [[ "$output" == up* ]] || { echo "$arch uptime failed: $output" >&2; exit 1; }
+  printf 'PASS %s Linux userspace command ABI smoke tests\n' "$arch"
 done
 python3 - "$OUT/manifest.json" <<'PY'
 import json,sys
