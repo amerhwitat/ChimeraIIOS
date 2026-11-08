@@ -1,0 +1,30 @@
+{
+  "schema": "CHIMERA-DESKTOP-SESSION-POLICY-1",
+  "purpose": "Select only installed XDG desktop sessions and dispatch to the real display backend.",
+  "default_session": "aurora",
+  "discovery": {
+    "wayland": ["/usr/local/share/wayland-sessions", "/usr/share/wayland-sessions"],
+    "x11": ["/usr/local/share/xsessions", "/usr/share/xsessions"]
+  },
+  "providers": {
+    "wayland": {
+      "dispatcher": "/usr/local/bin/chimera-xsession --type wayland",
+      "session_launcher": "installed XDG Wayland session Exec",
+      "runtime_requirements": ["non-root user", "owned XDG_RUNTIME_DIR mode 0700", "installed compositor/session executable"]
+    },
+    "x11": {
+      "display_server": "/usr/bin/Xorg",
+      "dispatcher": "/usr/local/bin/chimera-xserver-session",
+      "session_launcher": "/usr/local/bin/chimera-xsession",
+      "runtime_requirements": ["non-root user", "Xorg", "startx", "installed XDG X11 session executable"]
+    }
+  },
+  "failure_policy": {
+    "missing_session": "exit-127",
+    "missing_provider": "exit-126-or-127",
+    "no_fake_desktop_entries": true,
+    "no_automatic_native_koronos_claim": true
+  },
+  "native_koronos_status": "display-server-not-implemented",
+  "hosted_linux_status": "X.Org-and-Wayland-session-dispatcher"
+}
