@@ -157,11 +157,13 @@ fi
 LIVE_BOOT="$ROOT/build/live-boot"
 for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
+  "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio" \
   "$LIVE_BOOT/boot/live/live-manifest.json"; do
   [[ -s "$required" ]] || { echo "Required live artifact missing: $required" >&2; exit 2; }
 done
 mkdir -p "$DIST/boot/live"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$DIST/boot/live/"
+cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio" "$DIST/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$DIST/boot/live/"
 if [[ -s "$LIVE_BOOT/boot/vmlinuz" ]]; then
   cp -f "$LIVE_BOOT/boot/vmlinuz" "$DIST/boot/live/vmlinuz"
