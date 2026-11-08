@@ -263,6 +263,8 @@ grep -q 'Recovery Terminal' "$ROOT/boot/jasper/recovery.cfg"
 
 for contract in \
   "$DIST/iso/install/installer/installation.img" \
+  "$DIST/iso/install/installer/installation.cpio" \
+  "$DIST/iso/install/installer/installation.cpio.sha256" \
   "$DIST/iso/install/installer/installation-manifest.json" \
   "$DIST/iso/install/installer/installer-contract.json" \
   "$DIST/iso/install/installer/installation_phases.json" \
