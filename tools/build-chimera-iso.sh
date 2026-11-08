@@ -141,9 +141,9 @@ say BUILD "Cross-building Linux ABI Chimera command candidates for eight archite
 python3 "$ROOT/tools/commands/build_linux_abi_command_matrix.py" \
   --source "$ROOT/src/chimera-command-compat/chimera-cmd.c" \
   --policy "$ROOT/system/commands/compatibility-binary-policy.json" \
-  --output "$ROOT/build/native-command-isa" \
+  --output "$ROOT/build/linux-abi-command-matrix" \
   --require-all
-bash "$ROOT/tests/commands/test-native-command-matrix.sh" "$ROOT/build/native-command-isa"
+bash "$ROOT/tests/commands/test-native-command-matrix.sh" "$ROOT/build/linux-abi-command-matrix"
 "$ROOT/tools/build-live-boot-binaries.sh"
 say ISO "Generating BIOS/UEFI ISO"
 CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" "$ROOT/boot/iso/build-iso.sh"
