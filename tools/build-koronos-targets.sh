@@ -19,7 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="$ROOT/build/koronos/ports"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="$BUILD_ROOT/koronos/ports"
 mkdir -p "$OUT"
 
 build_port_objects() {
