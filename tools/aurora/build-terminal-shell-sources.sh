@@ -162,7 +162,8 @@ build_contour() {
   curl --fail --location --retry 3 "$url" --output "$deb"
   printf '%s  %s\n' "$digest" "$deb" | sha256sum --check -
   [[ "$(dpkg-deb -f "$deb" Package)" == "contour" ]] || { echo "Unexpected Contour package name" >&2; exit 2; }
-  [[ "$(dpkg-deb -f "$deb" Version)" == "0.6.3.8249" ]] || { echo "Unexpected Contour package version" >&2; exit 2; }
+  contour_version="$(dpkg-deb -f "$deb" Version)"
+  [[ "$contour_version" == 0.6.3.8249* ]] || { echo "Unexpected Contour package version: $contour_version" >&2; exit 2; }
   [[ "$(dpkg-deb -f "$deb" Architecture)" == "amd64" ]] || { echo "Unexpected Contour package architecture" >&2; exit 2; }
   install -D -m 0644 "$deb" "$ROOTFS/tmp/contour-0.6.3.8249-ubuntu24.04-amd64.deb"
   chroot "$ROOTFS" /bin/sh -eu -c '
