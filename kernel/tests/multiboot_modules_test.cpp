@@ -26,16 +26,20 @@ int main() {
     off = append_module(off, 0x100000, 0x101000, "chimera-recovery-initramfs");
     off = append_module(off, 0x102000, 0x102400, "chimera-recovery-manifest");
     off = append_module(off, 0x103000, 0x104000, "chimera-live-initramfs");
+    off = append_module(off, 0x105000, 0x106000, "chimera-user-init-elf target=installer");
     const uint32_t end_type = 0, end_size = 8;
     std::memcpy(info + off, &end_type, 4);
     std::memcpy(info + off + 4, &end_size, 4);
     off += 8;
     total = off;
     std::memcpy(info, &total, 4);
-    assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 3);
+    assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 4);
     assert(chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS) != nullptr);
     assert(chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_MANIFEST) != nullptr);
     assert(chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS) != nullptr);
     assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE) == nullptr);
+    const auto *installer_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    assert(installer_init != nullptr);
+    assert(std::strcmp(installer_init->cmdline, "chimera-user-init-elf target=installer") == 0);
     return 0;
 }
