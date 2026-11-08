@@ -666,7 +666,10 @@ jobs:
               elif name == "isa_conformance":
                   checks[name] = checks[name] and data.get("instruction_count") == 1613 and data.get("all_semantics_conformant") is True
               elif name == "command_provider_coverage":
-                  checks[name] = (checks[name] and data.get("native_chimera_command_count") == 90
+                  checks[name] = (checks[name] and data.get("source_catalogue_unique_command_count") == 855
+                                  and data.get("source_catalogue_candidate_only_count") == 818
+                                  and data.get("source_catalogue_unverified_provider_count") == 0
+                                  and data.get("native_chimera_command_count") == 90
                                   and data.get("native_chimera_koronos_runtime_verified_count") == 90)
           failed_checks = [name for name in required if not checks.get(name, False)]
           accepted = not missing and not failed_checks
