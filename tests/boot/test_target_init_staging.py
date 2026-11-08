@@ -18,7 +18,17 @@ class TargetInitStagingContract(unittest.TestCase):
         self.assertIn('TARGETS_OUT="$OUT/boot/targets"', script)
         self.assertIn('target_elf="$BUILD_DIR/koronos/x86_64/target-init-$target.elf"', script)
         self.assertIn('chimera_copy_if_distinct "$target_elf" "$TARGETS_OUT/target-init-$target.elf"', script)
-        self.assertIn('sha256sum "$TARGETS_OUT/target-init-$target.elf"', script)
+        # The builder writes the checksum from inside TARGETS_OUT so that the
+        # manifest is relocatable; validate that command and its later check
+        # rather than requiring a host-absolute checksum filename.
+        self.assertIn(
+            '(cd "$TARGETS_OUT" && sha256sum "target-init-$target.elf" > "target-init-$target.elf.sha256")',
+            script,
+        )
+        self.assertIn(
+            '(cd "$TARGETS_OUT" && sha256sum --check "target-init-$target.elf.sha256")',
+            script,
+        )
         for target in ("live", "installer", "recovery"):
             self.assertIn(f"target-init-{target}.elf", script)
 
