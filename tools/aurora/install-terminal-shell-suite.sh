@@ -21,6 +21,12 @@ chroot "$ROOTFS" /bin/sh -eu -c '
   missing=""
   install_one() {
     pkg="$1"; bin="$2"
+    case "$pkg" in
+      ghostty|contour)
+        missing="${missing}${pkg}|${bin}|pinned-upstream-release-required\\n"
+        return 0
+        ;;
+    esac
     if apt-cache show "$pkg" >/dev/null 2>&1; then
       if ! apt-get install -y --no-install-recommends "$pkg"; then
         missing="${missing}${pkg}|${bin}|package-install-failed-source-build-required\n"
