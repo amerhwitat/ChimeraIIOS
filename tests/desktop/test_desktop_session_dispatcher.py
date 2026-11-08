@@ -39,18 +39,18 @@ def main():
             "XDG_RUNTIME_DIR":str(runtime),
             "PATH":str(bindir)+os.pathsep+env.get("PATH",""),
         })
-        wayland_run=run([str(DISPATCHER),"start","test-wayland"],env)
+        wayland_run=run(["bash",str(DISPATCHER),"start","test-wayland"],env)
         assert wayland_run.returncode==0,(wayland_run.returncode,wayland_run.stdout,wayland_run.stderr)
         assert "--probe|test-wayland|wayland" in wayland_run.stdout,wayland_run.stdout
-        x11_run=run([str(DISPATCHER),"start","--backend","x11","test-x11"],env)
+        x11_run=run(["bash",str(DISPATCHER),"start","--backend","x11","test-x11"],env)
         assert x11_run.returncode==0,(x11_run.returncode,x11_run.stdout,x11_run.stderr)
         assert "xserver|start|test-x11" in x11_run.stdout,x11_run.stdout
-        listing=run([str(DISPATCHER),"list"],env)
+        listing=run(["bash",str(DISPATCHER),"list"],env)
         assert listing.returncode==0,(listing.returncode,listing.stdout,listing.stderr)
         assert "test-wayland" in listing.stdout and "test-x11" in listing.stdout,listing.stdout
-        missing=run([str(DISPATCHER),"start","missing"],env)
+        missing=run(["bash",str(DISPATCHER),"start","missing"],env)
         assert missing.returncode==127,missing.returncode
-        unsafe=run([str(DISPATCHER),"start","../escape"],env)
+        unsafe=run(["bash",str(DISPATCHER),"start","../escape"],env)
         assert unsafe.returncode==2,unsafe.returncode
         hidden=wayland/"hidden.desktop"
         hidden.write_text("[Desktop Entry]\nType=Application\nName=Hidden\nHidden=true\nExec=/bin/true\n",encoding="utf-8")
