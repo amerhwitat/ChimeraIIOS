@@ -30,6 +30,14 @@ cmake-build-*/
 boot/iso/portfolio-build/src/**/build/
 boot/iso/portfolio-build/src/**/out/
 
+# The production-gate regression test reads this workflow from inside
+# the ISO builder container. Keep only that workflow in the Docker context.
+!.github/
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/chimera-full-iso.yml
+
 # Include the explicitly staged ISO only for the QEMU runner image build.
 !dist/
 !dist/output.iso
