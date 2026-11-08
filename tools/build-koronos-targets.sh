@@ -69,10 +69,10 @@ probe() {
 }
 probe aarch64 "${AARCH64_CC:-aarch64-linux-gnu-gcc}" "-march=armv8-a" "AArch64" \
   kernel/arch/aarch64/boot_probe.c kernel/arch/aarch64/entry.S kernel/arch/aarch64/koronos.ld \
-  "${QEMU_AARCH64:-qemu-system-aarch64}" "-machine virt -cpu cortex-a57 -nographic -monitor none -serial stdio" "KORONOS_AARCH64_ENTRY_OK"
+  "${QEMU_AARCH64:-qemu-system-aarch64}" "-machine virt -cpu cortex-a57 -display none -monitor none -serial stdio" "KORONOS_AARCH64_ENTRY_OK"
 probe riscv64 "${RISCV64_CC:-riscv64-linux-gnu-gcc}" "-march=rv64gc -mabi=lp64d" "RISC-V" \
   kernel/arch/riscv64/boot_probe.c kernel/arch/riscv64/entry.S kernel/arch/riscv64/koronos.ld \
-  "${QEMU_RISCV64:-qemu-system-riscv64}" "-machine virt -bios default -nographic -monitor none -serial stdio" "KORONOS_RISCV64_ENTRY_OK"
+  "${QEMU_RISCV64:-qemu-system-riscv64}" "-machine virt -bios default -display none -monitor none -serial stdio" "KORONOS_RISCV64_ENTRY_OK"
 if command -v "${X86_32_MAKE:-make}" >/dev/null 2>&1 && command -v "${X86_32_CC:-gcc}" >/dev/null 2>&1; then
   make -C "$ROOT/kernel/arch/x86_32" BUILD="$OUT/x86_32" CC="${X86_32_CC:-gcc}" all check
   built+=("x86_32-probe")
