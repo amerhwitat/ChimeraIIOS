@@ -121,7 +121,9 @@ extern "C" int chimera_service_set_state(const char*id,uint32_t state){
         }
     }
     if(g_state_count>=64)return -2;
-    g_states[g_state_count++]={id,state};
+    if(!copy_id(g_states[g_state_count].id,id))return -3;
+    g_states[g_state_count].state=state;
+    ++g_state_count;
     return 0;
 }
 extern "C" uint32_t chimera_service_get_state(const char*id){
