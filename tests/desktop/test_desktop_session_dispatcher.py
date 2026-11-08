@@ -54,7 +54,7 @@ def main():
         assert unsafe.returncode==2,unsafe.returncode
         hidden=wayland/"hidden.desktop"
         hidden.write_text("[Desktop Entry]\nType=Application\nName=Hidden\nHidden=true\nExec=/bin/true\n",encoding="utf-8")
-        hidden_run=run([str(HELPER),"--type","wayland","hidden"],env)
+        hidden_run=run(["python3",str(HELPER),"--type","wayland","hidden"],env)
         assert hidden_run.returncode==126,hidden_run.returncode
     print("Desktop dispatcher: Wayland/X11 routing, XDG discovery, missing/unsafe/hidden profiles passed")
 
