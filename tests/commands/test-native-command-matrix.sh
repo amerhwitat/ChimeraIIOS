@@ -127,6 +127,9 @@ for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
   alias="$tmp/printenv"; ln -sf "$bin" "$alias"
   output="$(run "$alias" PATH)"
   [[ -n "$output" ]] || { echo "$arch printenv failed" >&2; exit 1; }
+  alias="$tmp/env"; ln -sf "$bin" "$alias"
+  output="$(PATH="$tmp:$PATH" run "$alias" CHIMERA_TEST_VALUE=verified printenv CHIMERA_TEST_VALUE)"
+  [[ "$output" == "verified" ]] || { echo "$arch env assignment/exec failed: $output" >&2; exit 1; }
   alias="$tmp/id"; ln -sf "$bin" "$alias"
   output="$(run "$alias" -u)"
   [[ "$output" =~ ^[0-9]+$ ]] || { echo "$arch id failed: $output" >&2; exit 1; }
