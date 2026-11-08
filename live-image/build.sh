@@ -164,6 +164,7 @@ if [ ! -f "$BASE/.packages-installed-v5" ]; then
           echo "[AURORA-TERMINALS] no runtime library package candidate: $pkg"
         fi
       done
+      apt-get install -y -qq --no-install-recommends \
       ca-certificates curl wget less nano htop jq git rsync \
       tar gzip bzip2 xz-utils zip unzip man-db manpages \
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
