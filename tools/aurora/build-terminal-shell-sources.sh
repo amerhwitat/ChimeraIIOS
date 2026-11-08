@@ -141,9 +141,12 @@ build_elvish() {
 build_wezterm() {
   require cargo
   local src="$OUT/src/wezterm"
-  git clone --depth 1 https://github.com/wez/wezterm.git "$src"
-  (cd "$src" && cargo build --release --locked -p wezterm-gui)
-  install -D -m 0755 "$src/target/release/wezterm-gui" "$ROOTFS/usr/local/bin/wezterm"
+  # WezTerm's workspace includes git submodules. A shallow non-recursive
+  # clone leaves Cargo members missing and fails before compilation.
+  git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/wez/wezterm.git "$src"
+  git -C "$src" submodule update --init --recursive
+  (cd "$src" && cargo build --release --locked --bin wezterm)
+  install -D -m 0755 "$src/target/release/wezterm" "$ROOTFS/usr/local/bin/wezterm"
 }
 build_ghostty() {
   require python3; require curl; require minisign; require tar
