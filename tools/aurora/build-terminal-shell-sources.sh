@@ -170,7 +170,7 @@ build_contour() {
     rm -rf /var/lib/apt/lists/* /tmp/contour-0.6.3.8249-ubuntu24.04-amd64.deb
   '
   [[ -x "$ROOTFS/usr/bin/contour" ]] || { echo "Verified Contour package installed no /usr/bin/contour" >&2; exit 2; }
-  ln -sfn /usr/bin/contour "$ROOTFS/usr/local/bin/contour"
+  install -D -m 0755 "$ROOTFS/usr/bin/contour" "$ROOTFS/usr/local/bin/contour"
 }
 tmp="$OUT/providers-built.tsv"
 : > "$tmp"
