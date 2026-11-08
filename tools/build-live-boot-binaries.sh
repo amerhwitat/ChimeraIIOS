@@ -185,7 +185,7 @@ mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
 mkdir -p /mnt/chimera-root /var/log/mesgs/archive /var/lib/chimera/drivers /run/chimera
-ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
+ln -sfn mesgs /var/log/messages 2>/dev/null || true
 recovery_progress() {
   pct="$1"; phase="$2"; message="$3"; width=24; filled=$((pct * width / 100)); bar=""; n=0
   while [ "$n" -lt "$width" ]; do
