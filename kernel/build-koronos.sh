@@ -26,6 +26,7 @@ bash "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 bash "$ROOT/tests/kernel/run-service-manager-host-tests.sh"
 bash "$ROOT/tests/kernel/run-initramfs-host-tests.sh"
 python3 "$ROOT/tests/release/test_production_acceptance_gate_contract.py"
+python3 "$ROOT/tests/build/test_build_chimera_iso_startup.py"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
