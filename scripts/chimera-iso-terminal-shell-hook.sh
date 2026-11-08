@@ -29,6 +29,11 @@ export CHIMERA_SHELL_CACHE="${CHIMERA_SHELL_CACHE:-${BUILD_DIR:-$ROOT/build}/she
 mkdir -p "$CHIMERA_ROOTFS_DIR"
 bash "$ROOT/scripts/import-aurora-terminal-shell-suite.sh"
 bash "$ROOT/aurora/terminals/install-desktop-entries.sh"
+python3 "$ROOT/tools/aurora/verify-terminal-shell-providers.py" \
+  --rootfs "$CHIMERA_ROOTFS_DIR" \
+  --shell-registry "$ROOT/aurora/shells/registry.json" \
+  --terminal-registry "$ROOT/aurora/terminals/registry.json" \
+  --output "$CHIMERA_ROOTFS_DIR/usr/share/chimera/aurora/terminal-shell-provider-status.json"
 # Copy the shell launcher into the image.
 install -Dm0755 "$ROOT/aurora/shells/launch-shell.sh" "$CHIMERA_ROOTFS_DIR/usr/lib/chimera/aurora/launch-shell.sh"
 printf '[CHIMERA-ISO] Aurora terminal/shell suite staged: %s\n' "$CHIMERA_ROOTFS_DIR"
