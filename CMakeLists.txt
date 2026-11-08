@@ -52,7 +52,9 @@ install(FILES services/apache/apache-projects.json services/apache/README.md DES
 install(FILES system/security/apache-sandbox.json DESTINATION share/chimera/config)
 
 # X.Org server session manager and Aurora X11 fallback desktop.
-install(PROGRAMS tools/display/chimera-xserver-session tools/display/chimera-xsession.py desktop/aurora/aurora-x11-session.sh DESTINATION bin)
+install(PROGRAMS tools/display/chimera-xserver-session DESTINATION bin)
+install(PROGRAMS tools/display/chimera-xsession.py DESTINATION bin RENAME chimera-xsession)
+install(PROGRAMS desktop/aurora/aurora-x11-session.sh DESTINATION bin RENAME aurora-x11-session)
 install(FILES desktop/aurora/chimera-aurora-x11.desktop DESTINATION share/xsessions)
 install(FILES desktop/aurora/xserver-sessions.json DESTINATION share/chimera/aurora)
 
