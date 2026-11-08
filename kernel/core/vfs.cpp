@@ -1,4 +1,7 @@
 #include "chimera/vfs.h"
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
 
 namespace {
 constexpr uint32_t S_IFMT = 0170000u;
@@ -136,12 +139,22 @@ extern "C" int chimera_vfs_mount_newc(const void *archive, uint64_t archive_size
     if (walked != 0) return -10 + walked;
     const int validated = validate_tree(staging);
     if (validated != 0) return validated;
+    #if defined(_MSC_VER)
+    (void)_InterlockedExchangePointer(reinterpret_cast<void *volatile *>(&published_root),
+                                      const_cast<chimera_vfs_tree *>(staging));
+#else
     __atomic_store_n(&published_root, staging, __ATOMIC_RELEASE);
+#endif
     return 0;
 }
 
 extern "C" const chimera_vfs_tree *chimera_vfs_root(void) {
+#if defined(_MSC_VER)
+    return static_cast<const chimera_vfs_tree *>(
+        _InterlockedCompareExchangePointer(reinterpret_cast<void *volatile *>(&published_root), nullptr, nullptr));
+#else
     return __atomic_load_n(&published_root, __ATOMIC_ACQUIRE);
+#endif
 }
 
 extern "C" const chimera_vfs_node *chimera_vfs_lookup(const char *path) {
