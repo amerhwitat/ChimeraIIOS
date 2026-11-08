@@ -19,7 +19,8 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BUILD="$ROOT/build/koronos/x86_64"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+BUILD="$BUILD_ROOT/koronos/x86_64"
 mkdir -p "$BUILD"
 "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
