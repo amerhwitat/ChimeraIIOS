@@ -110,14 +110,14 @@ done
 # Stage cross-built Linux ABI command multicall binaries for all currently
 # supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
 printf '%s\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
-NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
-test -s "$NATIVE_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
+LINUX_ABI_COMMAND_OUT="$ROOT/build/linux-abi-command-matrix"
+test -s "$LINUX_ABI_COMMAND_OUT/manifest.json" || { echo "ERROR: native command ISA build manifest missing" >&2; exit 2; }
 for arch in x86_64 i686 armel aarch64 armv7 riscv64 ppc64le s390x; do
-  test -s "$NATIVE_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
-  test -L "$NATIVE_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
+  test -s "$LINUX_ABI_COMMAND_OUT/$arch/chimera-cmd" || { echo "ERROR: Linux ABI command candidate missing for $arch" >&2; exit 2; }
+  test -L "$LINUX_ABI_COMMAND_OUT/$arch/ls" || { echo "ERROR: Linux ABI command aliases missing for $arch" >&2; exit 2; }
 done
 mkdir -p "$DIST/iso/system/commands/linux-abi"
-cp -a "$NATIVE_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
+cp -a "$LINUX_ABI_COMMAND_OUT/." "$DIST/iso/system/commands/linux-abi/"
 # Carry every command and ISA catalogue with explicit platform/provider metadata.
 CATALOG_OUT="$DIST/iso/system/commands/catalogs"
 mkdir -p "$CATALOG_OUT"
@@ -145,8 +145,8 @@ install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminal
 install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$CATALOG_OUT/shells-registry.json"
 install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$CATALOG_OUT/terminals-binary-manifest.json"
 install -D -m 0644 "$ROOT/aurora/shells/binary-manifest.json" "$CATALOG_OUT/shells-binary-manifest.json"
-install -D -m 0644 "$NATIVE_COMMAND_OUT/manifest.json" "$CATALOG_OUT/linux-abi-command-matrix.json"
-python3 - "$NATIVE_COMMAND_OUT/manifest.json" <<'PY'
+install -D -m 0644 "$LINUX_ABI_COMMAND_OUT/manifest.json" "$CATALOG_OUT/linux-abi-command-matrix.json"
+python3 - "$LINUX_ABI_COMMAND_OUT/manifest.json" <<'PY'
 import json,sys
 manifest=json.load(open(sys.argv[1],encoding="utf-8"))
 expected={"x86_64","i686","armel","aarch64","armv7","riscv64","ppc64le","s390x"}
