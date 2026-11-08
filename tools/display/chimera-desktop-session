@@ -36,10 +36,10 @@ command_name="${1:-list}"
 case "$command_name" in
   --help|-h|help) usage; exit 0 ;;
   list)
-    [[ -x "$XSESSION_HELPER" ]] || { echo "Missing XDG session validator: $XSESSION_HELPER" >&2; exit 127; }
+    [[ -f "$XSESSION_HELPER" ]] && command -v python3 >/dev/null 2>&1 || { echo "Missing Python XDG session validator: $XSESSION_HELPER" >&2; exit 127; }
     rc=0
-    "$XSESSION_HELPER" --type wayland --list || rc=$?
-    "$XSESSION_HELPER" --type x11 --list || { code=$?; [[ "$code" -eq 1 ]] || rc=$code; }
+    python3 "$XSESSION_HELPER" --type wayland --list || rc=$?
+    python3 "$XSESSION_HELPER" --type x11 --list || { code=$?; [[ "$code" -eq 1 ]] || rc=$code; }
     exit "$rc"
     ;;
   status)
@@ -73,7 +73,7 @@ case "$command_name" in
     [[ -x "$XSESSION_HELPER" ]] || { echo "Missing XDG session validator: $XSESSION_HELPER" >&2; exit 127; }
     if [[ "$backend" == auto || "$backend" == wayland ]]; then
       if has_session "$WAYLAND_DIRS" "$session"; then
-        exec "$XSESSION_HELPER" --type wayland "$session"
+        exec python3 "$XSESSION_HELPER" --type wayland "$session"
       fi
       [[ "$backend" != wayland ]] || { echo "Wayland session not installed: $session" >&2; exit 127; }
     fi
