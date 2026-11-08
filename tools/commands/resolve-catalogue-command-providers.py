@@ -37,10 +37,25 @@ def main() -> int:
     if args.ss64 and args.ss64.is_file():
         try:
             ss64 = json.loads(args.ss64.read_text(encoding="utf-8"))
+            # SS64's Linux section also indexes syntax articles, examples,
+            # headings and aliases. Treat only executable command pages (or
+            # aliases already known as shell builtins/real commands) as commands.
+            known_aliases = {"gawk", "ifdown", "pgrep", "readarray", "unalias", "unix2dos", "uudecode"}
             for item in ss64.get("platforms", {}).get("linux_bash", {}).get("commands", []):
                 name = item.get("name") if isinstance(item, dict) else item
-                if isinstance(name, str) and name.strip():
-                    discovered.add(name.strip())
+                source = item.get("source", "") if isinstance(item, dict) else ""
+                if not isinstance(name, str):
+                    continue
+                token = name.strip()
+                if not re.fullmatch(r"[A-Za-z0-9_.+-]+", token):
+                    continue
+                page = source.split("?", 1)[0].rstrip("/").rsplit("/", 1)[-1]
+                page = re.sub(r"\\.html?$", "", page, flags=re.IGNORECASE).lower()
+                normalized = token.lower()
+                if not page or page.startswith("syntax-") or normalized == "rem":
+                    continue
+                if page == normalized or normalized in BUILTINS or normalized in known_aliases or shutil.which(normalized):
+                    discovered.add(normalized)
         except (OSError, json.JSONDecodeError) as exc:
             print(f"warning: could not read SS64 Linux command index: {exc}")
     names = sorted(discovered)
@@ -115,6 +130,19 @@ def main() -> int:
                     "status": "no-package-provider-found" if not candidates else "package-install-did-not-provide-command",
                     "candidate_packages": candidates,
                 }
+
+    # Package installation may create alternatives or dependencies that
+    # satisfy commands processed earlier (for example /usr/bin/open from
+    # xdg-utils). Re-scan every unresolved name after the complete install pass.
+    for name in missing:
+        path = shutil.which(name)
+        if path:
+            previous = rows[name]
+            rows[name] = {
+                "status": "verified-provider-after-package-install",
+                "path": path,
+                "candidate_packages": previous.get("candidate_packages", []),
+            }
 
     counts: dict[str, int] = {}
     for row in rows.values():
