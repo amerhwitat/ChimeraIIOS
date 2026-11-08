@@ -489,6 +489,10 @@ jobs:
             test -s "$root/usr/lib/chimera/commands/linux-abi/$arch/chimera-cmd"
           done
           test -s "$root/usr/share/icons/chimera-aurora/scalable/apps/chimera-settings.svg"
+          test -s "$root/opt/aurora/desktop/app-icons/catalog.svg"
+          test -s "$root/opt/aurora/desktop/app-icons/manifest.json"
+          test "$(find "$root/opt/aurora/desktop/app-icons/icons" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
+          test "$(find "$root/usr/share/icons/hicolor/scalable/apps" -maxdepth 1 -type f -name 'chimera-*.svg' | wc -l)" -eq 133
           test -s "$root/usr/share/chimera/aurora/sounds/menu-select.wav"
           test -s "$root/etc/systemd/system/aurora-startup-sound.service"
           cp "$iso" "$OUT_DIR/octavian-os-live-desktop-fixed.iso"
