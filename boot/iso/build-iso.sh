@@ -154,7 +154,7 @@ for rel in "$ROOT"/system/commands/*.json "$ROOT"/isa/*.json \
            "$ROOT"/data/isa/*.json "$ROOT/ISA.csv" \
            "$ROOT/config/linux-command-registry.json" \
            "$ROOT/tools/commands/os-command-runtime.json" \
-           "$ROOT/tools/commands/dos-legacy-payload-manifest.json; do
+           "$ROOT/tools/commands/dos-legacy-payload-manifest.json" ; do
   [[ -s "$rel" ]] || continue
   staged="$CATALOG_OUT/$(basename "$rel")"
   [[ -s "$staged" ]] || { echo "ERROR: command/ISA catalogue not staged: $rel" >&2; exit 2; }
