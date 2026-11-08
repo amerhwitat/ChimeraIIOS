@@ -13,14 +13,17 @@ static int health_service(const chimera_service_manifest* s, void* p) {
 }
 static const char* d_device[]={"device"};
 static const char* d_graphics[]={"graphics"};
-static const char* d_network[]={"network"};
+static const char* d_network[]={"optional-network"};
+static const char* d_desktop[]={"graphics","storage"};
+static const char* d_cycle_a[]={"cycle-b"};
+static const char* d_cycle_b[]={"cycle-a"};
 int main() {
     {
         chimera_service_manifest s[]={
           {CHIMERA_SERVICE_ABI,"device",0,CHM_RESTART_NEVER,1,0,0},
           {CHIMERA_SERVICE_ABI,"storage",0,CHM_RESTART_NEVER,1,1,d_device},
           {CHIMERA_SERVICE_ABI,"graphics",0,CHM_RESTART_NEVER,0,1,d_device},
-          {CHIMERA_SERVICE_ABI,"desktop",0,CHM_RESTART_NEVER,0,2,(const char* const[]){"graphics","storage"}}
+          {CHIMERA_SERVICE_ABI,"desktop",0,CHM_RESTART_NEVER,0,2,d_desktop}
         };
         context c={0,0,0,0}; chimera_service_ops ops={start_service,health_service};
         chimera_service_report r={};
@@ -53,8 +56,8 @@ int main() {
     }
     {
         chimera_service_manifest s[]={
-          {CHIMERA_SERVICE_ABI,"cycle-a",0,CHM_RESTART_NEVER,0,1,(const char* const[]){"cycle-b"}},
-          {CHIMERA_SERVICE_ABI,"cycle-b",0,CHM_RESTART_NEVER,0,1,(const char* const[]){"cycle-a"}}
+          {CHIMERA_SERVICE_ABI,"cycle-a",0,CHM_RESTART_NEVER,0,1,d_cycle_a},
+          {CHIMERA_SERVICE_ABI,"cycle-b",0,CHM_RESTART_NEVER,0,1,d_cycle_b}
         };
         const char* ids[2]; chimera_service_plan p={0,2,ids};
         assert(chimera_service_resolve(s,2,&p)==-6);
