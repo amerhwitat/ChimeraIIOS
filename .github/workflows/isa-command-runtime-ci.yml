@@ -194,10 +194,10 @@ jobs:
           python3 tools/commands/build_linux_abi_command_matrix.py \
             --source src/chimera-command-compat/chimera-cmd.c \
             --policy system/commands/compatibility-binary-policy.json \
-            --output build/native-command-isa --require-all
+            --output build/linux-abi-command-matrix --require-all
           python3 tools/commands/build-command-isa-coverage.py \
             --root . --busybox "$(command -v busybox)" \
-            --native-matrix build/native-command-isa/manifest.json \
+            --native-matrix build/linux-abi-command-matrix/manifest.json \
             --output build/runtime/command-isa-coverage.json
           python3 tools/commands/generate_runtime_manifest.py
           python3 - <<'PY'
@@ -212,7 +212,7 @@ jobs:
           assert d["koronos_abi_compatible"] is False
           print("25 native Linux ABI command entries generated; Koronos ABI remains explicitly separate.")
           PY
-          bash tests/commands/test-native-command-matrix.sh build/native-command-isa
+          bash tests/commands/test-native-command-matrix.sh build/linux-abi-command-matrix
           python3 -m json.tool build/runtime/command-isa-coverage.json >/dev/null
           grep -q 'catalogued-provider-required' build/runtime/command-isa-coverage.json
       - uses: actions/setup-python@v5
