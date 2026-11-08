@@ -97,9 +97,9 @@ jobs:
           mkdir -p build/qemu-installer-iso/boot/grub
           install -m 0644 build/koronos/x86_64/koronos.elf build/qemu-installer-iso/boot/koronos.elf
           install -m 0644 build/koronos/x86_64/target-init-installer.elf build/qemu-installer-iso/boot/target-init-installer.elf
-          printf 'installer-image-test\\n' > build/qemu-installer-iso/boot/installation.img
-          printf '{"schema":1,"target":"installer","test":true}\\n' > build/qemu-installer-iso/boot/installation-manifest.json
-          printf '{"schema":1,"target":"installer","read_only_test":true}\\n' > build/qemu-installer-iso/boot/installer-contract.json
+          printf '%s\n' 'installer-image-test' > build/qemu-installer-iso/boot/installation.img
+          printf '%s\n' '{"schema":1,"target":"installer","test":true}' > build/qemu-installer-iso/boot/installation-manifest.json
+          printf '%s\n' '{"schema":1,"target":"installer","read_only_test":true}' > build/qemu-installer-iso/boot/installer-contract.json
           cat > build/qemu-installer-iso/boot/grub/grub.cfg <<'GRUB'
           set timeout=0
           set default=0
