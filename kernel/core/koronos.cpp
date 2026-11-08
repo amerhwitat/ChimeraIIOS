@@ -149,13 +149,14 @@ static void console_write(const char *s) {
  */
 static chimera_vfs_tree g_boot_initramfs_vfs{};
 static chimera_vfs_node g_boot_initramfs_nodes[8192]{};
-static void mount_boot_initramfs_vfs() {
+static bool g_boot_initramfs_ready = false;
+static bool mount_boot_initramfs_vfs() {
     const chimera_boot_module *module = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_INITRAMFS_CPIO);
     if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS_CPIO);
     if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS_CPIO);
     if (!module || module->base == 0 || module->size == 0) {
         debugcon_write("[VFS ] No raw CPIO initramfs module selected");
-        return;
+        return false;
     }
     const void *archive = reinterpret_cast<const void *>(static_cast<uintptr_t>(module->base));
     const int rc = chimera_vfs_mount_newc(archive, module->size,
@@ -164,15 +165,21 @@ static void mount_boot_initramfs_vfs() {
     if (rc != 0) {
         debugcon_write("[VFS ] ERROR: transactional CPIO initramfs mount rejected");
         debugcon_write("[VFS ] No root was published; userspace handoff remains gated");
-        return;
+        return false;
     }
     debugcon_write("[VFS ] Read-only CPIO initramfs tree published");
     const chimera_vfs_node *init_node = chimera_vfs_lookup("/init");
-    if (init_node && init_node->kind == CHIMERA_VFS_REGULAR) {
-        debugcon_write("[VFS ] /init is present in the selected initramfs archive");
-    } else {
-        debugcon_write("[VFS ] WARNING: selected initramfs has no regular /init entry");
+    const chimera_vfs_node *busybox_node = chimera_vfs_lookup("/bin/busybox");
+    if (!init_node || init_node->kind != CHIMERA_VFS_REGULAR ||
+        !busybox_node || busybox_node->kind != CHIMERA_VFS_REGULAR) {
+        debugcon_write("[VFS ] ERROR: initramfs must contain regular /init and /bin/busybox files");
+        debugcon_write("[VFS ] Userspace handoff remains disabled until the root contract is satisfied");
+        return false;
     }
+    g_boot_initramfs_ready = true;
+    debugcon_write("[VFS ] /init and /bin/busybox verified in the mounted read-only root");
+    debugcon_write("[INIT] initramfs root is ready; target ELF handoff may proceed");
+    return true;
 }
 
 static void console_raw(const char *s) {
@@ -300,6 +307,11 @@ static void task_modules(void *) {
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
         if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+            if (!g_boot_initramfs_ready) {
+                console_write("[INIT] User handoff withheld: initramfs root/VFS did not pass validation");
+                chimera_sched_block();
+                return;
+            }
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
                 console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
@@ -327,7 +339,10 @@ static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
-        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) && g_boot_initramfs_ready)
+            console_write("[REC ] Recovery ring-3 init ELF is routed through the shared target launcher");
+        else
+            console_write("[USER] Recovery handoff withheld: recovery init ELF or initramfs root is unavailable");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
@@ -370,10 +385,11 @@ static void task_installer(void *) {
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
             console_write("[INST] Installer UI scaffolding initialized; graphical userspace is not running");
+            if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) && g_boot_initramfs_ready)
+                console_write("[INST] Installer ring-3 init ELF is routed through the shared target launcher (dry-run only)");
             break;
         case 4:
-            console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
-            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
+            console_write("[INST] Installer metadata/service scaffolding complete; disk installation remains dry-run only");
             chimera_sched_block();
             break;
         default:
@@ -514,7 +530,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         console_write("[MM  ] ERROR: physical frame allocator initialization failed");
         console_write("[MM  ] User-image launch must remain disabled until memory ownership is valid");
     }
-    if (physmap_init == 0 && frame_init == 0) mount_boot_initramfs_vfs();
+    if (physmap_init == 0 && frame_init == 0) {
+        if (!mount_boot_initramfs_vfs())
+            console_write("[INIT] Linux-style initramfs root setup failed; graphical and installer handoff is gated");
+    }
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
     console_u32(modules);
