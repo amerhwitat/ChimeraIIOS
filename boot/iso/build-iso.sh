@@ -125,7 +125,7 @@ for rel in \
   system/commands/chimera-command-list.json \
   system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
   system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
-  system/commands/compatibility-binary-policy.json \
+  system/commands/compatibility-binary-policy.json system/commands/native-provider-aliases.json \
   system/commands/native-provider-aliases.json \
   config/linux-command-registry.json tools/commands/os-command-runtime.json \
   ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
