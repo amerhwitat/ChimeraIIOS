@@ -19,6 +19,23 @@ Primary references:
 - systemd boot and initrd stages (systemd 261): https://www.freedesktop.org/software/systemd/man/261/bootup.html
 - X.Org server and protocol documentation: https://www.x.org/Documentation/
 - X Window System client/server concepts: https://www.x.org/guide/concepts/
+- Microsoft Windows startup phases: https://learn.microsoft.com/windows/client-management/advanced-troubleshooting-boot-problems
+- Microsoft Windows 11 Secure Boot and Trusted Boot: https://learn.microsoft.com/en-us/windows/security/operating-system-security/system-security/trusted-boot
+
+## Windows startup comparison
+
+Microsoft documents the Windows startup stages as PreBoot/firmware, Windows Boot Manager, Windows OS Loader (winload), and the Windows NT kernel. After kernel initialization, control passes to Session Manager (Smss.exe), which initializes sessions and starts remaining drivers and services; user logon and the desktop shell follow.
+
+| Windows phase | Koronos/Aurora analogue | Difference |
+|---|---|---|
+| UEFI/BIOS PreBoot | Firmware + Spit Fire | Koronos uses its own CHMBOOT1 handoff and architecture bootstrap |
+| Windows Boot Manager + BCD | Jasper + Gates/GRUB2 | Menu and boot policy are separate components; 300-second user-choice timeout |
+| winload.exe / winload.efi | GRUB2 module loading + Koronos entry | Multiboot2 modules and CHMBOOT1 are not the Windows loader format |
+| ntoskrnl + boot drivers | Koronos memory, scheduler and driver bootstrap | x86-64 implementation; driver and SMP coverage remain partial |
+| Session Manager (Smss.exe) | Kore bootstrap + selected ring-3 target ELF | Not a full PID-1/session manager or Windows process subsystem |
+| Winlogon / desktop shell | Aurora session manager and desktop | Hosted Linux desktop only; native Koronos GUI remains a release gate |
+
+The Windows analogy is architectural only. It does not mean Koronos implements the Windows kernel ABI, BCD, PE loader, Winlogon, or Windows driver model.
 
 ## Koronos mapping
 
