@@ -145,7 +145,23 @@ build_wezterm() {
   # clone leaves Cargo members missing and fails before compilation.
   git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/wez/wezterm.git "$src"
   git -C "$src" submodule update --init --recursive
-  (cd "$src" && cargo build --release --locked --bin wezterm)
+  local cargo_cmd=(cargo)
+  if command -v rustup >/dev/null 2>&1; then
+    # WezTerm's current Cargo workspace uses edition 2024, requiring Cargo 1.85+.
+    rustup toolchain install stable --profile minimal
+    cargo_cmd=(rustup run stable cargo)
+  else
+    local cargo_version
+    cargo_version="$(cargo --version | awk '{print $2}')"
+    python3 - "$cargo_version" <<'PY_CARGO_VERSION'
+import sys
+parts=tuple(int(x) for x in sys.argv[1].split(".")[:3])
+if parts < (1,85,0):
+    raise SystemExit(f"WezTerm requires Cargo 1.85+ (edition 2024); found {sys.argv[1]}. Install rustup stable.")
+PY_CARGO_VERSION
+  fi
+  "${cargo_cmd[@]}" --version
+  (cd "$src" && "${cargo_cmd[@]}" build --release --locked --bin wezterm)
   install -D -m 0755 "$src/target/release/wezterm" "$ROOTFS/usr/local/bin/wezterm"
 }
 build_ghostty() {
