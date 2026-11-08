@@ -1,6 +1,6 @@
 # ISA, command, kernel and mobile OS research
 
-Generated: 2026-11-07T17:05:45.362619+00:00
+Generated: 2026-11-07T21:38:03.543921+00:00
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -39,6 +39,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [sxbari/Avalanche-OS](https://github.com/sxbari/Avalanche-OS) — A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.; language C; stars 1; license MIT
 - [aosp-mirror-neo/kernel_common](https://github.com/aosp-mirror-neo/kernel_common) — Common Android Kernel Tree; language C; stars 1; license NOASSERTION
 - [kquieter-debug/Android_kernel_source_TB375FC](https://github.com/kquieter-debug/Android_kernel_source_TB375FC) — The common kernel for TB375FC; language C; stars 1; license NOASSERTION
+- [ccclosed/pagh-api](https://github.com/ccclosed/pagh-api) — libpagh: native userland API (syscalls, runtime, filesystem, allocator) for the pagh-riscv kernel — no Linux compatibility layer; language Rust; stars 1; license unspecified
 - [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
 - [ArianaDadgostar/Instruction-Set-Architecture](https://github.com/ArianaDadgostar/Instruction-Set-Architecture) — This computer architecture program uses 5 projects to use an assembler to translate code into machine language and a disassembler to convert it into source code. It includes an emulator to convert the machine code into action and unit tests to confirm it all works.; language C#; stars 0; license unspecified
 - [BrandonDao/ProjectISA](https://github.com/BrandonDao/ProjectISA) — A C# assembler, disassembler, and emulator for my custom instruction set architecture (work in progress); language C#; stars 0; license unspecified
@@ -62,10 +63,14 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
 - [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
 - [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
-- [SavoryBanana/sailfish-linux-6.18](https://github.com/SavoryBanana/sailfish-linux-6.18) — Android Common Kernel 6.18 (Android 17) port for Google Pixel (sailfish); language C; stars 0; license NOASSERTION
 - [LineageOS/android_kernel_amlogic_common_drivers](https://github.com/LineageOS/android_kernel_amlogic_common_drivers) — No description; language C; stars 0; license unspecified
+- [SavoryBanana/sailfish-linux-6.18](https://github.com/SavoryBanana/sailfish-linux-6.18) — Android Common Kernel 6.18 (Android 17) port for Google Pixel (sailfish); language C; stars 0; license NOASSERTION
 - [etnperlong/android_kernel_common-6.1](https://github.com/etnperlong/android_kernel_common-6.1) — No description; language C; stars 0; license NOASSERTION
 - [ramabondanp/android_kernel_common-6.12](https://github.com/ramabondanp/android_kernel_common-6.12) — No description; language C; stars 0; license NOASSERTION
+- [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
+- [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
+- [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
+- [Starry-Old/linux_syscall_api](https://github.com/Starry-Old/linux_syscall_api) — The project, written by Rust, is a compatibility layer for linux syscalls on different operating systems.; language Rust; stars 0; license unspecified
 
 ## Local and Library-exported files
 
@@ -275,9 +280,9 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
-- docs/research/isa-command-research.json — 256590 bytes; SHA-256 b4002ab0a393376f7496c2040feb892bf352e5d5e696b320e4f9a6daae49076b
+- docs/research/isa-command-research.json — 254256 bytes; SHA-256 ccd4dc045c338f8860984e0afafba16041476520cfcd40a8f1a0a0477c3baf0c
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
-- docs/research/ISA_COMMAND_RESEARCH.md — 52669 bytes; SHA-256 df17e2da336a5468c912df5eff34d02b7f537c0541d1267a2e22cc6cb4f67679
+- docs/research/ISA_COMMAND_RESEARCH.md — 51508 bytes; SHA-256 9a493b1286a62b25405f4b49c7e29cb2f6402f7e8e27191b0c061bb1b3059bbe
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
