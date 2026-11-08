@@ -281,6 +281,25 @@ jobs:
               ])
           if not (catalogue_hashes[0] == catalogue_hashes[1] == catalogue_hashes[2]):
               raise SystemExit("Live, Recovery and Installer initramfs command/ISA catalogues differ")
+          # Production release requires the native Koronos command ABI to
+          # execute every registered Chimera-native command, not merely carry
+          # Linux-hosted binaries or command metadata.
+          live_coverage = json.loads((catalogue_roots[0] / "command-isa-coverage.json").read_text(encoding="utf-8"))
+          native_commands = live_coverage.get("native_chimera_command_count", 0)
+          native_verified = live_coverage.get("native_chimera_koronos_runtime_verified_count", 0)
+          command_evidence = {
+              "schema": "chimera-native-command-provider-coverage/v1",
+              "passed": native_commands == 90 and native_verified == native_commands,
+              "native_chimera_command_count": native_commands,
+              "native_chimera_koronos_runtime_verified_count": native_verified,
+              "linux_abi_multicall_alias_count": live_coverage.get("linux_abi_multicall_alias_count", 0),
+              "source_catalogue_unique_command_count": live_coverage.get("source_catalogue_unique_command_count", 0),
+              "note": "Linux ABI binaries, BusyBox applets and host scripts are not Koronos-native execution evidence."
+          }
+          acceptance_dir = pathlib.Path("build/iso/acceptance")
+          acceptance_dir.mkdir(parents=True, exist_ok=True)
+          (acceptance_dir / "command-provider-coverage.json").write_text(
+              json.dumps(command_evidence, indent=2) + "\\n", encoding="utf-8")
           fields = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core",
                     "vbscript_core", "sql_server_core", "native_chimera")
           command_count = len({str(item.get("name") if isinstance(item, dict) else item).strip().casefold()
@@ -559,6 +578,7 @@ jobs:
               "aurora_marine_health": "aurora-marine-runtime-health.json",
               "architecture_boot_matrix": "architecture-boot-matrix.json",
               "isa_conformance": "isa-conformance.json",
+              "command_provider_coverage": "command-provider-coverage.json",
               "native_koronos_default_boot": "native-koronos-default-boot.json",
               "terminal_shell_gui_interaction": "terminal-shell-gui-interaction.json",
           }
@@ -584,6 +604,9 @@ jobs:
                   checks[name] = checks[name] and data.get("koronos_is_default") is True and data.get("linux_fallback_preserved") is True
               elif name == "isa_conformance":
                   checks[name] = checks[name] and data.get("instruction_count") == 1613 and data.get("all_semantics_conformant") is True
+              elif name == "command_provider_coverage":
+                  checks[name] = (checks[name] and data.get("native_chimera_command_count") == 90
+                                  and data.get("native_chimera_koronos_runtime_verified_count") == 90)
           accepted = not missing and all(checks.get(name, False) for name in required)
           report = {"schema": "chimera-production-acceptance/v1", "accepted": accepted,
                     "missing_evidence": missing, "checks": checks,
