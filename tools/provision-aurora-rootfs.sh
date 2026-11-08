@@ -25,6 +25,16 @@ LOG=${AURORA_PROVISION_LOG:-/tmp/chimera-aurora-provision.log}
 mkdir -p "$DEST" "$(dirname "$LOG")"
 exec >"$LOG" 2>&1
 
+# Restore the rootfs resolver even when apt or dpkg fails. A failed optional
+# provisioning attempt must not leave a build rootfs pointing at host DNS.
+restore_resolver() {
+  if [ -e "$RESOLV_BACKUP" ] || [ -L "$RESOLV_BACKUP" ]; then
+    rm -f "$ROOT_RESOLV" 2>/dev/null || true
+    mv -f "$RESOLV_BACKUP" "$ROOT_RESOLV" 2>/dev/null || true
+  fi
+}
+trap restore_resolver EXIT
+
 echo "[Aurora] Provisioning Wayland desktop runtime into $DEST"
 
 [ -x "$DEST/usr/bin/apt-get" ] || {
@@ -50,7 +60,7 @@ if [ -r "$HOST_RESOLV" ]; then
   fi
 fi
 
-if ! chroot "$DEST" /usr/bin/apt-get update -o Acquire::Retries=5; then
+if ! chroot "$DEST" /usr/bin/apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30; then
   echo "[Aurora][ERROR] apt-get update failed inside rootfs"
   exit 1
 fi
@@ -73,7 +83,7 @@ for pkg in \
   labwc waybar xwayland dbus-user-session \
   pipewire wireplumber pipewire-pulse \
   xdg-desktop-portal xdg-desktop-portal-wlr \
-  swaybg swayidle mako-notifier wl-clipboard wlr-randr \
+  swaybg swayidle mako wl-clipboard wlr-randr \
   foot fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji \
   network-manager policykit-1; do
   install_if_available "$pkg" || required_failed=1
