@@ -23,7 +23,7 @@ __attribute__((noreturn, used)) void _start(void) {
     __asm__ volatile("int $0x80" ::: "memory");
     /* Ask the active kernel process record for our PID. Never bake PID 1 into
        the user image: this must keep working when process allocation changes. */
-    register long number __asm__("rax") = 2; /* CHM_SYS_GETPID */
+    register long number __asm__("rax") = 39; /* Linux x86-64 getpid */
     __asm__ volatile("syscall"
                      : "+a"(number)
                      :
@@ -52,7 +52,7 @@ __attribute__((noreturn, used)) void _start(void) {
         pid /= 10u;
     }
     if (digits == 0 || used + digits + 2u > sizeof(ready_message)) {
-        number = 1;
+        number = 60; /* Linux x86-64 exit */
         register long failure_code __asm__("rdi") = 1;
         __asm__ volatile("syscall"
                          : "+a"(number)
