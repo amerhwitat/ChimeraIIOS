@@ -109,7 +109,10 @@
       "name": "Native Koronos display server",
       "status": "not-implemented",
       "evidence": [
-        "desktop/aurora/xserver-sessions.json"
+        "desktop/aurora/xserver-sessions.json",
+        "desktop/aurora/desktop-session-policy.json",
+        "tools/display/chimera-desktop-session",
+        "tools/display/chimera-xsession.py"
       ],
       "next": "desktop"
     },
@@ -168,9 +171,12 @@
       "X.Org X Server",
       "Xwayland"
     ],
-    "session_launcher": "tools/display/chimera-xserver-session",
-    "sessions": "XDG xsessions are discovered and launched only when their real executables exist",
-    "note": "This provides a real X server for hosted Linux desktop sessions. It does not create a native Koronos X server."
+    "wayland_compositor": "labwc",
+    "session_launcher": "tools/display/chimera-desktop-session",
+    "x11_server_launcher": "tools/display/chimera-xserver-session",
+    "xdg_session_dispatcher": "tools/display/chimera-xsession.py",
+    "sessions": "XDG wayland-sessions and xsessions are discovered and launched only when their real executables exist",
+    "note": "This provides real X.Org and Wayland session dispatch for hosted Linux desktop sessions. It does not create a native Koronos X server or compositor."
   },
   "release_gates": [
     "Koronos writable VFS, block-device API, partition/filesystem drivers and safe transaction/rollback",
