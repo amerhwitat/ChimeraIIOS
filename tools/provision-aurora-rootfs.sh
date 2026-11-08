@@ -65,9 +65,21 @@ if [ -r "$HOST_RESOLV" ]; then
   fi
 fi
 
+# Prefer fresh indexes, but do not throw away a usable cached package
+# database merely because a mirror is temporarily unavailable. In fallback
+# mode apt is forbidden from downloading: it may only install packages already
+# present in the rootfs archive cache. Missing cache entries remain explicit
+# failures for required packages and are never represented as installed.
+offline_mode=0
 if ! chroot "$DEST" /usr/bin/apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30; then
-  echo "[Aurora][ERROR] apt-get update failed inside rootfs"
-  exit 1
+  cached_candidate=$(chroot "$DEST" /usr/bin/apt-cache policy labwc 2>/dev/null | awk '$1=="Candidate:" {print $2; exit}')
+  if [ -n "$cached_candidate" ] && [ "$cached_candidate" != "(none)" ]; then
+    offline_mode=1
+    echo "[Aurora][WARN] apt-get update failed; using cached package indexes and archive files only."
+  else
+    echo "[Aurora][ERROR] apt-get update failed and no usable cached package index exists."
+    exit 1
+  fi
 fi
 
 install_if_available() {
@@ -75,10 +87,15 @@ install_if_available() {
   candidate=$(chroot "$DEST" /usr/bin/apt-cache policy "$pkg" 2>/dev/null | awk '$1=="Candidate:" {print $2; exit}')
   if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then
     echo "[Aurora] installing $pkg"
-    chroot "$DEST" /usr/bin/env DEBIAN_FRONTEND=noninteractive \
-      /usr/bin/apt-get install -y --no-install-recommends "$pkg"
+    if [ "$offline_mode" -eq 1 ]; then
+      chroot "$DEST" /usr/bin/env DEBIAN_FRONTEND=noninteractive \
+        /usr/bin/apt-get install -y --no-install-recommends --no-download "$pkg"
+    else
+      chroot "$DEST" /usr/bin/env DEBIAN_FRONTEND=noninteractive \
+        /usr/bin/apt-get install -y --no-install-recommends "$pkg"
+    fi
   else
-    echo "[Aurora][WARN] package unavailable: $pkg"
+    echo "[Aurora][WARN] package unavailable in configured indexes: $pkg"
     return 1
   fi
 }
