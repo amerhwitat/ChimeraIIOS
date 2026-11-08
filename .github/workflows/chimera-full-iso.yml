@@ -256,6 +256,17 @@ jobs:
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
+      - name: Require complete production acceptance evidence
+        id: production_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The current three-target smoke uses derived target-specific BIOS
+          # ISOs. It does not prove the production matrix or installed-system
+          # behavior, so it must never authorize a GitHub Release.
+          echo "accepted=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Production release remains blocked: six BIOS/UEFI traces from the same immutable ISO SHA, installer persistence, recovery repair, AP-backed measured SMP overlap, and Aurora/Marine runtime evidence are not yet produced by this workflow."
+
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
@@ -285,7 +296,7 @@ jobs:
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.production_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
