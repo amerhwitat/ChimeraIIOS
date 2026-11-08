@@ -135,8 +135,8 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
       linux-image-amd64 initramfs-tools live-boot live-boot-initramfs-tools \
       systemd systemd-sysv dbus dbus-x11 udev kbd console-setup \
       xserver-xorg-core xserver-xorg-legacy xserver-xorg-input-libinput \
-      xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus \
-      xinit xauth x11-xserver-utils x11-utils xfonts-base \
+      xserver-xorg-video-vesa xserver-xorg-video-fbdev xserver-xorg-video-cirrus xserver-xorg-video-all \
+      xinit xauth x11-xserver-utils x11-utils xfonts-base xwayland \
       python3 python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
       libgl1 libglx-mesa0 libegl1 libgles2 libgl-dev libegl-dev libgles-dev \
       libgbm1 libgl1-mesa-dri mesa-utils \
@@ -517,6 +517,11 @@ EOF
 # ------------------------------------------------------------- system config
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
+# Verify the actual X.Org/Xwayland server binaries before creating desktop launchers.
+for binary in /usr/bin/Xorg /usr/bin/startx /usr/bin/Xwayland /usr/local/bin/chimera-xserver-session /usr/local/bin/chimera-xsession /usr/local/bin/aurora-x11-session; do
+  [[ -x "$WORK$binary" ]] || { echo "ERROR: required X11 runtime component missing: $binary" >&2; exit 2; }
+done
+[[ -s "$WORK/usr/share/xsessions/chimera-aurora-x11.desktop" ]] || { echo "ERROR: Aurora X11 session entry missing" >&2; exit 2; }
 # Install the X.Org server session manager and Aurora X11 fallback. The
 # launcher discovers only actual installed /usr/share/xsessions entries.
 install -Dm755 "$REPO_DIR/tools/display/chimera-xserver-session" "$WORK/usr/local/bin/chimera-xserver-session"
