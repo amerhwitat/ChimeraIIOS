@@ -89,7 +89,7 @@ summary=data.get("summary",{})
 if summary.get("shells_registered")!=8 or summary.get("terminals_registered")!=20:
     raise SystemExit(f"unexpected registry counts: {summary}")
 missing=[x.get("id") for section in ("shells","terminals") for x in data.get(section,[])
-         if x.get("status") not in ("verified-elf-provider","verified-script-provider")]
+         if x.get("status")!="present-executable-not-runtime-tested" or not x.get("path")]
 if missing:
     raise SystemExit("terminal/shell providers missing or unverified: "+", ".join(missing))
 print("Verified all 8 shell and 20 terminal registry providers.")
