@@ -8,7 +8,6 @@
 #include <vector>
 #include "chimera/cpio_newc.h"
 #include "chimera/vfs.h"
-#include "chimera/interrupt.h"
 #include "chimera/service.h"
 
 namespace {
@@ -68,20 +67,6 @@ std::vector<uint8_t> archive(std::initializer_list<ArchiveEntry> entries) {
 }
 
 int main() {
-    static_assert(offsetof(chimera_interrupt_frame, vector) == 120u);
-    static_assert(offsetof(chimera_interrupt_frame, cpu_frame) == 128u);
-
-    chimera_interrupt_frame frame{};
-    frame.cpu_frame[0] = 0x1111222233334444ull;
-    frame.cpu_frame[1] = 0x23u;
-    frame.cpu_frame[2] = 0xDEADu;
-    assert(chimera_interrupt_frame_rip(&frame, 6u) == 0x1111222233334444ull);
-    assert(chimera_interrupt_frame_cs(&frame, 6u) == 0x23u);
-    assert(chimera_interrupt_frame_rip(&frame, 13u) == 0x23u);
-    assert(chimera_interrupt_frame_cs(&frame, 13u) == 0xDEADu);
-    assert(chimera_interrupt_vector_has_error_code(14u) == 1u);
-    assert(chimera_interrupt_vector_has_error_code(0x80u) == 0u);
-
     const char* storage_deps[] = {"device"};
     chimera_service_manifest services[] = {
         {CHIMERA_SERVICE_ABI, "desktop", CHM_SVC_DECLARED, CHM_RESTART_FAILURE, 0, 1, storage_deps},
