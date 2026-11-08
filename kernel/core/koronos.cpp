@@ -328,13 +328,27 @@ static void task_installer(void *) {
     }
 
     const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
-    if (module_cmdline_selects_target(user_init, "installer")) {
-        const int launch_rc = koronos_launch_selected_userspace();
-        if (launch_rc != 0)
-            console_write("[RUN ] Installer userspace failed its launch/readiness acceptance gate");
+    if (!user_init) {
+        console_write("[INST] ERROR: installer payload exists but target-init-installer.elf is missing or was not classified as USER_INIT_ELF");
+        console_write("[INST] Refusing to wait for a userspace loader that was not supplied by Jasper/GRUB");
         chimera_sched_block();
         return;
     }
+    if (!module_cmdline_selects_target(user_init, "installer")) {
+        console_write("[INST] ERROR: supplied USER_INIT_ELF does not select target=installer");
+        console_write("[INST] Module command line:");
+        console_write(user_init->cmdline);
+        chimera_sched_block();
+        return;
+    }
+    const int launch_rc = koronos_launch_selected_userspace();
+    if (launch_rc != 0) {
+        console_write("[RUN ] Installer userspace launch failed; see preceding [RUN] error for the failed stage");
+        chimera_sched_block();
+        return;
+    }
+    chimera_sched_block();
+    return;
 
     switch (installer_phase++) {
         case 0:
