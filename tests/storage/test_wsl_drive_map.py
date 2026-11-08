@@ -24,8 +24,8 @@ class WSLDriveMapTests(unittest.TestCase):
             findmnt = fake_bin / "findmnt"
             findmnt.write_text("""#!/bin/sh
 case " $* " in
-  *" -t drvfs "*) printf 'C:\\\\ %s\\nD:\\\\ %s\\n' "$FAKE_C" "$FAKE_D" ;;
-  *" -M "*) echo drvfs ;;
+  *" -o SOURCE,TARGET,FSTYPE,OPTIONS "*)
+    printf 'C:\\ %s 9p rw,aname=drvfs\\nD:\\ %s 9p rw,aname=drvfs\\n' "$FAKE_C" "$FAKE_D" ;;
   *) exit 1 ;;
 esac
 """)
@@ -47,8 +47,8 @@ esac
 
     def test_aurora_dns_and_package_names_are_valid(self):
         source = PROVISION.read_text()
-        self.assertIn(r"127\.", source)
-        self.assertNotIn(r"127\\.", source)
+        self.assertIn(r"127\\.", source)
+        self.assertNotIn(r"127\\\\.", source)
         self.assertIn("swaybg swayidle mako wl-clipboard", source)
         self.assertNotIn("mako-notifier", source)
         self.assertIn("trap restore_resolver EXIT", source)
