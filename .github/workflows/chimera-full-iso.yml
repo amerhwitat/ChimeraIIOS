@@ -643,6 +643,7 @@ jobs:
             build/iso/chimera-ii-os.iso.sha256
             build/iso/acceptance/firmware-matrix.json
             build/iso/acceptance/production-acceptance-status.json
+            build/iso/acceptance/command-provider-coverage.json
 
       - name: Fail closed when native userspace acceptance is incomplete
         if: steps.userspace_gate.outputs.accepted != 'true'
