@@ -103,10 +103,11 @@ if [ -x "$SRC/tools/provision-aurora-rootfs.sh" ]; then
     echo "[Aurora] Wayland package provisioning completed."
   else
     provision_rc=$?
-    echo "[Aurora][WARN] optional Wayland package provisioning failed (exit $provision_rc); staged runtime retained. Diagnostics: $AURORA_PROVISION_LOG" >&2
+    echo "[Aurora][ERROR] required Wayland package provisioning failed (exit $provision_rc); refusing to stage an incomplete Aurora desktop. Diagnostics: $AURORA_PROVISION_LOG" >&2
     if [ -s "$AURORA_PROVISION_LOG" ]; then
       tail -n 40 "$AURORA_PROVISION_LOG" >&2 || true
     fi
+    exit "$provision_rc"
   fi
 fi
 mkdir -p "$DEST/etc/systemd/system/getty@tty1.service.d"
