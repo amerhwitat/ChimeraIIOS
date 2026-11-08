@@ -224,15 +224,24 @@ done < <("$WORK$BB_IN_ROOT" --list)
 # Put the complete command/ISA catalogues and the actual provider coverage
 # report in both desktop editions; catalog-only entries remain explicitly marked.
 install -d "$WORK/usr/share/chimera/catalogs"
-for rel in \
-  system/commands/chimera-command-list.json \
-  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
-  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
-  system/commands/compatibility-binary-policy.json \
-  config/linux-command-registry.json tools/commands/os-command-runtime.json \
-  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
-  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
-  if [[ -s "$REPO_DIR/$rel" ]]; then install -D -m 0644 "$REPO_DIR/$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"; fi
+# Stage every first-party command catalogue and ISA source/encoding registry
+# into both hosted editions. The generated provider report below replaces any
+# checked-in snapshot with evidence from this exact target rootfs.
+for rel in "$REPO_DIR"/system/commands/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
+done
+for rel in "$REPO_DIR"/isa/*.json "$REPO_DIR"/isa/generated/*.json \
+           "$REPO_DIR"/isa/sources/*.json "$REPO_DIR"/isa/sources/imports/*.json \
+           "$REPO_DIR"/isa/koronos/*.json "$REPO_DIR"/data/isa/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
+done
+install -D -m 0644 "$REPO_DIR/ISA.csv" "$WORK/usr/share/chimera/catalogs/ISA.csv"
+for rel in "$REPO_DIR/config/linux-command-registry.json" \
+           "$REPO_DIR/tools/commands/os-command-runtime.json" \
+           "$REPO_DIR/tools/commands/dos-legacy-payload-manifest.json"; do
+  [[ -s "$rel" ]] && install -D -m 0644 "$rel" "$WORK/usr/share/chimera/catalogs/$(basename "$rel")"
 done
 install -d "$WORK/usr/lib/chimera/commands/linux-abi"
 cp -a "$NATIVE_COMMAND_OUT/." "$WORK/usr/lib/chimera/commands/linux-abi/"
