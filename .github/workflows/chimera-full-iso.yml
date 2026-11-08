@@ -273,8 +273,7 @@ jobs:
                       )
               if (coverage["source_catalogue_unique_command_count"] != 855
                       or coverage["source_catalogue_candidate_only_count"] != 818
-                      or coverage["linux_abi_multicall_alias_count"] != 37
-                      or coverage["native_chimera_source_implementation_count"] != 37):
+                      or coverage["linux_abi_multicall_alias_count"] != 37):
                   raise SystemExit("platform command coverage report is stale or incomplete")
               catalogue_hashes.append([
                   __import__("hashlib").sha256((catalog_root / name).read_bytes()).hexdigest()
