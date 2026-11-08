@@ -22,6 +22,8 @@ on:
     branches: [main]
     paths:
       - "kernel/**"
+      - "tools/build-koronos-targets.sh"
+      - "tools/boot/verify-native-boot-sequence.py"
       - "boot/iso/**"
       - "desktop/**"
       - "tools/build-koronos-targets.sh"
