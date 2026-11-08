@@ -39,6 +39,31 @@ static int exec_tool(const std::string& tool, std::vector<std::string> args)
 
 static int status()
 {
+#if defined(_WIN32)
+    OSVERSIONINFOA version{};
+    version.dwOSVersionInfoSize = sizeof(version);
+    SYSTEM_INFO system_info{};
+    GetNativeSystemInfo(&system_info);
+    char host[256] = "unknown";
+    DWORD host_size = static_cast<DWORD>(sizeof(host));
+    if (GetVersionExA(&version))
+        std::cout << "Kernel: Windows NT " << version.dwMajorVersion << "." << version.dwMinorVersion << "\n";
+    else
+        std::cout << "Kernel: Windows NT (version unavailable)\n";
+    if (GetComputerNameA(host, &host_size))
+        std::cout << "Hostname: " << host << "\n";
+    else
+        std::cout << "Hostname: unavailable\n";
+    const char* architecture = "unknown";
+    switch (system_info.wProcessorArchitecture) {
+        case PROCESSOR_ARCHITECTURE_AMD64: architecture = "x86_64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM64: architecture = "aarch64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: architecture = "i686"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: architecture = "arm"; break;
+        default: break;
+    }
+    std::cout << "Architecture: " << architecture << "\n";
+#else
     struct utsname u{};
     char host[256] = "unknown";
     if (uname(&u) == 0)
@@ -49,7 +74,7 @@ static int status()
         std::cout << "Hostname: " << host << "\n";
     else
         std::cout << "Hostname: unavailable\n";
-
+#endif
     for (const char* state : {"/run/kore/state.json", "/run/spotnik/state.json", "/run/aegis/state.json"}) {
         std::cout << state << ": " << (fs::is_regular_file(state) ? "present" : "not-present") << "\n";
     }
