@@ -44,8 +44,7 @@ jobs:
       - name: Install cross compilers and emulators
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils \\
-            gcc-multilib qemu-system-arm qemu-system-misc make
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils gcc-multilib qemu-system-arm qemu-system-misc make
       - name: Build and boot architecture probes
         run: |
           chmod +x tools/build-koronos-targets.sh
@@ -84,8 +83,8 @@ jobs:
           mkdir -p build/qemu-iso/boot/grub
           install -m 0644 build/koronos/x86_64/koronos.elf build/qemu-iso/boot/koronos.elf
           cat > build/qemu-iso/boot/grub/grub.cfg <<'GRUB'
-          # Keep the interactive boot menu visible before selecting the default.
-          set timeout=300
+          # Production menu timeout is checked separately; this smoke ISO must boot immediately.
+          set timeout=0
           set default=0
           insmod serial
           serial --unit=0 --speed=115200
