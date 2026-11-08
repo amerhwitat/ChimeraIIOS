@@ -332,6 +332,22 @@ python3 "$REPO_DIR/tools/commands/build-command-isa-coverage.py" \
   --linux-abi-matrix "$LINUX_ABI_COMMAND_OUT/manifest.json" --rootfs "$WORK" \
   --output "$WORK/usr/share/chimera/catalogs/command-isa-coverage.json"
 
+# Hash every command, ISA, architecture, provider and terminal catalogue that
+# actually ships in the image. This is a manifest of real files, not a claim
+# that every catalogue entry has an implementation.
+python3 - "$WORK/usr/share/chimera/catalogs" <<'PY'
+import hashlib,json,sys
+from pathlib import Path
+root=Path(sys.argv[1])
+rows=[]
+for path in sorted(p for p in root.rglob("*") if p.is_file() and p.name!="catalogue-manifest.json"):
+    data=path.read_bytes()
+    rows.append({"path":path.relative_to(root).as_posix(),"size":len(data),"sha256":hashlib.sha256(data).hexdigest()})
+manifest={"schema":"CHIMERA-COMMAND-ISA-CATALOGUE-MANIFEST-1","file_count":len(rows),"files":rows}
+(root/"catalogue-manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+print(f"Catalogued and SHA-256 hashed {len(rows)} shipped command/ISA/provider files.")
+PY
+
 # ------------------------------------------------------------- payload
 log "staging payload"
 PAY="$WORK/opt/aurora"
