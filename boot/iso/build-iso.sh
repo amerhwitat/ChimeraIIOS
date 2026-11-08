@@ -38,6 +38,8 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_DIR"
 python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
 # Canonical system block-size contract. Forward this unchanged into the kernel
 # build and all downstream ISO stages; never silently accept malformed values.
@@ -56,7 +58,7 @@ export TMPDIR="$WORK/tmp"
 
 printf '%s\n' '[1/7] Build and validate the Koronos Multiboot2 kernel'
 CHIMERA_SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" SYSTEM_BLOCK_SIZE="$CHIMERA_SYSTEM_BLOCK_SIZE" bash "$ROOT/kernel/build-koronos.sh"
-KORONOS_ELF="$ROOT/build/koronos/x86_64/koronos.elf"
+KORONOS_ELF="$BUILD_DIR/koronos/x86_64/koronos.elf"
 test -s "$KORONOS_ELF"
 command -v grub-file >/dev/null || { echo "grub-file is required." >&2; exit 2; }
 grub-file --is-x86-multiboot2 "$KORONOS_ELF"
@@ -75,7 +77,7 @@ cp "$DIST/bootloaders/spitfire-sf2-loader.o" "$DIST/iso/boot/spitfire/"
 # Stage its dedicated initramfs and the canonical recovery menu after
 # prepare-layout, whose legacy recovery.cfg generation is intentionally kept
 # compatible with older installations.
-RECOVERY_BOOT="$ROOT/build/live-boot/boot/recovery"
+RECOVERY_BOOT="$BUILD_DIR/live-boot/boot/recovery"
 test -s "$RECOVERY_BOOT/chimera-recovery-initramfs.img" || { echo "ERROR: Jasper recovery initramfs missing: $RECOVERY_BOOT/chimera-recovery-initramfs.img" >&2; exit 2; }
 test -s "$RECOVERY_BOOT/recovery-manifest.json" || { echo "ERROR: Jasper recovery manifest missing: $RECOVERY_BOOT/recovery-manifest.json" >&2; exit 2; }
 mkdir -p "$DIST/iso/boot/recovery"
@@ -92,7 +94,7 @@ printf '%s\n' '[3b/7] Stage ring-3 target inits (live, installer, recovery)'
 TARGETS_OUT="$DIST/iso/boot/targets"
 mkdir -p "$TARGETS_OUT"
 for target in live installer recovery; do
-  target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
+  target_elf="$BUILD_DIR/koronos/x86_64/target-init-$target.elf"
   test -s "$target_elf" || { echo "ERROR: production target init missing: $target_elf (run kernel/build-koronos.sh)" >&2; exit 2; }
   grub-file --is-x86-multiboot2 "$target_elf" >/dev/null 2>&1 && true
   readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target_elf is not ET_EXEC" >&2; exit 2; }
@@ -106,7 +108,7 @@ done
 # Stage cross-built Linux ABI command multicall binaries for all currently
 # supported Linux command ABIs. Linux ABI smoke tests do not establish Koronos syscall or kernel runtime acceptance.
 printf '%s\n' '[3c] Stage Linux ABI command candidates for x86_64, i686, armel, AArch64, ARMv7, RV64, PPC64LE and s390x'
-NATIVE_COMMAND_OUT="$ROOT/build/native-command-isa"
+NATIVE_COMMAND_OUT="$BUILD_DIR/native-command-isa"
 # This script is also invoked directly by CI and developers, so it must be
 # self-contained: build the eight Linux ABI command candidates here rather
 # than relying on tools/build-chimera-iso.sh having run beforehand.
@@ -180,25 +182,25 @@ test -s "$DIST/iso/payload/SHA256SUMS" || { echo "ERROR: payload checksums missi
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
-bash "$ROOT/tools/aurora/build-visual-assets.sh" "$ROOT/build/aurora-media"
-MEDIA="$ROOT/build/aurora-media"
+bash "$ROOT/tools/aurora/build-visual-assets.sh" "$BUILD_DIR/aurora-media"
+MEDIA="$BUILD_DIR/aurora-media"
 # Export every native Aurora SVG icon for the desktop and the installed icon theme.
 ICON_OUT="$DIST/iso/desktop/aurora/icons/generated"
-python3 "$ROOT/tools/aurora/export-icon-theme.py" --output "$ROOT/build/aurora-icons"
+python3 "$ROOT/tools/aurora/export-icon-theme.py" --output "$BUILD_DIR/aurora-icons"
 mkdir -p "$ICON_OUT" "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps"
-cp -a "$ROOT/build/aurora-icons/." "$ICON_OUT/"
-cp -a "$ROOT/build/aurora-icons/." "$DIST/iso/usr/share/icons/chimera-aurora/"
-cp -a "$ROOT/build/aurora-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps/"
+cp -a "$BUILD_DIR/aurora-icons/." "$ICON_OUT/"
+cp -a "$BUILD_DIR/aurora-icons/." "$DIST/iso/usr/share/icons/chimera-aurora/"
+cp -a "$BUILD_DIR/aurora-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/chimera-aurora/scalable/apps/"
 APP_ICON_OUT="$DIST/iso/desktop/app-icons/icons"
 python3 "$ROOT/tools/aurora/export-app-icon-theme.py" \
   --sprite "$ROOT/desktop/app-icons/catalog.svg" \
   --manifest "$ROOT/desktop/app-icons/manifest.json" \
-  --output "$ROOT/build/aurora-app-icons"
+  --output "$BUILD_DIR/aurora-app-icons"
 mkdir -p "$APP_ICON_OUT" "$DIST/iso/usr/share/icons/hicolor/scalable/apps" "$DIST/iso/desktop/app-icons"
-cp -a "$ROOT/build/aurora-app-icons/." "$APP_ICON_OUT/"
-cp -a "$ROOT/build/aurora-app-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/hicolor/scalable/apps/"
+cp -a "$BUILD_DIR/aurora-app-icons/." "$APP_ICON_OUT/"
+cp -a "$BUILD_DIR/aurora-app-icons/chimera-"*.svg "$DIST/iso/usr/share/icons/hicolor/scalable/apps/"
 cp -f "$ROOT/desktop/app-icons/catalog.svg" "$ROOT/desktop/app-icons/manifest.json" "$DIST/iso/desktop/app-icons/"
-python3 - "$ROOT/build/aurora-app-icons/manifest.json" <<'PY'
+python3 - "$BUILD_DIR/aurora-app-icons/manifest.json" <<'PY'
 import json, pathlib, sys
 manifest=json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
 if manifest.get("count") != 133: raise SystemExit(f"expected 133 generated app icons, got {manifest.get('count')}")
@@ -214,8 +216,8 @@ ISO_AURORA_ROOT="$DIST/iso/usr/share/chimera/aurora"
 mkdir -p "$DESKTOP_ART" "$ISO_AURORA_ROOT/icons" "$ISO_AURORA_ROOT/app-icons"
 cp -a "$MEDIA/." "$DESKTOP_ART/"
 cp -a "$MEDIA/." "$ISO_AURORA_ROOT/"
-cp -a "$ROOT/build/aurora-icons/." "$ISO_AURORA_ROOT/icons/"
-cp -a "$ROOT/build/aurora-app-icons/." "$ISO_AURORA_ROOT/app-icons/"
+cp -a "$BUILD_DIR/aurora-icons/." "$ISO_AURORA_ROOT/icons/"
+cp -a "$BUILD_DIR/aurora-app-icons/." "$ISO_AURORA_ROOT/app-icons/"
 for f in   backgrounds/boot.png   backgrounds/desktop.png   menus/default.png   splash/aurora-splash.png   installer/aurora-installer.png   recovery/aurora-recovery.png   diagnostics/aurora-diagnostics.png   live/aurora-live.png   mobile/aurora-mobile.png   manifest.json   progress/state.json   progress/stages.json   progress/style.json   Init.mp4; do
   test -s "$MEDIA/$f" || { echo "ERROR: Aurora asset missing: $MEDIA/$f" >&2; exit 2; }
 done
@@ -248,14 +250,14 @@ cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/jasper/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/grub/"
 cp -f "$ROOT/boot/boot-artwork-manifest.json" "$DIST/iso/boot/koronos/"
 # Mirror the same contract into the installed/live Aurora runtime when a rootfs is present.
-RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$ROOT/build/rootfs}/usr/share/chimera/aurora"
+RUNTIME_AURORA_ROOT="${CHIMERA_ROOTFS_DIR:-$BUILD_DIR/rootfs}/usr/share/chimera/aurora"
 if [[ -d "$(dirname "$RUNTIME_AURORA_ROOT")" ]]; then
   mkdir -p "$RUNTIME_AURORA_ROOT"
   cp -a "$MEDIA/." "$RUNTIME_AURORA_ROOT/"
   mkdir -p "$RUNTIME_AURORA_ROOT/icons"
-  cp -a "$ROOT/build/aurora-icons/." "$RUNTIME_AURORA_ROOT/icons/"
+  cp -a "$BUILD_DIR/aurora-icons/." "$RUNTIME_AURORA_ROOT/icons/"
   mkdir -p "$RUNTIME_AURORA_ROOT/app-icons"
-  cp -a "$ROOT/build/aurora-app-icons/." "$RUNTIME_AURORA_ROOT/app-icons/"
+  cp -a "$BUILD_DIR/aurora-app-icons/." "$RUNTIME_AURORA_ROOT/app-icons/"
 fi
 printf '%s\n' '[5/7] Validate kernel-to-GRUB linkage, graphics and installation contracts'
 test -s "$DIST/iso/boot/koronos/koronos.elf"
