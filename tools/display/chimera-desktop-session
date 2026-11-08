@@ -37,10 +37,11 @@ case "$command_name" in
   --help|-h|help) usage; exit 0 ;;
   list)
     [[ -f "$XSESSION_HELPER" ]] && command -v python3 >/dev/null 2>&1 || { echo "Missing Python XDG session validator: $XSESSION_HELPER" >&2; exit 127; }
-    rc=0
-    python3 "$XSESSION_HELPER" --type wayland --list || rc=$?
-    python3 "$XSESSION_HELPER" --type x11 --list || { code=$?; [[ "$code" -eq 1 ]] || rc=$code; }
-    exit "$rc"
+    found=0
+    if python3 "$XSESSION_HELPER" --type wayland --list; then found=1; else code=$?; [[ "$code" -eq 1 ]] || exit "$code"; fi
+    if python3 "$XSESSION_HELPER" --type x11 --list; then found=1; else code=$?; [[ "$code" -eq 1 ]] || exit "$code"; fi
+    [[ "$found" -eq 1 ]] || { echo "No XDG desktop sessions are installed." >&2; exit 1; }
+    exit 0
     ;;
   status)
     case "${XDG_SESSION_TYPE:-x11}" in
