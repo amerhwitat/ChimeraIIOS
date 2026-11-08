@@ -155,8 +155,8 @@ if [ ! -f "$BASE/.packages-installed-v5" ]; then
       for pkg in \
         libvte-2.91-0 libvte-2.91-gtk4-0 libfcft4 libpixman-1-0 libutf8proc2 \
         libjson-glib-1.0-0 libgee-0.8-2 libxml2 librsvg2-2 libgraphene-1.0-0 \
-        libqt6core6t64 libqt6gui6t64 libqt6widgets6t64 libqt6qml6t64 libqt6quick6t64 \
-        libqt6network6t64 libqt6dbus6t64 libqt6opengl6t64 libqt6svg6t64 \
+        libqt6core6t64 libqt6gui6 libqt6widgets6 libqt6qml6t64 libqt6quick6t64 \
+        libqt6network6 libqt6dbus6 libqt6opengl6 libqt6svg6t64 \
         libqt6waylandclient6 libqt6waylandcompositor6; do
         if apt-cache show "$pkg" >/dev/null 2>&1; then
           apt-get install -y -qq --no-install-recommends "$pkg" || echo "[AURORA-TERMINALS] runtime library install failed: $pkg"
