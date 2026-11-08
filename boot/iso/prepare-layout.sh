@@ -181,6 +181,7 @@ chimera_copy_if_distinct "$KERNEL" "$DIST/boot/koronos/koronos.elf"
 cp "$ROOT/boot/spitfire/sf0_mbr.asm" "$ROOT/boot/spitfire/sf1_longmode.asm" "$ROOT/boot/spitfire/sf2_loader.cpp" "$ROOT/boot/spitfire/sf2_loader.h" "$ROOT/boot/spitfire/spitfire.ld" "$DIST/boot/spitfire/"
 cp "$ROOT/boot/spitfire/sfu_uefi.c" "$ROOT/boot/spitfire/sfu_uefi.h" "$ROOT/boot/spitfire/sfu_uefi.ld" "$DIST/EFI/CHIMERA/"
 cp "$ROOT/boot/iso/grub.cfg" "$DIST/boot/grub/grub.cfg"
+cp "$ROOT/boot/loader-menu.cfg" "$DIST/boot/loader-menu.cfg"
 cp "$ROOT/boot/jasper/jasper.cfg" "$DIST/boot/jasper/jasper.cfg"
 # Legacy Jasper contract: older installers and recovery tooling look for
 # /boot/jasper/grub.cfg. Keep it synchronized with the canonical GRUB entry.
