@@ -28,5 +28,17 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("no release will be published", self.text)
         self.assertIn("name: Upload target-specific userspace acceptance traces", self.text)
 
+    def test_three_target_smoke_cannot_authorize_production_release(self):
+        self.assertIn("id: production_gate", self.text)
+        self.assertIn('echo "accepted=false" >> "$GITHUB_OUTPUT"', self.text)
+        self.assertIn("six BIOS/UEFI traces from the same immutable ISO SHA", self.text)
+        self.assertIn("installer persistence", self.text)
+        self.assertIn("recovery repair", self.text)
+        self.assertIn("AP-backed measured SMP overlap", self.text)
+        self.assertIn("Aurora/Marine runtime", self.text)
+        release = self.text.split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[1]
+        condition = next(line for line in release.splitlines() if line.strip().startswith("if:"))
+        self.assertIn("steps.production_gate.outputs.accepted == 'true'", condition)
+
 if __name__ == "__main__":
     unittest.main()
