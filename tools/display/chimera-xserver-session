@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+usage() {
+  cat <<'HELP'
+Chimera Aurora X server session manager
+
+Usage:
+  chimera-xserver-session list
+  chimera-xserver-session status
+  chimera-xserver-session start SESSION_ID
+
+Uses the distribution X.Org X server and the installed XDG /usr/share/xsessions
+registry. It does not fabricate session binaries or desktop entries.
+HELP
+}
+command_name="${1:-list}"
+case "$command_name" in
+  --help|-h|help) usage; exit 0 ;;
+  list)
+    found=0
+    for dir in /usr/local/share/xsessions /usr/share/xsessions; do
+      [[ -d "$dir" ]] || continue
+      while IFS= read -r file; do
+        [[ -n "$file" ]] || continue
+        id="$(basename "$file" .desktop)"
+        name="$(sed -n 's/^Name=//p' "$file" | head -n1)"
+        printf '%-24s %s\n' "$id" "${name:-$id}"
+        found=1
+      done < <(find "$dir" -maxdepth 1 -type f -name '*.desktop' -print | sort)
+    done
+    (( found )) || { echo "No X11 desktop sessions are installed."; exit 1; }
+    ;;
+  status)
+    if [[ -n "${DISPLAY:-}" ]] && command -v xdpyinfo >/dev/null 2>&1 && xdpyinfo >/dev/null 2>&1; then
+      echo "X server: connected at $DISPLAY"
+    else
+      echo "X server: not running in this session"
+      exit 1
+    fi
+    ;;
+  start)
+    session="${2:-}"
+    [[ "$session" =~ ^[A-Za-z0-9_.+-]{1,80}$ ]] || { usage >&2; exit 2; }
+    for tool in Xorg startx python3; do
+      command -v "$tool" >/dev/null 2>&1 || { echo "Required X server component missing: $tool" >&2; exit 127; }
+    done
+    found=0
+    for dir in /usr/local/share/xsessions /usr/share/xsessions; do
+      [[ -f "$dir/$session.desktop" ]] && found=1
+    done
+    (( found )) || { echo "X11 session not installed: $session (run 'chimera-xserver-session list')" >&2; exit 127; }
+    [[ "$(id -u)" -ne 0 ]] || { echo "Refusing to start a desktop X server as root." >&2; exit 2; }
+    export XDG_SESSION_TYPE=x11
+    unset WAYLAND_DISPLAY
+    exec startx /usr/local/bin/chimera-xsession "$session" -- :0 -nolisten tcp -noreset
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
