@@ -19,6 +19,7 @@
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
+namespace { static void debugcon_write(const char *s); }
 extern "C" void koronos_syscall_trace(const char *message) {
     /* Syscall-context diagnostics must not touch VGA or UART console paths. */
     debugcon_write(message);
