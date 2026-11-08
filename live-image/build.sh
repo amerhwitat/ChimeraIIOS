@@ -517,11 +517,6 @@ EOF
 # ------------------------------------------------------------- system config
 log "system configuration"
 install -Dm755 "$HERE/lib/aurora-kiosk.py" "$WORK/usr/local/bin/aurora-kiosk.py"
-# Verify the actual X.Org/Xwayland server binaries before creating desktop launchers.
-for binary in /usr/bin/Xorg /usr/bin/startx /usr/bin/Xwayland /usr/local/bin/chimera-xserver-session /usr/local/bin/chimera-xsession /usr/local/bin/aurora-x11-session; do
-  [[ -x "$WORK$binary" ]] || { echo "ERROR: required X11 runtime component missing: $binary" >&2; exit 2; }
-done
-[[ -s "$WORK/usr/share/xsessions/chimera-aurora-x11.desktop" ]] || { echo "ERROR: Aurora X11 session entry missing" >&2; exit 2; }
 # Install the X.Org server session manager and Aurora X11 fallback. The
 # launcher discovers only actual installed /usr/share/xsessions entries.
 install -Dm755 "$REPO_DIR/tools/display/chimera-xserver-session" "$WORK/usr/local/bin/chimera-xserver-session"
@@ -531,6 +526,12 @@ install -Dm644 "$REPO_DIR/desktop/aurora/chimera-aurora-x11.desktop" "$WORK/usr/
 install -Dm644 "$REPO_DIR/desktop/aurora/xserver-sessions.json" "$WORK/usr/share/chimera/aurora/xserver-sessions.json"
 install -Dm644 "$REPO_DIR/desktop/aurora/xserver-sessions.json" "$WORK/usr/share/chimera/catalogs/xserver-sessions.json"
 install -Dm644 "$REPO_DIR/desktop/aurora/chimera-aurora-x11.desktop" "$WORK/usr/share/applications/chimera-aurora-x11.desktop"
+
+# Verify the actual X.Org/Xwayland server binaries before creating desktop launchers.
+for binary in /usr/bin/Xorg /usr/bin/startx /usr/bin/Xwayland /usr/local/bin/chimera-xserver-session /usr/local/bin/chimera-xsession /usr/local/bin/aurora-x11-session; do
+  [[ -x "$WORK$binary" ]] || { echo "ERROR: required X11 runtime component missing: $binary" >&2; exit 2; }
+done
+[[ -s "$WORK/usr/share/xsessions/chimera-aurora-x11.desktop" ]] || { echo "ERROR: Aurora X11 session entry missing" >&2; exit 2; }
 
 # Linux-style userspace: systemd units, sysusers/tmpfiles, D-Bus policy and helpers.
 if [ -d "$REPO_DIR/userspace" ] && [ -f "$REPO_DIR/userspace/Makefile" ]; then
