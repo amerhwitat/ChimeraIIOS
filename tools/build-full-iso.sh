@@ -26,6 +26,7 @@ if [[ "$TARGET_ARCH" != "x86_64" ]]; then
 fi
 python3 "$ROOT/tools/boot/verify-menu-timeouts.py" --root "$ROOT"
 BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
 BUILD="$BUILD_ROOT/full"
 ISO_DIR="$BUILD_ROOT/iso"
 mkdir -p "$BUILD" "$ISO_DIR"
