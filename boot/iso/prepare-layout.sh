@@ -162,6 +162,7 @@ for required in \
   "$LIVE_BOOT/boot/live/live-manifest.json"; do
   [[ -s "$required" ]] || { echo "Required live artifact missing: $required" >&2; exit 2; }
 done
+(cd "$LIVE_BOOT/boot/live" && sha256sum --check chimera-live-initramfs.cpio.sha256)
 mkdir -p "$DIST/boot/live"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$DIST/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio" "$DIST/boot/live/"
