@@ -55,6 +55,11 @@ done
 [ -f "$SRC/desktop/aurora/waybar/style.css" ] && cp -f "$SRC/desktop/aurora/waybar/style.css" "$DEST/usr/share/chimera/aurora/waybar/"
 [ -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" ] && cp -f "$SRC/desktop/aurora/xdg-desktop-portal/aurora-portals.conf" "$DEST/etc/xdg/xdg-desktop-portal/aurora-portals.conf"
 
+# Ship the optional WSL2 DrvFs integration command in hosted root filesystems.
+if [ -f "$SRC/tools/wsl/chimera-wsl-drives.py" ]; then
+  install -D -m 0755 "$SRC/tools/wsl/chimera-wsl-drives.py" "$DEST/usr/bin/chimera-wsl-drives"
+fi
+
 # Build-time media is optional. Missing ffmpeg or source artwork must never
 # abort the ISO build; the static Aurora assets remain the fallback.
 if [ -f "$SRC/tools/generate-aurora-media.sh" ]; then
