@@ -37,6 +37,9 @@ assert 'ghostty|contour)' in installer or 'ghostty|contour' in installer
 assert "pinned-upstream-release-required" in installer
 assert "sha256sum --check" in source_builder and "v0.6.3.8249" in source_builder
 assert 'install -D -m 0755 "$ROOTFS/usr/bin/contour" "$ROOTFS/usr/local/bin/contour"' in source_builder
+assert 'dpkg-deb -f "$deb" Package' in source_builder
+assert 'dpkg-deb -f "$deb" Version' in source_builder
+assert 'dpkg-deb -f "$deb" Architecture' in source_builder
 for alias in ("chimera-terminal","chimera-terminals","chimera-shell-ar"):
     assert alias in (root/"tools/aurora/install-terminal-shell-suite.sh").read_text()
 assert "rev-parse HEAD" in source_builder
