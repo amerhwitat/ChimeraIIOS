@@ -19,6 +19,9 @@ on:
       - '.github/workflows/koronos-process-loader.yml'
   pull_request:
     paths:
+      - 'kernel/core/koronos.cpp'
+      - 'kernel/core/target_launch.cpp'
+      - 'tests/boot/test_installer_target_init_routing.py'
       - 'kernel/core/process_loader.cpp'
       - 'kernel/include/chimera/process_loader.h'
       - 'kernel/tests/process_loader_test.cpp'
