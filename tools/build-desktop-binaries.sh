@@ -19,7 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_DESKTOP_BUILD_DIR:-$ROOT/build/desktop}"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="${CHIMERA_DESKTOP_BUILD_DIR:-$BUILD_ROOT/desktop}"
 CXX="${CXX:-g++}"
 mkdir -p "$OUT/bin" "$OUT/python" "$OUT/manifests"
 if [[ -f "$ROOT/desktop/aurora/aurora-launcher.cpp" ]]; then
