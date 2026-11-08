@@ -9,6 +9,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 MAPPER = ROOT / "tools/storage/chimera-wsl-drive-map.sh"
 PROVISION = ROOT / "tools/provision-aurora-rootfs.sh"
 STAGER = ROOT / "tools/stage-chimera-runtime.sh"
+BUILD = ROOT / "build-chimera-iso.sh"
 
 
 class WSLDriveMapTests(unittest.TestCase):
@@ -43,6 +44,10 @@ esac
                 link = mnt / "drive" / alias
                 self.assertTrue(link.is_symlink(), str(link))
                 self.assertEqual(link.resolve(), target.resolve())
+
+    def test_main_iso_builder_refreshes_wsl_drive_aliases(self):
+        source = BUILD.read_text()
+        self.assertIn('bash "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh"', source)
 
     def test_aurora_dns_and_package_names_are_valid(self):
         source = PROVISION.read_text()
