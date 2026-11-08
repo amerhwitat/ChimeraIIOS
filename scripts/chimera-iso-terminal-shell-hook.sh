@@ -34,6 +34,8 @@ bash "$ROOT/tools/aurora/install-terminal-shell-suite.sh" "$CHIMERA_ROOTFS_DIR"
 bash "$ROOT/tools/aurora/build-terminal-shell-sources.sh" "$CHIMERA_ROOTFS_DIR" "$CHIMERA_TERMINAL_CACHE"
 CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$ROOT/live-image/verify-terminal-shell-suite.sh" \
   "$CHIMERA_ROOTFS_DIR" "${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+# Build all eight registered open-source shells from source in addition to verified package providers.
+bash "$ROOT/scripts/import-aurora-shell-suite.sh"
 export CHIMERA_TERMINAL_MODE=binary-only
 bash "$ROOT/scripts/import-aurora-terminal-shell-suite.sh"
 bash "$ROOT/aurora/terminals/install-desktop-entries.sh"
