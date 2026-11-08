@@ -156,6 +156,7 @@ jobs:
           python3 tests/commands/test_native_provider_aliases.py
           python3 tests/desktop/test_aurora_sound_contract.py
           python3 tests/desktop/test_terminal_shell_suite_contract.py
+          python3 tests/desktop/test_xserver_session_manager.py
           python3 tests/desktop/test_app_icon_export.py
           python3 tests/desktop/test_aurora_app_icon_usage.py
           node --check desktop/aurora-shell/assets/shell.js
@@ -430,6 +431,7 @@ jobs:
           python3 -m py_compile tools/aurora/verify-terminal-shell-providers.py
           bash -n tools/aurora/install-terminal-shell-suite.sh tools/aurora/build-terminal-shell-sources.sh aurora/terminals/install-desktop-entries.sh aurora/terminals/aurora-terminal-center.sh aurora/shells/launch-shell.sh live-image/verify-terminal-shell-suite.sh tests/commands/test-native-chimera-tools.sh tests/desktop/test-aurora-terminal-shell-centers.sh
           python3 tests/desktop/test_aurora_sound_contract.py
+          python3 tests/desktop/test_xserver_session_manager.py
           python3 tools/boot/verify-menu-timeouts.py --root .
       - name: Verify Octavian Aurora desktop fullscreen
         run: |
