@@ -344,7 +344,7 @@ for path in sorted(p for p in root.rglob("*") if p.is_file() and p.name!="catalo
     data=path.read_bytes()
     rows.append({"path":path.relative_to(root).as_posix(),"size":len(data),"sha256":hashlib.sha256(data).hexdigest()})
 manifest={"schema":"CHIMERA-COMMAND-ISA-CATALOGUE-MANIFEST-1","file_count":len(rows),"files":rows}
-(root/"catalogue-manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+(root/"catalogue-manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 print(f"Catalogued and SHA-256 hashed {len(rows)} shipped command/ISA/provider files.")
 PY
 
