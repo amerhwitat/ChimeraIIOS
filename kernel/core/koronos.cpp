@@ -19,6 +19,10 @@
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_syscall_trace(const char *message) {
+    /* Syscall-context diagnostics must not touch VGA or UART console paths. */
+    debugcon_write(message);
+}
 
 /* Monitor task id, used by the idle loop to drive a periodic diagnostic tick.
    Without it every bootstrap service blocks and the scheduler has no runnable
@@ -667,21 +671,25 @@ static char koronos_console_getchar() {
 }
 
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
+    koronos_syscall_trace("[SYSC] WRITE entered kernel copy path");
     if (length == 0) return 0;
-    if (length > 4096u) return -22;
+    if (length > 4096u) {
+        koronos_syscall_trace("[SYSC] WRITE rejected: length exceeds one-page limit");
+        return -22;
+    }
     uint64_t root = 0;
     __asm__ volatile("mov %%cr3, %0" : "=r"(root));
     if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0) {
-        koronos_target_log("[SYSC] WRITE rejected: user buffer is outside mapped user pages");
+        koronos_syscall_trace("[SYSC] WRITE rejected: user buffer is outside mapped user pages");
         return -14;
     }
+    koronos_syscall_trace("[SYSC] WRITE user range validated");
     const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
     if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
-        koronos_target_log("[USER] target-specific readiness marker accepted");
-    for (uint64_t i = 0; i < length; ++i) {
-        char one[2] = {static_cast<char>(bytes[i]), 0};
-        console_raw(one);
-    }
+        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
+    koronos_syscall_trace("[SYSC] WRITE copying bytes to debug console");
+    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    koronos_syscall_trace("[SYSC] WRITE completed");
     return static_cast<int64_t>(length);
 }
 
