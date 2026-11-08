@@ -50,7 +50,7 @@ def main() -> int:
                 if not re.fullmatch(r"[A-Za-z0-9_.+-]+", token):
                     continue
                 page = source.split("?", 1)[0].rstrip("/").rsplit("/", 1)[-1]
-                page = re.sub(r"\\.html?$", "", page, flags=re.IGNORECASE).lower()
+                page = re.sub(r"\.html?$", "", page, flags=re.IGNORECASE).lower()
                 normalized = token.lower()
                 if not page or page.startswith("syntax-") or normalized == "rem":
                     continue
