@@ -307,8 +307,10 @@ ln -sfn ../aurora-startup-sound.service "$WORK/etc/systemd/system/multi-user.tar
 
 # Install real, package-manager-verified open-source shells and terminals in both editions.
 log "installing Aurora terminal and shell suite"
-bash "$REPO_DIR/tools/aurora/install-terminal-shell-suite.sh" "$WORK"
-bash "$REPO_DIR/tools/aurora/build-terminal-shell-sources.sh" "$WORK" "$BUILD/terminal-shell-sources"
+CHIMERA_ROOTFS_DIR="$WORK" \
+CHIMERA_TERMINAL_CACHE="$BUILD/terminal-shell-sources" \
+CHIMERA_TARGET_ARCH=x86_64 \
+  bash "$REPO_DIR/scripts/import-aurora-terminal-suite.sh"
 # Put the real repository sources at the absolute paths used by executable
 # provider launchers before running the target-rootfs provider audit.
 PAY="$WORK/opt/aurora"
