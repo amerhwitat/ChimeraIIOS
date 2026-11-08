@@ -57,23 +57,21 @@ for required in \
   }
 done
 install -d "$P/etc/chimera/catalogs"
-for rel in \
-  system/commands/chimera-command-list.json \
-  system/commands/ss64-command-catalog.json \
-  system/commands/ss64-command-catalog.ar.json \
-  system/commands/native-command-candidates.json \
-  system/commands/command-runtime-capabilities.json \
-  system/commands/compatibility-binary-policy.json \
-  config/linux-command-registry.json \
-  tools/commands/os-command-runtime.json \
-  ISA.csv isa/catalog.json \
-  isa/sources/imports/riscv-opcodes.json \
-  isa/generated/universal-instruction-catalog.json \
-  isa/generated/isa-encoding-registry.json \
-  data/isa/online-isa-index.json; do
-  if [[ -s "$ROOT/$rel" ]]; then
-    install -D -m 0644 "$ROOT/$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
-  fi
+for rel in "$ROOT"/system/commands/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+done
+for rel in "$ROOT"/isa/*.json "$ROOT"/isa/generated/*.json \
+           "$ROOT"/isa/sources/*.json "$ROOT"/isa/sources/imports/*.json \
+           "$ROOT"/isa/koronos/*.json "$ROOT"/data/isa/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+done
+install -D -m 0644 "$ROOT/ISA.csv" "$P/etc/chimera/catalogs/ISA.csv"
+for rel in "$ROOT/config/linux-command-registry.json" \
+           "$ROOT/tools/commands/os-command-runtime.json" \
+           "$ROOT/tools/commands/dos-legacy-payload-manifest.json"; do
+  [[ -s "$rel" ]] && install -D -m 0644 "$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
 done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$P/etc/chimera/catalogs/terminals-registry.json"
 install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$P/etc/chimera/catalogs/terminals-binary-manifest.json"
