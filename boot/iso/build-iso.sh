@@ -147,6 +147,18 @@ for rel in "$ROOT/config/linux-command-registry.json" \
            "$ROOT/tools/commands/dos-legacy-payload-manifest.json"; do
   [[ -s "$rel" ]] && install -D -m 0644 "$rel" "$CATALOG_OUT/$(basename "$rel")"
 done
+# Fail the native ISO build if any source command/ISA catalogue was omitted.
+for rel in "$ROOT"/system/commands/*.json "$ROOT"/isa/*.json \
+           "$ROOT"/isa/generated/*.json "$ROOT"/isa/sources/*.json \
+           "$ROOT"/isa/sources/imports/*.json "$ROOT"/isa/koronos/*.json \
+           "$ROOT"/data/isa/*.json "$ROOT/ISA.csv" \
+           "$ROOT/config/linux-command-registry.json" \
+           "$ROOT/tools/commands/os-command-runtime.json" \
+           "$ROOT/tools/commands/dos-legacy-payload-manifest.json; do
+  [[ -s "$rel" ]] || continue
+  staged="$CATALOG_OUT/$(basename "$rel")"
+  [[ -s "$staged" ]] || { echo "ERROR: command/ISA catalogue not staged: $rel" >&2; exit 2; }
+done
 install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$CATALOG_OUT/terminals-registry.json"
 install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$CATALOG_OUT/shells-registry.json"
 install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$CATALOG_OUT/terminals-binary-manifest.json"
