@@ -93,7 +93,8 @@ def main():
     ap.add_argument("--timeout",type=int,default=25)
     ap.add_argument("--max-files",type=int,default=500)
     ap.add_argument("--revision",default=DEFAULT_REVISION,help="immutable upstream commit SHA (40 hex characters)")
-    ap.add_argument("--allow-cached",action="store_true",help="reuse an existing schema- and revision-validated import if GitHub rate limits the upstream fetch")
+    ap.add_argument("--allow-cached",dest="allow_cached",action="store_true",default=True,help="reuse the checked-in schema- and revision-validated import if the pinned upstream fetch is unavailable (default)")
+    ap.add_argument("--require-refresh",dest="allow_cached",action="store_false",help="require a successful fetch from the pinned upstream revision; never use the checked-in cache")
     args=ap.parse_args()
     if not re.fullmatch(r"[0-9a-fA-F]{40}", args.revision):
         raise SystemExit("--revision must be an immutable 40-character commit SHA")
