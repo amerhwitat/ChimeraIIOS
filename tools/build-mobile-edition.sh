@@ -19,7 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_MOBILE_BUILD_DIR:-$ROOT/build/mobile}"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="${CHIMERA_MOBILE_BUILD_DIR:-$BUILD_ROOT/mobile}"
 mkdir -p "$OUT/bin" "$OUT/source" "$OUT/manifests" "$OUT/apps" "$OUT/flash"
 if [[ -x "$ROOT/tools/build-mobile-binaries.sh" ]]; then "$ROOT/tools/build-mobile-binaries.sh"; fi
 cp "$ROOT/config/mobile-os-sources.json" "$OUT/manifests/mobile-os-sources.json"
@@ -29,7 +31,7 @@ chmod +x "$OUT/flash/mobile-flash-tool.sh"
 cp "$ROOT/config/foreign-runtime-sources.json" "$OUT/manifests/"
 stage_source_tree() {
   local name="$1"
-  local src="$ROOT/build/foreign/source/$name"
+  local src="$BUILD_ROOT/foreign/source/$name"
   local dst="$OUT/source/$name"
 
   [[ -d "$src" ]] || return 0
