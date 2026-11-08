@@ -45,7 +45,7 @@ static bool same_path(const char* a, const char* b) {
 
 static int normalize_path(const uint8_t* name, uint32_t name_size,
                           char* out, uint32_t* out_length) {
-    if (!name || !out || !out_length || name_size == 0u ||
+    if (!name || !out || !out_length || name_size <= 1u ||
         name_size > CHIMERA_INITRAMFS_PATH_MAX + 1u) return -1;
     if (name[name_size - 1u] != 0u) return -2;
     for (uint32_t i = 0; i + 1u < name_size; ++i)
@@ -162,6 +162,7 @@ static int parse_archive(const uint8_t* bytes, uint64_t size, bool emit,
             if (file_size != 0u) return -11;
         } else if (file_type == 0120000u) entry_type = CHM_INITRAMFS_SYMLINK;
         else return -12;
+        if (path_length == 0u && entry_type != CHM_INITRAMFS_DIRECTORY) return -12;
 
         const uint8_t* data = bytes + data_offset;
         if (crc) {
