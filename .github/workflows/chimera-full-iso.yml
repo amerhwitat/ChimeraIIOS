@@ -464,6 +464,14 @@ jobs:
             ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
             ovmf_vars_template=/usr/share/OVMF/OVMF_VARS.fd
           fi
+          mkdir -p "$base/init-elf-hashes"
+          for target in live installer recovery; do
+            init_elf="$base/init-elf-hashes/target-init-$target.elf"
+            if ! xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$init_elf" >/dev/null 2>&1 || [[ ! -s "$init_elf" ]]; then
+              echo "::warning::Could not extract target-init-$target.elf from the immutable ISO."
+              accepted=false
+            fi
+          done
           : > "$base/actual-firmware-matrix.tsv"
           if [[ ! -s "$ovmf_code" || ! -s "$ovmf_vars_template" ]]; then
             echo "::warning::OVMF firmware files unavailable; UEFI actual-ISO cases cannot pass."
@@ -506,7 +514,14 @@ jobs:
                 elif ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
                   case_passed=false
                 fi
-                printf '%s|%s|%s|%s\n' "$firmware" "$target" "$case_passed" "$iso_sha" >> "$base/actual-firmware-matrix.tsv"
+                init_elf="$base/init-elf-hashes/target-init-$target.elf"
+                init_elf_sha=""
+                if [[ -s "$init_elf" ]]; then
+                  init_elf_sha="$(sha256sum "$init_elf" | awk '{print $1}')"
+                else
+                  case_passed=false
+                fi
+                printf '%s|%s|%s|%s|%s\n' "$firmware" "$target" "$case_passed" "$iso_sha" "$init_elf_sha" >> "$base/actual-firmware-matrix.tsv"
                 if [[ "$case_passed" != true ]]; then
                   echo "::warning::Actual ISO $firmware/$target userspace boot failed."
                   accepted=false
@@ -525,12 +540,24 @@ jobs:
               for line in tsv.read_text().splitlines():
                   if not line.strip():
                       continue
-                  firmware, target, passed, case_sha = line.split("|")
-                  cases.append({"firmware": firmware, "target": target, "passed": passed == "true", "iso_sha256": case_sha})
+                  firmware, target, passed, case_sha, init_elf_sha = line.split("|")
+                  cases.append({"firmware": firmware, "target": target, "passed": passed == "true",
+                                "iso_sha256": case_sha, "init_elf_sha256": init_elf_sha})
+          expected = {(firmware, target) for firmware in ("bios", "uefi")
+                      for target in ("live", "installer", "recovery")}
+          actual = {(case["firmware"], case["target"]) for case in cases}
+          init_hashes = {
+              target: sorted({case["init_elf_sha256"] for case in cases if case["target"] == target})
+              for target in ("live", "installer", "recovery")
+          }
+          same_target_init_hash = all(len(values) == 1 and bool(values[0]) for values in init_hashes.values())
           report = {
-              "schema": "chimera-same-iso-firmware-matrix/v1",
-              "passed": len(cases) == 6 and all(case["passed"] for case in cases),
+              "schema": "chimera-same-iso-firmware-matrix/v2",
+              "passed": len(cases) == 6 and actual == expected and all(case["passed"] for case in cases),
               "same_iso_sha256": len(cases) == 6 and all(case["iso_sha256"] == iso_sha for case in cases),
+              "same_target_init_elf_sha256_across_firmware": same_target_init_hash,
+              "init_elf_sha256_by_target": {target: values[0] if len(values) == 1 else None
+                                            for target, values in init_hashes.items()},
               "iso_sha256": iso_sha,
               "cases": cases,
           }
@@ -540,7 +567,8 @@ jobs:
           if ! python3 - <<'PY_CHECK_FIRMWARE_MATRIX'
           import json, pathlib, sys
           report = json.loads(pathlib.Path("build/iso/acceptance/firmware-matrix.json").read_text())
-          sys.exit(0 if report["passed"] and report["same_iso_sha256"] else 1)
+          sys.exit(0 if (report["passed"] and report["same_iso_sha256"]
+                          and report["same_target_init_elf_sha256_across_firmware"]) else 1)
           PY_CHECK_FIRMWARE_MATRIX
           then
             accepted=false
@@ -598,8 +626,11 @@ jobs:
                   actual_cases = {(case.get("firmware"), case.get("target"))
                                   for case in data.get("cases", [])}
                   checks[name] = (checks[name] and data.get("same_iso_sha256") is True
-                                  and expected_cases.issubset(actual_cases)
-                                  and all(case.get("passed") is True for case in data.get("cases", [])))
+                                  and data.get("same_target_init_elf_sha256_across_firmware") is True
+                                  and len(data.get("cases", [])) == 6
+                                  and expected_cases == actual_cases
+                                  and all(case.get("passed") is True and bool(case.get("init_elf_sha256"))
+                                          for case in data.get("cases", [])))
               elif name == "filesystem_syscall_contract":
                   checks[name] = (checks[name]
                                   and data.get("etc_os_release_open") is True
