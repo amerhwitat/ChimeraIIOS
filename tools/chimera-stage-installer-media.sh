@@ -69,6 +69,8 @@ echo "[INSTALL] Interactive recovery shell ready; disk operations remain disable
 exec /bin/sh
 EOF
 chmod +x "$P/init"
+installer_cpio_entries="$(find "$P" -print | wc -l)"
+(( installer_cpio_entries <= 8192 )) || { echo "ERROR: installer CPIO has $installer_cpio_entries entries; Koronos VFS capacity is 8192" >&2; exit 2; }
 ( cd "$P" && find . -print0 | cpio --null -o -H newc ) > "$DEST/install/installer/installation.cpio"
 (cd "$DEST/install/installer" && sha256sum installation.cpio > installation.cpio.sha256)
 ( cd "$P" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installation.img"
