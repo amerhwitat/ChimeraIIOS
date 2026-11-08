@@ -347,6 +347,7 @@ manifest={"schema":"CHIMERA-COMMAND-ISA-CATALOGUE-MANIFEST-1","file_count":len(r
 (root/"catalogue-manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8")
 print(f"Catalogued and SHA-256 hashed {len(rows)} shipped command/ISA/provider files.")
 PY
+python3 "$REPO_DIR/tools/commands/verify-shipped-catalogue-manifest.py" "$WORK"
 
 # ------------------------------------------------------------- payload
 log "staging payload"
