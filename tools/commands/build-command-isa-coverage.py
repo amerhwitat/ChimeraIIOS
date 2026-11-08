@@ -120,14 +120,14 @@ def main():
             linux_abi_matrix=None
             linux_abi_targets={}
     for row in rows.values():
-        if "chimera-native" in row["platforms"]:
-            built=[arch for arch,entry in linux_abi_targets.items() if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated" and row["command"] in entry.get("aliases",[])]
+        built=[arch for arch,entry in linux_abi_targets.items()
+               if entry.get("binary_status")=="cross-compiled-and-elf-machine-validated"
+               and row["command"] in entry.get("aliases",[])]
+        if built:
             row["linux_abi_binary_targets"]=sorted(built)
             row["linux_abi_runtime_status"]=linux_abi_targets.get(args.target_arch,{}).get("runtime_status","not-tested-for-target") if args.target_arch in built else "not-built-or-not-verified"
+        if "chimera-native" in row["platforms"]:
             row["koronos_runtime_status"]="not-tested-koronos-abi"
-            if "linux-bash" not in row["platforms"]:
-                row["provider"]="linux-abi-multicall-crossbuilt" if built else row["provider"]
-                row["path"]=None
 
     csv_path=root/"ISA.csv"
     isa={}
