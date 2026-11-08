@@ -34345,7 +34345,7 @@
         "elf_machine": "Advanced Micro Devices X86-64",
         "elf_machine_id": 62,
         "runtime_status": "native-linux-abi-smoke-tested",
-        "sha256": "548599643b83d944959d390d471aa88700f66de098dd3c72be1b3d32d2404f00",
+        "sha256": "592ed89edf20afd44227ee86bc44fb16a65bfff1dcd4a11ecab22a531c89814c",
         "target": "x86_64"
       },
       {
@@ -34394,7 +34394,7 @@
         "elf_machine": "Intel 80386",
         "elf_machine_id": 3,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "cda98c874dea178f955dca35d9d5fe55bfb9ddb1197b8b27a152dd20accbad7f",
+        "sha256": "c0cec8bb6f524c649bb4a623adaa4a8a48b5616b43274a2c6dd30c94f87c6033",
         "target": "i686"
       },
       {
@@ -34443,7 +34443,7 @@
         "elf_machine": "ARM",
         "elf_machine_id": 40,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "1d10d1bfed1018204aab1177dfe644168c66c272287fc7adc10335417c39ac8d",
+        "sha256": "ac6f1da281185254dab3dee2a166b34f09bdf5f7fa63fba3b3bbac81ea216bd6",
         "target": "armel"
       },
       {
@@ -34492,7 +34492,7 @@
         "elf_machine": "AArch64",
         "elf_machine_id": 183,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "3bc1e8f952c09279b6b685dc70a8831bae1189d67d967d40bbc0d19d9fb62e63",
+        "sha256": "5e48fcf5f16506d216f620678f63e139ad31494a8356d60499491120b8bd19aa",
         "target": "aarch64"
       },
       {
@@ -34541,7 +34541,7 @@
         "elf_machine": "ARM",
         "elf_machine_id": 40,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "a69f429ea9634da125c3685ae628b4ce542bf0e0802b648f05f641bd94f64cec",
+        "sha256": "36f8cadfc340cfd7a895ad5336a172c96f5dd123b89f0ca80dd713ef5f94eb7f",
         "target": "armv7"
       },
       {
@@ -34590,7 +34590,7 @@
         "elf_machine": "RISC-V",
         "elf_machine_id": 243,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "33afbd0cbe9ae924281b3c2ae20cdf6beffbf28356e47418df263142c7eb9431",
+        "sha256": "9ce808b44ef34cc410e26cc45bd1e462b257244919823da39794d5ef7bed98cf",
         "target": "riscv64"
       },
       {
@@ -34639,7 +34639,7 @@
         "elf_machine": "PowerPC64",
         "elf_machine_id": 21,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "4441c60ef8771e9ec043dc03db0349ac3c5e9af655c6328cc569f2cafe8a73f6",
+        "sha256": "8b2fd66641a49aac3ceab571fadf2809e9fd9ce5ecec2de7fd5429a998526268",
         "target": "ppc64le"
       },
       {
@@ -34688,7 +34688,7 @@
         "elf_machine": "IBM S/390",
         "elf_machine_id": 22,
         "runtime_status": "qemu-user-linux-abi-smoke-tested",
-        "sha256": "3e846f0685f9205de36ca72a5686688a2b61083ca5b1430e41c92214a5e17809",
+        "sha256": "58fb605b3559d09cfd6d65c6c74fc852c039c50daae9edb27b3255cb6dd7577a",
         "target": "s390x"
       }
     ]
