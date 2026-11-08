@@ -15,10 +15,14 @@ cleanup() { kill "$wm_pid" 2>/dev/null || true; wait "$wm_pid" 2>/dev/null || tr
 trap cleanup EXIT INT TERM
 sleep 1
 if [[ -x /usr/local/bin/aurora-kiosk.py ]]; then
-  /usr/local/bin/aurora-kiosk.py >>"$log" 2>&1
-elif command -v xterm >/dev/null 2>&1; then
-  xterm -title "Aurora Desktop — X11 fallback" >>"$log" 2>&1
-else
-  echo "Aurora shell kiosk and xterm are both unavailable." | tee -a "$log" >&2
-  exit 127
+  if /usr/local/bin/aurora-kiosk.py >>"$log" 2>&1; then
+    exit 0
+  else
+    echo "Aurora WebKit kiosk failed; falling back to the installed X11 terminal." | tee -a "$log" >&2
+  fi
 fi
+if command -v xterm >/dev/null 2>&1; then
+  exec xterm -title "Aurora Desktop — X11 fallback" >>"$log" 2>&1
+fi
+echo "Aurora shell kiosk and xterm are both unavailable." | tee -a "$log" >&2
+exit 127
