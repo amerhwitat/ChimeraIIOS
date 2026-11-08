@@ -223,6 +223,7 @@
     "printcap",
     "lprint",
     "printf",
+    "printenv",
     "ps",
     "pushd",
     "pv",
