@@ -33,6 +33,7 @@ on:
       - "tools/commands/**"
       - "tools/build-chimera-command-compat.sh"
       - ".github/workflows/chimera-full-iso.yml"
+      - ".dockerignore"
   push:
     branches: [main]
     paths:
