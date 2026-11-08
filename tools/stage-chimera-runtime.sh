@@ -35,7 +35,6 @@ done
 [ -f "$SRC/tools/display/chimera-xsession.py" ] && cp -f "$SRC/tools/display/chimera-xsession.py" "$DEST/usr/local/bin/chimera-xsession" && chmod +x "$DEST/usr/local/bin/chimera-xsession"
 [ -f "$SRC/desktop/aurora/aurora-x11-session.sh" ] && cp -f "$SRC/desktop/aurora/aurora-x11-session.sh" "$DEST/usr/local/bin/aurora-x11-session" && chmod +x "$DEST/usr/local/bin/aurora-x11-session"
 [ -f "$SRC/desktop/aurora/chimera-aurora-x11.desktop" ] && cp -f "$SRC/desktop/aurora/chimera-aurora-x11.desktop" "$DEST/usr/share/xsessions/"
-[ -f "$SRC/platform/wayland/aurora.desktop" ] && cp -f "$SRC/platform/wayland/aurora.desktop" "$DEST/usr/share/wayland-sessions/chimera-aurora.desktop"
 [ -f "$SRC/desktop/aurora/xserver-sessions.json" ] && cp -f "$SRC/desktop/aurora/xserver-sessions.json" "$DEST/usr/share/chimera/aurora/"
 [ -f "$SRC/desktop/aurora/desktop-session-policy.json" ] && cp -f "$SRC/desktop/aurora/desktop-session-policy.json" "$DEST/usr/share/chimera/aurora/"
 
