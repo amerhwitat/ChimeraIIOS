@@ -19,7 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${CHIMERA_DRIVER_BUILD_DIR:-$ROOT/build/drivers}"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="${CHIMERA_DRIVER_BUILD_DIR:-$BUILD_ROOT/drivers}"
 mkdir -p "$OUT/modules" "$OUT/firmware" "$OUT/packages" "$OUT/manifests" "$OUT/firmware/rootfs"
 cp "$ROOT/drivers/driver-manifest.json" "$OUT/manifests/"
 
