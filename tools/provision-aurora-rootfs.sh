@@ -28,8 +28,8 @@ exec >"$LOG" 2>&1
 # Restore the rootfs resolver even when apt or dpkg fails. A failed optional
 # provisioning attempt must not leave a build rootfs pointing at host DNS.
 restore_resolver() {
-  if [ -e "$RESOLV_BACKUP" ] || [ -L "$RESOLV_BACKUP" ]; then
-    rm -f "$ROOT_RESOLV" 2>/dev/null || true
+  if [ -n "${RESOLV_BACKUP:-}" ] && { [ -e "$RESOLV_BACKUP" ] || [ -L "$RESOLV_BACKUP" ]; }; then
+    rm -f "${ROOT_RESOLV:-}" 2>/dev/null || true
     mv -f "$RESOLV_BACKUP" "$ROOT_RESOLV" 2>/dev/null || true
   fi
 }
@@ -47,7 +47,7 @@ ROOT_RESOLV="$DEST/etc/resolv.conf"
 RESOLV_BACKUP="$DEST/etc/resolv.conf.chimera-backup"
 if [ -r "$HOST_RESOLV" ]; then
   if ! grep -Eq '^nameserver[[:space:]]+[^[:space:]]+$' "$ROOT_RESOLV" 2>/dev/null || \
-     grep -Eq '^nameserver[[:space:]]+(127\\.|::1$)' "$ROOT_RESOLV" 2>/dev/null; then
+     grep -Eq '^nameserver[[:space:]]+(127\.|::1$)' "$ROOT_RESOLV" 2>/dev/null; then
     rm -f "$RESOLV_BACKUP"
     if [ -e "$ROOT_RESOLV" ] || [ -L "$ROOT_RESOLV" ]; then
       cp -a "$ROOT_RESOLV" "$RESOLV_BACKUP" 2>/dev/null || true
