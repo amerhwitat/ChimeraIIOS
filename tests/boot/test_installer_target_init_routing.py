@@ -22,7 +22,7 @@ class TargetInitRoutingTests(unittest.TestCase):
         )[0]
         self.assertIn('module_cmdline_selects_target(user_init, "installer")', installer)
         self.assertIn("koronos_launch_selected_userspace()", installer)
-        self.assertIn("USERSPACE HANDOFF NOT VERIFIED", installer)
+        self.assertIn("target-init-installer.elf is missing", installer)
 
     def test_recovery_task_launches_recovery_target_elf(self):
         recovery = SOURCE.split("static void task_recovery(void *)", 1)[1].split(
