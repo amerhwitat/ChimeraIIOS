@@ -40,6 +40,19 @@ def main() -> int:
             failures.append(f"desktop/aurora/gates_menu.json: invalid JSON ({exc})")
     else:
         failures.append("desktop/aurora/gates_menu.json: missing")
+    protocol=root/"boot/boot_protocol.json"
+    if protocol.exists():
+        try:
+            data=json.loads(protocol.read_text(encoding="utf-8"))
+            policy=data.get("menu_first",{})
+            if policy.get("timeout_seconds") != 300:
+                failures.append("boot/boot_protocol.json: expected menu_first.timeout_seconds=300")
+            if policy.get("timeout_style") != "menu":
+                failures.append("boot/boot_protocol.json: expected menu_first.timeout_style=menu")
+        except (OSError,json.JSONDecodeError) as exc:
+            failures.append(f"boot/boot_protocol.json: invalid JSON ({exc})")
+    else:
+        failures.append("boot/boot_protocol.json: missing")
     builder=root/"live-image/build.sh"
     if builder.exists():
         text=builder.read_text(encoding="utf-8",errors="replace")
