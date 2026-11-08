@@ -22,7 +22,7 @@ esac
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HERE="$REPO_DIR/live-image"
 BUILD="${BUILD_ROOT:-$HERE/.build}"
-LINUX_ABI_COMMAND_OUT="$BUILD/native-command-isa"
+LINUX_ABI_COMMAND_OUT="$BUILD/linux-abi-command-matrix"
 BASE="$BUILD/rootfs-base"
 WORK="${WORK_DIR:-$BUILD/rootfs-$ED}"
 ISODIR="$BUILD/iso-$ED"
@@ -64,7 +64,6 @@ python3 "$REPO_DIR/tools/commands/build_linux_abi_command_matrix.py" \
   --policy "$REPO_DIR/system/commands/compatibility-binary-policy.json" \
   --output "$LINUX_ABI_COMMAND_OUT" \
   --require-all
-bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$LINUX_ABI_COMMAND_OUT"
 bash "$REPO_DIR/tests/commands/test-native-command-matrix.sh" "$LINUX_ABI_COMMAND_OUT"
 
 case "$ED" in
