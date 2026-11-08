@@ -18,6 +18,9 @@ static uint32_t node_kind(uint32_t mode) {
 static uint32_t path_length(const char *path) {
     uint32_t n = 0;
     if (path) while (path[n]) ++n;
+    /* CPIO newc permits directory names with a trailing slash. Store their
+       archive-backed pointer unchanged, but compare/look up canonical paths. */
+    while (n > 0u && path[n - 1u] == '/') --n;
     return n;
 }
 static bool equal_n(const char *a, const char *b, uint32_t n) {
