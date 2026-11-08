@@ -6,6 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = (ROOT / "kernel/core/koronos.cpp").read_text(encoding="utf-8")
 LAUNCHER = (ROOT / "kernel/core/target_launch.cpp").read_text(encoding="utf-8")
+ELF_VERIFIER = (ROOT / "scripts/kbuild/verify.py").read_text(encoding="utf-8")
 
 
 class TargetInitRoutingTests(unittest.TestCase):
@@ -44,6 +45,12 @@ class TargetInitRoutingTests(unittest.TestCase):
         self.assertIn("no USER_INIT_ELF Multiboot2 module was supplied", LAUNCHER)
         self.assertNotIn("if (count==0) return 0", LAUNCHER)
         self.assertIn("attempted=true", LAUNCHER)
+
+    def test_elf_verifier_requires_the_new_installer_dispatch_contract(self):
+        self.assertIn("[INST] Installer image, manifest and contract verified as present", ELF_VERIFIER)
+        self.assertIn("[INST] Dispatching the target-specific installer init ELF", ELF_VERIFIER)
+        self.assertIn("target-init-installer.elf is missing", ELF_VERIFIER)
+        self.assertNotIn("[INST] Installer runtime initialization", ELF_VERIFIER)
 
     def test_installer_does_not_claim_unstarted_services_are_running(self):
         self.assertNotIn("Hardware discovery service started", SOURCE)
