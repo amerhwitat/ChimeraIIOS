@@ -57,7 +57,7 @@ static long init_write(long fd, const char *buffer, long length) {
     return init_syscall3(CHM_LINUX_SYS_WRITE, fd, (long)buffer, length);
 }
 __attribute__((noreturn)) static void init_exit(long code) {
-    register long rax __asm__("rax") = CHM_SYS_EXIT;
+    register long rax __asm__("rax") = CHM_LINUX_SYS_EXIT;
     register long rdi __asm__("rdi") = code;
     __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi) : "rcx", "r11", "memory");
     /* The native exit syscall does not return to ring 3; this loop only guards
