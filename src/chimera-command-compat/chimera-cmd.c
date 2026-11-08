@@ -2,6 +2,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <pwd.h>
+#include <signal.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -592,6 +594,202 @@ static int cmd_sleep(int argc,char**argv)
     return 0;
 }
 
+
+extern char **environ;
+
+static int cmd_env(int argc, char **argv)
+{
+    if (argc == 1) {
+        for (char **p = environ; p && *p; ++p) puts(*p);
+        return 0;
+    }
+    int rc = 0;
+    for (int i = 1; i < argc; ++i) {
+        const char *value = getenv(argv[i]);
+        if (value) puts(value); else rc = 1;
+    }
+    return rc;
+}
+static int cmd_printenv(int argc, char **argv) { return cmd_env(argc, argv); }
+
+static int cmd_id(int argc, char **argv)
+{
+    if (argc == 2 && (!strcmp(argv[1], "-u") || !strcmp(argv[1], "--user")))
+        { printf("%lu\n", (unsigned long)getuid()); return 0; }
+    if (argc == 2 && (!strcmp(argv[1], "-g") || !strcmp(argv[1], "--group")))
+        { printf("%lu\n", (unsigned long)getgid()); return 0; }
+    if (argc == 2 && !strcmp(argv[1], "-ru"))
+        { printf("%lu\n", (unsigned long)geteuid()); return 0; }
+    if (argc == 2 && !strcmp(argv[1], "-rg"))
+        { printf("%lu\n", (unsigned long)getegid()); return 0; }
+    if (argc != 1) { fprintf(stderr, "usage: id [-u|-g|-ru|-rg]\n"); return 2; }
+    printf("uid=%lu gid=%lu euid=%lu egid=%lu\n",
+           (unsigned long)getuid(), (unsigned long)getgid(),
+           (unsigned long)geteuid(), (unsigned long)getegid());
+    return 0;
+}
+
+static int parse_integer(const char *text, long long *value)
+{
+    char *end = NULL;
+    errno = 0;
+    long long parsed = strtoll(text, &end, 10);
+    if (errno || !end || end == text || *end) return -1;
+    *value = parsed;
+    return 0;
+}
+
+static int cmd_seq(int argc, char **argv)
+{
+    if (argc < 2 || argc > 4) { fprintf(stderr, "usage: seq [FIRST [INCREMENT]] LAST\n"); return 2; }
+    long long first = 1, step = 1, last = 0;
+    if (argc == 2) {
+        if (parse_integer(argv[1], &last)) return 2;
+    } else if (argc == 3) {
+        if (parse_integer(argv[1], &first) || parse_integer(argv[2], &last)) return 2;
+    } else if (parse_integer(argv[1], &first) || parse_integer(argv[2], &step) || parse_integer(argv[3], &last)) {
+        return 2;
+    }
+    if (step == 0 || (first < last && step < 0) || (first > last && step > 0)) {
+        fprintf(stderr, "seq: increment has the wrong sign or is zero\n");
+        return 1;
+    }
+    for (long long n = first; step > 0 ? n <= last : n >= last; ) {
+        printf("%lld\n", n);
+        if ((step > 0 && n > LLONG_MAX - step) || (step < 0 && n < LLONG_MIN - step)) break;
+        n += step;
+    }
+    return ferror(stdout) ? 1 : 0;
+}
+
+static int cmd_yes(int argc, char **argv)
+{
+    const char *text = argc > 1 ? argv[1] : "y";
+    const size_t length = strlen(text);
+    for (;;) {
+        if (write_all_fd(STDOUT_FILENO, text, length) != 0 ||
+            write_all_fd(STDOUT_FILENO, "\n", 1u) != 0)
+            return 1;
+    }
+}
+
+static int cmd_mktemp(int argc, char **argv)
+{
+    int directory = 0, index = 1;
+    if (index < argc && !strcmp(argv[index], "-d")) { directory = 1; ++index; }
+    if (argc - index > 1) { fprintf(stderr, "usage: mktemp [-d] [TEMPLATE]\n"); return 2; }
+    const char *source = index < argc ? argv[index] : "/tmp/tmp.XXXXXX";
+    char *template = strdup(source);
+    if (!template) return 1;
+    size_t n = strlen(template);
+    if (n < 6u || strcmp(template + n - 6u, "XXXXXX")) {
+        fprintf(stderr, "mktemp: template must end in XXXXXX\n");
+        free(template);
+        return 1;
+    }
+    char *result = directory ? mkdtemp(template) : NULL;
+    if (!directory) {
+        int fd = mkstemp(template);
+        if (fd >= 0) close(fd);
+        result = fd >= 0 ? template : NULL;
+    }
+    if (!result) { perror("mktemp"); free(template); return 1; }
+    puts(result);
+    free(template);
+    return 0;
+}
+
+static int cmd_chmod(int argc, char **argv)
+{
+    if (argc < 3) { fprintf(stderr, "usage: chmod OCTAL_MODE FILE...\n"); return 2; }
+    char *end = NULL; errno = 0;
+    unsigned long mode = strtoul(argv[1], &end, 8);
+    if (errno || !end || *end || mode > 07777ul) { fprintf(stderr, "chmod: invalid octal mode\n"); return 2; }
+    int rc = 0;
+    for (int i = 2; i < argc; ++i) if (chmod(argv[i], (mode_t)mode) != 0) { perror(argv[i]); rc = 1; }
+    return rc;
+}
+
+static int cmd_stat(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: stat FILE\n"); return 2; }
+    struct stat st;
+    if (stat(argv[1], &st) != 0) { perror(argv[1]); return 1; }
+    printf("File: %s\nSize: %lld\nMode: %04o\nUid: %lu\nGid: %lu\nInode: %llu\nLinks: %llu\n",
+           argv[1], (long long)st.st_size, (unsigned)(st.st_mode & 07777),
+           (unsigned long)st.st_uid, (unsigned long)st.st_gid,
+           (unsigned long long)st.st_ino, (unsigned long long)st.st_nlink);
+    return 0;
+}
+
+static int cmd_sync(void) { sync(); return 0; }
+
+static int cmd_tty(void)
+{
+    const char *name = ttyname(STDIN_FILENO);
+    if (!name) { puts("not a tty"); return 1; }
+    puts(name);
+    return 0;
+}
+
+static int cmd_logname(void)
+{
+    const char *name = getlogin();
+    if (!name || !*name) {
+        struct passwd *pw = getpwuid(getuid());
+        name = pw ? pw->pw_name : NULL;
+    }
+    if (!name || !*name) { fprintf(stderr, "logname: login name unavailable\n"); return 1; }
+    puts(name);
+    return 0;
+}
+
+static int command_signal(const char *name)
+{
+    if (!strcmp(name, "HUP")) return SIGHUP;
+    if (!strcmp(name, "INT")) return SIGINT;
+    if (!strcmp(name, "QUIT")) return SIGQUIT;
+    if (!strcmp(name, "KILL")) return SIGKILL;
+    if (!strcmp(name, "TERM")) return SIGTERM;
+    if (!strcmp(name, "USR1")) return SIGUSR1;
+    if (!strcmp(name, "USR2")) return SIGUSR2;
+    if (!strcmp(name, "STOP")) return SIGSTOP;
+    if (!strcmp(name, "CONT")) return SIGCONT;
+    long long number = 0;
+    if (parse_integer(name, &number) == 0 && number >= 0 && number <= 64) return (int)number;
+    return -1;
+}
+
+static int cmd_kill(int argc, char **argv)
+{
+    int sig = SIGTERM, index = 1;
+    if (index < argc && argv[index][0] == '-') {
+        const char *name = argv[index] + 1;
+        if (!strncmp(name, "SIG", 3)) name += 3;
+        sig = command_signal(name);
+        if (sig < 0) { fprintf(stderr, "kill: invalid signal %s\n", argv[index]); return 2; }
+        ++index;
+    }
+    if (index >= argc) { fprintf(stderr, "usage: kill [-SIGNAL] PID...\n"); return 2; }
+    int rc = 0;
+    for (; index < argc; ++index) {
+        long long pid = 0;
+        if (parse_integer(argv[index], &pid) != 0 || pid == 0 || pid < -1 || pid > INT_MAX) {
+            fprintf(stderr, "kill: invalid pid: %s\n", argv[index]); rc = 1; continue;
+        }
+        if (kill((pid_t)pid, sig) != 0) { perror(argv[index]); rc = 1; }
+    }
+    return rc;
+}
+
+static int cmd_uptime(void)
+{
+    struct timespec value = {0, 0};
+    if (clock_gettime(CLOCK_MONOTONIC, &value) != 0) { perror("uptime"); return 1; }
+    printf("up %.1f seconds\n", (double)value.tv_sec + (double)value.tv_nsec / 1000000000.0);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     const char *cmd = progname(argv[0]);
@@ -663,6 +861,20 @@ int main(int argc, char **argv)
         return cmd_tail(argc, argv);
     if (!strcmp(cmd, "sleep"))
         return cmd_sleep(argc, argv);
+
+    if (!strcmp(cmd, "env")) return cmd_env(argc, argv);
+    if (!strcmp(cmd, "printenv")) return cmd_printenv(argc, argv);
+    if (!strcmp(cmd, "id")) return cmd_id(argc, argv);
+    if (!strcmp(cmd, "seq")) return cmd_seq(argc, argv);
+    if (!strcmp(cmd, "yes")) return cmd_yes(argc, argv);
+    if (!strcmp(cmd, "mktemp")) return cmd_mktemp(argc, argv);
+    if (!strcmp(cmd, "chmod")) return cmd_chmod(argc, argv);
+    if (!strcmp(cmd, "stat")) return cmd_stat(argc, argv);
+    if (!strcmp(cmd, "sync")) return cmd_sync();
+    if (!strcmp(cmd, "tty")) return cmd_tty();
+    if (!strcmp(cmd, "logname")) return cmd_logname();
+    if (!strcmp(cmd, "kill")) return cmd_kill(argc, argv);
+    if (!strcmp(cmd, "uptime")) return cmd_uptime();
 
     /* Route unknown command names through the shared runtime dispatcher.
        Preserve argv exactly and never parse command text through a shell. */
