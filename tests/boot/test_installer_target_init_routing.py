@@ -35,6 +35,11 @@ class TargetInitRoutingTests(unittest.TestCase):
         self.assertNotIn("Storage discovery service started", SOURCE)
         self.assertNotIn("Initializing installer services in parallel", SOURCE)
 
+    def test_monitor_does_not_label_scheduler_callbacks_as_processes(self):
+        self.assertIn('console_raw("[TASK] id=")', SOURCE)
+        self.assertIn('console_write("[MON ] Registered process contexts: ")', SOURCE)
+        self.assertNotIn('console_raw("[PROC] id=")', SOURCE)
+
     def test_target_matching_requires_complete_token(self):
         helper = SOURCE.split("static bool module_cmdline_selects_target", 1)[1].split(
             "static void task_console", 1
