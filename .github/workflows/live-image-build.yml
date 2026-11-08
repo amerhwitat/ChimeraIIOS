@@ -414,6 +414,8 @@ jobs:
             gir1.2-webkit2-4.1 openbox x11-utils xdotool xvfb dbus-x11 \
             gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static \
             git g++ cargo rustc cmake ninja-build pkg-config python3-venv python3-pip nodejs \
+            autoconf automake libtool meson golang-go libncurses-dev libreadline-dev \
+            libvte-2.91-dev libpcre2-dev libpixman-1-dev libfcft-dev libtllist-dev libutf8proc-dev \
             libgtk-4-dev libadwaita-1-dev libxkbcommon-dev libwayland-dev libx11-dev \
             libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
             libx11-xcb-dev libxkbcommon-x11-dev libfontconfig1-dev libfreetype-dev \
