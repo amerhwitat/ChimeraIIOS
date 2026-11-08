@@ -94,6 +94,7 @@ volatile uint64_t koronos_user_exit_code = 0;
 extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
 extern "C" void koronos_syscall_trace(const char *message);
 
@@ -111,9 +112,6 @@ static void koronos_syscall_trace_u64(const char *label, uint64_t value) {
 
 extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_frame *frame) {
     if (!frame) return static_cast<uint64_t>(-22ll);
-    /* Temporary acceptance diagnostics: distinguish a failed INT 0x80 return
-     * from a native SYSCALL context/dispatch failure without manufacturing
-     * any userspace readiness marker. */
     koronos_syscall_trace("[SYSC] entered native user syscall dispatcher");
     /* SYSCALL does not preserve caller CS. It may serve the active process,
      * but it cannot produce the CPL3 acceptance acknowledgement. That proof
@@ -156,7 +154,6 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
         case CHM_SYS_WRITE: {
-            koronos_syscall_trace("[SYSC] dispatching native WRITE");
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
@@ -175,6 +172,13 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             const int64_t written = koronos_console_write_user(address, length);
             koronos_syscall_trace("[SYSC] WRITE console copy returned");
             return static_cast<uint64_t>(written);
+        }
+        case CHM_SYS_READ: {
+            const uint64_t fd = frame->rdi;
+            const uint64_t address = frame->rsi;
+            const uint64_t length = frame->rdx;
+            if (fd != 0u || length > 4096u) return static_cast<uint64_t>(-22ll);
+            return static_cast<uint64_t>(koronos_console_read_user(address, length));
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:

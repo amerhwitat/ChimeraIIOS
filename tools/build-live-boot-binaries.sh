@@ -38,6 +38,7 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$ROOT/tools/commands/generate_runtime_manifest.py"
 # Always inherit the canonical build directory selected by build-chimera-iso.sh.
 # CHIMERA_LIVE_BOOT_DIR remains an explicit override for standalone builds.
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$ROOT/build}"
@@ -58,8 +59,41 @@ for tool in cpio gzip; do
 done
 BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
+if command -v file >/dev/null 2>&1 && ! file "$BUSYBOX" | grep -qi 'statically linked'; then
+  echo "ERROR: a statically linked BusyBox is required for the initramfs; install busybox-static." >&2
+  exit 2
+fi
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
+# Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
+while IFS= read -r applet; do
+  [[ -n "$applet" && "$applet" != "busybox" ]] || continue
+  [[ "$applet" == */* ]] && continue
+  ln -sf busybox "$INIT/bin/$applet"
+done < <("$BUSYBOX" --list)
+# Keep compatibility aliases required by the init scripts even if a BusyBox
+# build omits an optional applet.
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
+
+# Embed the complete command/ISA catalogues and an evidence-based implementation map.
+install -d "$INIT/etc/chimera/catalogs"
+for rel in \
+  system/commands/chimera-command-list.json \
+  system/commands/ss64-command-catalog.json system/commands/ss64-command-catalog.ar.json \
+  system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json \
+  system/commands/compatibility-binary-policy.json \
+  config/linux-command-registry.json tools/commands/os-command-runtime.json \
+  ISA.csv isa/catalog.json isa/generated/universal-instruction-catalog.json \
+  isa/generated/isa-encoding-registry.json data/isa/online-isa-index.json; do
+  if [[ -s "$ROOT/$rel" ]]; then install -D -m 0644 "$ROOT/$rel" "$INIT/etc/chimera/catalogs/$(basename "$rel")"; fi
+done
+install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$INIT/etc/chimera/catalogs/terminals-registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$INIT/etc/chimera/catalogs/shells-registry.json"
+bash "$ROOT/tools/commands/install-busybox-applets.sh" "$INIT"
+python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
+  --root "$ROOT" --busybox "$BUSYBOX" --rootfs "$INIT" \
+  --output "$INIT/etc/chimera/catalogs/command-isa-coverage.json"
+python3 "$ROOT/tools/commands/verify-command-provider-coverage.py" \
+  "$INIT" "$ROOT/system/commands/command-runtime-capabilities.json" x86_64
 for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
@@ -72,7 +106,7 @@ mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
 mkdir -p /mnt/chimera /var/log/mesgs/archive /var/lib/chimera/drivers /run/chimera
-ln -sfn /var/log/mesgs /var/log/messages 2>/dev/null || true
+ln -sfn mesgs /var/log/messages 2>/dev/null || true
 progress() {
   pct="$1"; phase="$2"; message="$3"; width=24; filled=$((pct * width / 100)); bar=""; n=0
   while [ "$n" -lt "$width" ]; do
@@ -80,8 +114,8 @@ progress() {
     n=$((n + 1))
   done
   line="[LIVE] [${bar}] ${pct}% ${phase}: ${message}"
-  printf '%s\\n' "$line" >> /var/log/mesgs
-  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf '%s\n' "$line" >> /var/log/mesgs
+  printf '%s\n' "$line" > /dev/console 2>/dev/null || printf '%s\n' "$line"
   printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
 }
 progress 0 "Initramfs" "Starting early userspace"
@@ -122,6 +156,8 @@ printf 'USERSPACE READY: target=live init_pid=%s\n' "$$" > /dev/console 2>/dev/n
 exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
+(cd "$INIT" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/live/chimera-live-initramfs.cpio"
+(cd "$OUT/boot/live" && sha256sum chimera-live-initramfs.cpio > chimera-live-initramfs.cpio.sha256)
 (cd "$INIT" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
 sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
 
@@ -148,8 +184,8 @@ recovery_progress() {
     n=$((n + 1))
   done
   line="[RECOVERY] [${bar}] ${pct}% ${phase}: ${message}"
-  printf '%s\\n' "$line" >> /var/log/mesgs
-  printf '%s\\n' "$line" > /dev/console 2>/dev/null || printf '%s\\n' "$line"
+  printf '%s\n' "$line" >> /var/log/mesgs
+  printf '%s\n' "$line" > /dev/console 2>/dev/null || printf '%s\n' "$line"
   printf 'percent=%s\\nphase=%s\\nmessage=%s\\n' "$pct" "$phase" "$message" > /run/chimera/progress.state
 }
 recovery_progress 0 "Initramfs" "Starting Jasper recovery userspace"
@@ -166,6 +202,8 @@ printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$" > /dev/console 2>/d
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
+(cd "$REC" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/recovery/chimera-recovery-initramfs.cpio"
+(cd "$OUT/boot/recovery" && sha256sum chimera-recovery-initramfs.cpio > chimera-recovery-initramfs.cpio.sha256)
 (cd "$REC" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
 sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recovery/chimera-recovery-initramfs.img.sha256"
 
@@ -186,10 +224,10 @@ for arch in arm64 armv7 x86_64; do
     "$arch" "$kernel_ref" "$runtime_ref" > "$OUT/mobile/$arch/manifest.json"
 done
 cat > "$OUT/boot/live/live-manifest.json" <<EOF
-{"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.img","linux_vmlinuz_required":false,"architectures":["x86_64"]}
+{"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.img","vfs_archive":"/boot/live/chimera-live-initramfs.cpio","vfs_archive_format":"cpio-newc","vfs_mode":"read-only-index","linux_vmlinuz_required":false,"architectures":["x86_64"]}
 EOF
 cat > "$OUT/boot/recovery/recovery-manifest.json" <<EOF
-{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.img","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mounts","mount-root","umount-root","targets","target-detect","mount-target","mount-fs","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"],"runtime_levels":["L0-firmware","L1-koronos","L2-linux","L2-windows","L2-macos","L3-hosted"],"targets":["linux","windows","macos","chimera"]}
+{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.img","vfs_archive":"/boot/recovery/chimera-recovery-initramfs.cpio","vfs_archive_format":"cpio-newc","vfs_mode":"read-only-index","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mounts","mount-root","umount-root","targets","target-detect","mount-target","mount-fs","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"],"runtime_levels":["L0-firmware","L1-koronos","L2-linux","L2-windows","L2-macos","L3-hosted"],"targets":["linux","windows","macos","chimera"]}
 EOF
 cp "$OUT/boot/live/live-manifest.json" "$OUT/manifests/live-boot.json"
 cp "$OUT/boot/recovery/recovery-manifest.json" "$OUT/manifests/recovery-boot.json"

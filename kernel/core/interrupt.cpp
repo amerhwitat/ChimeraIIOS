@@ -138,6 +138,7 @@ extern "C" void chimera_interrupt_dispatch(uint64_t vector, uint64_t frame) {
 namespace {
 static volatile uint32_t user_timeout_ticks = 0;
 static volatile uint32_t user_timeout_active = 0;
+static volatile uint64_t user_timer_ticks = 0;
 static inline void port_out8(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
 }
@@ -167,6 +168,7 @@ extern "C" int koronos_user_timeout_arm(uint32_t ticks) {
 
     user_timeout_ticks = ticks;
     user_timeout_active = 1;
+    user_timer_ticks = 0;
     port_out8(0x21, 0xFE); // unmask IRQ0 only
     port_out8(0xA1, 0xFF); // mask all slave PIC IRQs
     return 0;
@@ -180,10 +182,23 @@ extern "C" void koronos_user_timeout_disarm(void) {
     port_out8(0xA1, 0xFF);
 }
 
+// Disable only the bootstrap deadline while retaining PIT IRQ0 as the live
+// session clock and timer source after the interactive shell becomes ready.
+extern "C" void koronos_user_timeout_disarm_keep_timer(void) {
+    __asm__ volatile("cli" ::: "memory");
+    user_timeout_active = 0;
+    user_timeout_ticks = 0;
+    port_out8(0x21, 0xFE);
+    port_out8(0xA1, 0xFF);
+}
+
+extern "C" uint64_t koronos_user_timer_ticks(void) { return user_timer_ticks; }
+
 extern "C" int koronos_user_timeout_irq(void) {
     // Acknowledge IRQ0 before checking the deadline so the PIC can deliver
     // subsequent ticks while the user task is still within its time budget.
     port_out8(0x20, 0x20);
+    ++user_timer_ticks;
     if (!user_timeout_active) return 0;
     if (user_timeout_ticks > 0) --user_timeout_ticks;
     if (user_timeout_ticks == 0) {

@@ -409,9 +409,186 @@ static int cmd_false(void)
 
 static int cmd_chimera_native(void)
 {
-    puts("Chimera II native command runtime");
-    puts("ABI: native");
-    puts("Status: operational");
+    puts("Chimera II POSIX command multicall");
+    puts("ABI: Linux userspace ELF");
+    puts("Koronos native syscall compatibility: not verified");
+    return 0;
+}
+
+
+static int cmd_rmdir(int argc, char **argv)
+{
+    int rc = 0;
+    if (argc < 2) { fprintf(stderr, "rmdir: missing operand\n"); return 1; }
+    for (int i = 1; i < argc; ++i) {
+        if (rmdir(argv[i]) != 0) { perror(argv[i]); rc = 1; }
+    }
+    return rc;
+}
+
+static int cmd_ln(int argc, char **argv)
+{
+    int symbolic = 0, force = 0, i = 1;
+    while (i < argc && argv[i][0] == '-') {
+        if (!strcmp(argv[i], "--")) { ++i; break; }
+        for (const char *p = argv[i] + 1; *p; ++p) {
+            if (*p == 's') symbolic = 1;
+            else if (*p == 'f') force = 1;
+            else { fprintf(stderr, "ln: unsupported option -%c\n", *p); return 1; }
+        }
+        ++i;
+    }
+    if (argc - i != 2) { fprintf(stderr, "usage: ln [-sf] TARGET LINK_NAME\n"); return 1; }
+    if (force && unlink(argv[i + 1]) != 0 && errno != ENOENT) { perror(argv[i + 1]); return 1; }
+    int rc = symbolic ? symlink(argv[i], argv[i + 1]) : link(argv[i], argv[i + 1]);
+    if (rc != 0) { perror(argv[i + 1]); return 1; }
+    return 0;
+}
+
+static int cmd_readlink(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: readlink LINK\n"); return 1; }
+    char buf[PATH_MAX + 1];
+    ssize_t n = readlink(argv[1], buf, PATH_MAX);
+    if (n < 0) { perror(argv[1]); return 1; }
+    buf[n] = '\0';
+    puts(buf);
+    return 0;
+}
+
+static char *trim_path_copy(const char *input)
+{
+    char *p = strdup(input);
+    if (!p) return NULL;
+    size_t n = strlen(p);
+    while (n > 1 && p[n - 1] == '/') p[--n] = '\0';
+    return p;
+}
+
+static int cmd_basename(int argc, char **argv)
+{
+    if (argc < 2 || argc > 3) { fprintf(stderr, "usage: basename PATH [SUFFIX]\n"); return 1; }
+    char *p = trim_path_copy(argv[1]);
+    if (!p) return 1;
+    char *base = strrchr(p, '/');
+    base = base ? base + 1 : p;
+    if (argc == 3) {
+        size_t n = strlen(base), sn = strlen(argv[2]);
+        if (sn && sn <= n && !strcmp(base + n - sn, argv[2])) base[n - sn] = '\0';
+    }
+    puts(*base ? base : "/");
+    free(p);
+    return 0;
+}
+
+static int cmd_dirname(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: dirname PATH\n"); return 1; }
+    char *p = trim_path_copy(argv[1]);
+    if (!p) return 1;
+    char *slash = strrchr(p, '/');
+    if (!slash) puts(".");
+    else if (slash == p) puts("/");
+    else { *slash = '\0'; puts(p); }
+    free(p);
+    return 0;
+}
+
+static int cmd_uname(int argc, char **argv)
+{
+    struct utsname u;
+    if (uname(&u) != 0) { perror("uname"); return 1; }
+    if (argc == 1) { puts(u.sysname); return 0; }
+    int any = 0;
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "-a")) { printf("%s %s %s %s %s\n", u.sysname,u.nodename,u.release,u.version,u.machine); return 0; }
+        for (const char *p = argv[i] + (argv[i][0] == '-' ? 1 : 0); *p; ++p) {
+            const char *v = NULL;
+            switch (*p) {
+                case 's': v=u.sysname; break; case 'n': v=u.nodename; break;
+                case 'r': v=u.release; break; case 'v': v=u.version; break;
+                case 'm': v=u.machine; break; case 'o': v="GNU/Linux"; break;
+                default: fprintf(stderr,"uname: invalid option -- '%c'\n",*p); return 1;
+            }
+            if (any) putchar(' ');
+            fputs(v, stdout); any = 1;
+        }
+    }
+    if (any) putchar('\n');
+    return 0;
+}
+
+static int cmd_wc(int argc, char **argv)
+{
+    int lines=0, words=0, bytes=0, i=1, files=0, rc=0;
+    while (i < argc && argv[i][0]=='-' && argv[i][1]) {
+        for (const char *p=argv[i]+1; *p; ++p) {
+            if (*p=='l') lines=1; else if (*p=='w') words=1; else if (*p=='c') bytes=1;
+            else { fprintf(stderr,"wc: unsupported option -%c\n",*p); return 1; }
+        }
+        ++i;
+    }
+    if (!lines && !words && !bytes) lines=words=bytes=1;
+    do {
+        FILE *f = (i < argc) ? fopen(argv[i], "rb") : stdin;
+        if (!f) { perror(argv[i]); rc=1; ++i; continue; }
+        unsigned long long l=0,w=0,b=0; int c, inword=0;
+        while ((c=fgetc(f)) != EOF) { ++b; if (c=='\n') ++l; if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\f'||c=='\v') inword=0; else if(!inword){++w;inword=1;} }
+        if (ferror(f)) { if (f!=stdin) perror(argv[i]); rc=1; }
+        if (f!=stdin) fclose(f);
+        int col=0;
+        if(lines){printf("%llu",l);col=1;} if(words){printf("%s%llu",col?" ":"",w);col=1;}
+        if(bytes)printf("%s%llu",col?" ":"",b);
+        if(i<argc)printf(" %s",argv[i]);
+        putchar('\n'); ++files; ++i;
+    } while(i<argc);
+    (void)files;
+    return rc;
+}
+
+static int stream_lines(int argc, char **argv, int tail_mode)
+{
+    long count=10; int i=1;
+    if (i<argc && !strcmp(argv[i],"-n")) {
+        if (++i>=argc) { fprintf(stderr,"line utility: -n requires a count\n"); return 1; }
+        char *end=NULL; count=strtol(argv[i++],&end,10);
+        if (!end || *end || count<0 || count>1000000) { fprintf(stderr,"line utility: invalid line count\n"); return 1; }
+    }
+    if (i>=argc) {
+        char *line=NULL; size_t cap=0; ssize_t n; long shown=0;
+        if (!tail_mode) { while(shown<count && (n=getline(&line,&cap,stdin))>=0){fwrite(line,1,(size_t)n,stdout);++shown;} }
+        else {
+            char **ring=calloc((size_t)(count?count:1),sizeof(*ring)); size_t *lens=calloc((size_t)(count?count:1),sizeof(*lens));
+            if(!ring||!lens){free(ring);free(lens);free(line);return 1;}
+            long total=0; while((n=getline(&line,&cap,stdin))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
+            long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
+        }
+        free(line); return ferror(stdin)?1:0;
+    }
+    int rc=0;
+    for(;i<argc;++i){FILE*f=fopen(argv[i],"r");if(!f){perror(argv[i]);rc=1;continue;}
+        char *line=NULL;size_t cap=0;ssize_t n;long shown=0;
+        if(!tail_mode){while(shown<count&&(n=getline(&line,&cap,f))>=0){fwrite(line,1,(size_t)n,stdout);++shown;}}
+        else {char **ring=calloc((size_t)(count?count:1),sizeof(*ring));size_t*lens=calloc((size_t)(count?count:1),sizeof(*lens));long total=0;
+            if(!ring||!lens){free(ring);free(lens);free(line);fclose(f);return 1;}
+            while((n=getline(&line,&cap,f))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
+            long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
+        }
+        free(line);fclose(f);
+    }
+    return rc;
+}
+static int cmd_head(int argc,char**argv){return stream_lines(argc,argv,0);}
+static int cmd_tail(int argc,char**argv){return stream_lines(argc,argv,1);}
+static int cmd_sleep(int argc,char**argv)
+{
+    if(argc!=2){fprintf(stderr,"usage: sleep SECONDS\n");return 1;}
+    char *end=NULL;double sec=strtod(argv[1],&end);
+    if(!end||*end||sec<0){fprintf(stderr,"sleep: invalid time interval\n");return 1;}
+    struct timespec req={(time_t)sec,(long)((sec-(time_t)sec)*1000000000.0)};
+    while(nanosleep(&req,&req)!=0){if(errno!=EINTR){perror("sleep");return 1;}}
     return 0;
 }
 
@@ -466,6 +643,26 @@ int main(int argc, char **argv)
 
     if (!strcmp(cmd, "false"))
         return cmd_false();
+    if (!strcmp(cmd, "rmdir"))
+        return cmd_rmdir(argc, argv);
+    if (!strcmp(cmd, "ln"))
+        return cmd_ln(argc, argv);
+    if (!strcmp(cmd, "readlink"))
+        return cmd_readlink(argc, argv);
+    if (!strcmp(cmd, "basename"))
+        return cmd_basename(argc, argv);
+    if (!strcmp(cmd, "dirname"))
+        return cmd_dirname(argc, argv);
+    if (!strcmp(cmd, "uname"))
+        return cmd_uname(argc, argv);
+    if (!strcmp(cmd, "wc"))
+        return cmd_wc(argc, argv);
+    if (!strcmp(cmd, "head"))
+        return cmd_head(argc, argv);
+    if (!strcmp(cmd, "tail"))
+        return cmd_tail(argc, argv);
+    if (!strcmp(cmd, "sleep"))
+        return cmd_sleep(argc, argv);
 
     /* Route unknown command names through the shared runtime dispatcher.
        Preserve argv exactly and never parse command text through a shell. */

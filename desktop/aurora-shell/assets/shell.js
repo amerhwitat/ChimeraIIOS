@@ -13,6 +13,81 @@
     return node;
   };
 
+  const APP_ICON_ALIASES = {
+    files: "file-manager", system: "system-monitor", media: "aurora-media-player"
+  };
+  const APP_ICON_IDS = new Set(["7zip","algorand","appcleaner","appimage","aptos-core","archive-manager","ardour","audacity","aurora-files","aurora-flash-tool","aurora-media-player","aurora-video-player","avalanchego","bitcoin-core","bizx","bizxtreme","blender","bottles","brave","bruteforce","calibre","cardano-node","chimera-boot-manager","chimera-installer","chromium","cpu4096","cpu4096simulator","curl","darktable","dash-core","dbeaver","discover","docker-desktop","dogecoin-core","dolphin-file-manager","element","eth-key-check","everything-search","file-manager","filezilla","firefox","flatpak","garageband","gates","general","geth","gimp","git","gnome-files","gnome-software","gparted","handbrake","homebrew","inkscape","irfanview","iterm2","joplin","kaspa","kde-connect","kdenlive","keepassxc","keygen","keynote","krita","libreoffice","litecoin-core","lutris","macports","microsoft-365","microsoft-edge","microsoft-powertoys","monero","mpv","natron","nearcore","nextcloud","nlp","notepad","notepad-plus-plus","numbers","obs-studio","obsidian","onenote","onlyoffice","openshot","pages","paint","pdfreaderpy","photos","podman","postman","proton-vpn","putty","python","qbittorrent","quicktime","raycast","rectangle","repository-portfolio","safari","sharex","shotcut","signal","solana-agave","steam","stellar-core","sui","syncthing","system-monitor","teams","terminal","test","thunar","thunderbird","timeshift","transmission","vlc","vscode","vscodium","web-portal","webkit-shell","wine","winscp","xcode","xrpl-rippled","zcash","zoom","voiceconnect","network","settings","store","about","docs"]);
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  function iconVisual(id, fallback, className) {
+    const host = el("span", className || "glyph", fallback || "▣");
+    const resolved = APP_ICON_ALIASES[id] || id;
+    if (!resolved || !APP_ICON_IDS.has(resolved)) return host;
+    const image = document.createElement("img");
+    image.className = "app-icon-art";
+    image.alt = "";
+    image.decoding = "async";
+    image.src = new URL("../app-icons/icons/chimera-" + resolved + ".svg", document.baseURI).href;
+    image.addEventListener("error", () => {
+      host.classList.remove("has-art");
+      host.textContent = fallback || "▣";
+    }, { once: true });
+    host.textContent = "";
+    host.appendChild(image);
+    host.classList.add("has-art");
+    return host;
+  }
+  async function loadAppIconManifest() {
+    try {
+      const response = await fetch(new URL("../app-icons/manifest.json", document.baseURI));
+      if (!response.ok) return;
+      const manifest = await response.json();
+      const ids = (manifest.apps || []).map((item) => item && item.id).filter((id) => typeof id === "string");
+      if (ids.length) {
+        for (const id of ids) APP_ICON_IDS.add(id);
+        renderIcons();
+        renderDock();
+        renderTaskbar();
+      }
+    } catch (err) { /* emoji/glyph fallback remains available offline */ }
+  }
+
+  // Local, optional UI feedback. Missing devices/autoplay permission must never
+  // break the desktop controls; the native OS sound service remains independent.
+  const SOUND_FILES = {
+    startup: "startup.wav", menu_open: "menu-open.wav", menu_focus: "menu-focus.wav",
+    menu_select: "menu-select.wav", menu_back: "menu-back.wav", cancel: "cancel.wav",
+    warning: "warning.wav", error: "error.wav", success: "success.wav"
+  };
+  let lastFocusSound = 0;
+  function playSound(eventName) {
+    if (window.CHIMERA_SOUND_ENABLED === false) return;
+    const file = SOUND_FILES[eventName];
+    if (!file || typeof Audio !== "function") return;
+    const base = new URL("../aurora/assets/sounds/", document.baseURI);
+    const audio = new Audio(new URL(file, base).href);
+    const volume = Number(load("soundVolume", 0.55));
+    audio.volume = Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 0.55;
+    const result = audio.play();
+    if (result && typeof result.catch === "function") result.catch(() => {});
+  }
+  function installSoundFeedback() {
+    if (document.documentElement.dataset.auroraSoundsInstalled === "true") return;
+    document.documentElement.dataset.auroraSoundsInstalled = "true";
+    document.addEventListener("click", (event) => {
+      const button = event.target && event.target.closest ? event.target.closest("button") : null;
+      if (!button || button.disabled || button.dataset.sound === "off") return;
+      playSound(button.matches("#mbMenus button") ? "menu_open" : "menu_select");
+    }, true);
+    document.addEventListener("focusin", (event) => {
+      const target = event.target;
+      if (!target || !target.matches || !target.matches("button,[role=button]")) return;
+      const now = Date.now();
+      if (now - lastFocusSound < 90) return;
+      lastFocusSound = now;
+      playSound("menu_focus");
+    }, true);
+  }
+
   const PROFILES = {
     jasper: { name: "Jasper", skin: "Windows 12", glyph: "⊞", family: "windows" },
     gates: { name: "Gates", skin: "macOS", glyph: "", family: "mac" },
@@ -155,7 +230,7 @@
     const node = el("div", "icon");
     node.dataset.iconId = icon.id;
     node.tabIndex = 0;
-    const glyph = el("div", "glyph", icon.glyph || "▣");
+    const glyph = iconVisual(icon.id, icon.glyph || "▣", "glyph");
     glyph.style.setProperty("--tile-a", (icon.tile && icon.tile[0]) || "#2f7cf6");
     glyph.style.setProperty("--tile-b", (icon.tile && icon.tile[1]) || "#134a9e");
     const label = el("div", "label", icon.name);
@@ -575,7 +650,7 @@
       const icon = icons.find((item) => item.app === record.app);
       const button = el("button", "tb-task" + (record.minimized ? "" : " active"));
       button.type = "button";
-      button.append(el("span", "", icon ? icon.glyph : "▣"), el("span", "", record.title));
+      button.append(iconVisual(icon && icon.id, icon ? icon.glyph : "▣", "tb-icon"), el("span", "", record.title));
       button.addEventListener("click", () => {
         if (record.minimized) { focusWindow(record.id); } else { minimizeWindow(record.id); }
       });
@@ -589,9 +664,10 @@
     dock.replaceChildren();
     const pinned = desktopIcons().slice(0, 8);
     for (const icon of pinned) {
-      const button = el("button", "dock-btn" + (state.windows.some((win) => win.app === icon.app) ? " running" : ""), icon.glyph);
+      const button = el("button", "dock-btn" + (state.windows.some((win) => win.app === icon.app) ? " running" : ""));
       button.type = "button";
       button.title = icon.name;
+      button.appendChild(iconVisual(icon.id, icon.glyph, "dock-icon"));
       button.addEventListener("click", () => openApp(icon.app, { title: icon.name }));
       button.addEventListener("contextmenu", (event) => {
         event.preventDefault();
@@ -615,20 +691,20 @@
     panelsHost.replaceChildren();
     const icons = desktopIcons();
     for (const icon of icons) {
-      appsHost.appendChild(launcherButton(icon.glyph, icon.name, () => { hideStart(); openApp(icon.app, { title: icon.name }); }));
+      appsHost.appendChild(launcherButton(icon.glyph, icon.name, () => { hideStart(); openApp(icon.app, { title: icon.name }); }, icon.id));
     }
     for (const panel of state.panels) {
       panelsHost.appendChild(launcherButton(panel.glyph || "▤", panel.name, () => {
         hideStart();
         openApp("network", { title: panel.name, panel: panel.id });
-      }));
+      }, panel.id));
     }
   }
 
-  function launcherButton(glyph, name, onClick) {
+  function launcherButton(glyph, name, onClick, iconId) {
     const button = el("button", "sm-app");
     button.type = "button";
-    const icon = el("span", "glyph", glyph);
+    const icon = iconVisual(iconId, glyph, "sm-icon");
     button.append(icon, el("span", "", name));
     button.addEventListener("click", onClick);
     return button;
@@ -869,11 +945,14 @@
     applyProfile(requested, false);
     applyIconSize(load("iconSize", 56), false);
     applyWallpaper(load("wallpaper", ""), false);
+    installSoundFeedback();
     wire();
+    playSound("startup");
     startClock();
     renderIcons();
     renderDock();
     renderTaskbar();
+    loadAppIconManifest();
     loadWallpapers().then(() => {
       if (!state.wallpaper && state.wallpaperList.length) applyWallpaper(state.wallpaperList[0].url, false);
       document.dispatchEvent(new CustomEvent("aurora:wallpapers", { detail: state.wallpaperList }));
