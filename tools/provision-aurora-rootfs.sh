@@ -31,6 +31,8 @@ restore_resolver() {
   if [ -n "${RESOLV_BACKUP:-}" ] && { [ -e "$RESOLV_BACKUP" ] || [ -L "$RESOLV_BACKUP" ]; }; then
     rm -f "${ROOT_RESOLV:-}" 2>/dev/null || true
     mv -f "$RESOLV_BACKUP" "$ROOT_RESOLV" 2>/dev/null || true
+  elif [ -n "${RESOLV_ABSENT_MARKER:-}" ] && [ -e "$RESOLV_ABSENT_MARKER" ]; then
+    rm -f "${ROOT_RESOLV:-}" "$RESOLV_ABSENT_MARKER" 2>/dev/null || true
   fi
 }
 trap restore_resolver EXIT
@@ -45,13 +47,16 @@ echo "[Aurora] Provisioning Wayland desktop runtime into $DEST"
 HOST_RESOLV=/etc/resolv.conf
 ROOT_RESOLV="$DEST/etc/resolv.conf"
 RESOLV_BACKUP="$DEST/etc/resolv.conf.chimera-backup"
+RESOLV_ABSENT_MARKER="$DEST/etc/.chimera-resolv-conf-was-absent"
 if [ -r "$HOST_RESOLV" ]; then
   if ! grep -Eq '^nameserver[[:space:]]+[^[:space:]]+$' "$ROOT_RESOLV" 2>/dev/null || \
      grep -Eq '^nameserver[[:space:]]+(127\.|::1$)' "$ROOT_RESOLV" 2>/dev/null; then
-    rm -f "$RESOLV_BACKUP"
+    rm -f "$RESOLV_BACKUP" "$RESOLV_ABSENT_MARKER"
     if [ -e "$ROOT_RESOLV" ] || [ -L "$ROOT_RESOLV" ]; then
       cp -a "$ROOT_RESOLV" "$RESOLV_BACKUP" 2>/dev/null || true
       rm -f "$ROOT_RESOLV"
+    else
+      : > "$RESOLV_ABSENT_MARKER"
     fi
     awk '/^nameserver[[:space:]]+/ && $2 !~ /^(127\.|::1$)/ {print}' "$HOST_RESOLV" > "$ROOT_RESOLV" || true
     if ! grep -q '^nameserver' "$ROOT_RESOLV" 2>/dev/null; then
