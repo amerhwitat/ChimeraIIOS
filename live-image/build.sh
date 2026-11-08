@@ -119,7 +119,7 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed-v4" ]; then
+if [ ! -f "$BASE/.packages-installed-v5" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
   install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
@@ -166,7 +166,7 @@ if [ ! -f "$BASE/.packages-installed-v4" ]; then
     rm -rf /var/lib/apt/lists/*
   '
   umount_chroot "$BASE"
-  touch "$BASE/.packages-installed-v4"
+  touch "$BASE/.packages-installed-v5"
 fi
 
 # ------------------------------------------------------------- rootfs copy
