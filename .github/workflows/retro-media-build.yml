@@ -26,7 +26,8 @@ jobs:
       - name: Create and inspect ADF and D64 images
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          retro/commodore/create-retro-media.sh --out build/retro-media
+          chmod +x retro/commodore/create-retro-media.sh retro/commodore/launch-machine.sh
+          bash retro/commodore/create-retro-media.sh --out build/retro-media
           xdftool build/retro-media/CHIMERA-Amiga-500.adf list
           xdftool build/retro-media/CHIMERA-Amiga-2000.adf list
           c1541 -attach build/retro-media/CHIMERA-Commodore-64.d64 -list
