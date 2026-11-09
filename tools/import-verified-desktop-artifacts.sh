@@ -44,6 +44,8 @@ mkdir -p "$(dirname "$DEST")"
 rm -rf "$STAGED"
 mkdir -p "$STAGED"
 cp -a "$TMP/bin" "$TMP/share" "$TMP/SHA256SUMS" "$STAGED/"
+[[ -d "$TMP/lib" ]] && cp -a "$TMP/lib" "$STAGED/"
+[[ -d "$TMP/libexec" ]] && cp -a "$TMP/libexec" "$STAGED/"
 python3 - "$STAGED" "$ARCHIVE" <<'PY'
 import json
 from pathlib import Path
@@ -57,7 +59,7 @@ manifest = {
     "imported_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "execution_scope": "Linux host compatibility bundle; not a Koronos-native executable set",
     "sha256_manifest": "SHA256SUMS",
-    "directories": ["bin", "share"],
+    "directories": ["bin", "share", "lib (optional)", "libexec (optional)"],
 }
 (root / "IMPORT-MANIFEST.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 PY
