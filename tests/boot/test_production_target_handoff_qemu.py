@@ -133,37 +133,77 @@ def main() -> int:
     if not iso.is_file() or iso.stat().st_size == 0:
         raise SystemExit(f"ISO not found or empty: {iso}")
     out.mkdir(parents=True, exist_ok=True)
-    grub = out / "production-grub.cfg"
-    extract(iso, "/boot/grub/grub.cfg", grub)
-    config = grub.read_text(encoding="utf-8", errors="replace")
-    # Check the actual production media contains all three init ELF modules
-    # and each selected GRUB/Jasper entry passes its matching Multiboot2 module.
-    # Do not require the kernel to print its internal module command line.
-    recovery_cfg = out / "production-recovery.cfg"
-    extract(iso, "/boot/jasper/recovery.cfg", recovery_cfg)
-    recovery_config = recovery_cfg.read_text(encoding="utf-8", errors="replace")
-    for target in TARGETS:
-        dest = out / f"target-init-{target}.elf"
-        extract(iso, f"/boot/targets/target-init-{target}.elf", dest)
-        run("readelf", "-h", str(dest))
-        if target == "recovery":
-            block = menu_block(recovery_config, "recovery-terminal")
-        else:
-            block = menu_block(config, TARGETS[target][0])
-        expected = f"module2 /boot/targets/target-init-{target}.elf chimera-user-init-elf target={target}"
-        if expected not in block:
-            raise RuntimeError(f"production GRUB/Jasper entry for {target} does not pass its target init ELF")
+    validation_errors = []
+    try:
+        grub = out / "production-grub.cfg"
+        extract(iso, "/boot/grub/grub.cfg", grub)
+        config = grub.read_text(encoding="utf-8", errors="replace")
+    except Exception as exc:
+        config = ""
+        validation_errors.append(f"production GRUB config: {exc}")
+    try:
+        recovery_cfg = out / "production-recovery.cfg"
+        extract(iso, "/boot/jasper/recovery.cfg", recovery_cfg)
+        recovery_config = recovery_cfg.read_text(encoding="utf-8", errors="replace")
+    except Exception as exc:
+        recovery_config = ""
+        validation_errors.append(f"production Recovery config: {exc}")
+
+    # Inspect every payload and routing entry, but do not stop after the first
+    # defect: the QEMU loop below must still emit three independent target traces.
+    indices = {}
+    for target, (entry_id, nested) in TARGETS.items():
+        try:
+            dest = out / f"target-init-{target}.elf"
+            extract(iso, f"/boot/targets/target-init-{target}.elf", dest)
+            run("readelf", "-h", str(dest))
+            run("readelf", "-lW", str(dest))
+        except Exception as exc:
+            validation_errors.append(f"{target} init ELF: {exc}")
+        try:
+            if target == "recovery":
+                block = menu_block(recovery_config, "recovery-terminal")
+            else:
+                block = menu_block(config, entry_id)
+            expected = f"module2 /boot/targets/target-init-{target}.elf chimera-user-init-elf target={target}"
+            if expected not in block:
+                validation_errors.append(f"{target}: production GRUB/Jasper entry does not pass its target init ELF")
+        except Exception as exc:
+            validation_errors.append(f"{target} menu routing: {exc}")
+        try:
+            indices[target] = menu_index(config, entry_id)
+        except Exception as exc:
+            validation_errors.append(f"{target} menu selection: {exc}")
+            indices[target] = 0
+
     failed = []
     for target, (entry_id, nested) in TARGETS.items():
-        rc = boot_target(iso, out, target, menu_index(config, entry_id), nested)
-        if rc:
+        try:
+            rc = boot_target(iso, out, target, indices[target], nested)
+            if rc:
+                failed.append(target)
+        except Exception as exc:
             failed.append(target)
-    if failed:
-        print("Production ISO userspace handoff NOT VERIFIED for: " + ", ".join(failed))
+            (out / f"{target}-production-debugcon.log").write_text(
+                f"QEMU target harness exception for {target}: {type(exc).__name__}: {exc}\n",
+                encoding="utf-8",
+            )
+            (out / f"{target}-qemu.log").write_text(
+                f"QEMU target harness exception for {target}: {type(exc).__name__}: {exc}\n",
+                encoding="utf-8",
+            )
+
+    if validation_errors or failed:
+        if validation_errors:
+            print("Production ISO validation defects:")
+            for error in validation_errors:
+                print(f" - {error}")
+        if failed:
+            print("Production ISO userspace handoff NOT VERIFIED for: " + ", ".join(failed))
+        print("All three target trace files were attempted and saved for diagnosis.")
         return 1
     print("PASS: production Live, Installer and Recovery GRUB entries each launched their target init ELF from the same ISO.")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
