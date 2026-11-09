@@ -33,5 +33,6 @@ install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-image-inspect.1
   ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-ide.1
   ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-run-binary.1
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-toolchains.1
   DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
 )
