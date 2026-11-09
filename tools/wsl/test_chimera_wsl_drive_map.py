@@ -19,6 +19,7 @@ class WslDriveMapTests(unittest.TestCase):
             mapped = MODULE.map_drives(root)
             self.assertEqual(mapped, ["c", "d"])
             self.assertTrue((root / "drive" / "c").is_symlink())
+            self.assertTrue((root / "drive" / "C").is_symlink())
             self.assertEqual((root / "drive" / "c" / "Users").resolve(),
                              (root / "c" / "Users").resolve())
 
