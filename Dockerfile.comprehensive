@@ -9,6 +9,7 @@
 # =============================================================================
 
 FROM ubuntu:24.04 AS builder
+ARG CHIMERA_STRICT_ISA_SMOKES=0
 
 ARG CHIMERA_STRICT_COMMAND_PROVIDERS=0
 
@@ -369,6 +370,14 @@ RUN python3 /build/repos/ChimeraIIOS/tools/commands/audit-command-catalog.py \
       --catalog /build/repos/ChimeraIIOS/system/commands/chimera-command-list.json \
       --rootfs / \
       --output /opt/chimera/share/chimera/commands/command-catalog-provider-ledger.json
+
+# Compile one real object/binary smoke for each declared LLVM/NASM backend.
+# Strict release builds fail when a declared backend cannot emit its artifact.
+RUN if [ "$CHIMERA_STRICT_ISA_SMOKES" = "1" ]; then \
+      python3 /build/repos/ChimeraIIOS/tools/isa/build-architecture-smokes.py --backends /build/repos/ChimeraIIOS/tools/isa/architecture-backends.json --output /opt/chimera/share/chimera/isa-smokes --strict; \
+    else \
+      python3 /build/repos/ChimeraIIOS/tools/isa/build-architecture-smokes.py --backends /build/repos/ChimeraIIOS/tools/isa/architecture-backends.json --output /opt/chimera/share/chimera/isa-smokes; \
+    fi
 
 # =============================================================================
 # Free/open-source terminal emulators + Aurora application-panel entries
