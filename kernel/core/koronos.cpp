@@ -318,6 +318,15 @@ static void task_installer(void *) {
     const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
     const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
 
+    /* Installer media may be present on a multi-target image. Presence of
+       those modules is not itself a request to enter the installer: only the
+       boot-selected init ELF may select that target. */
+    if (user_init && !module_cmdline_selects_target(user_init, "installer")) {
+        console_write("[INST] Installer target not selected; boot-selected userspace belongs to another target");
+        chimera_sched_block();
+        return;
+    }
+
     if (!image && !manifest && !contract) {
         console_write("[INST] Installer target not selected: no installer modules");
         chimera_sched_block();
