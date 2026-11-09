@@ -2,16 +2,186 @@
   "schema_version": 1,
   "panel": "Aurora Terminals",
   "entries": [
-    {"id":"xterm","name":"XTerm","kind":"terminal","source":"https://invisible-island.net/xterm/","build":"system-package-or-source","binary":"xterm","display":"x11"},
-    {"id":"gnome-terminal","name":"GNOME Terminal","kind":"terminal","source":"https://gitlab.gnome.org/GNOME/gnome-terminal","build":"system-package-or-source","binary":"gnome-terminal","display":"wayland-x11"},
-    {"id":"konsole","name":"Konsole","kind":"terminal","source":"https://invent.kde.org/utilities/konsole","build":"system-package-or-source","binary":"konsole","display":"wayland-x11"},
-    {"id":"xfce4-terminal","name":"XFCE Terminal","kind":"terminal","source":"https://gitlab.xfce.org/apps/xfce4-terminal","build":"system-package-or-source","binary":"xfce4-terminal","display":"wayland-x11"},
-    {"id":"foot","name":"Foot","kind":"terminal","source":"https://codeberg.org/dnkl/foot","build":"meson-source","binary":"foot","display":"wayland"},
-    {"id":"kitty","name":"Kitty","kind":"terminal","source":"https://github.com/kovidgoyal/kitty","build":"source-or-upstream-binary","binary":"kitty","display":"wayland-x11"},
-    {"id":"alacritty","name":"Alacritty","kind":"terminal","source":"https://github.com/alacritty/alacritty","build":"cargo-source","binary":"alacritty","display":"wayland-x11"},
-    {"id":"wezterm","name":"WezTerm","kind":"terminal","source":"https://github.com/wezterm/wezterm","build":"cargo-source","binary":"wezterm","display":"wayland-x11"},
-    {"id":"ghostty","name":"Ghostty","kind":"terminal","source":"https://github.com/ghostty-org/ghostty","build":"zig-source-or-package","binary":"ghostty","display":"wayland-x11"},
-    {"id":"contour","name":"Contour","kind":"terminal","source":"https://github.com/contour-terminal/contour","build":"cmake-source","binary":"contour","display":"wayland-x11"}
+    {
+      "id": "xterm",
+      "name": "XTerm",
+      "kind": "terminal",
+      "source": "https://invisible-island.net/xterm/",
+      "build": "system-package-or-source",
+      "binary": "xterm",
+      "display": "x11"
+    },
+    {
+      "id": "gnome-terminal",
+      "name": "GNOME Terminal",
+      "kind": "terminal",
+      "source": "https://gitlab.gnome.org/GNOME/gnome-terminal",
+      "build": "system-package-or-source",
+      "binary": "gnome-terminal",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "konsole",
+      "name": "Konsole",
+      "kind": "terminal",
+      "source": "https://invent.kde.org/utilities/konsole",
+      "build": "system-package-or-source",
+      "binary": "konsole",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "xfce4-terminal",
+      "name": "XFCE Terminal",
+      "kind": "terminal",
+      "source": "https://gitlab.xfce.org/apps/xfce4-terminal",
+      "build": "system-package-or-source",
+      "binary": "xfce4-terminal",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "foot",
+      "name": "Foot",
+      "kind": "terminal",
+      "source": "https://codeberg.org/dnkl/foot",
+      "build": "meson-source",
+      "binary": "foot",
+      "display": "wayland"
+    },
+    {
+      "id": "kitty",
+      "name": "Kitty",
+      "kind": "terminal",
+      "source": "https://github.com/kovidgoyal/kitty",
+      "build": "source-or-upstream-binary",
+      "binary": "kitty",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "alacritty",
+      "name": "Alacritty",
+      "kind": "terminal",
+      "source": "https://github.com/alacritty/alacritty",
+      "build": "cargo-source",
+      "binary": "alacritty",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "wezterm",
+      "name": "WezTerm",
+      "kind": "terminal",
+      "source": "https://github.com/wezterm/wezterm",
+      "build": "cargo-source",
+      "binary": "wezterm",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "ghostty",
+      "name": "Ghostty",
+      "kind": "terminal",
+      "source": "https://github.com/ghostty-org/ghostty",
+      "build": "zig-source-or-package",
+      "binary": "ghostty",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "contour",
+      "name": "Contour",
+      "kind": "terminal",
+      "source": "https://github.com/contour-terminal/contour",
+      "build": "cmake-source",
+      "binary": "contour",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "ptyxis",
+      "name": "Ptyxis",
+      "kind": "terminal",
+      "source": "https://gitlab.gnome.org/chergert/ptyxis",
+      "build": "system-package-or-source",
+      "binary": "ptyxis",
+      "display": "wayland"
+    },
+    {
+      "id": "terminator",
+      "name": "Terminator",
+      "kind": "terminal",
+      "source": "https://github.com/gnome-terminator/terminator",
+      "build": "system-package-or-source",
+      "binary": "terminator",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "gnome-console",
+      "name": "GNOME Console",
+      "kind": "terminal",
+      "source": "https://gitlab.gnome.org/GNOME/gnome-console",
+      "build": "system-package-or-source",
+      "binary": "kgx",
+      "display": "wayland"
+    },
+    {
+      "id": "tilix",
+      "name": "Tilix",
+      "kind": "terminal",
+      "source": "https://github.com/gnunn1/tilix",
+      "build": "system-package-or-source",
+      "binary": "tilix",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "mate-terminal",
+      "name": "MATE Terminal",
+      "kind": "terminal",
+      "source": "https://github.com/mate-desktop/mate-terminal",
+      "build": "system-package-or-source",
+      "binary": "mate-terminal",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "qterminal",
+      "name": "QTerminal",
+      "kind": "terminal",
+      "source": "https://github.com/lxqt/qterminal",
+      "build": "system-package-or-source",
+      "binary": "qterminal",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "sakura",
+      "name": "Sakura",
+      "kind": "terminal",
+      "source": "https://github.com/doncram/sakura",
+      "build": "system-package-or-source",
+      "binary": "sakura",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "terminology",
+      "name": "Terminology",
+      "kind": "terminal",
+      "source": "https://git.enlightenment.org/enlightenment/terminology",
+      "build": "system-package-or-source",
+      "binary": "terminology",
+      "display": "wayland-x11"
+    },
+    {
+      "id": "lxterminal",
+      "name": "LXTerminal",
+      "kind": "terminal",
+      "source": "https://github.com/lxde/lxterminal",
+      "build": "system-package-or-source",
+      "binary": "lxterminal",
+      "display": "x11"
+    },
+    {
+      "id": "blackbox-terminal",
+      "name": "Black Box Terminal",
+      "kind": "terminal",
+      "source": "https://gitlab.gnome.org/haecker-felix/blackbox",
+      "build": "system-package-or-source",
+      "binary": "blackbox",
+      "display": "wayland"
+    }
   ],
-  "policy":"Source-first when a supported build recipe exists; otherwise use a verified distribution binary/package. Never execute an unverified download."
+  "policy": "Source-first when a supported build recipe exists; otherwise use a verified distribution binary/package. Never execute an unverified download."
 }
