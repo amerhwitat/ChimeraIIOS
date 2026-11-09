@@ -439,7 +439,7 @@ jobs:
             set +e
             # Keep the real 300-second GRUB timeout; CI explicitly selects
             # the highlighted default entry after the menu is visible.
-          ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor stdio -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor stdio -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             qemu_rc=$?
             set -e
             if [[ ! -s "$trace" ]]; then
