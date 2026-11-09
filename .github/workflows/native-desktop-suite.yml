@@ -5,6 +5,9 @@ on:
     paths:
       - 'desktop/**'
       - 'desktop/native/**'
+      - 'retro/commodore/**'
+      - 'tools/binary/**'
+      - 'tools/ide/install-development-suite.sh'
       - 'tools/build-desktop-binaries.sh'
       - 'tools/binary/inspect_binary.py'
       - 'tools/ide/install-vscodium.py'
@@ -27,6 +30,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Test retro media and binary compatibility tools
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s retro/commodore/tests -v
+          python3 -m unittest discover -s tools/binary/tests -v
+          bash -n retro/commodore/create-retro-media.sh retro/commodore/launch-machine.sh
       - name: Install native build tools
         run: sudo apt-get update && sudo apt-get install --yes build-essential cmake python3 libgtk-4-dev librsvg2-common xvfb libgl1-mesa-dev libglfw3-dev libopencv-dev mesa-utils pkg-config
       - name: Compile Aurora native desktop components
