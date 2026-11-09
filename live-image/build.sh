@@ -323,6 +323,9 @@ tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . \
 
 # Compile real native replacements for legacy write and floppy-format tools before provider audit.
 bash "$REPO_DIR/tools/commands/build-native-legacy-providers.sh" "$WORK" "$REPO_DIR"
+for command in write fdformat; do
+  [[ -x "$WORK/usr/local/bin/$command" ]] || { echo "required native command provider missing: $command" >&2; exit 2; }
+done
 
 # Stage genuine compatibility frontends before the provider resolver runs.
 bash "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$WORK"
