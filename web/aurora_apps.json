@@ -1,51 +1,258 @@
 {
-  "schema":"chimera-aurora-apps/v9",
-  "desktop":"Aurora Wayland Glass",
-  "launcher":"embedded-surface",
-  "security_mode":"safe-lab",
-  "desktop_profiles":"desktop_profiles.json",
-  "retro_emulators":"retro_emulators.json",
-  "installer_catalog":"installer_catalog.json",
-  "cpp_toolchain":"chimera_cpp_toolchain.json",
-  "glass_desktop":"aurora_glass_desktop.json",
-  "terminal_profile":"aurora_terminal_profile.json",
-  "man_database":"man_pages.json",
-  "command_catalog":"command_catalog.json",
-  "categories":[
-    {"id":"chimera","title":"Chimera II","apps":[
-      {"id":"architecture","title":"Architecture","icon":"A","target":"#architecture","mode":"native-web"},
-      {"id":"isa","title":"ISA Explorer","icon":"◈","target":"#isa-section","mode":"native-web"},
-      {"id":"kernel","title":"Koronos Kernel","icon":"K","target":"#kernel-section","mode":"native-web"},
-      {"id":"health","title":"System Health & KPIs","icon":"♥","url":"health.html","mode":"embedded"},
-      {"id":"system-control-center","title":"System Control Center","icon":"⚙","url":"system_control_center.html","mode":"embedded"},
-      {"id":"installer-manager","title":"Chimera Installer Manager","icon":"▣","url":"installer_manager.html","mode":"embedded"},
-      {"id":"network-monitor","title":"TCP/IP Network Monitor","icon":"◎","url":"network_monitor.html","mode":"embedded"},
-      {"id":"crash-center","title":"Crash Center & Recovery","icon":"⚠","url":"crash_center.html","mode":"embedded"},
-      {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"embedded"},
-      {"id":"retro-emulators","title":"Retro Computer Emulators","icon":"🕹","url":"retro_emulators.html","mode":"embedded"},
-      {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"embedded"},
-      {"id":"terminal","title":"Aurora Terminal","icon":"⌘","url":"aurora_terminal.html","mode":"embedded","profile":"aurora_terminal_profile.json","database":"man_pages.json"},
-      {"id":"standards","title":"Standards","icon":"RFC","target":"#standards-section","mode":"native-web"},{"id":"ancient-ocr","title":"Ancient OCR Laboratory","icon":"OCR","url":"ancient-ocr.html","mode":"embedded","automatic":true},{"id":"thamudic-nlp","title":"Thamudic NLP / Epigraphy","icon":"𐪀","target":"#thamudic","mode":"native-web","automaticScan":true}
-    ]},
-    {"id":"desktop","title":"Desktop Environments","apps":[
-      {"id":"desktop-switcher","title":"Desktop Switcher","icon":"▣","url":"desktop_switcher.html","mode":"embedded"},
-      {"id":"aurora","title":"Aurora Wayland Glass","icon":"✦","url":"desktop_switcher.html","mode":"embedded"},
-      {"id":"gnome","title":"Ubuntu / GNOME","icon":"G","url":"desktop_switcher.html#linux-gnome","mode":"session-adapter"},
-      {"id":"plasma","title":"KDE Plasma","icon":"K","url":"desktop_switcher.html#linux-kde-plasma","mode":"session-adapter"},
-      {"id":"xfce","title":"Xfce","icon":"X","url":"desktop_switcher.html#linux-xfce","mode":"session-adapter"},
-      {"id":"cinnamon","title":"Cinnamon","icon":"C","url":"desktop_switcher.html#linux-cinnamon","mode":"session-adapter"},
-      {"id":"windows-ui","title":"Windows UI Profiles","icon":"⊞","url":"desktop_switcher.html#windows-11","mode":"web-profile-or-vm"}
-    ]},
-    {"id":"system","title":"System & Monitoring","apps":[
-      {"id":"process-monitor","title":"Process Monitor","icon":"PS","target":"#terminal-section","mode":"sandbox"},
-      {"id":"system-monitor","title":"System Monitor","icon":"CPU","target":"#terminal-section","mode":"sandbox"},
-      {"id":"command-manual","title":"Command Manual / man","icon":"?","url":"aurora_terminal.html","mode":"embedded","database":"man_pages.json"}
-    ]},
-    {"id":"development","title":"Development","apps":[
-      {"id":"chimera-code","title":"Chimera Code IDE","icon":"</>","url":"chimera_code_ide.html","mode":"embedded"},
-      {"id":"python","title":"Python","icon":"Py","target":"#terminal-section","mode":"sandbox"},
-      {"id":"bash","title":"Bash / Zsh","icon":"$","target":"#terminal-section","mode":"sandbox"},
-      {"id":"powershell","title":"PowerShell","icon":"PS","target":"#terminal-section","mode":"sandbox"}
-    ]}
+  "schema": "chimera-aurora-apps/v9",
+  "desktop": "Aurora Wayland Glass",
+  "launcher": "embedded-surface",
+  "security_mode": "safe-lab",
+  "desktop_profiles": "desktop_profiles.json",
+  "retro_emulators": "retro_emulators.json",
+  "installer_catalog": "installer_catalog.json",
+  "cpp_toolchain": "chimera_cpp_toolchain.json",
+  "glass_desktop": "aurora_glass_desktop.json",
+  "terminal_profile": "aurora_terminal_profile.json",
+  "man_database": "man_pages.json",
+  "command_catalog": "command_catalog.json",
+  "categories": [
+    {
+      "id": "chimera",
+      "title": "Chimera II",
+      "apps": [
+        {
+          "id": "architecture",
+          "title": "Architecture",
+          "icon": "A",
+          "target": "#architecture",
+          "mode": "native-web"
+        },
+        {
+          "id": "isa",
+          "title": "ISA Explorer",
+          "icon": "◈",
+          "target": "#isa-section",
+          "mode": "native-web"
+        },
+        {
+          "id": "kernel",
+          "title": "Koronos Kernel",
+          "icon": "K",
+          "target": "#kernel-section",
+          "mode": "native-web"
+        },
+        {
+          "id": "health",
+          "title": "System Health & KPIs",
+          "icon": "♥",
+          "url": "health.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "system-control-center",
+          "title": "System Control Center",
+          "icon": "⚙",
+          "url": "system_control_center.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "installer-manager",
+          "title": "Chimera Installer Manager",
+          "icon": "▣",
+          "url": "installer_manager.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "network-monitor",
+          "title": "TCP/IP Network Monitor",
+          "icon": "◎",
+          "url": "network_monitor.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "crash-center",
+          "title": "Crash Center & Recovery",
+          "icon": "⚠",
+          "url": "crash_center.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "desktop-switcher",
+          "title": "Desktop Switcher",
+          "icon": "▣",
+          "url": "desktop_switcher.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "retro-emulators",
+          "title": "Retro Computer Emulators",
+          "icon": "🕹",
+          "url": "retro_emulators.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "chimera-code",
+          "title": "Chimera Code IDE",
+          "icon": "</>",
+          "url": "chimera_code_ide.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "vscodium-installer",
+          "title": "VSCodium Install",
+          "icon": "VS",
+          "icon_id": "vscode",
+          "url": "chimera_code_ide.html#ide-vscodium",
+          "mode": "official-package-installer",
+          "appcenter_id": "vscodium",
+          "installer": "../tools/ide/install-vscodium.py"
+        },
+        {
+          "id": "terminal",
+          "title": "Aurora Terminal",
+          "icon": "⌘",
+          "url": "aurora_terminal.html",
+          "mode": "embedded",
+          "profile": "aurora_terminal_profile.json",
+          "database": "man_pages.json"
+        },
+        {
+          "id": "standards",
+          "title": "Standards",
+          "icon": "RFC",
+          "target": "#standards-section",
+          "mode": "native-web"
+        },
+        {
+          "id": "ancient-ocr",
+          "title": "Ancient OCR Laboratory",
+          "icon": "OCR",
+          "url": "ancient-ocr.html",
+          "mode": "embedded",
+          "automatic": true
+        },
+        {
+          "id": "thamudic-nlp",
+          "title": "Thamudic NLP / Epigraphy",
+          "icon": "𐪀",
+          "target": "#thamudic",
+          "mode": "native-web",
+          "automaticScan": true
+        }
+      ]
+    },
+    {
+      "id": "desktop",
+      "title": "Desktop Environments",
+      "apps": [
+        {
+          "id": "desktop-switcher",
+          "title": "Desktop Switcher",
+          "icon": "▣",
+          "url": "desktop_switcher.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "aurora",
+          "title": "Aurora Wayland Glass",
+          "icon": "✦",
+          "url": "desktop_switcher.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "gnome",
+          "title": "Ubuntu / GNOME",
+          "icon": "G",
+          "url": "desktop_switcher.html#linux-gnome",
+          "mode": "session-adapter"
+        },
+        {
+          "id": "plasma",
+          "title": "KDE Plasma",
+          "icon": "K",
+          "url": "desktop_switcher.html#linux-kde-plasma",
+          "mode": "session-adapter"
+        },
+        {
+          "id": "xfce",
+          "title": "Xfce",
+          "icon": "X",
+          "url": "desktop_switcher.html#linux-xfce",
+          "mode": "session-adapter"
+        },
+        {
+          "id": "cinnamon",
+          "title": "Cinnamon",
+          "icon": "C",
+          "url": "desktop_switcher.html#linux-cinnamon",
+          "mode": "session-adapter"
+        },
+        {
+          "id": "windows-ui",
+          "title": "Windows UI Profiles",
+          "icon": "⊞",
+          "url": "desktop_switcher.html#windows-11",
+          "mode": "web-profile-or-vm"
+        }
+      ]
+    },
+    {
+      "id": "system",
+      "title": "System & Monitoring",
+      "apps": [
+        {
+          "id": "process-monitor",
+          "title": "Process Monitor",
+          "icon": "PS",
+          "target": "#terminal-section",
+          "mode": "sandbox"
+        },
+        {
+          "id": "system-monitor",
+          "title": "System Monitor",
+          "icon": "CPU",
+          "target": "#terminal-section",
+          "mode": "sandbox"
+        },
+        {
+          "id": "command-manual",
+          "title": "Command Manual / man",
+          "icon": "?",
+          "url": "aurora_terminal.html",
+          "mode": "embedded",
+          "database": "man_pages.json"
+        }
+      ]
+    },
+    {
+      "id": "development",
+      "title": "Development",
+      "apps": [
+        {
+          "id": "chimera-code",
+          "title": "Chimera Code IDE",
+          "icon": "</>",
+          "url": "chimera_code_ide.html",
+          "mode": "embedded"
+        },
+        {
+          "id": "python",
+          "title": "Python",
+          "icon": "Py",
+          "target": "#terminal-section",
+          "mode": "sandbox"
+        },
+        {
+          "id": "bash",
+          "title": "Bash / Zsh",
+          "icon": "$",
+          "target": "#terminal-section",
+          "mode": "sandbox"
+        },
+        {
+          "id": "powershell",
+          "title": "PowerShell",
+          "icon": "PS",
+          "target": "#terminal-section",
+          "mode": "sandbox"
+        }
+      ]
+    }
   ]
 }
