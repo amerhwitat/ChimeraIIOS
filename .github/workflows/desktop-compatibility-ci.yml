@@ -93,7 +93,8 @@ jobs:
           bash tools/ides/ide-manager.sh list
           bash tools/ides/ide-manager.sh --help
           node --check web/chimera-hub.js
-          python3 -m py_compile tools/runtime/chimera-local-bridge.py tools/retro-media/build_retro_media.py tools/inspect-binary-headers.py
+          python3 -m py_compile tools/runtime/chimera-local-bridge.py tools/runtime/chimera-terminal-backend.py tools/retro-media/build_retro_media.py tools/inspect-binary-headers.py
+          python3 tests/runtime/test_terminal_backend.py
           python3 tests/tools/test_inspect_binary_headers.py
           python3 tests/tools/test_run_compatible_binary.py
           bash -n tools/binary/install-compat-runtimes.sh
