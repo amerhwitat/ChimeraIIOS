@@ -244,7 +244,7 @@ for target in live installer recovery; do
   readelf -lW "$extracted" | grep -Eq 'LOAD.*R E' || {
     echo "ERROR: finished ISO target init has no executable PT_LOAD: $target" >&2; exit 2; }
 done
-for item in "grub.cfg:live" "grub.cfg:installer" "grub.cfg:recovery" "jasper/live.cfg:live" "jasper/install.cfg:installer" "jasper/recovery.cfg:recovery"; do
+for item in "grub/grub.cfg:live" "grub/grub.cfg:installer" "grub/grub.cfg:recovery" "jasper/live.cfg:live" "jasper/install.cfg:installer" "jasper/recovery.cfg:recovery"; do
   config="${item%%:*}"
   target="${item##*:}"
   extracted="$WORK/tmp/iso-menu-$target.cfg"
