@@ -122,6 +122,8 @@ EOF
 for wrapper in chimera-cc chimera-cxx chimera-gas chimera-ld; do
   install -m 0755 "$ROOT/tools/toolchain/$wrapper" "$OUT/bin/$wrapper"
 done
+install -m 0755 "$ROOT/tools/inspect-binary-headers.py" "$OUT/bin/chm-binary-headers"
+install -m 0644 "$ROOT/man/chm-binary-headers.1" "$OUT/manifests/chm-binary-headers.1"
 install -m 0644 "$ROOT/toolchains/chimera-native-toolchain.json" "$OUT/manifests/chimera-native-toolchain.json"
 find "$OUT" -type f ! -path "$OUT/manifests/SHA256SUMS" -print0 | sort -z | xargs -0r sha256sum > "$OUT/manifests/SHA256SUMS"
 echo "Toolchain staging complete: $OUT"
