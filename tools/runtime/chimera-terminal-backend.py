@@ -78,7 +78,7 @@ def safe_command(command:str,cwd:Path,workspace:Path,shell:str):
  except (OSError,PermissionError,ValueError) as exc:return "",str(exc),1,cwd
 
 def shell_command(shell:str,command:str):
- names={"bash":"bash","sh":"sh","zsh":"zsh","fish":"fish","cmd":"cmd.exe","powershell":"powershell.exe","chimera":"chimera"}
+ names={"bash":"bash","sh":"sh","zsh":"zsh","fish":"fish","cmd":"cmd.exe","powershell":("powershell.exe" if os.name=="nt" else "pwsh"),"chimera":"chimera"}
  exe=shutil.which(names.get(shell,""))
  if not exe:raise FileNotFoundError(f"selected shell is not installed: {shell}")
  if shell in ("bash","sh","zsh","fish"):return [exe,"-lc",command]
