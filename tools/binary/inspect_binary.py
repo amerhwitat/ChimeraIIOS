@@ -49,11 +49,11 @@ def parse(path: Path) -> dict:
             if len(head) < 64:
                 raise ValueError("truncated DOS/PE header")
             offset = struct.unpack_from("<I", head, 0x3C)[0]
-            if offset > 1024 * 1024 or offset + 26 > size:
+            if offset > 1024 * 1024 or offset + 24 > size:
                 raise ValueError("PE header offset is outside file or exceeds 1 MiB safety bound")
             f.seek(offset)
-            pe = f.read(26)
-            if len(pe) < 26 or pe[:4] != b"PE\0\0":
+            pe = f.read(24)
+            if len(pe) < 24 or pe[:4] != b"PE\0\0":
                 raise ValueError("MZ executable has no valid PE signature (possibly DOS-only)")
             machine, sections, _, _, _, optional_size, characteristics = struct.unpack_from("<HHIIIHH", pe, 4)
             optional = f.read(min(optional_size, 256))
