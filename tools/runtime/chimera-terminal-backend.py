@@ -178,6 +178,7 @@ class Handler(BaseHTTPRequestHandler):
         if origin:self.send_header("Access-Control-Allow-Origin",origin)
         self.send_header("Access-Control-Allow-Methods","GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers","Authorization, Content-Type")
+        self.send_header("Access-Control-Allow-Private-Network","true")
         self.send_header("Access-Control-Max-Age","600");self.send_header("Vary","Origin");self.end_headers()
     def do_GET(self):
         if not self._host_ok() or not self._origin_ok():return self._json(403,{"ok":False,"error":"origin-or-host-denied"})
