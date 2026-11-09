@@ -126,6 +126,7 @@ cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 # A base ISO may carry an older GRUB menu. Always replace it with the exact
 # source-controlled target router so Live/Installer/Recovery module tags match
 # the target ELFs staged from build/live-boot above.
+mkdir -p "$STAGE/boot/grub"
 cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
