@@ -1,0 +1,10 @@
+.TH CHM-OPENGL-SMOKE 1
+.SH NAME
+chm-opengl-smoke \- validate and preview the Chimera OpenGL graphics path
+.SH SYNOPSIS
+.B chm-opengl-smoke
+.RI [ --self-test ]
+.SH DESCRIPTION
+Creates an OpenGL context through GLFW and renders a small test scene. Without options it opens an interactive window. --self-test creates a hidden context, prints the OpenGL version and renderer, renders one frame, and exits.
+.SH EXIT STATUS
+0 on success; nonzero if GLFW or an OpenGL context cannot be initialized.
