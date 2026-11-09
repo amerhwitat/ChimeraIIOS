@@ -9,6 +9,19 @@
   },
   "profiles": [
     {
+      "id": "freexp-trinity",
+      "family": "linux",
+      "protocol": "x11",
+      "packages": [
+        "q4os-desktop-trinity",
+        "tde-trinity",
+        "lookswitcher",
+        "tde-style-q4oststyle02-trinity"
+      ],
+      "theme": "XPQ4 FreeXP-style theme; use only license-cleared free assets",
+      "status": "optional-profile-candidate"
+    },
+    {
       "id": "freexp",
       "family": "chimera",
       "protocol": "x11",
