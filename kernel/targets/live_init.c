@@ -14,10 +14,9 @@ __attribute__((noreturn, used)) void _start(void) {
     for (;;) {
         init_writestr("chimera> ");
         const long length = init_read_line(line, (long)sizeof(line));
-        if (length < 0) {
-            init_writestr("LIVE: console read failed\n");
-            init_yield();
-            continue;
+        if (length <= 0) {
+            init_writestr("LIVE: stdin reached EOF; no keyboard/TTY input provider is registered\n");
+            init_exit(0);
         }
         if (init_command_common(line, pid)) {
             init_yield();
