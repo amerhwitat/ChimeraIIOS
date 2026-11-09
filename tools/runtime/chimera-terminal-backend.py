@@ -141,10 +141,18 @@ class Handler(BaseHTTPRequestHandler):
    recent.append(now);RATE[client]=recent;cwd=SESSIONS.get(session,self.server.workspace)
   if self.server.unsafe_shell:
    try:
-    argv=shell_command(shell,command);result=subprocess.run(argv,cwd=str(cwd),capture_output=True,text=True,timeout=30,check=False)
-    out=(result.stdout or "")[:MAX_OUTPUT];err=(result.stderr or "")[:MAX_OUTPUT];code=result.returncode
-   except (OSError,subprocess.TimeoutExpired,FileNotFoundError) as exc:out="";err=str(exc);code=124
-   new_cwd=cwd
+    tokens=shlex.split(command,posix=(shell not in ("cmd","powershell")))
+    first=(tokens[0].lower() if tokens else "")
+    if first in ("cd","chdir","set-location"):
+     target=Path(tokens[1]).expanduser() if len(tokens)>1 else Path.home()
+     target=target if target.is_absolute() else cwd/target
+     target=target.resolve()
+     if not target.is_dir(): raise NotADirectoryError(str(target))
+     out="";err="";code=0;new_cwd=target
+    else:
+     argv=shell_command(shell,command);result=subprocess.run(argv,cwd=str(cwd),capture_output=True,text=True,timeout=30,check=False)
+     out=(result.stdout or "")[:MAX_OUTPUT];err=(result.stderr or "")[:MAX_OUTPUT];code=result.returncode;new_cwd=cwd
+   except (OSError,subprocess.TimeoutExpired,FileNotFoundError,ValueError) as exc:out="";err=str(exc);code=124;new_cwd=cwd
   else:out,err,code,new_cwd=safe_command(command,cwd,self.server.workspace,shell)
   with LOCK:SESSIONS[session]=new_cwd
   return self.json(200,{"ok":code==0,"output":out,"stderr":err,"exit_code":code,"mode":"unsafe-shell" if self.server.unsafe_shell else "safe","profile":self.server.profile,"cwd":str(new_cwd),"session":session})
