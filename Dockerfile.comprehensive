@@ -364,6 +364,8 @@ RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh
       echo "[Chimera][COMMANDS] provider installer not present; skipping."; \
     fi
 
+RUN python3 -m py_compile /build/repos/ChimeraIIOS/tools/commands/audit-command-catalog.py /build/repos/ChimeraIIOS/tools/isa/build-architecture-smokes.py
+
 # Snapshot the actual provider paths after package installation. This report
 # never executes catalog commands and does not claim semantic conformance.
 RUN python3 /build/repos/ChimeraIIOS/tools/commands/audit-command-catalog.py \
