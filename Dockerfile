@@ -77,11 +77,13 @@ ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash ca-certificates python3 pciutils usbutils dmidecode iproute2 procps \
     systemd systemd-sysv dosbox \
+    libsdl2-2.0-0 libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxinerama1 libxss1 libjpeg-turbo8 libpng16-16 zlib1g libreadline8 \
     samba smbclient cifs-utils winbind libnss-winbind libpam-winbind \
     krb5-user realmd adcli sssd sssd-ad sssd-ldap sssd-tools ldap-utils \
     libsasl2-modules-gssapi-mit avahi-daemon avahi-utils gvfs-backends \
     udisks2 util-linux xorriso udftools file eject \
     && if apt-cache show wsdd >/dev/null 2>&1; then apt-get install -y --no-install-recommends wsdd || echo "[WARN] wsdd client install failed; DNS-SD remains available"; fi; \
+    && if apt-cache show retroarch >/dev/null 2>&1; then apt-get install -y --no-install-recommends retroarch || echo "[WARN] RetroArch package unavailable; PUAE core can be installed separately"; fi; \
     if apt-cache show dosbox-x >/dev/null 2>&1; then apt-get install -y --no-install-recommends dosbox-x || echo "[WARN] dosbox-x install failed; using DOSBox fallback"; fi \
     && rm -rf /var/lib/apt/lists/*
 
