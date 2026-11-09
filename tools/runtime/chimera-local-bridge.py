@@ -168,11 +168,43 @@ class H(BaseHTTPRequestHandler):
                 content=str(d.get("content","")).strip()
                 if not content:return send(self,400,{"error":"content-required"})
                 p=safe_path(content)
-                if not p.exists():return send(self,404,{"error":"content-not-found"})
-                a=exe(["fs-uae","fs-uae-launcher","uae","amiga"])
-                if not a:return send(self,503,{"error":"amiga-core-not-installed"})
-                subprocess.Popen([a,str(p)],start_new_session=True)
-                return send(self,200,{"status":"launched","executable":a})
+                if not p.is_file():return send(self,404,{"error":"content-not-found"})
+                if p.suffix.lower() not in {".adf",".adz",".dms",".ipf",".hdf",".hdz",".lha",".zip",".m3u"}:
+                    return send(self,415,{"error":"unsupported-amiga-media"})
+                model=str(d.get("model","auto")).upper()
+                allowed_models={"AUTO","A500","A500PLUS","A600","A1200","A2000","A3000","A4000","CDTV","CD32"}
+                if model not in allowed_models:return send(self,400,{"error":"unsupported-amiga-model"})
+                a=exe(["fs-uae","uae"])
+                if not a:return send(self,503,{"error":"fs-uae-not-installed"})
+                args=[a]
+                if model!="AUTO":args.append(f"--amiga-model={model}")
+                args.append(f"--floppy-drive-0={p}")
+                kickstart=str(d.get("kickstart","")).strip()
+                if kickstart:
+                    rom=safe_path(kickstart)
+                    if not rom.is_file() or rom.suffix.lower() not in {".rom",".bin"}:
+                        return send(self,400,{"error":"invalid-kickstart-file"})
+                    args.append(f"--kickstart-file={rom}")
+                subprocess.Popen(args,start_new_session=True)
+                return send(self,200,{"status":"launched","machine":model,"executable":a,"media":str(p)})
+            if path=="/launch/commodore":
+                content=str(d.get("content","")).strip()
+                if not content:return send(self,400,{"error":"content-required"})
+                p=safe_path(content)
+                if not p.is_file():return send(self,404,{"error":"content-not-found"})
+                if p.suffix.lower() not in {".d64",".d71",".d81",".g64",".prg",".t64",".tap",".crt",".zip"}:
+                    return send(self,415,{"error":"unsupported-commodore-media"})
+                machine=str(d.get("machine","C64")).upper()
+                candidates={
+                    "C64":["x64sc","x64"],"C128":["x128"],"VIC20":["xvic"],
+                    "PET":["xpet"],"PLUS4":["xplus4"]
+                }
+                if machine not in candidates:return send(self,400,{"error":"unsupported-commodore-machine"})
+                emulator=exe(candidates[machine])
+                if not emulator:return send(self,503,{"error":"vice-emulator-not-installed","machine":machine})
+                args=[emulator,"-autostart",str(p)]
+                subprocess.Popen(args,start_new_session=True)
+                return send(self,200,{"status":"launched","machine":machine,"executable":emulator,"media":str(p)})
             if path=="/games/launch":
                 g=game_item(d.get("id",""))
                 if not g:return send(self,404,{"error":"unknown-game"})

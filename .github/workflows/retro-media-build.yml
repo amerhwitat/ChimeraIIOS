@@ -1,0 +1,52 @@
+name: Retro Media and Emulator Disk Validation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "tools/retro-media/**"
+      - "tests/retro_media/**"
+      - ".github/workflows/retro-media-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/retro-media/**"
+      - "tests/retro_media/**"
+      - ".github/workflows/retro-media-build.yml"
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install VICE disk utilities and Python venv
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vice python3-venv
+          command -v c1541
+      - name: Install Amiga filesystem image tooling
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install --disable-pip-version-check --upgrade pip
+          python -m pip install --disable-pip-version-check amitools
+          command -v xdftool
+      - name: Build Amiga A500/A2000 ADF and Commodore C64 D64 images
+        run: |
+          . .venv/bin/activate
+          python tools/retro-media/build_retro_media.py --output build/retro-media
+      - name: Verify disk geometry, filesystems, checksums and C64 PRG round-trip
+        run: |
+          CHIMERA_RETRO_MEDIA_DIR="$PWD/build/retro-media" python -m unittest discover -s tests/retro_media -v
+      - name: Upload downloadable Amiga and Commodore disk images
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-amiga-commodore-disk-images
+          path: |
+            build/retro-media/Chimera-Amiga-A500.adf
+            build/retro-media/Chimera-Amiga-A2000.adf
+            build/retro-media/Chimera-Commodore-C64-Starter.d64
+            build/retro-media/manifest.json
+          if-no-files-found: error
+          retention-days: 30

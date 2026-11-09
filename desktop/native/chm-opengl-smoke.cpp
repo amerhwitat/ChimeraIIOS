@@ -17,7 +17,6 @@ static void draw_frame(int width, int height) {
     glColor3f(0.48f, 0.38f, 0.95f); glVertex2f(0.0f, 0.82f);
     glEnd();
 }
-
 int main(int argc, char** argv) {
     const bool self_test = argc > 1 && std::strcmp(argv[1], "--self-test") == 0;
     if (!glfwInit()) { std::fprintf(stderr, "GLFW initialization failed\n"); return 2; }
@@ -33,8 +32,14 @@ int main(int argc, char** argv) {
     std::printf("OpenGL version: %s\nRenderer: %s\n", version, renderer);
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
+    while (glGetError() != GL_NO_ERROR) {}
     draw_frame(width, height);
     glfwSwapBuffers(window);
+    const GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::fprintf(stderr, "OpenGL render failed with error 0x%x\n", error);
+        glfwDestroyWindow(window); glfwTerminate(); return 5;
+    }
     if (!self_test) {
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();

@@ -3,7 +3,7 @@
 # OpenGL/GLFW or OpenCV are present, the corresponding tools become installable.
 find_package(OpenGL QUIET)
 find_package(glfw3 QUIET)
-find_package(OpenCV QUIET COMPONENTS core imgcodecs)
+find_package(OpenCV QUIET COMPONENTS core imgcodecs imgproc)
 
 if(OpenGL_FOUND AND (TARGET glfw OR TARGET glfw3::glfw))
   add_executable(chm-opengl-smoke chm-opengl-smoke.cpp)
@@ -31,5 +31,6 @@ endif()
 install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-opengl-smoke.1
   ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-image-inspect.1
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../man/chm-ide.1
   DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
 )

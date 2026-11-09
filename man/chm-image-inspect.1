@@ -1,12 +1,37 @@
 .TH CHM-IMAGE-INSPECT 1
 .SH NAME
-chm-image-inspect \- inspect image metadata and channel statistics using OpenCV
+chm-image-inspect \- inspect and transform images using OpenCV
 .SH SYNOPSIS
 .B chm-image-inspect
 .I IMAGE
+.RI [ OPTIONS ]
 .br
 .B chm-image-inspect --self-test
+.br
+.B chm-image-inspect --help
 .SH DESCRIPTION
-Decodes an image and prints its dimensions, channel count, depth, and mean channel values. --self-test validates the linked OpenCV core without reading a file.
+Decodes an image and reports dimensions, channel count, depth and mean channel values.
+It can also write edge maps, grayscale images and resized images. Input files are read
+as data; this tool does not execute embedded content.
+.SH OPTIONS
+.TP
+.B --json
+Print metadata as a JSON object.
+.TP
+.B --edges OUTPUT
+Write a Canny edge map to OUTPUT.
+.TP
+.B --grayscale OUTPUT
+Write a grayscale copy to OUTPUT.
+.TP
+.B --resize WIDTHxHEIGHT OUTPUT
+Resize the input. Each dimension must be from 1 through 16384.
+.TP
+.B --self-test
+Exercise OpenCV image encode/decode, grayscale conversion, Canny and resize operations.
+.TP
+.B --help
+Show usage.
 .SH EXIT STATUS
-0 on success; 2 for an unreadable image; 64 for invalid arguments.
+0 on success; 2 for an unreadable image; 3 for output-write failure; 64 for invalid arguments;
+65 for unsupported channel layouts.

@@ -1,0 +1,17 @@
+.TH CHM-IDE 1
+.SH NAME
+chm-ide \- list, install and verify supported development environments
+.SH SYNOPSIS
+.B bash tools/ides/ide-manager.sh list
+.br
+.B bash tools/ides/ide-manager.sh install vscodium
+.br
+.B bash tools/ides/ide-manager.sh verify
+.SH DESCRIPTION
+Uses an existing host package manager to install VSCodium, an open-source distribution
+of the VS Code editor. The installer does not mirror proprietary Microsoft binaries,
+execute downloaded installers, or silently install extensions. Linux uses the user
+Flatpak remote, Windows uses winget, and macOS uses Homebrew when available.
+.SH EXIT STATUS
+0 on success; 1 if verification fails; 64 for unsupported arguments; 69 if no supported
+package manager is installed.
