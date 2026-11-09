@@ -63,6 +63,13 @@ jobs:
           command -v c1541
           python tools/retro-media/build_retro_media.py --output /tmp/chimera-retro-media
           CHIMERA_RETRO_MEDIA_DIR=/tmp/chimera-retro-media python -m unittest discover -s tests/retro_media -v
+      - name: Upload Amiga and Commodore disk images
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-amiga-commodore-disk-images
+          path: /tmp/chimera-retro-media/
+          if-no-files-found: error
+          retention-days: 30
       - name: Build and runtime-test OpenGL and OpenCV tools
         run: |
           cmake -S . -B /tmp/chimera-graphics-build -DCMAKE_BUILD_TYPE=Release
