@@ -84,7 +84,9 @@
     "installation_entry": "/boot/installation/menu.cfg",
     "recovery_entry": "/boot/jasper/recovery.cfg",
     "diagnostics_entry": "/boot/jasper/diagnostics.cfg",
-    "vmlinuz": false
+    "vmlinuz": false,
+    "input_grace_seconds": 300,
+    "auto_boot_default_after_seconds": 300
   },
   "actions": {
     "live": {
