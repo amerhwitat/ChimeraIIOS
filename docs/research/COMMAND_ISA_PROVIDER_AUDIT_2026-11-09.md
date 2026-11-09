@@ -147,3 +147,9 @@ References:
 ## Release blocker conclusion
 
 No honest "all commands/all ISAs built" claim is supported by the current metadata. The next release evidence must include a generated per-command provider report, target-specific binary hashes and licenses, per-ISA conformance results, and the six immutable-ISO BIOS/UEFI runtime cases. Missing evidence remains a blocker, not a pass.
+
+## 2026-11-09 implementation addendum: X11 provider stack
+
+After the audit snapshot, the Linux command-provider package list was expanded from 103 to 111 packages. The eight additions are `xserver-xorg`, `xinit`, `xauth`, `xwayland`, `xvfb`, `x11-xserver-utils`, `x11-utils`, and `openbox`.
+
+The new `desktop/x11/xorg-provider.json` declares the provider set, and `desktop/x11/start-session.sh` supplies a guarded Aurora/Marine X11 launch path. This is **provider integration, not a verified Koronos X11 runtime**. Linux syscall coverage, DRM/KMS, VT, input and session-management prerequisites remain release gates. The launcher refuses by default until runtime verification is explicitly enabled.
