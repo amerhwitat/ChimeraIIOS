@@ -734,7 +734,7 @@
       "version": "latest",
       "category": "development",
       "license": "MIT (VSCodium project; bundled components retain upstream licenses)",
-      "provider": "official-package-managers",
+      "provider": "external",
       "architectures": [
         "x86_64",
         "aarch64"
