@@ -33,7 +33,14 @@ jobs:
           assert "appGlyphNode(icon.glyph, ICON_SYMBOLS[icon.id])" in shell
           assert "../aurora/icons/catalog.svg#app-" in shell
           assert ".app-symbol" in css
-          print("Aurora semantic icon contract: PASS")
+          x11 = json.loads(Path("desktop/x11/xorg-provider.json").read_text(encoding="utf-8"))
+          launcher = Path("desktop/x11/start-session.sh").read_text(encoding="utf-8")
+          providers = Path("tools/commands/install-command-providers.sh").read_text(encoding="utf-8")
+          assert "xserver-xorg" in x11["packages"] and "xwayland" in x11["packages"]
+          assert "CHIMERA_X11_RUNTIME_VERIFIED" in launcher
+          assert "CHIMERA_X11_FORCE_UNVERIFIED" in launcher
+          assert "xserver-xorg" in providers
+          print("Aurora semantic icons and guarded X.Org provider contract: PASS")
           PY
       - name: Build and runtime-test OpenGL and OpenCV tools
         run: |
