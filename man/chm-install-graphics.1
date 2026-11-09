@@ -1,0 +1,15 @@
+.TH CHM-INSTALL-GRAPHICS 1
+.SH NAME
+chm-install-graphics \- install or verify Mesa/OpenGL, GLFW and OpenCV
+.SH SYNOPSIS
+.B tools/graphics/install-opengl-opencv.sh
+.B --install | --verify
+.SH DESCRIPTION
+Installs distribution packages for Mesa OpenGL/EGL, GLFW and OpenCV, or verifies pkg-config metadata and a headless renderer when Xvfb is available.
+.SH OPTIONS
+.TP
+.B --install
+Install packages using apt, dnf, pacman or Homebrew.
+.TP
+.B --verify
+Print library versions and attempt a GL renderer probe.
