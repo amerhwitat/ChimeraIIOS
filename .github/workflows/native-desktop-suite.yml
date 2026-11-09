@@ -45,6 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m unittest discover -s tests/ide -p test_install_vscode.py -v
+          python3 -m unittest discover -s tests/runtime -p test_chimera_terminal_backend.py -v
           bash tools/graphics/install-opengl-opencv.sh --verify
       - name: Compile Aurora native desktop components
         env:
