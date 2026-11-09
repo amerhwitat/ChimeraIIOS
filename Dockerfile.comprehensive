@@ -9,6 +9,9 @@
 # =============================================================================
 
 FROM ubuntu:24.04 AS builder
+ARG CHIMERA_STRICT_ISA_SMOKES=0
+
+ARG CHIMERA_STRICT_COMMAND_PROVIDERS=0
 
 ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_BUILD=1 \
@@ -25,7 +28,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # conflict does not abort the whole Docker build.
 RUN set -eux; \
     apt-get update -o Acquire::Retries=5; \
-    core_required="build-essential binutils clang llvm lld nasm cmake cmake-data ninja-build make automake autoconf libtool pkg-config gcc g++ clang llvm llvm-dev python3 python3-dev python3-pip python3-venv python3-setuptools python3-wheel nodejs npm rustc cargo openjdk-21-jdk-headless perl perl-modules git curl wget ca-certificates openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev sqlite3 pciutils usbutils dmidecode iproute2 procps net-tools busybox clamav clamav-daemon yara nftables"; \
+    core_required="build-essential binutils clang llvm lld nasm cmake cmake-data ninja-build make automake autoconf libtool pkg-config gcc g++ clang llvm llvm-dev python3 python3-dev python3-pip python3-venv python3-setuptools python3-wheel nodejs npm golang-go rustc cargo openjdk-21-jdk-headless perl perl-modules git curl wget ca-certificates openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev sqlite3 pciutils usbutils dmidecode iproute2 procps net-tools busybox clamav clamav-daemon yara nftables"; \
     echo "[Chimera] Installing core build packages..."; \
     apt-get install -y --no-install-recommends $core_required; \
     extras="libboost-all-dev libgtest-dev libc++-dev libc++abi-dev libncurses-dev libx11-dev libxext-dev libxrender-dev libgl1-mesa-dev mesa-common-dev python3-numpy python3-scipy python3-pandas python3-scikit-learn python3-matplotlib postgresql-client apt-transport-https gnupg lsb-release systemd systemd-sysv gdb strace vim nano less grep sed awk unzip tar gzip bzip2 xz-utils doxygen graphviz libsodium-dev librsvg2-bin"; \
@@ -339,18 +342,43 @@ RUN set -eux; \
       printf '%s\\n' '{"schema_version":"3.0","product":"Chimera II OS","source":"SS64","platforms":{}}' > /opt/chimera/share/chimera/commands/ss64-command-catalog.json; \
     fi
 
-# The provider installer is deliberately non-fatal. It already handles
-# individual package failures and apt-cache SIGPIPE (141); keep this final
-# guard as a defense against future revisions of the script.
+# Strict command-provider mode is enabled by the full release build. It
+# preserves the per-package report and stops the image build on missing or
+# failed providers instead of silently treating partial coverage as complete.
 RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh ]; then \
-      if bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
+      if CHIMERA_STRICT_COMMAND_PROVIDERS="$CHIMERA_STRICT_COMMAND_PROVIDERS" CHIMERA_COMMAND_PROVIDER_REPORT=/opt/chimera/share/chimera/commands/command-provider-report.json bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
         echo "[Chimera][COMMANDS] provider installer completed."; \
       else \
         status=$?; \
-        echo "[Chimera][COMMANDS][WARN] provider installer returned $status; continuing comprehensive image build."; \
+        if [ "$CHIMERA_STRICT_COMMAND_PROVIDERS" = "1" ]; then \
+          echo "[Chimera][COMMANDS][ERROR] strict provider gate failed; refusing to continue."; \
+          exit "$status"; \
+        fi; \
+        echo "[Chimera][COMMANDS][WARN] provider installer returned $status; continuing best-effort image build."; \
       fi; \
     else \
+      if [ "$CHIMERA_STRICT_COMMAND_PROVIDERS" = "1" ]; then \
+        echo "[Chimera][COMMANDS][ERROR] strict provider installer is missing."; \
+        exit 1; \
+      fi; \
       echo "[Chimera][COMMANDS] provider installer not present; skipping."; \
+    fi
+
+RUN python3 -m py_compile /build/repos/ChimeraIIOS/tools/commands/audit-command-catalog.py /build/repos/ChimeraIIOS/tools/isa/build-architecture-smokes.py
+
+# Snapshot the actual provider paths after package installation. This report
+# never executes catalog commands and does not claim semantic conformance.
+RUN python3 /build/repos/ChimeraIIOS/tools/commands/audit-command-catalog.py \
+      --catalog /build/repos/ChimeraIIOS/system/commands/chimera-command-list.json \
+      --rootfs / \
+      --output /opt/chimera/share/chimera/commands/command-catalog-provider-ledger.json
+
+# Compile one real object/binary smoke for each declared LLVM/NASM backend.
+# Strict release builds fail when a declared backend cannot emit its artifact.
+RUN if [ "$CHIMERA_STRICT_ISA_SMOKES" = "1" ]; then \
+      python3 /build/repos/ChimeraIIOS/tools/isa/build-architecture-smokes.py --backends /build/repos/ChimeraIIOS/tools/isa/architecture-backends.json --output /opt/chimera/share/chimera/isa-smokes --strict; \
+    else \
+      python3 /build/repos/ChimeraIIOS/tools/isa/build-architecture-smokes.py --backends /build/repos/ChimeraIIOS/tools/isa/architecture-backends.json --output /opt/chimera/share/chimera/isa-smokes; \
     fi
 
 # =============================================================================

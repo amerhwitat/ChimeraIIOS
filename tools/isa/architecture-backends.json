@@ -191,7 +191,10 @@
       "elf_machine": null,
       "pe_machine": [],
       "runtime": "darling",
-      "execution": "provider-required"
+      "execution": "provider-required",
+      "llvm_targets": [
+        "x86_64-apple-darwin"
+      ]
     },
     "macos-aarch64": {
       "aliases": [
@@ -200,7 +203,10 @@
       "elf_machine": null,
       "pe_machine": [],
       "runtime": "darling",
-      "execution": "provider-required"
+      "execution": "provider-required",
+      "llvm_targets": [
+        "arm64-apple-darwin"
+      ]
     },
     "unknown": {
       "aliases": [],

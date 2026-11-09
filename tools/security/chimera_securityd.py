@@ -70,8 +70,21 @@ def scan(path, db=None, yara=True, clamav=True):
         finally:
             try: os.unlink(rule)
             except OSError: pass
+    # Exact threat signatures and positive AV/YARA matches are authoritative
+    # detections; do not downgrade a single high-confidence match to "suspicious"
+    # merely because the heuristic score counts multiple indicators.
+    hard_signature = any(
+        detection in {"EICAR-test-signature", "known-malicious-sha256"}
+        or detection.startswith("clamav:")
+        or detection.startswith("yara:")
+        for detection in result["detections"]
+    )
     result["score"]=min(1.0,0.25*len(result["detections"]))
-    if result["detections"]: result["verdict"]="malicious" if result["score"]>=0.5 else "suspicious"
+    if hard_signature:
+        result["score"]=1.0
+        result["verdict"]="malicious"
+    elif result["detections"]:
+        result["verdict"]="malicious" if result["score"]>=0.5 else "suspicious"
     result["sha256"]=digest
     result["features"]=f
     return result

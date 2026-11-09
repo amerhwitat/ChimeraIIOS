@@ -72,6 +72,13 @@ if [[ "${CHIMERA_DOS_FETCH_ON_BUILD:-0}" == "1" ]]; then
   DOS_PAYLOAD_ARGS+=(--fetch)
 fi
 python3 "$ROOT/tools/commands/dos-payload-builder.py" "${DOS_PAYLOAD_ARGS[@]}"
+if [[ "${CHIMERA_STRICT_DOS_PAYLOADS:-0}" == "1" ]]; then
+  included="$(python3 -c 'import json,sys; print(int(json.load(open(sys.argv[1])).get("included_payload_count",0)) )' "$DOS_RUNTIME/apps/CATALOG.json")"
+  if [[ "$included" -lt 1 ]]; then
+    echo "ERROR: strict release build requires at least one license-reviewed, hash-pinned, smoke-tested DOS payload; none were staged." >&2
+    exit 2
+  fi
+fi
 # Preserve online discovery metadata in the ISO when the build refreshed it.
 if [[ -s "$ROOT/build/dos-online-discovery.json" ]]; then
   install -m 0644 "$ROOT/build/dos-online-discovery.json" "$DOS_RUNTIME/ONLINE-DISCOVERY.json"

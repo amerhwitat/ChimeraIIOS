@@ -12,6 +12,7 @@ Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
+  --full                      Clean build state, disable resume, and rebuild Docker without cache.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
@@ -125,11 +126,12 @@ STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
+FULL_BUILD=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 
@@ -221,6 +223,7 @@ while [[ $# -gt 0 ]]; do
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
+    --full) FULL_BUILD=1; shift;;
     --storage-auto) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
     --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
@@ -236,6 +239,18 @@ while [[ $# -gt 0 ]]; do
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# Apply full-build invariants after parsing so option order cannot re-enable resume.
+if [[ "$FULL_BUILD" == 1 ]]; then
+  CLEAN_STATE=1
+  RESUME_BUILD=0
+  REFRESH_ONLINE_CATALOGS=1
+  DOS_FETCH_ON_BUILD=1
+  export CHIMERA_DOCKER_NO_CACHE=1
+  export CHIMERA_STRICT_COMMAND_PROVIDERS=1
+  export CHIMERA_STRICT_ISA_SMOKES=1
+  export CHIMERA_STRICT_DOS_PAYLOADS=1
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
@@ -279,7 +294,8 @@ cleanup_generated_build_artifacts(){
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
+  # Do not prune global Docker state: stopped containers may belong to other projects.
+  # Build-owned export containers are removed by their explicit labels/lifecycle.
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -496,7 +512,8 @@ build_docker(){
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
-  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
+  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
 
