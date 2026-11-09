@@ -5,7 +5,7 @@ import argparse, hashlib, json, shutil, struct, subprocess, tempfile
 from pathlib import Path
 
 def run(args: list[str]) -> str:
-    proc = subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc = subprocess.run(args, check=True, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return proc.stdout
 
 def write_c64_prg(path: Path) -> None:
