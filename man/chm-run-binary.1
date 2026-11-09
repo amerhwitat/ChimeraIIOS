@@ -1,0 +1,35 @@
+.TH CHM-RUN-BINARY 1
+.SH NAME
+chm-run-binary \- inspect and explicitly launch supported executable formats
+.SH SYNOPSIS
+.B python3 tools/run-compatible-binary.py
+.I FILE
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Inspects ELF, PE/COFF, Mach-O, DOS MZ and WebAssembly headers before choosing a runtime.
+Inspection is the default and does not execute the input. Use --run to execute or --dry-run
+to display the selected runtime command. The tool reports native, QEMU, Wine, DOSBox,
+Wasmtime or Wasmer execution mode explicitly.
+.SH OPTIONS
+.TP
+.B --run
+Execute the binary using the selected runtime.
+.TP
+.B --dry-run
+Print the runtime and command without executing.
+.TP
+.B --sysroot DIR
+Pass a Linux sysroot to QEMU user mode.
+.TP
+.B --timeout SECONDS
+Set execution timeout (default 60).
+.TP
+.B --json
+Print header metadata as JSON during inspection.
+.SH SAFETY
+Only run trusted binaries. This tool does not provide a sandbox and does not download
+or bypass signature checks for third-party executables. Use a disposable VM/container
+for untrusted files. macOS binaries are not run on Linux merely by translating CPU
+instructions because macOS system libraries and kernel interfaces are also required.
+.SH EXIT STATUS
+0 on success; 69 when no reviewed runtime is available; 124 on timeout.
