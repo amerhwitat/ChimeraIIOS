@@ -1,0 +1,39 @@
+.TH CHM-RUN-COMPATIBLE-BINARY 1
+.SH NAME
+chm-run-compatible-binary \- inspect a binary and optionally select a reviewed execution runtime
+.SH SYNOPSIS
+.B chm-run-compatible-binary
+.RI [ --json ]
+.I FILE
+.br
+.B chm-run-compatible-binary
+.RI [ --dry-run | --run ]
+.RI [ --sysroot " DIR" ]
+.RI [ --timeout " SECONDS" ]
+.I FILE
+.RI [ -- " ARG..." ]
+.SH DESCRIPTION
+Inspects executable headers before choosing an execution route. ELF files use the native Linux loader when the host architecture matches, otherwise a matching QEMU user-mode runner is required. Windows PE files use Wine on Linux or the native Windows loader. Mach-O requires macOS or a full macOS environment. DOS MZ files use DOSBox or DOSBox-X. WebAssembly uses Wasmtime or Wasmer; JAR files use Java.
+.PP
+Inspection is the default and does not execute the file. The selected runtime is displayed explicitly. This tool does not download proprietary operating-system binaries, bypass code signing, or certify ABI compatibility.
+.SH OPTIONS
+.TP
+.B --json
+Print the header report as JSON.
+.TP
+.B --dry-run
+Show the selected runtime command without executing it.
+.TP
+.B --run
+Execute using the selected runtime.
+.TP
+.B --sysroot DIR
+Supply a Linux sysroot to QEMU user-mode.
+.TP
+.B --timeout SECONDS
+Set the maximum execution time (default 60 seconds).
+.TP
+.B --
+Separate the binary path from arguments passed to the runtime.
+.SH EXIT STATUS
+0 on successful inspection or execution; nonzero for unknown formats, unavailable runtimes, invalid arguments, or execution failure.
