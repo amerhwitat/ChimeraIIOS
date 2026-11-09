@@ -131,6 +131,8 @@ if [[ -d "$COMPAT_TOOLS_SRC/bin" ]]; then
   rm -rf "$COMPAT_TOOLS_OUT"
   mkdir -p "$COMPAT_TOOLS_OUT"
   cp -a "$COMPAT_TOOLS_SRC/bin" "$COMPAT_TOOLS_SRC/share" "$COMPAT_TOOLS_SRC/SHA256SUMS" "$COMPAT_TOOLS_OUT/"
+  [[ -d "$COMPAT_TOOLS_SRC/lib" ]] && cp -a "$COMPAT_TOOLS_SRC/lib" "$COMPAT_TOOLS_OUT/"
+  [[ -d "$COMPAT_TOOLS_SRC/libexec" ]] && cp -a "$COMPAT_TOOLS_SRC/libexec" "$COMPAT_TOOLS_OUT/"
   [[ -s "$COMPAT_TOOLS_SRC/IMPORT-MANIFEST.json" ]] && cp -f "$COMPAT_TOOLS_SRC/IMPORT-MANIFEST.json" "$COMPAT_TOOLS_OUT/"
   python3 - "$DIST/iso/payload" <<'PYCOMPAT'
 import hashlib
