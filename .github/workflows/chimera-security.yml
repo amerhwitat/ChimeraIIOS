@@ -23,13 +23,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Compile security modules
         run: python3 -m compileall -q tools/security
+      - name: Install security test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pytest nftables
       - name: Run security regression tests
         run: python3 -m pytest -q tests/security/test_security_modules.py
       - name: Validate firewall policy and nft syntax
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nftables
-          python3 tools/security/chimera_firewall.py public --print | sudo nft -c -f -
+        run: python3 tools/security/chimera_firewall.py public --print | sudo nft -c -f -
       - name: Validate security manifests
         run: |
           python3 -m json.tool system/security/security-intelligence.json >/dev/null
