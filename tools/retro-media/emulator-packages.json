@@ -1,0 +1,59 @@
+{
+  "schema": "chimera-retro-emulator-packages/v1",
+  "packages": [
+    {
+      "id": "fs-uae",
+      "name": "FS-UAE Amiga Emulator",
+      "license": "GPL-2.0-or-later",
+      "source": "https://fs-uae.net/",
+      "linux": {
+        "package": "fs-uae",
+        "executable": "fs-uae"
+      },
+      "systems": [
+        "Amiga 500",
+        "Amiga 2000 compatibility profile"
+      ],
+      "romPolicy": "Kickstart firmware is user-provided/licensed; no ROM is bundled."
+    },
+    {
+      "id": "vice",
+      "name": "VICE Commodore Emulator",
+      "license": "GPL-2.0-or-later",
+      "source": "https://vice-emu.sourceforge.io/",
+      "linux": {
+        "package": "vice",
+        "executables": [
+          "x64sc",
+          "x128",
+          "xvic",
+          "xpet",
+          "xplus4",
+          "c1541"
+        ]
+      },
+      "systems": [
+        "Commodore 64",
+        "Commodore 128",
+        "VIC-20",
+        "PET",
+        "Plus/4"
+      ],
+      "romPolicy": "Firmware ROMs remain user-provided/licensed; no ROM is bundled."
+    },
+    {
+      "id": "amitools",
+      "name": "amitools / xdftool",
+      "license": "Upstream package license",
+      "source": "https://amitools.readthedocs.io/",
+      "linux": {
+        "pythonPackage": "amitools",
+        "executable": "xdftool"
+      },
+      "systems": [
+        "Amiga ADF filesystem tooling"
+      ],
+      "romPolicy": "No firmware required for disk-image creation."
+    }
+  ]
+}
