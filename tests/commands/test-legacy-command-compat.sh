@@ -5,7 +5,7 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 rootfs="$tmp/rootfs"
 mkdir -p "$rootfs/usr/bin" "$rootfs/usr/local/bin"
-for command in lprm lpq plocate; do
+for command in lprm lpq plocate scp systemctl; do
   cat > "$rootfs/usr/bin/$command" <<'PROVIDER'
 #!/bin/sh
 printf '%s\n' "$(basename "$0"):$*"
@@ -17,6 +17,13 @@ PATH="$rootfs/usr/bin:$PATH"
 [[ "$("$rootfs/usr/local/bin/lprintd" 17)" == "lprm:17" ]]
 [[ "$("$rootfs/usr/local/bin/lprintq" -P office)" == "lpq:-P office" ]]
 [[ "$("$rootfs/usr/local/bin/slocate" -i report)" == "plocate:-i report" ]]
+[[ "$("$rootfs/usr/local/bin/rcp" source host:/tmp/dest)" == "scp:source host:/tmp/dest" ]]
+[[ "$("$rootfs/usr/local/bin/chkconfig" example.service on)" == "systemctl:enable example.service" ]]
+[[ "$("$rootfs/usr/local/bin/chkconfig" --level 2345 example.service on)" == "systemctl:enable example.service" ]]
+if "$rootfs/usr/local/bin/chkconfig" --level 016 example.service on >/dev/null 2>&1; then
+  echo "chkconfig accepted unrepresentable systemd runlevels" >&2
+  exit 1
+fi
 
 sparse="$tmp/sparse.bin"
 "$rootfs/usr/local/bin/mkfile" -n 2k "$sparse"
