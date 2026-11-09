@@ -57,6 +57,11 @@ def inspect(data):
             cpu = struct.unpack(order + "I", data[4:8])[0]
             return result("Mach-O", "macOS/Darwin", MACH_CPUS.get(cpu, f"CPU_{cpu:#x}"),
                           bits, endian, cpu_type=f"{cpu:#x}")
+        if magic == bytes.fromhex("cafebabe"):
+            java_version = struct.unpack(">I", data[4:8])[0]
+            if java_version > 16:
+                return result("Java Class", "JVM", "bytecode", None, "big",
+                              major_version=java_version)
         fat = {b"\xca\xfe\xba\xbe": "big", b"\xbe\xba\xfe\xca": "little"}
         if magic in fat:
             endian = fat[magic]
