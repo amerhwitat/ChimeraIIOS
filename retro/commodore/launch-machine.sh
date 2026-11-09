@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 usage(){ cat <<'EOF'
 Usage: launch-machine.sh amiga-a500|amiga-a2000 DISK.adf
        launch-machine.sh commodore-c64 DISK.d64
