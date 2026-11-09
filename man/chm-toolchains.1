@@ -1,0 +1,13 @@
+.TH CHM-TOOLCHAINS 1
+.SH NAME
+chm-toolchains \- install and verify open compiler and debugger toolchains
+.SH SYNOPSIS
+.B bash tools/toolchains/bootstrap-open-toolchains.sh
+.I list|install|verify
+.SH DESCRIPTION
+Lists, installs or verifies reviewed open-source compilers, assemblers, linkers,
+disassemblers, debuggers and QEMU user-mode runners. Debian/Ubuntu installation checks
+repository availability and reports unavailable packages rather than fabricating binaries.
+.SH EXIT STATUS
+0 on success; 64 for invalid arguments; 69 if no supported package manager or packages
+are available; 77 if privilege escalation is unavailable.
