@@ -113,6 +113,9 @@ jobs:
           python3 -m json.tool toolchains/cpp/ides.json >/dev/null
           python3 -m json.tool toolchains/cpp/debuggers.json >/dev/null
           for p in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$p"; done
+      - name: Test target-specific native init routing and release gate
+        run: python3 -m pytest -q tests/boot/test_iso_target_routing_artwork.py tests/boot/test_chimera_iso_release_gate.py
+
       - name: Configure Java 25 for portfolio Maven projects
         uses: actions/setup-java@v4
         with:
