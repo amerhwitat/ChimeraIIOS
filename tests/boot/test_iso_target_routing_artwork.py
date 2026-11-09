@@ -2,6 +2,7 @@
 """Static regressions for the x86-64 ISO menu routing and offline artwork contract."""
 from pathlib import Path
 import unittest
+import re
 
 ROOT = Path(__file__).resolve().parents[2]
 GRUB = (ROOT / "boot/iso/grub.cfg").read_text()
@@ -9,6 +10,7 @@ INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
+FULL_ISO_WORKFLOW = (ROOT / ".github/workflows/chimera-full-iso.yml").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -37,6 +39,19 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("not supported by this x86-64 ISO build", entry)
         self.assertNotIn("multiboot2", entry)
+
+    def test_firmware_matrix_selects_targets_by_ids_from_the_immutable_iso(self):
+        # The workflow extracts GRUB from the ISO under test and resolves each
+        # target by its stable --id. This guards against stale positional offsets
+        # when menu entries are inserted or firmware-specific entries change.
+        ids = re.findall(r"(?m)^\\s*menuentry\\b.*?--id\\s+[\"']?([A-Za-z0-9_-]+)", GRUB)
+        for target, menu_id in (("live", "aurora-live"), ("installer", "install"), ("recovery", "recovery")):
+            self.assertIn(menu_id, ids)
+        self.assertIn('actual_grub="$base/actual-grub.cfg"', FULL_ISO_WORKFLOW)
+        self.assertIn('entries.index(wanted[target])', FULL_ISO_WORKFLOW)
+        self.assertIn('for ((key=0; key<menu_index; key++))', FULL_ISO_WORKFLOW)
+        self.assertIn("'sendkey home'", FULL_ISO_WORKFLOW)
+        self.assertNotIn("for _ in {1..5}", FULL_ISO_WORKFLOW)
 
     def test_boot_artwork_is_staged_offline_by_both_builders(self):
         for builder in (FULL_BUILDER, LIVE_BUILDER):
