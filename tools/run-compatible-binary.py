@@ -42,6 +42,9 @@ def choose_command(report, path, host=None, which=shutil.which, extra_args=None,
             "LoongArch":"qemu-loongarch64",
         }
         if arch=="MIPS" and report.get("endianness")=="little": qemu["MIPS"]="qemu-mipsel"
+        if arch=="RISC-V" and report.get("bits")==32: qemu["RISC-V"]="qemu-riscv32"
+        if arch=="PowerPC64" and report.get("endianness")=="little": qemu["PowerPC64"]="qemu-ppc64le"
+        if arch=="PowerPC" and report.get("endianness")=="little": qemu["PowerPC"]="qemu-ppcle"
         executable=which(qemu.get(arch,""))
         if not executable: raise RuntimeError(f"No QEMU user-mode runner installed for {arch}")
         command=[executable]
