@@ -733,17 +733,24 @@
       "name": "VSCodium",
       "version": "latest",
       "category": "development",
-      "license": "MIT",
-      "provider": "flatpak",
+      "license": "MIT (VSCodium project; bundled components retain upstream licenses)",
+      "provider": "official-package-managers",
       "architectures": [
         "x86_64",
         "aarch64"
       ],
       "homepage": "https://vscodium.com/",
-      "sandbox": "sandboxed",
-      "install": "flatpak",
-      "availability": "catalog-only",
-      "note": "Not bundled or verified by this catalog entry; install only through the official project/provider after target compatibility and license checks."
+      "sandbox": "external",
+      "install": "external-store",
+      "availability": "official-installer-script",
+      "note": "Not bundled or redistributed. The helper prints a dry-run by default; explicit --install invokes Flathub Flatpak on Linux, Winget on Windows, or Homebrew cask on macOS. Review provider signatures and compatibility before installing.",
+      "source": "https://github.com/VSCodium/vscodium",
+      "formats": [
+        "Flatpak",
+        "Winget",
+        "Homebrew cask"
+      ],
+      "install_script": "tools/ide/install-vscodium.py"
     },
     {
       "id": "file-roller",
