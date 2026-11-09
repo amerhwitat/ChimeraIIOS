@@ -47,7 +47,7 @@ env:
 
 jobs:
   build:
-    timeout-minutes: 180
+    timeout-minutes: 360
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +55,8 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools squashfs-tools jq rsync qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          python3 -m unittest discover -s tests/boot -p "test_full_iso_workflow_contract.py" -v
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -68,12 +69,20 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Build ISO with the canonical build-chimera-iso.sh pipeline
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          CHIMERA_SKIP_SS64_CRAWL: "1"
+          CHIMERA_ISA_RESEARCH: "0"
+          CHIMERA_BUILD_NATIVE_ISO_PIPELINE: "1"
         run: |
-          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
-          ./tools/build-full-iso.sh
+          set -euo pipefail
+          chmod +x build-chimera-iso.sh
+          ./build-chimera-iso.sh --clean-state --storage "$RUNNER_TEMP/chimera-ci" --no-storage-prompt
+          test -s boot/iso/dist/output.iso
+          mkdir -p build/iso
+          cp boot/iso/dist/output.iso build/iso/chimera-ii-os.iso
+          (cd build/iso && sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256)
 
       - name: Validate ISO artifacts
         run: |
@@ -94,6 +103,11 @@ jobs:
             test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          for target in live installer recovery; do
+            extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf"
+            readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+            readelf -lW "$tmp/target-init-$target.elf" | grep -Eq 'LOAD.*R E'
+          done
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
           extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
@@ -167,95 +181,15 @@ jobs:
             exit 1
           fi
 
-      - name: Verify actual Live, Installer, and Recovery userspace handoff
+      - name: Verify Live, Installer, and Recovery through production GRUB entries
         id: userspace_gate
         shell: bash
         run: |
-          set -uo pipefail
-          iso=build/iso/chimera-ii-os.iso
-          base=/tmp/chimera-userspace-traces
-          mkdir -p "$base"
-          accepted=true
-          for target in live installer recovery; do
-            tree="$base/$target/tree"
-            mkdir -p "$tree/boot/grub" "$tree/boot/koronos" "$tree/boot/targets" "$tree/boot/live" "$tree/boot/recovery" "$tree/install/installer"
-            xorriso -osirrox on -indev "$iso" -extract /boot/koronos/koronos.elf "$tree/boot/koronos/koronos.elf" >/dev/null 2>&1 || accepted=false
-            xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$tree/boot/targets/target-init-$target.elf" >/dev/null 2>&1 || accepted=false
-            test -s "$tree/boot/targets/target-init-$target.elf" || accepted=false
-            if [[ "$target" == "live" ]]; then
-              xorriso -osirrox on -indev "$iso" -extract /boot/live/chimera-live-initramfs.img "$tree/boot/live/chimera-live-initramfs.img" >/dev/null 2>&1 || accepted=false
-              xorriso -osirrox on -indev "$iso" -extract /boot/live/live-manifest.json "$tree/boot/live/live-manifest.json" >/dev/null 2>&1 || accepted=false
-            elif [[ "$target" == "recovery" ]]; then
-              xorriso -osirrox on -indev "$iso" -extract /boot/recovery/chimera-recovery-initramfs.img "$tree/boot/recovery/chimera-recovery-initramfs.img" >/dev/null 2>&1 || accepted=false
-              xorriso -osirrox on -indev "$iso" -extract /boot/recovery/recovery-manifest.json "$tree/boot/recovery/recovery-manifest.json" >/dev/null 2>&1 || accepted=false
-            else
-              for f in installation.img installation-manifest.json installer-contract.json installation_phases.json installer_profiles.json; do
-                xorriso -osirrox on -indev "$iso" -extract "/install/installer/$f" "$tree/install/installer/$f" >/dev/null 2>&1 || accepted=false
-              done
-            fi
-            cat > "$tree/boot/grub/grub.cfg" <<GRUB
-          set timeout=0
-          set default=0
-          terminal_output console
-          menuentry "Chimera target $target handoff acceptance" {
-            multiboot2 /boot/koronos/koronos.elf
-            module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target
-          GRUB
-            if [[ "$target" == "live" ]]; then
-              cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
-            module2 /boot/live/chimera-live-initramfs.img chimera-live-initramfs
-            module2 /boot/live/live-manifest.json chimera-live-manifest
-          GRUB
-            elif [[ "$target" == "recovery" ]]; then
-              cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
-            module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
-            module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
-          GRUB
-            else
-              cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
-            module2 /install/installer/installation.img chimera-installation-image
-            module2 /install/installer/installation-manifest.json chimera-installation-manifest
-            module2 /install/installer/installer-contract.json chimera-installer-contract
-            module2 /install/installer/installation_phases.json chimera-install-phases
-            module2 /install/installer/installer_profiles.json chimera-installer-profiles
-          GRUB
-            fi
-            cat >> "$tree/boot/grub/grub.cfg" <<'GRUB'
-            boot
-          }
-          GRUB
-            test_iso="$base/$target.iso"
-            trace="$base/$target-debugcon.log"
-            if ! grub-mkrescue -o "$test_iso" "$tree" >/dev/null 2>&1; then
-              echo "::warning::Could not create $target target smoke ISO"
-              accepted=false
-              continue
-            fi
-            set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
-            qemu_rc=$?
-            set -e
-            if [[ ! -s "$trace" ]]; then
-              echo "::warning::$target QEMU emitted no debugcon trace (exit $qemu_rc)"
-              accepted=false
-              continue
-            fi
-            if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
-              echo "::warning::$target target did not reach Koronos readiness"
-              accepted=false
-              continue
-            fi
-            if ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
-              echo "::warning::$target actual ring-3 init handoff is not verified; release remains blocked"
-              accepted=false
-            fi
-          done
-          echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
-          if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
-          else
-            echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
-          fi
+          set -euo pipefail
+          python3 tests/boot/test_production_target_handoff_qemu.py \
+            --iso build/iso/chimera-ii-os.iso \
+            --output /tmp/chimera-userspace-traces
+          echo "accepted=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload target-specific userspace acceptance traces
         if: always()
@@ -265,6 +199,12 @@ jobs:
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Fail build when any production target lacks a real CPL3 userspace handoff
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        run: |
+          echo "::error::Live, Installer, and Recovery must each prove kernel-ready -> CPL3-origin init syscall -> matching nonzero PID readiness. See chimera-target-userspace-traces artifact."
+          exit 1
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
