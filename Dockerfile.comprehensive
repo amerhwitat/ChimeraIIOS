@@ -345,7 +345,7 @@ RUN set -eux; \
 # preserves the per-package report and stops the image build on missing or
 # failed providers instead of silently treating partial coverage as complete.
 RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh ]; then \
-      if CHIMERA_STRICT_COMMAND_PROVIDERS="$CHIMERA_STRICT_COMMAND_PROVIDERS" bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
+      if CHIMERA_STRICT_COMMAND_PROVIDERS="$CHIMERA_STRICT_COMMAND_PROVIDERS" CHIMERA_COMMAND_PROVIDER_REPORT=/opt/chimera/share/chimera/commands/command-provider-report.json bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
         echo "[Chimera][COMMANDS] provider installer completed."; \
       else \
         status=$?; \
