@@ -321,6 +321,9 @@ mkdir -p "$PAY/wallpapers" "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . \
   | tar -C "$PAY/repo" -xf -
 
+# Compile real native replacements for legacy write and floppy-format tools before provider audit.
+bash "$REPO_DIR/tools/commands/build-native-legacy-providers.sh" "$WORK" "$REPO_DIR"
+
 # Stage genuine compatibility frontends before the provider resolver runs.
 bash "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$WORK"
 
