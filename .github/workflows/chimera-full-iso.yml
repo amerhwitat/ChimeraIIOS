@@ -345,7 +345,7 @@ jobs:
           # The production menu intentionally waits 300 seconds. Send Enter
           # through QEMU's monitor after firmware/GRUB startup instead of
           # weakening the ISO's user-facing timeout for CI.
-          ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 30s qemu-system-x86_64 \
+                  printf '%s\n' 'sendkey ret'
             -machine pc -m 1024 -smp 1 -accel tcg \
             -display none -serial none -monitor stdio \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
@@ -439,7 +439,7 @@ jobs:
             set +e
             # Keep the real 300-second GRUB timeout; CI explicitly selects
             # the highlighted default entry after the menu is visible.
-            ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor stdio -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+                  printf '%s\n' 'sendkey ret'
             qemu_rc=$?
             set -e
             if [[ ! -s "$trace" ]]; then
@@ -503,7 +503,7 @@ jobs:
           wanted = {"live": "aurora-live", "installer": "install", "recovery": "recovery"}
           if target not in wanted or not path.is_file():
               raise SystemExit(f"cannot resolve GRUB menu ID for target {target!r}")
-          entries = re.findall(r"(?m)^\\s*menuentry\\b.*?--id\\s+[\"']?([A-Za-z0-9_-]+)", path.read_text())
+          entries = re.findall(r"(?m)^\s*menuentry\b.*?--id\s+([A-Za-z0-9_-]+)", path.read_text())
           try:
               print(entries.index(wanted[target]))
           except ValueError:
@@ -513,14 +513,14 @@ jobs:
                 set +e
                 (
                   sleep 20
-                  printf '%s\\n' 'sendkey home'
+                  printf '%s\n' 'sendkey home'
                   sleep 0.5
                   for ((key=0; key<menu_index; key++)); do
-                    printf '%s\\n' 'sendkey down'
+                    printf '%s\n' 'sendkey down'
                     sleep 0.35
                   done
                   sleep 0.5
-                  printf '%s\\n' 'sendkey ret'
+                  printf '%s\n' 'sendkey ret'
                   sleep 1
                 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
                 qemu_rc=$?
