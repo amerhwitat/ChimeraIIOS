@@ -965,6 +965,18 @@ EOF_INIT_VIDEO
       "$ROOTFS_DIR/usr/share/chimera/aurora/assets/"
   fi
 
+  # Package the optional X.Org provider contract and guarded session launcher.
+  # The launcher remains fail-closed until Koronos X11/DRM/VT/Linux-ABI acceptance.
+  if [[ -d "$SCRIPT_DIR/desktop/x11" ]]; then
+    install -d -m 0755 "$ROOTFS_DIR/usr/share/chimera/desktop/x11" "$ISO_DIR/system/desktop/x11" "$ROOTFS_DIR/usr/local/bin"
+    install -m 0644 "$SCRIPT_DIR/desktop/x11/xorg-provider.json" "$ROOTFS_DIR/usr/share/chimera/desktop/x11/xorg-provider.json"
+    install -m 0644 "$SCRIPT_DIR/desktop/x11/README.md" "$ROOTFS_DIR/usr/share/chimera/desktop/x11/README.md"
+    install -m 0644 "$SCRIPT_DIR/desktop/x11/xorg-provider.json" "$ISO_DIR/system/desktop/x11/xorg-provider.json"
+    install -m 0644 "$SCRIPT_DIR/desktop/x11/README.md" "$ISO_DIR/system/desktop/x11/README.md"
+    install -m 0755 "$SCRIPT_DIR/desktop/x11/start-session.sh" "$ROOTFS_DIR/usr/local/bin/chimera-start-x11-session"
+    install -m 0644 "$SCRIPT_DIR/desktop/x11/start-session.sh" "$ISO_DIR/system/desktop/x11/start-session.sh"
+  fi
+
   # Install the same visual aliases used by desktop, installer, recovery and
   # mobile components so there is one deterministic offline artwork contract.
   if [[ -s "$visual/backgrounds/desktop.png" ]]; then
