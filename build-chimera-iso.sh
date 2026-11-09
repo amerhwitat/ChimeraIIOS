@@ -1114,6 +1114,42 @@ stage_retro_and_dev_tools(){
     mkdir -p "$ROOTFS_DIR/usr/share/chimera/docs"
     install -m 0644 "$SCRIPT_DIR/retro/commodore/README.md" "$ROOTFS_DIR/usr/share/chimera/docs/RETRO_AMIGA_COMMODORE.md"
   fi
+  if [[ -f "$retro_root/media/CHIMERA-Amiga-500.adf" ]]; then
+    cat > "$ROOTFS_DIR/usr/share/applications/chimera-amiga-500.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Amiga 500
+Comment=Launch the Amiga 500 emulator profile
+Exec=/usr/bin/chimera-retro-launch amiga-a500 /usr/share/chimera/retro/media/CHIMERA-Amiga-500.adf
+Icon=computer
+Terminal=false
+Categories=Game;Emulator;
+EOF
+  fi
+  if [[ -f "$retro_root/media/CHIMERA-Amiga-2000.adf" ]]; then
+    cat > "$ROOTFS_DIR/usr/share/applications/chimera-amiga-2000.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Amiga 2000
+Comment=Launch the Amiga 2000 emulator profile
+Exec=/usr/bin/chimera-retro-launch amiga-a2000 /usr/share/chimera/retro/media/CHIMERA-Amiga-2000.adf
+Icon=computer
+Terminal=false
+Categories=Game;Emulator;
+EOF
+  fi
+  if [[ -f "$retro_root/media/CHIMERA-Commodore-64.d64" ]]; then
+    cat > "$ROOTFS_DIR/usr/share/applications/chimera-commodore-64.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Commodore 64
+Comment=Launch the Commodore 64 emulator with the starter disk
+Exec=/usr/bin/chimera-retro-launch commodore-c64 /usr/share/chimera/retro/media/CHIMERA-Commodore-64.d64
+Icon=media-floppy
+Terminal=false
+Categories=Game;Emulator;
+EOF
+  fi
   log_info "Staged binary inspection, local terminal bridge, IDE/graphics installers and retro machine profiles."
 }
 
