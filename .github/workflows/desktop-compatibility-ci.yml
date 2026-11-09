@@ -219,8 +219,12 @@ jobs:
           root = Path("/tmp/compat-import-fixture")
           (root / "bin").mkdir(parents=True, exist_ok=True)
           (root / "share").mkdir(parents=True, exist_ok=True)
+          (root / "lib").mkdir(parents=True, exist_ok=True)
+          (root / "libexec").mkdir(parents=True, exist_ok=True)
           (root / "bin" / "fixture-tool").write_text("fixture\n")
           (root / "share" / "fixture.1").write_text("fixture man page\n")
+          (root / "lib" / "libfixture.so").write_text("shared library fixture\n")
+          (root / "libexec" / "fixture.bin").write_text("binary fixture\n")
           entries = []
           for path in sorted(p for p in root.rglob("*") if p.is_file()):
               entries.append(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.relative_to(root).as_posix()}")
@@ -234,6 +238,8 @@ jobs:
           (cd /tmp/compat-imported && sha256sum -c SHA256SUMS)
           test -s /tmp/compat-imported/bin/fixture-tool
           test -s /tmp/compat-imported/IMPORT-MANIFEST.json
+          test -s /tmp/compat-imported/lib/libfixture.so
+          test -s /tmp/compat-imported/libexec/fixture.bin
 
       - name: Upload verified desktop and compatibility tools
         uses: actions/upload-artifact@v4
