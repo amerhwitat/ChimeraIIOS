@@ -1,0 +1,12 @@
+.TH CHM-IMAGE-INSPECT 1
+.SH NAME
+chm-image-inspect \- inspect image metadata and channel statistics using OpenCV
+.SH SYNOPSIS
+.B chm-image-inspect
+.I IMAGE
+.br
+.B chm-image-inspect --self-test
+.SH DESCRIPTION
+Decodes an image and prints its dimensions, channel count, depth, and mean channel values. --self-test validates the linked OpenCV core without reading a file.
+.SH EXIT STATUS
+0 on success; 2 for an unreadable image; 64 for invalid arguments.
