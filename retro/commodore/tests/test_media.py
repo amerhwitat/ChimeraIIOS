@@ -9,7 +9,7 @@ class RetroMediaTests(unittest.TestCase):
  def test_catalogue(self):
   d=json.loads((ROOT/"retro/commodore/machines.json").read_text()); ids={x["id"] for x in d["machines"]}
   self.assertEqual(ids,{"amiga-a500","amiga-a2000","commodore-c64"})
-  self.assertTrue(all(x["firmware_required"] for x in d["machines"] if x["family"]=="Amiga"))
+  self.assertFalse(any(x["firmware_required"] for x in d["machines"] if x["family"]=="Amiga"))
  def test_help(self):
   p=subprocess.run(["bash",str(ROOT/"retro/commodore/launch-machine.sh"),"--help"],check=True,capture_output=True,text=True)
   self.assertIn("amiga-a500",p.stdout)
