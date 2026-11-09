@@ -14,7 +14,7 @@
 </header>
 <nav class="hub-nav" aria-label="Control Center">
  <button data-view="overview" class="active">Aurora</button><a class="network-nav-link" href="aurora_webgl_desktops.html">WebGL Desktops</a><a class="network-nav-link" href="desktop-showcase/index.html">Named Desktop Showcase</a><a class="network-nav-link" href="retro_emulators.html">Retro Emulators</a><a class="network-nav-link" href="playstation_emulators.html">PlayStation</a><a class="network-nav-link" href="network.html">Network Hub</a>
-<a class="network-nav-link" href="portfolio.html">Portfolio Apps</a><button data-view="mame">MAME</button><button data-view="amiga">Amiga</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="pdf">PDF Reader</button><button data-view="ocr">Ancient OCR</button><button data-view="thamudic">Thamudic NLP</button>
+<a class="network-nav-link" href="portfolio.html">Portfolio Apps</a><button data-view="mame">MAME</button><button data-view="amiga">Amiga 500/2000</button><button data-view="commodore">Commodore 64/128</button><button data-view="games">Games</button><button data-view="bizx">BizX</button><button data-view="bizxtreme">BizXtreme</button><button data-view="controls">Controls</button><button data-view="database">Database</button><button data-view="pdf">PDF Reader</button><button data-view="ocr">Ancient OCR</button><button data-view="thamudic">Thamudic NLP</button>
 </nav>
 <main class="hub-main">
 <section id="view-overview" class="view active">
@@ -52,6 +52,18 @@
  <article class="panel"><h3>Game control</h3><div id="amigaControls" class="control-grid"></div><p class="muted">D-pad/left stick can be joystick or mouse; right stick is mouse; virtual keyboard and status bar use remappable actions.</p></article>
  </div>
 </section>
+<section id="view-commodore" class="view">
+ <div class="section-head"><div><span class="eyebrow">COMMODORE LOCAL RUNTIME</span><h2>Commodore 64 / 128 and 8-bit family</h2></div><span class="badge2">VICE emulator</span></div>
+ <div class="panel-grid">
+  <article class="panel"><h3>Local machine launcher</h3><p id="commodoreStatus">Choose a machine and a local disk/program image.</p>
+   <div class="form-grid"><label>Machine<select id="commodoreMachine"><option value="C64">Commodore 64</option><option value="C128">Commodore 128</option><option value="VIC20">VIC-20</option><option value="PET">PET</option><option value="PLUS4">Plus/4</option></select></label>
+   <label>D64 / D81 / PRG / CRT path<input id="commodoreContent" placeholder="/home/user/commodore/Chimera-Commodore-C64-Starter.d64"></label></div>
+   <div class="actions"><button class="primary" id="commodoreLaunch">Launch with VICE</button><button id="commodoreDetect">Detect local bridge</button><a href="retro_emulators.html">Open browser emulator lab</a></div>
+  </article>
+  <article class="panel"><h3>Starter media</h3><p>Use the generated Chimera C64 D64 starter disk or your own media. VICE emulator ROMs remain user-supplied or independently licensed.</p><div class="chips"><span>D64</span><span>D71</span><span>D81</span><span>G64</span><span>PRG</span><span>T64</span><span>TAP</span><span>CRT</span></div></article>
+ </div>
+</section>
+
 
 <section id="view-games" class="view">
  <div class="section-head"><div><span class="eyebrow">GAME CENTER · OPEN SOURCE</span><h2>Games, 3D assets & multiplayer</h2></div><div class="toolbar"><input id="gameSearch" placeholder="Search games / systems / genre"><select id="gameFamily"><option value="all">All families</option></select></div></div>
