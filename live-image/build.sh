@@ -171,12 +171,13 @@ if [ ! -f "$BASE/.packages-installed-v6" ]; then
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
     bash /tmp/chimera-install-command-providers.sh
+    bash /tmp/chimera-install-legacy-command-compat.sh
     python3 /tmp/chimera-resolve-command-providers.py \
       --catalog /tmp/chimera-command-list.json \
       --ss64 /tmp/ss64-command-catalog.json \
       --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
       --require-all
-    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
+    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-install-legacy-command-compat.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
