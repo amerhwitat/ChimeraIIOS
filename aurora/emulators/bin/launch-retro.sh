@@ -35,6 +35,9 @@ case "$ID" in
     if command -v hatari >/dev/null 2>&1; then exec "$BRIDGE" "$ID" "Atari ST" hatari "$@"; fi
     if command -v mame >/dev/null 2>&1; then exec "$BRIDGE" "$ID" "Atari ST" mame st "$@"; fi
     ;;
+  amiga-a500|amiga-a2000|commodore-c64)
+    exec "$ROOT/retro/commodore/launch-machine.sh" "$ID" "$@"
+    ;;
   retro-amiga)
     if command -v fs-uae >/dev/null 2>&1; then exec "$BRIDGE" "$ID" "Amiga" fs-uae "$@"; fi
     if command -v mame >/dev/null 2>&1; then exec "$BRIDGE" "$ID" "Amiga" mame amiga "$@"; fi
