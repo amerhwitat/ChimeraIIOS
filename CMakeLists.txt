@@ -167,3 +167,12 @@ endif()
 
 install(FILES services/platform_service_adapters.json DESTINATION share/chimera/services)
 install(FILES platform/linux/README.md platform/freebsd/README.md platform/windows/README.md platform/macos/README.md DESTINATION share/chimera/platform/docs)
+
+# Safe cross-platform executable header inspection (ELF, PE/COFF, Mach-O, WASM).
+install(PROGRAMS tools/binary/inspect_binary.py DESTINATION ${CMAKE_INSTALL_BINDIR} RENAME chm-binary-inspect)
+install(FILES man/chm-binary-inspect.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+if(BUILD_TESTING AND Python3_Interpreter_FOUND)
+  add_test(NAME chimera_binary_header_inspection
+    COMMAND ${Python3_EXECUTABLE} -m unittest discover
+      -s ${CMAKE_SOURCE_DIR}/tests/compat -p test_binary_headers.py -v)
+endif()
