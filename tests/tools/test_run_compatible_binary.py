@@ -16,7 +16,7 @@ class RuntimeSelectionTests(unittest.TestCase):
         data = bytearray(8192 + 256)
         data[:2] = b"MZ"
         data[0x3C:0x40] = struct.pack("<I", 8192)
-        data[8192:8196] = b"PE\\0\\0"
+        data[8192:8196] = b"PE\0\0"
         data[8196:8198] = struct.pack("<H", 0x8664)
         data[8198:8200] = struct.pack("<H", 3)
         data[8192 + 20:8192 + 22] = struct.pack("<H", 0xF0)
