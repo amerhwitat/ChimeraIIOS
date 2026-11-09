@@ -1,4 +1,4 @@
-// Native GTK4 shell for Aurora and Marine desktop personalities.
+// Native GTK4 shell for Aurora, Marine and FreeXP desktop personalities.
 // This is a Linux/GTK user-space shell client, not a compositor or a Koronos
 // syscall port. Koronos GUI readiness remains gated on real process execution,
 // graphics/input services, and an OS-native compositor/session implementation.
@@ -13,8 +13,9 @@ int semantic_icon_failures = 0;
 GtkLabel* status_label = nullptr;
 
 const char* desktop_name() {
-  return std::strcmp(desktop_id, "marine") == 0
-      ? "Marine Desktop" : "Aurora Wayland Glass Desktop";
+  if (std::strcmp(desktop_id, "marine") == 0) return "Marine Blue Desktop";
+  if (std::strcmp(desktop_id, "freexp") == 0) return "FreeXP Classic Desktop";
+  return "Aurora Wayland Glass Desktop";
 }
 
 void set_status(const std::string& text) {
@@ -66,6 +67,14 @@ void launch_clicked(GtkButton*, gpointer data) {
     if (spawn_command("gnome-control-center", nullptr)) {
       set_status("Host settings opened.");
       return;
+    }
+  } else if (std::strcmp(action, "dos") == 0) {
+    const char* candidates[] = {"dosbox-x", "dosbox", nullptr};
+    for (size_t i = 0; candidates[i]; ++i) {
+      if (spawn_command(candidates[i], nullptr)) {
+        set_status(std::string(candidates[i]) + " launched for DOS applications.");
+        return;
+      }
     }
   }
   set_status(std::string(action) +
@@ -141,6 +150,26 @@ void install_style() {
     window.marine .sidebar { background: #182337; }
     window.marine .brand { color: #91b9ff; }
     window.marine button.accent { background: #2563eb; }
+    window.freexp { background: #c9dcf4; color: #15385f; }
+    window.freexp headerbar { background: linear-gradient(to bottom, #5c96e6, #174b91); color: white; border-bottom: 2px solid #10376d; }
+    window.freexp .sidebar { background: linear-gradient(to bottom, #dceafb, #a6c5eb); }
+    window.freexp .brand { color: #123f7a; }
+    window.freexp .nav-button { background: #edf5ff; color: #17477f; border: 1px solid #8eadd4; border-radius: 6px; }
+    window.freexp .nav-button:hover { background: #ffffff; }
+    window.freexp .hero { color: #103d78; }
+    window.freexp .muted { color: #315a86; }
+    window.freexp .app-card { background: linear-gradient(to bottom, #ffffff, #e6f0ff); border: 1px solid #82a8d5; border-radius: 9px; padding: 18px; }
+    window.freexp .app-glyph { color: #1c5ba7; }
+    window.freexp .app-name { color: #123d72; }
+    window.freexp .app-detail { color: #315a86; }
+    window.freexp button.accent { background: linear-gradient(to bottom, #77aaf3, #2d65b2); color: white; border: 1px solid #17488b; border-radius: 6px; }
+    window.freexp .footer { background: #d9e8f9; color: #153e70; border-top: 1px solid #8aaed8; }
+    window.freexp .freexp-taskbar { background: linear-gradient(to bottom, #3d7ed2, #174a92); padding: 7px 12px; border-top: 1px solid #9bbdf0; }
+    window.freexp .freexp-start { background: linear-gradient(to bottom, #7bd45d, #238b27); color: white; border: 1px solid #1d6e20; border-radius: 12px 6px 6px 12px; padding: 6px 18px; font-weight: 800; }
+    window.freexp .freexp-quick { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 6px 12px; }
+    window.freexp .freexp-start-menu { background: #e8f1ff; border: 1px solid #285d9c; padding: 12px; }
+    window.freexp .freexp-menu-title { color: #153e72; font-weight: 800; padding: 4px; }
+    window.freexp .freexp-menu-item { background: #f7fbff; color: #173f70; border: 1px solid #a9c4e6; border-radius: 5px; padding: 7px 12px; }
   )CSS";
   GdkDisplay* display = gdk_display_get_default();
   if (!display) return;
@@ -156,8 +185,9 @@ void activate(GtkApplication* app, gpointer) {
   GtkWidget* window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), desktop_name());
   gtk_window_set_default_size(GTK_WINDOW(window), 1280, 800);
-  gtk_widget_add_css_class(window, std::strcmp(desktop_id, "marine") == 0
-                                      ? "marine" : "aurora");
+  const bool marine = std::strcmp(desktop_id, "marine") == 0;
+  const bool freexp = std::strcmp(desktop_id, "freexp") == 0;
+  gtk_widget_add_css_class(window, marine ? "marine" : (freexp ? "freexp" : "aurora"));
 
   GtkWidget* root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   gtk_window_set_child(GTK_WINDOW(window), root);
@@ -175,9 +205,8 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_add_css_class(sidebar, "sidebar");
   gtk_widget_set_size_request(sidebar, 220, -1);
   gtk_box_append(GTK_BOX(body), sidebar);
-  GtkWidget* brand = gtk_label_new(std::strcmp(desktop_id, "marine") == 0
-                                       ? "MARINE  •  WORKSPACE"
-                                       : "AURORA  •  WORKSPACE");
+  GtkWidget* brand = gtk_label_new(marine ? "MARINE  •  WORKSPACE" :
+      (freexp ? "FREEXP  •  CLASSIC WORKSPACE" : "AURORA  •  WORKSPACE"));
   gtk_widget_add_css_class(brand, "brand");
   gtk_box_append(GTK_BOX(sidebar), brand);
   for (const char* item : {"Overview", "Applications", "Files", "Settings",
@@ -200,14 +229,14 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_set_margin_start(content, 30);
   gtk_widget_set_margin_end(content, 30);
   gtk_box_append(GTK_BOX(body), content);
-  GtkWidget* heading = gtk_label_new(std::strcmp(desktop_id, "marine") == 0
-                                         ? "Your workspace, at a glance"
-                                         : "A calmer place to work");
+  GtkWidget* heading = gtk_label_new(marine ? "Your workspace, at a glance" :
+      (freexp ? "Welcome back to your desktop" : "A calmer place to work"));
   gtk_widget_set_halign(heading, GTK_ALIGN_START);
   gtk_widget_add_css_class(heading, "hero");
   gtk_box_append(GTK_BOX(content), heading);
-  GtkWidget* subtitle = gtk_label_new(
-      "Native GTK4 shell • launches delegate to installed host services");
+  GtkWidget* subtitle = gtk_label_new(freexp
+      ? "FreeXP classic shell • Start menu, taskbar and DOS application shortcut"
+      : "Native GTK4 shell • launches delegate to installed host services");
   gtk_widget_set_halign(subtitle, GTK_ALIGN_START);
   gtk_widget_add_css_class(subtitle, "muted");
   gtk_box_append(GTK_BOX(content), subtitle);
@@ -225,6 +254,43 @@ void activate(GtkApplication* app, gpointer) {
       "Open a URL using the configured browser handler.", "browser", "chromium"), 2, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(grid), app_card("⚙", "Settings",
       "Open host settings when the provider is installed.", "settings", "settings"), 0, 1, 1, 1);
+  if (freexp) {
+    gtk_grid_attach(GTK_GRID(grid), app_card("▣", "DOS Applications",
+        "Launch DOSBox or DOSBox-X when an emulator provider is installed.",
+        "dos", "terminal"), 1, 1, 1, 1);
+  }
+
+  if (freexp) {
+    GtkWidget* taskbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_add_css_class(taskbar, "freexp-taskbar");
+    GtkWidget* start_button = gtk_menu_button_new();
+    gtk_menu_button_set_label(GTK_MENU_BUTTON(start_button), "Start");
+    gtk_widget_add_css_class(start_button, "freexp-start");
+    GtkWidget* popover = gtk_popover_new();
+    GtkWidget* start_menu = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    gtk_widget_add_css_class(start_menu, "freexp-start-menu");
+    GtkWidget* menu_title = gtk_label_new("All Programs");
+    gtk_widget_add_css_class(menu_title, "freexp-menu-title");
+    gtk_box_append(GTK_BOX(start_menu), menu_title);
+    gtk_box_append(GTK_BOX(start_menu), action_button("Terminal", "terminal", "freexp-menu-item"));
+    gtk_box_append(GTK_BOX(start_menu), action_button("File Explorer", "files", "freexp-menu-item"));
+    gtk_box_append(GTK_BOX(start_menu), action_button("Internet", "browser", "freexp-menu-item"));
+    gtk_box_append(GTK_BOX(start_menu), action_button("Control Panel", "settings", "freexp-menu-item"));
+    gtk_box_append(GTK_BOX(start_menu), action_button("DOS Applications", "dos", "freexp-menu-item"));
+    gtk_popover_set_child(GTK_POPOVER(popover), start_menu);
+    gtk_menu_button_set_popover(GTK_MENU_BUTTON(start_button), popover);
+    gtk_box_append(GTK_BOX(taskbar), start_button);
+    gtk_box_append(GTK_BOX(taskbar), action_button("Files", "files", "freexp-quick"));
+    gtk_box_append(GTK_BOX(taskbar), action_button("Terminal", "terminal", "freexp-quick"));
+    gtk_box_append(GTK_BOX(taskbar), action_button("Web", "browser", "freexp-quick"));
+    GtkWidget* taskbar_spacer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_hexpand(taskbar_spacer, TRUE);
+    gtk_box_append(GTK_BOX(taskbar), taskbar_spacer);
+    GtkWidget* taskbar_status = gtk_label_new("Chimera II  •  FreeXP");
+    gtk_widget_add_css_class(taskbar_status, "freexp-menu-title");
+    gtk_box_append(GTK_BOX(taskbar), taskbar_status);
+    gtk_box_append(GTK_BOX(root), taskbar);
+  }
 
   GtkWidget* footer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
   gtk_widget_add_css_class(footer, "footer");
@@ -246,16 +312,17 @@ int main(int argc, char** argv) {
   for (int i = 1; i < argc; ++i) {
     if (std::strncmp(argv[i], "--desktop=", 10) == 0) {
       const char* value = argv[i] + 10;
-      if (std::strcmp(value, "aurora") == 0 || std::strcmp(value, "marine") == 0)
+      if (std::strcmp(value, "aurora") == 0 || std::strcmp(value, "marine") == 0 ||
+          std::strcmp(value, "freexp") == 0)
         desktop_id = value;
       else {
-        g_printerr("Unknown desktop '%s'; use aurora or marine.\n", value);
+        g_printerr("Unknown desktop '%s'; use aurora, marine or freexp.\n", value);
         return 2;
       }
     } else if (std::strcmp(argv[i], "--self-test") == 0) {
       self_test = true;
     } else {
-      g_printerr("Usage: %s [--desktop=aurora|marine] [--self-test]\n", argv[0]);
+      g_printerr("Usage: %s [--desktop=aurora|marine|freexp] [--self-test]\n", argv[0]);
       return 2;
     }
   }
