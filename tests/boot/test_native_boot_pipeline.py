@@ -10,7 +10,7 @@ class BootPipelineContractTest(unittest.TestCase):
    data=(ROOT/rel).read_text()
    self.assertRegex(data,r"(?m)^\s*set timeout=300\s*$",rel)
    self.assertRegex(data,r"(?m)^\s*serial --unit=0 --speed=115200\s*$",rel)
-   self.assertRegex(data,r"(?m)^\s*terminal_input serial console\s*$",rel)
+   self.assertRegex(data,r"(?m)^\s*terminal_input (?:serial console|console serial)\s*$",rel)
    self.assertRegex(data,r"(?m)^\s*terminal_output .*serial.*console\s*$",rel)
    outputs=[line.strip() for line in data.splitlines() if line.strip().startswith("terminal_output ")]
    self.assertTrue(outputs and "serial" in outputs[-1] and "console" in outputs[-1],f"{rel}: later terminal setup dropped serial output: {outputs}")
