@@ -59,6 +59,9 @@ if [[ -f "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" ]]; then
 fi
 while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
+# Do not ship transient Python bytecode caches in reusable desktop bundles.
+find "$OUT/aurora-source" -type d -name __pycache__ -prune -exec rm -rf {} +
+find "$OUT/aurora-source" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete
 python3 "$ROOT/tools/build-desktop-icon-files.py" \
   --sprite "$ROOT/desktop/aurora/icons/catalog.svg" \
   --manifest "$ROOT/desktop/aurora/icons/manifest.json" \
@@ -66,6 +69,21 @@ python3 "$ROOT/tools/build-desktop-icon-files.py" \
 cp -a "$ROOT/desktop/aurora/gates_menu.json" "$OUT/manifests/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/platform_personality_model.json" "$OUT/manifests/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/session_profiles.json" "$OUT/manifests/" 2>/dev/null || true
+cat > "$OUT/manifests/runtime-requirements.json" <<'EOF'
+{
+  "schema": "chimera-desktop-runtime-requirements/v1",
+  "tested_host": "Ubuntu 24.04 x86_64 CI",
+  "binary_format": "ELF64",
+  "architecture": "x86_64",
+  "bundled_dynamic_libraries": false,
+  "runtime_packages": {
+    "OpenGL smoke utility": ["libglfw3", "libgl1", "libstdc++6"],
+    "OpenCV image utility": ["libopencv-core406", "libopencv-imgproc406", "libopencv-imgcodecs406", "libstdc++6"],
+    "GTK desktop shell": ["libgtk-4-1", "libstdc++6"]
+  },
+  "note": "The artifact includes ldd reports. Install the matching distribution runtime packages before launching these binaries; this bundle is not a static or cross-OS executable."
+}
+EOF
 cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
 {
   "schema": "CHM-DESKTOP-BUILD-3",
