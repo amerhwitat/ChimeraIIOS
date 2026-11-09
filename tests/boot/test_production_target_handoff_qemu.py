@@ -8,7 +8,6 @@ own /boot/grub/grub.cfg and verifies the resulting debugcon trace.
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path
 import re
 import socket
@@ -37,9 +36,9 @@ def extract(iso: Path, member: str, dest: Path) -> None:
 
 
 def menu_index(config: str, wanted_id: str) -> int:
-    entries = re.findall(r"^\\s*menuentry\\b[^\\n]*", config, flags=re.MULTILINE)
+    entries = re.findall(r"^\s*menuentry\b[^\n]*", config, flags=re.MULTILINE)
     for index, entry in enumerate(entries):
-        match = re.search(r"--id\\s+([^\\s{]+)", entry)
+        match = re.search(r"--id\s+([^\s{]+)", entry)
         if match and match.group(1) == wanted_id:
             return index
     raise RuntimeError(f"production GRUB menu has no entry id {wanted_id!r}")
@@ -51,7 +50,7 @@ def monitor_send(path: Path, command: str) -> None:
         try:
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
                 sock.connect(str(path))
-                sock.sendall((command + "\\n").encode("ascii"))
+                sock.sendall((command + "\n").encode("ascii"))
             return
         except (FileNotFoundError, ConnectionRefusedError):
             time.sleep(0.1)
