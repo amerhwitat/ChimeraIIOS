@@ -44,12 +44,13 @@ def create_adf(xdftool: str, out: Path, volume: str, fs_type: str, model: str, t
     run([xdftool, str(image), "makedir", "S"])
     run([xdftool, str(image), "write", str(startup), "S/Startup-Sequence"])
     run([xdftool, str(image), "write", str(readme), "README.TXT"])
-    listing = run([xdftool, str(image), "list", "all", "info"])
+    listing = run([xdftool, str(image), "list"])
+    disk_info = run([xdftool, str(image), "info"])
     data = image.read_bytes()
     expected = b"DOS" + (b"\0" if fs_type == "ofs" else b"\1")
     if len(data) != 901120 or data[:4] != expected:
         raise RuntimeError(f"Invalid Amiga {model} ADF geometry/filesystem signature")
-    if "README.TXT" not in listing or "Startup-Sequence" not in listing:
+    if "README.TXT" not in listing or "Startup-Sequence" not in listing or "Blocks:" not in disk_info:
         raise RuntimeError(f"Amiga {model} ADF is missing expected files")
     return {"file": image.name, "format": "ADF", "model": model, "filesystem": fs_type.upper(),
             "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(),
