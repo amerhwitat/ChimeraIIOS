@@ -1,11 +1,37 @@
 {
   "schema": "CHM-X11-PROVIDER-1",
   "provider": "X.Org Server / X11 compatibility session",
-  "packages": ["xserver-xorg", "xinit", "xauth", "xwayland", "xvfb", "x11-xserver-utils", "x11-utils", "openbox"],
-  "commands": ["Xorg", "startx", "xinit", "Xwayland", "Xvfb", "openbox"],
+  "packages": [
+    "xserver-xorg",
+    "xinit",
+    "xauth",
+    "xwayland",
+    "xvfb",
+    "x11-xserver-utils",
+    "x11-utils",
+    "openbox"
+  ],
+  "commands": [
+    "Xorg",
+    "startx",
+    "xinit",
+    "Xwayland",
+    "Xvfb",
+    "openbox"
+  ],
   "desktop_sessions": {
-    "aurora": ["chimera-desktop-shell", "--desktop=aurora"],
-    "marine": ["chimera-desktop-shell", "--desktop=marine"]
+    "aurora": [
+      "chimera-desktop-shell",
+      "--desktop=aurora"
+    ],
+    "marine": [
+      "chimera-desktop-shell",
+      "--desktop=marine"
+    ],
+    "freexp": [
+      "chimera-desktop-shell",
+      "--desktop=freexp"
+    ]
   },
   "status": "provider-declared-runtime-not-yet-verified",
   "runtime_prerequisites": [
