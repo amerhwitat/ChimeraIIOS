@@ -10,6 +10,27 @@ class RuntimeSelectionTests(unittest.TestCase):
     def fake_which(self,*available):
         return lambda name: "/usr/bin/"+name if name in available else None
 
+    def test_pe_header_after_first_page_is_inspected(self):
+        import struct
+        import tempfile
+        data = bytearray(8192 + 256)
+        data[:2] = b"MZ"
+        data[0x3C:0x40] = struct.pack("<I", 8192)
+        data[8192:8196] = b"PE\\0\\0"
+        data[8196:8198] = struct.pack("<H", 0x8664)
+        data[8198:8200] = struct.pack("<H", 3)
+        data[8192 + 20:8192 + 22] = struct.pack("<H", 0xF0)
+        opt = 8192 + 24
+        data[opt:opt + 2] = struct.pack("<H", 0x20B)
+        data[opt + 68:opt + 70] = struct.pack("<H", 3)
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / "delayed-header.exe"
+            binary.write_bytes(data)
+            report = MODULE.inspect_binary(binary)
+        self.assertEqual(report["format"], "PE/COFF")
+        self.assertEqual(report["architecture"], "x86_64")
+        self.assertEqual(report["subsystem"], "windows-console")
+
     def test_native_linux(self):
         report={"format":"ELF","architecture":"x86_64"}
         command,mode=MODULE.choose_command(report,Path("/tmp/app"),("Linux","x86_64"),self.fake_which())
