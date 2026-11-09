@@ -9,6 +9,7 @@
 namespace {
 const char* desktop_id = "aurora";
 bool self_test = false;
+int semantic_icon_failures = 0;
 GtkLabel* status_label = nullptr;
 
 const char* desktop_name() {
@@ -92,8 +93,14 @@ GtkWidget* app_card(const char* glyph, const char* title, const char* detail,
   if (g_file_test(icon_path, G_FILE_TEST_IS_REGULAR)) {
     icon = gtk_image_new_from_file(icon_path);
     gtk_image_set_pixel_size(GTK_IMAGE(icon), 64);
-    gtk_widget_set_tooltip_text(icon, semantic_icon);
+    if (gtk_image_get_storage_type(GTK_IMAGE(icon)) == GTK_IMAGE_EMPTY) {
+      ++semantic_icon_failures;
+      gtk_widget_set_tooltip_text(icon, "Failed to load semantic SVG icon");
+    } else {
+      gtk_widget_set_tooltip_text(icon, semantic_icon);
+    }
   } else {
+    ++semantic_icon_failures;
     icon = gtk_label_new(glyph);
     gtk_widget_set_tooltip_text(icon, "Semantic icon unavailable; text fallback");
   }
@@ -258,5 +265,9 @@ int main(int argc, char** argv) {
   char* app_argv[] = {argv[0], nullptr};
   const int result = g_application_run(G_APPLICATION(app), 1, app_argv);
   g_object_unref(app);
+  if (self_test && semantic_icon_failures != 0) {
+    g_printerr("Semantic SVG icon load failures: %d\\n", semantic_icon_failures);
+    return 3;
+  }
   return result;
 }
