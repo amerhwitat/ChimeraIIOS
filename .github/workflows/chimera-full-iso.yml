@@ -71,6 +71,7 @@ jobs:
           python3 -m py_compile tests/boot/test_production_target_handoff_qemu.py
 
       - name: Build ISO with the canonical build-chimera-iso.sh pipeline
+        id: iso_build
         env:
           CHIMERA_AURORA_BACKGROUND: ""
           CHIMERA_SKIP_SS64_CRAWL: "1"
@@ -183,6 +184,7 @@ jobs:
           fi
 
       - name: Verify Live, Installer, and Recovery through production GRUB entries
+        if: always() && steps.iso_build.outcome == 'success'
         id: userspace_gate
         shell: bash
         run: |
