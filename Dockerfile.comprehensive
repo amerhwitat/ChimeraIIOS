@@ -10,6 +10,8 @@
 
 FROM ubuntu:24.04 AS builder
 
+ARG CHIMERA_STRICT_COMMAND_PROVIDERS=0
+
 ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_BUILD=1 \
     CHIMERA_COMPREHENSIVE=1 \
@@ -339,17 +341,26 @@ RUN set -eux; \
       printf '%s\\n' '{"schema_version":"3.0","product":"Chimera II OS","source":"SS64","platforms":{}}' > /opt/chimera/share/chimera/commands/ss64-command-catalog.json; \
     fi
 
-# The provider installer is deliberately non-fatal. It already handles
-# individual package failures and apt-cache SIGPIPE (141); keep this final
-# guard as a defense against future revisions of the script.
+# Strict command-provider mode is enabled by the full release build. It
+# preserves the per-package report and stops the image build on missing or
+# failed providers instead of silently treating partial coverage as complete.
+ARG CHIMERA_STRICT_COMMAND_PROVIDERS=0
 RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh ]; then \
-      if bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
+      if CHIMERA_STRICT_COMMAND_PROVIDERS="$CHIMERA_STRICT_COMMAND_PROVIDERS" bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
         echo "[Chimera][COMMANDS] provider installer completed."; \
       else \
         status=$?; \
-        echo "[Chimera][COMMANDS][WARN] provider installer returned $status; continuing comprehensive image build."; \
+        if [ "$CHIMERA_STRICT_COMMAND_PROVIDERS" = "1" ]; then \
+          echo "[Chimera][COMMANDS][ERROR] strict provider gate failed; refusing to continue."; \
+          exit "$status"; \
+        fi; \
+        echo "[Chimera][COMMANDS][WARN] provider installer returned $status; continuing best-effort image build."; \
       fi; \
     else \
+      if [ "$CHIMERA_STRICT_COMMAND_PROVIDERS" = "1" ]; then \
+        echo "[Chimera][COMMANDS][ERROR] strict provider installer is missing."; \
+        exit 1; \
+      fi; \
       echo "[Chimera][COMMANDS] provider installer not present; skipping."; \
     fi
 
