@@ -15,13 +15,22 @@ installer = read("kernel/targets/installer_init.c")
 recovery = read("kernel/targets/recovery_init.c")
 target_launch = read("kernel/core/target_launch.cpp")
 
-assert "koronos_console_read_user" in kernel
-assert "koronos_console_try_getchar" in kernel
-assert 'sti; hlt; cli' in kernel
-assert "case CHM_SYS_READ:" in syscall
-assert "koronos_console_read_user(address, length)" in syscall
-assert "case 0: return 8;" in compat  # Linux x86-64 read -> CHM_SYS_READ
+# The current target ABI is Linux x86-64 at the syscall boundary. stdin
+# intentionally reports EOF until a real keyboard/TTY provider is registered;
+# never let a static test pretend an interactive console is available.
+assert "case 0: { // Linux x86-64 read" in syscall
+read_case = syscall.split("case 0: { // Linux x86-64 read", 1)[1].split("case 1:", 1)[0]
+assert "fd != 0u" in read_case
+assert "return 0;" in read_case
+assert "case 1: { // Linux x86-64 write" in syscall
+assert "koronos_console_write_user(address, length)" in syscall
+assert "case 39: { // Linux x86-64 getpid" in syscall
+assert "koronos_target_active_pid()" in syscall
+assert "case 60: // Linux x86-64 exit" in syscall
 assert "#define LINUX_X86_64_SYS_READ 0" in common
+assert "no keyboard/TTY input provider is registered" in live
+assert "no keyboard/TTY input provider is registered" in installer
+assert "no keyboard/TTY input provider is registered" in recovery
 assert "static long init_read_line(" in common
 # Every target prompt must outlive the bootstrap deadline. Keep PIT IRQ0 active
 # because the current ring-3 console uses timer wakeups while polling PS/2 input.
