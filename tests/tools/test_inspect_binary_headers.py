@@ -35,9 +35,9 @@ class BinaryHeaderTests(unittest.TestCase):
 
 
     def test_java_class_and_universal_macho(self):
-        java = b"\\xca\\xfe\\xba\\xbe" + struct.pack(">HH", 0, 65) + bytes(24)
+        java = bytes.fromhex("cafebabe") + struct.pack(">HH", 0, 65) + bytes(24)
         self.assertEqual(MODULE.inspect(java)["format"], "Java Class")
-        fat = b"\\xca\\xfe\\xba\\xbe" + struct.pack(">I", 2) + bytes(24)
+        fat = bytes.fromhex("cafebabe") + struct.pack(">I", 2) + bytes(24)
         self.assertEqual(MODULE.inspect(fat)["format"], "Mach-O Universal")
 
     def test_dos_and_wasm(self):
