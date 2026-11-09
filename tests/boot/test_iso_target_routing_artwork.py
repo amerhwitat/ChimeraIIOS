@@ -58,6 +58,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('find_target_init("live")', source)
         self.assertIn('find_target_init("installer")', source)
         self.assertIn('find_target_init("recovery")', source)
+        self.assertLess(source.index('if (find_target_init("installer"))'), source.index('if (!image && !manifest && !contract && !phases && !profiles)'))
         self.assertIn("module_has_target(module, target)", source)
         self.assertIn("koronos_launch_selected_userspace()", source)
         self.assertNotIn('if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))', source)
