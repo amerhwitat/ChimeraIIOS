@@ -40,6 +40,9 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery", generated)
         self.assertIn("module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs", generated)
         self.assertIn("  boot", generated)
+        self.assertIn('"$LIVE_BOOT/boot/targets/target-init-$target.elf"', PREPARE_LAYOUT)
+        self.assertIn('"$LIVE_BOOT/boot/recovery/$required"', PREPARE_LAYOUT)
+        self.assertIn('mkdir -p "$DIST/boot/live" "$DIST/boot/targets" "$DIST/boot/recovery"', PREPARE_LAYOUT)
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
