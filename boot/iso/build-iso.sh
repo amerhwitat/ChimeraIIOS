@@ -120,6 +120,58 @@ python3 "$ROOT/tools/iso/stage_payload.py" --root "$ROOT" --iso "$DIST/iso" --li
 test -s "$DIST/iso/payload/MANIFEST.json" || { echo "ERROR: payload manifest missing" >&2; exit 2; }
 test -s "$DIST/iso/payload/SHA256SUMS" || { echo "ERROR: payload checksums missing" >&2; exit 2; }
 
+# Optional, checksum-verified Linux compatibility tools built by Desktop Compatibility CI.
+# Keep these under /payload: they are host Linux binaries and are not Koronos-native
+# executables or a substitute for the unfinished native userspace ABI.
+COMPAT_TOOLS_SRC="${CHIMERA_DESKTOP_COMPAT_TOOLS_DIR:-$ROOT/.cache/verified-desktop-compat-tools}"
+if [[ -d "$COMPAT_TOOLS_SRC/bin" ]]; then
+  test -s "$COMPAT_TOOLS_SRC/SHA256SUMS" || { echo "ERROR: imported desktop tool bundle lacks SHA256SUMS" >&2; exit 2; }
+  (cd "$COMPAT_TOOLS_SRC" && sha256sum -c SHA256SUMS)
+  COMPAT_TOOLS_OUT="$DIST/iso/payload/desktop-compat-tools"
+  rm -rf "$COMPAT_TOOLS_OUT"
+  mkdir -p "$COMPAT_TOOLS_OUT"
+  cp -a "$COMPAT_TOOLS_SRC/bin" "$COMPAT_TOOLS_SRC/share" "$COMPAT_TOOLS_SRC/SHA256SUMS" "$COMPAT_TOOLS_OUT/"
+  [[ -s "$COMPAT_TOOLS_SRC/IMPORT-MANIFEST.json" ]] && cp -f "$COMPAT_TOOLS_SRC/IMPORT-MANIFEST.json" "$COMPAT_TOOLS_OUT/"
+  python3 - "$DIST/iso/payload" <<'PYCOMPAT'
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+payload = Path(sys.argv[1])
+manifest_path = payload / "MANIFEST.json"
+sums_path = payload / "SHA256SUMS"
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+bundle = payload / "desktop-compat-tools"
+new_entries = []
+for path in sorted(p for p in bundle.rglob("*") if p.is_file()):
+    relative = path.relative_to(bundle).as_posix()
+    data = path.read_bytes()
+    new_entries.append({
+        "kind": "desktop-compat-tools",
+        "path": relative,
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    })
+manifest.setdefault("entries", []).extend(new_entries)
+manifest["files"] = int(manifest.get("files", 0)) + len(new_entries)
+manifest["bytes"] = int(manifest.get("bytes", 0)) + sum(item["bytes"] for item in new_entries)
+manifest.setdefault("kinds", {})["desktop-compat-tools"] = len(new_entries)
+manifest.setdefault("external_bundles", []).append({
+    "id": "verified-desktop-compat-tools",
+    "path": "desktop-compat-tools/",
+    "execution_scope": "Linux host compatibility bundle; not Koronos-native",
+    "sha256_manifest": "desktop-compat-tools/SHA256SUMS",
+})
+manifest_path.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+with sums_path.open("w", encoding="utf-8") as fh:
+    for item in manifest["entries"]:
+        fh.write(f'{item["sha256"]}  {item["kind"]}/{item["path"]}\\n')
+PYCOMPAT
+  (cd "$DIST/iso/payload" && sha256sum -c SHA256SUMS)
+  printf '%s\\n' "[3d+] Verified Linux desktop compatibility tools staged under /payload/desktop-compat-tools"
+fi
+
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
 mkdir -p "$VISUAL_OUT"
