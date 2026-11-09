@@ -248,6 +248,7 @@ if [[ "$FULL_BUILD" == 1 ]]; then
   DOS_FETCH_ON_BUILD=1
   export CHIMERA_DOCKER_NO_CACHE=1
   export CHIMERA_STRICT_COMMAND_PROVIDERS=1
+  export CHIMERA_STRICT_ISA_SMOKES=1
 fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
@@ -511,7 +512,7 @@ build_docker(){
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
   [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
-  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
 
