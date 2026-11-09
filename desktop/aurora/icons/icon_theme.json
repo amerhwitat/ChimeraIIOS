@@ -1,1 +1,34 @@
-{"schema":"CHM-AURORA-ICON-1","source":"native","fallback":"hardcoded-svg","emoji":true,"icons":["settings","terminal","globe","language"],"rtl_safe":true}
+{
+  "schema": "CHM-AURORA-ICON-2",
+  "source": "shared-semantic-app-icon-catalog",
+  "sprite": "icons/catalog.svg",
+  "manifest": "icons/manifest.json",
+  "fallback": "native-inline-svg",
+  "emoji": false,
+  "rtl_safe": true,
+  "desktops": {
+    "aurora": {
+      "finder": "aurora-files",
+      "browser": "chromium",
+      "terminal": "terminal",
+      "settings": "settings",
+      "documents": "libreoffice",
+      "photos": "photos",
+      "network": "network",
+      "store": "store",
+      "voiceconnect": "voiceconnect"
+    },
+    "marine": {
+      "start": "chimera-boot-manager",
+      "file_explorer": "aurora-files",
+      "browser": "chromium",
+      "terminal": "terminal",
+      "settings": "settings",
+      "documents": "libreoffice",
+      "network": "network",
+      "control_panel": "settings",
+      "downloads": "archive-manager"
+    }
+  },
+  "note": "The SVG sprite contains original project icon artwork. Native renderers must resolve each semantic ID from this local sprite; web launchers use the same IDs via SVG use."
+}
