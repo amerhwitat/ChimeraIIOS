@@ -61,8 +61,23 @@ jobs:
           cmake --build /tmp/chimera-graphics-build --target chm-opengl-smoke chm-image-inspect -j2
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a /tmp/chimera-graphics-build/desktop/native/chm-opengl-smoke --self-test
           /tmp/chimera-graphics-build/desktop/native/chm-image-inspect --self-test
+          /tmp/chimera-graphics-build/desktop/native/chm-image-inspect --help
+          python3 - <<'PY'
+          from pathlib import Path
+          Path("/tmp/chimera-test.ppm").write_bytes(b"P6\n2 2\n255\n" + bytes([255,0,0, 0,255,0, 0,0,255, 255,255,255]))
+          PY
+          /tmp/chimera-graphics-build/desktop/native/chm-image-inspect /tmp/chimera-test.ppm --edges /tmp/chimera-edges.png --grayscale /tmp/chimera-gray.png --resize 4x4 /tmp/chimera-resized.png --json
+          test -s /tmp/chimera-edges.png
+          test -s /tmp/chimera-gray.png
+          test -s /tmp/chimera-resized.png
+          bash -n tools/ides/ide-manager.sh
+          bash tools/ides/ide-manager.sh list
+          bash tools/ides/ide-manager.sh --help
+          node --check web/chimera-hub.js
+          python3 -m py_compile tools/runtime/chimera-local-bridge.py tools/retro-media/build_retro_media.py
           test -s man/chm-opengl-smoke.1
           test -s man/chm-image-inspect.1
+          test -s man/chm-ide.1
       - name: Compile C++ desktop header
         run: |
           printf '#include "desktop/cpp/chm_desktop.hpp"\nint main(){auto p=chimera::desktop::profile(chimera::desktop::Platform::WindowsWin32); return p.menu_bar ? 0 : 1;}' | c++ -std=c++17 -I. -x c++ - -o /tmp/chm-desktop
