@@ -129,7 +129,7 @@ STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
 
@@ -221,6 +221,7 @@ while [[ $# -gt 0 ]]; do
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
+    --full) CLEAN_STATE=1; RESUME_BUILD=0; export CHIMERA_DOCKER_NO_CACHE=1; shift;;
     --storage-auto) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
     --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
@@ -279,7 +280,8 @@ cleanup_generated_build_artifacts(){
     -delete 2>/dev/null || true
   # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
+  # Do not prune global Docker state: stopped containers may belong to other projects.
+  # Build-owned export containers are removed by their explicit labels/lifecycle.
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -496,6 +498,7 @@ build_docker(){
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
+  [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
 }
