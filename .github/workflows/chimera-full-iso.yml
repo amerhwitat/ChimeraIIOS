@@ -68,6 +68,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
+          python3 -m py_compile tests/boot/test_production_target_handoff_qemu.py
 
       - name: Build ISO with the canonical build-chimera-iso.sh pipeline
         env:
