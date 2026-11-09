@@ -11,6 +11,7 @@ RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 FULL_ISO_WORKFLOW = (ROOT / ".github/workflows/chimera-full-iso.yml").read_text()
+PREPARE_LAYOUT = (ROOT / "boot/iso/prepare-layout.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -32,6 +33,13 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
+        # prepare-layout.sh overwrites the checked-in recovery menu while mastering the ISO.
+        generated_start = PREPARE_LAYOUT.index('cat > "$DIST/boot/jasper/recovery.cfg"')
+        generated_end = PREPARE_LAYOUT.index("\nEOF", generated_start)
+        generated = PREPARE_LAYOUT[generated_start:generated_end]
+        self.assertIn("module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery", generated)
+        self.assertIn("module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs", generated)
+        self.assertIn("  boot", generated)
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
