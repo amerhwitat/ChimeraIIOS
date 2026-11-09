@@ -213,3 +213,20 @@ jobs:
             test -s "boot/iso/dist/iso/boot/visual/$visual"
           done
           test -s boot/iso/dist/iso/boot/visual/aurora-media/manifest.json
+      - name: Upload structured ISO and native boot payloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-structured-iso-${{ github.sha }}
+          path: |
+            boot/iso/dist/output.iso
+            boot/iso/dist/output.iso.sha256
+            boot/iso/dist/ISO-BOOT-REPORT.txt
+            build/koronos/x86_64/koronos.elf
+            build/koronos/x86_64/target-init-live.elf
+            build/koronos/x86_64/target-init-installer.elf
+            build/koronos/x86_64/target-init-recovery.elf
+            build/boot-artifacts/**
+            build/live-boot/**
+            build/aurora-media/**
+          if-no-files-found: error
+          retention-days: 90
