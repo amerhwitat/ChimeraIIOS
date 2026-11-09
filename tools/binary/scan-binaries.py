@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Recursively inspect executable headers without executing discovered files."""
 from __future__ import annotations
-import argparse, hashlib, importlib.util, json
+import argparse, hashlib, importlib.util, json, zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 INSPECTOR=ROOT/"tools/inspect-binary-headers.py"
@@ -20,8 +20,11 @@ def main():
   try:
    size=path.stat().st_size
    if size==0 or size>a.max_size: continue
-   with path.open("rb") as f: data=f.read(4096)
-   result=module.inspect(data)
+   if path.suffix.lower()==".jar" and zipfile.is_zipfile(path):
+    result={"format":"Java archive","architecture":"JVM bytecode"}
+   else:
+    with path.open("rb") as f: data=f.read(4096)
+    result=module.inspect(data)
    if result["format"]=="unknown": continue
    digest=hashlib.sha256()
    with path.open("rb") as f:
