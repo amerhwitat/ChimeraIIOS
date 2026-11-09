@@ -170,9 +170,14 @@ install(FILES platform/linux/README.md platform/freebsd/README.md platform/windo
 
 # Safe cross-platform executable header inspection (ELF, PE/COFF, Mach-O, WASM).
 install(PROGRAMS tools/binary/inspect_binary.py DESTINATION ${CMAKE_INSTALL_BINDIR} RENAME chm-binary-inspect)
+install(PROGRAMS tools/ide/install-vscodium.py DESTINATION ${CMAKE_INSTALL_BINDIR} RENAME install-vscodium)
+install(FILES man/install-vscodium.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install(FILES man/chm-binary-inspect.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 if(BUILD_TESTING AND Python3_Interpreter_FOUND)
   add_test(NAME chimera_binary_header_inspection
     COMMAND ${Python3_EXECUTABLE} -m unittest discover
       -s ${CMAKE_CURRENT_SOURCE_DIR}/tests/compat -p test_binary_headers.py -v)
+  add_test(NAME chimera_vscodium_install_plan
+    COMMAND ${Python3_EXECUTABLE} -m unittest discover
+      -s ${CMAKE_CURRENT_SOURCE_DIR}/tests/ide -p test_install_vscodium.py -v)
 endif()
