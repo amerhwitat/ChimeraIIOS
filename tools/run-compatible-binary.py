@@ -15,8 +15,8 @@ import shutil
 import subprocess
 import sys
 
-ROOT=Path(__file__).resolve().parents[1]
-SPEC=importlib.util.spec_from_file_location("chm_binary_headers",ROOT/"tools/inspect-binary-headers.py")
+HEADER_SCRIPT=Path(__file__).resolve().with_name("inspect-binary-headers.py")
+SPEC=importlib.util.spec_from_file_location("chm_binary_headers",HEADER_SCRIPT)
 HEADERS=importlib.util.module_from_spec(SPEC);SPEC.loader.exec_module(HEADERS)
 
 def normalized_host_arch(machine):
