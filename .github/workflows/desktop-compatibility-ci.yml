@@ -93,7 +93,9 @@ jobs:
           bash tools/ides/ide-manager.sh list
           bash tools/ides/ide-manager.sh --help
           node --check web/chimera-hub.js
-          python3 -m py_compile tools/runtime/chimera-local-bridge.py tools/retro-media/build_retro_media.py
+          python3 -m py_compile tools/runtime/chimera-local-bridge.py tools/retro-media/build_retro_media.py tools/inspect-binary-headers.py
+          python3 tests/tools/test_inspect_binary_headers.py
+          python3 tools/inspect-binary-headers.py --json /bin/true
           test -s man/chm-opengl-smoke.1
           test -s man/chm-image-inspect.1
           test -s man/chm-ide.1
