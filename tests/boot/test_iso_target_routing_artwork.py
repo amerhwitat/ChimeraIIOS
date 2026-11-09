@@ -67,6 +67,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertNotIn("multiboot2", entry)
 
     def test_firmware_matrix_selects_targets_by_ids_from_the_immutable_iso(self):
+        self.assertIn("terminal_input console serial", GRUB)
         # The workflow extracts GRUB from the ISO under test and resolves each
         # target by its stable --id. This guards against stale positional offsets
         # when menu entries are inserted or firmware-specific entries change.
