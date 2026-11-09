@@ -330,7 +330,7 @@ bash "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$WORK"
 # Resolve the complete Linux command catalogue against real target-rootfs
 # binaries and Debian packages. The resolver is executed inside the chroot so
 # PATH, apt-file and dpkg all describe the image being built, not the runner.
-chroot "$WORK" python3 /opt/aurora/repo/tools/commands/resolve-catalogue-command-providers.py \
+chroot "$WORK" /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/python3 /opt/aurora/repo/tools/commands/resolve-catalogue-command-providers.py \
   --catalog /opt/aurora/repo/system/commands/chimera-command-list.json \
   --ss64 /opt/aurora/repo/system/commands/ss64-command-catalog.json \
   --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
