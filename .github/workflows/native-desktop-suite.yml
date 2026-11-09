@@ -48,6 +48,7 @@ jobs:
           test -s "$out/icons/chromium.svg"
           test -s "$out/icons/terminal.svg"
           test -s "$out/icons/settings.svg"
+          test -s "$out/icons/vscode.svg"
           "$out/bin/aurora-utf-selftest"
           python3 -m json.tool "$out/manifests/desktop-build-manifest.json" >/dev/null
       - name: Compile shell and desktop application targets
