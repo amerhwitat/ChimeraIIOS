@@ -1,0 +1,12 @@
+.TH INSTALL-VSCODIUM 1
+.SH NAME
+install-vscodium \- install VSCodium through an official package manager
+.SH SYNOPSIS
+.B install-vscodium
+.RI [ --install ]
+.SH DESCRIPTION
+Prints a dry-run installation plan by default. On Linux it selects the Flathub Flatpak package com.vscodium.codium; on Windows it selects the Winget package VSCodium.VSCodium; on macOS it selects the Homebrew cask vscodium. The helper invokes no installer unless --install is supplied.
+.SH SAFETY
+The helper does not bundle or redistribute VSCodium binaries. Package-manager signatures, source trust, license terms, and platform compatibility remain the responsibility of the configured upstream provider. It does not hide compatibility or emulation requirements.
+.SH EXIT STATUS
+0 on a valid plan or successful installation command; 2 when the host or package manager is unsupported; otherwise the package manager's nonzero status.
