@@ -11,7 +11,7 @@ jobs:
       - name: Install OpenGL and OpenCV development runtimes
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglfw3-dev libopencv-dev xvfb mesa-utils pkg-config vice fs-uae python3-venv
+          sudo apt-get install -y libgl1-mesa-dev libglfw3-dev libopencv-dev xvfb mesa-utils pkg-config vice fs-uae python3-venv gcc-aarch64-linux-gnu qemu-user
       - name: Test ELF, PE/COFF, Mach-O and WASM header inspection
         run: python3 -m unittest discover -s tests/compat -p test_binary_headers.py -v
       - name: Validate semantic Aurora desktop icon integration
@@ -95,6 +95,17 @@ jobs:
           node --check web/chimera-hub.js
           python3 -m py_compile tools/runtime/chimera-local-bridge.py tools/retro-media/build_retro_media.py tools/inspect-binary-headers.py
           python3 tests/tools/test_inspect_binary_headers.py
+          python3 tests/tools/test_run_compatible_binary.py
+          bash -n tools/binary/install-compat-runtimes.sh
+          python3 -m json.tool tools/binary/compatibility-runtimes.json >/dev/null
+          sudo apt-get install -y gcc-aarch64-linux-gnu qemu-user
+          cat > /tmp/chimera-aarch64-smoke.c <<'EOF'
+          #include <stdio.h>
+          int main(void) { puts("CHIMERA AARCH64 QEMU USER PASS"); return 0; }
+          EOF
+          aarch64-linux-gnu-gcc -static -O2 -o /tmp/chimera-aarch64-smoke /tmp/chimera-aarch64-smoke.c
+          python3 tools/run-compatible-binary.py --dry-run /tmp/chimera-aarch64-smoke
+          python3 tools/run-compatible-binary.py --run /tmp/chimera-aarch64-smoke
           python3 tools/inspect-binary-headers.py --json /bin/true
           test -s man/chm-opengl-smoke.1
           test -s man/chm-image-inspect.1
