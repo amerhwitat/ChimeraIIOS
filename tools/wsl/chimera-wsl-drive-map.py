@@ -21,16 +21,16 @@ def map_drives(mnt: Path) -> list[str]:
         source = mnt / letter
         if not source.is_dir():
             continue
-        target = drive_root / letter
-        if target.is_symlink():
-            if target.resolve(strict=False) == source.resolve(strict=False):
-                mapped.append(letter)
-                continue
-            raise RuntimeError(f"refusing to replace unrelated symlink: {target}")
-        if target.exists():
-            # Never merge/copy into an existing directory; preserve user data.
-            raise RuntimeError(f"refusing to replace existing path: {target}")
-        target.symlink_to(source, target_is_directory=True)
+        for alias in (letter, letter.upper()):
+            target = drive_root / alias
+            if target.is_symlink():
+                if target.resolve(strict=False) == source.resolve(strict=False):
+                    continue
+                raise RuntimeError(f"refusing to replace unrelated symlink: {target}")
+            if target.exists():
+                # Never merge/copy into an existing directory; preserve user data.
+                raise RuntimeError(f"refusing to replace existing path: {target}")
+            target.symlink_to(source, target_is_directory=True)
         mapped.append(letter)
     return mapped
 
