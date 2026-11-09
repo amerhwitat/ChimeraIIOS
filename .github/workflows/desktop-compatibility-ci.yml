@@ -50,10 +50,10 @@ jobs:
           PY
       - name: Build and runtime-test OpenGL and OpenCV tools
         run: |
-          c++ -std=c++17 -O2 desktop/native/chm-opengl-smoke.cpp -o /tmp/chm-opengl-smoke $(pkg-config --cflags --libs glfw3 gl)
-          c++ -std=c++17 -O2 desktop/native/chm-image-inspect.cpp -o /tmp/chm-image-inspect $(pkg-config --cflags --libs opencv4)
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a /tmp/chm-opengl-smoke --self-test
-          /tmp/chm-image-inspect --self-test
+          cmake -S . -B /tmp/chimera-graphics-build -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/chimera-graphics-build --target chm-opengl-smoke chm-image-inspect -j2
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a /tmp/chimera-graphics-build/desktop/native/chm-opengl-smoke --self-test
+          /tmp/chimera-graphics-build/desktop/native/chm-image-inspect --self-test
           test -s man/chm-opengl-smoke.1
           test -s man/chm-image-inspect.1
       - name: Compile C++ desktop header
