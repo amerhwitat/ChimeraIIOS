@@ -473,6 +473,13 @@ jobs:
               accepted=false
             fi
           done
+          # Resolve target positions from the GRUB menu embedded in this
+          # immutable ISO; never rely on stale, hard-coded arrow counts.
+          actual_grub="$base/actual-grub.cfg"
+          if ! xorriso -osirrox on -indev "$iso" -extract /boot/grub/grub.cfg "$actual_grub" >/dev/null 2>&1 || [[ ! -s "$actual_grub" ]]; then
+            echo "::error::Could not extract the actual GRUB menu from the immutable ISO."
+            accepted=false
+          fi
           : > "$base/actual-firmware-matrix.tsv"
           if [[ ! -s "$ovmf_code" || ! -s "$ovmf_vars_template" ]]; then
             echo "::warning::OVMF firmware files unavailable; UEFI actual-ISO cases cannot pass."
@@ -490,23 +497,32 @@ jobs:
                   qemu+=( -drive "if=pflash,format=raw,readonly=on,file=$ovmf_code" \
                           -drive "if=pflash,format=raw,file=$vars" )
                 fi
-                case "$target" in
-                  live) keys="live" ;;
-                  installer) keys="installer" ;;
-                  recovery) keys="recovery" ;;
-                esac
+                menu_index="$(python3 - "$actual_grub" "$target" <<'PY_MENU_INDEX'
+          import pathlib, re, sys
+          path, target = pathlib.Path(sys.argv[1]), sys.argv[2]
+          wanted = {"live": "aurora-live", "installer": "install", "recovery": "recovery"}
+          if target not in wanted or not path.is_file():
+              raise SystemExit(f"cannot resolve GRUB menu ID for target {target!r}")
+          entries = re.findall(r"(?m)^\\s*menuentry\\b.*?--id\\s+[\"']?([A-Za-z0-9_-]+)", path.read_text())
+          try:
+              print(entries.index(wanted[target]))
+          except ValueError:
+              raise SystemExit(f"immutable ISO GRUB menu has no entry ID {wanted[target]!r}; entries={entries!r}")
+          PY_MENU_INDEX
+          )"
                 set +e
-                case "$target" in
-                  live)
-                    ( sleep 20; printf '%s\n' 'sendkey home'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
-                    ;;
-                  installer)
-                    ( sleep 20; printf '%s\n' 'sendkey home'; sleep 1; printf '%s\n' 'sendkey down'; sleep 1; printf '%s\n' 'sendkey down'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
-                    ;;
-                  recovery)
-                    ( sleep 20; printf '%s\n' 'sendkey home'; sleep 1; for _ in {1..5}; do printf '%s\n' 'sendkey down'; sleep 0.2; done; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
-                    ;;
-                esac
+                (
+                  sleep 20
+                  printf '%s\\n' 'sendkey home'
+                  sleep 0.5
+                  for ((key=0; key<menu_index; key++)); do
+                    printf '%s\\n' 'sendkey down'
+                    sleep 0.35
+                  done
+                  sleep 0.5
+                  printf '%s\\n' 'sendkey ret'
+                  sleep 1
+                ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
                 qemu_rc=$?
                 set -e
                 case_passed=true
