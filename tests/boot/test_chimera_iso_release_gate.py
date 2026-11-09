@@ -22,7 +22,7 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("--output /tmp/chimera-userspace-traces", self.text)
         for target in ("live", "installer", "recovery"):
             self.assertIn(f'"{target}":', self.production_test)
-            self.assertIn(f"target={target}", self.verifier)
+        self.assertIn("target=(live|installer|recovery)", self.verifier)
         self.assertIn("verify-userspace-handoff.py", self.production_test)
         self.assertIn("USER INIT SYSCALL", self.verifier)
         self.assertIn("USERSPACE READY", self.verifier)
