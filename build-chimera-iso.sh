@@ -1057,6 +1057,66 @@ prepare_apache_ecosystem(){
   chmod +x "$dst/apache-sync.py" "$dst/install-apache-ecosystem.sh" "$dst/verify-apache-package.sh" 2>/dev/null || true
 }
 prepare_apache(){ prepare_apache_ecosystem; }
+stage_retro_and_dev_tools(){
+  local retro_root="$ROOTFS_DIR/usr/share/chimera/retro"
+  local emulator_root="$ROOTFS_DIR/usr/lib/chimera/retro/emulators"
+  mkdir -p "$retro_root/commodore" "$retro_root/media" "$emulator_root" \
+    "$ROOTFS_DIR/usr/lib/chimera/tools/binary" "$ROOTFS_DIR/usr/share/man/man1" "$ROOTFS_DIR/usr/bin"
+  # Build media/providers only when explicitly requested. Existing verified
+  # artifacts are always reused and staged into the next ISO build.
+  if [[ "${CHIMERA_BUILD_RETRO_MEDIA:-0}" == 1 ]]; then
+    bash "$SCRIPT_DIR/retro/commodore/create-retro-media.sh" --out "$SCRIPT_DIR/build/retro-media"
+  fi
+  if [[ "${CHIMERA_BUILD_RETRO_EMULATORS:-0}" == 1 ]]; then
+    bash "$SCRIPT_DIR/retro/commodore/build-emulator-providers.sh" --out "$SCRIPT_DIR/build/retro-emulators" --jobs "${CHIMERA_RETRO_BUILD_JOBS:-2}"
+  fi
+  for f in README.md machines.json profiles; do
+    [[ -e "$SCRIPT_DIR/retro/commodore/$f" ]] && cp -a "$SCRIPT_DIR/retro/commodore/$f" "$retro_root/commodore/"
+  done
+  if [[ -d "$SCRIPT_DIR/build/retro-media" ]]; then
+    [[ -s "$SCRIPT_DIR/build/retro-media/SHA256SUMS" ]] || { log_error "Retro media exists without SHA256SUMS"; return 1; }
+    (cd "$SCRIPT_DIR/build/retro-media" && sha256sum -c SHA256SUMS) || { log_error "Retro media checksum validation failed"; return 1; }
+    cp -a "$SCRIPT_DIR/build/retro-media/." "$retro_root/media/"
+    mkdir -p "$ISO_DIR/system/retro/media"
+    cp -a "$SCRIPT_DIR/build/retro-media/." "$ISO_DIR/system/retro/media/"
+    log_info "Verified ADF/D64 starter media staged into rootfs and ISO system payload."
+  fi
+  if [[ -d "$SCRIPT_DIR/build/retro-emulators" ]]; then
+    [[ -s "$SCRIPT_DIR/build/retro-emulators/SHA256SUMS" ]] || { log_error "Retro emulator binaries exist without SHA256SUMS"; return 1; }
+    (cd "$SCRIPT_DIR/build/retro-emulators" && sha256sum -c SHA256SUMS) || { log_error "Retro emulator checksum validation failed"; return 1; }
+    for name in puae_libretro.so x64sc x64 c1541; do
+      [[ -s "$SCRIPT_DIR/build/retro-emulators/$name" ]] || { log_error "Missing retro emulator provider: $name"; return 1; }
+      install -m 0755 "$SCRIPT_DIR/build/retro-emulators/$name" "$emulator_root/$name"
+    done
+    cp -a "$SCRIPT_DIR/build/retro-emulators/licenses" "$retro_root/commodore/" 2>/dev/null || true
+    mkdir -p "$ISO_DIR/system/retro/emulators"
+    cp -a "$SCRIPT_DIR/build/retro-emulators/." "$ISO_DIR/system/retro/emulators/"
+    log_info "Verified PUAE/VICE providers staged into /usr/lib/chimera/retro/emulators."
+  fi
+  if [[ -f "$SCRIPT_DIR/retro/commodore/launch-machine.sh" ]]; then
+    install -m 0755 "$SCRIPT_DIR/retro/commodore/launch-machine.sh" "$ROOTFS_DIR/usr/bin/chimera-retro-launch"
+  fi
+  # Install the new runtime tools in stable paths so the recursive scanner can
+  # resolve its adjacent header inspector after the ISO is installed.
+  [[ -f "$SCRIPT_DIR/tools/inspect-binary-headers.py" ]] && install -m 0644 "$SCRIPT_DIR/tools/inspect-binary-headers.py" "$ROOTFS_DIR/usr/lib/chimera/tools/inspect-binary-headers.py"
+  for f in tools/binary/scan-binaries.py tools/binary/run-compat.py; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0755 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/lib/chimera/tools/binary/$(basename "$f")"
+  done
+  [[ -f "$SCRIPT_DIR/tools/runtime/chimera-terminal-backend.py" ]] && install -m 0755 "$SCRIPT_DIR/tools/runtime/chimera-terminal-backend.py" "$ROOTFS_DIR/usr/bin/chimera-terminal-backend"
+  [[ -f "$SCRIPT_DIR/tools/graphics/install-opengl-opencv.sh" ]] && install -m 0755 "$SCRIPT_DIR/tools/graphics/install-opengl-opencv.sh" "$ROOTFS_DIR/usr/bin/chimera-install-graphics"
+  [[ -f "$SCRIPT_DIR/tools/ide/install-development-suite.sh" ]] && install -m 0755 "$SCRIPT_DIR/tools/ide/install-development-suite.sh" "$ROOTFS_DIR/usr/bin/chimera-install-development-suite"
+  [[ -f "$SCRIPT_DIR/tools/ide/install-vscode.py" ]] && install -m 0755 "$SCRIPT_DIR/tools/ide/install-vscode.py" "$ROOTFS_DIR/usr/bin/chimera-install-vscode"
+  [[ -f "$SCRIPT_DIR/tools/ide/install-vscodium.py" ]] && install -m 0755 "$SCRIPT_DIR/tools/ide/install-vscodium.py" "$ROOTFS_DIR/usr/bin/install-vscodium.py"
+  for f in man/chm-binary-scan.1 man/chm-run-compat.1 man/chm-install-dev-suite.1 man/chm-install-graphics.1 man/chm-install-vscode.1 man/chm-terminal-bridge.1 man/chm-retro-launch.1 man/chm-retro-media-build.1 man/chm-retro-emulator-build.1; do
+    [[ -f "$SCRIPT_DIR/$f" ]] && install -m 0644 "$SCRIPT_DIR/$f" "$ROOTFS_DIR/usr/share/man/man1/$(basename "$f")"
+  done
+  if [[ -f "$SCRIPT_DIR/retro/commodore/README.md" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/docs"
+    install -m 0644 "$SCRIPT_DIR/retro/commodore/README.md" "$ROOTFS_DIR/usr/share/chimera/docs/RETRO_AMIGA_COMMODORE.md"
+  fi
+  log_info "Staged binary inspection, local terminal bridge, IDE/graphics installers and retro machine profiles."
+}
+
 stage_features(){
   # Install the bounded discovery worker and its data/configuration into the
   # rootfs so Aurora can run it from a user-level systemd timer at runtime.
@@ -1127,6 +1187,7 @@ stage_features(){
     chmod +x "$ROOTFS_DIR/usr/share/chimera/installer/aurora-installer.sh"
   fi
   [[ -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" ]] && cp -f "$SCRIPT_DIR/system/aurora/chimera-installer.desktop" "$ROOTFS_DIR/usr/share/applications/"
+  stage_retro_and_dev_tools
 }
 
 
