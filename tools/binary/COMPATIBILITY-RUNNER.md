@@ -13,3 +13,11 @@ Linux rather than pretending CPU emulation supplies macOS system libraries.
 Only run trusted binaries. This tool does not bulk-download third-party executables, bypass
 signatures, or hide whether a compatibility runtime is being used. It does not provide an
 OS sandbox; use a disposable VM/container for untrusted programs.
+
+## Installing compatibility runtimes
+
+On Debian/Ubuntu-derived systems, run:
+sudo bash tools/binary/install-compat-runtimes.sh
+
+It installs QEMU user-mode, Wine and DOSBox from distribution repositories. Wasmtime and
+Darling remain optional and are not silently downloaded.
