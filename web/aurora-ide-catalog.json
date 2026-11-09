@@ -19,7 +19,15 @@
       "name": "VSCodium",
       "description": "Community-built binaries of VS Code without Microsoft branding/telemetry defaults.",
       "license": "MIT source project; bundled components retain their licenses",
-      "download": "https://vscodium.com/"
+      "download": "https://vscodium.com/",
+      "source": "https://github.com/VSCodium/vscodium",
+      "installer": "tools/ide/install-vscodium.py",
+      "install_commands": {
+        "Chimera II / OctavianOS (Linux)": "python3 tools/ide/install-vscodium.py --install",
+        "Windows": "winget install --id VSCodium.VSCodium --exact --source winget",
+        "macOS": "brew install --cask vscodium"
+      },
+      "note": "Official package-manager installation only; not bundled or redistributed. The installer helper defaults to a dry run. Build/Run/Debug in this browser IDE still needs a separately configured native toolchain service."
     },
     {
       "id": "qt-creator",
