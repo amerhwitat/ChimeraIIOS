@@ -54,7 +54,7 @@ The existing source catalogue identifies these primary upstream families:
 | e2fsprogs/dosfstools/exfatprogs | filesystem tools | https://e2fsprogs.sourceforge.net/ ; https://github.com/dosfstools/dosfstools ; https://github.com/exfatprogs/exfatprogs |
 | DOSBox-X | DOS application compatibility runtime | https://github.com/joncampbell123/dosbox-x |
 
-The provider install script currently declares 98 Ubuntu package names. This is a provider package set, not proof that all 301 Linux/Bash commands or the other platform namespaces are available. Some package names are unavailable on a given Ubuntu release; the new report records each package as installed, unavailable, or failed.
+The provider install script currently declares 103 Ubuntu package names. This is a provider package set, not proof that all 301 Linux/Bash commands or the other platform namespaces are available. Some package names are unavailable on a given Ubuntu release; the new report records each package as installed, unavailable, or failed.
 
 ## ISA inventory
 
