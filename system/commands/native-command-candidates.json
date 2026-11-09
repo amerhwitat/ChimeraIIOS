@@ -60040,6 +60040,26 @@
       "status": "candidate-only"
     },
     {
+      "arabic_label": "أمر نظام — Ports.jpg",
+      "dispatch": "defer-to-runtime-learning",
+      "execution_allowed": false,
+      "learning": {
+        "policy": "RNN may rank documented providers and request tests; it must not execute unknown commands or invent implementation claims.",
+        "queue": "runtime-rnn-command-candidates",
+        "state": "unresolved"
+      },
+      "name": "Ports.jpg",
+      "normalized_name": "ports.jpg",
+      "platforms": [
+        "arabic-command-catalog",
+        "tools"
+      ],
+      "source_urls": [
+        "https://ss64.com/tools/ports.jpg"
+      ],
+      "status": "candidate-only"
+    },
+    {
       "arabic_label": "أمر نظام — português",
       "dispatch": "defer-to-runtime-learning",
       "execution_allowed": false,
@@ -84543,9 +84563,9 @@
     "whoami"
   ],
   "counts": {
-    "candidate_only": 4066,
+    "candidate_only": 4067,
     "native_implemented": 15,
-    "total": 4081
+    "total": 4082
   },
   "generated_by": "tools/commands/import_command_candidates.py",
   "native_allowlist": [
