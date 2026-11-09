@@ -1,0 +1,13 @@
+.TH CHIMERA-BINARY-HEADERS 1
+.SH NAME
+chm-binary-headers \- identify executable formats and architecture headers
+.SH SYNOPSIS
+.B python3 tools/inspect-binary-headers.py
+.RI [ --json ]
+.I FILE ...
+.SH DESCRIPTION
+Reads file headers without executing the input. Identifies ELF, PE/COFF, DOS MZ, Mach-O, universal Mach-O, WebAssembly, and Java class files. Reports the operating-system family, CPU architecture, bitness, and byte order when present.
+.PP
+This is a header recognizer, not a compatibility loader, malware scanner, signature verifier, or proof that a binary can run on the current kernel.
+.SH EXIT STATUS
+0 when all files were read; 1 when any file could not be read.
