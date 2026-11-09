@@ -16,8 +16,9 @@
         "fs-uae",
         "retroarch-puae"
       ],
-      "firmware_required": true,
-      "profile": "retro/commodore/profiles/amiga-a500.fs-uae"
+      "firmware_required": false,
+      "profile": "retro/commodore/profiles/amiga-a500.fs-uae",
+      "firmware_policy": "PUAE built-in AROS replacement available; genuine Kickstart ROM optional and user-provided only"
     },
     {
       "id": "amiga-a2000",
@@ -29,8 +30,9 @@
         "fs-uae",
         "retroarch-puae"
       ],
-      "firmware_required": true,
-      "profile": "retro/commodore/profiles/amiga-a2000.fs-uae"
+      "firmware_required": false,
+      "profile": "retro/commodore/profiles/amiga-a2000.fs-uae",
+      "firmware_policy": "PUAE built-in AROS replacement available; genuine Kickstart ROM optional and user-provided only"
     },
     {
       "id": "commodore-c64",
