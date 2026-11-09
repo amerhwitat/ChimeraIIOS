@@ -47,7 +47,7 @@ jobs:
       - name: Install emulator build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git make autoconf automake libtool gettext autopoint pkg-config nasm libsdl2-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev libxss-dev libjpeg-dev libpng-dev zlib1g-dev libpcap-dev libreadline-dev dos2unix xa65
+          sudo apt-get install -y build-essential git make autoconf automake libtool gettext autopoint pkg-config nasm libsdl2-dev libsdl2-image-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev libxss-dev libjpeg-dev libpng-dev zlib1g-dev libpcap-dev libreadline-dev dos2unix xa65
       - name: Build pinned open-source PUAE and VICE providers
         run: |
           chmod +x retro/commodore/build-emulator-providers.sh
