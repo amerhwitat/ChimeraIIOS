@@ -1,0 +1,4 @@
+# FS-UAE profile template
+amiga_model = A500
+chip_memory = 512
+fast_memory = 0
