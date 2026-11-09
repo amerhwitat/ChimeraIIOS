@@ -68,6 +68,11 @@ def inspect(data):
             return result("Mach-O","macOS/Darwin",MACH_CPUS.get(cpu,f"CPU_{cpu:#x}"),
                           bits,endian,cpu_type=f"{cpu:#x}",cpu_subtype=f"{subtype:#x}",
                           file_type=filetype,load_commands=ncmds)
+        if magic==bytes.fromhex("cafebabe") and len(data)>=8:
+            minor,major=struct.unpack(">HH",data[4:8])
+            if 45<=major<=1000:
+                return result("Java Class","JVM","bytecode",None,"big",
+                              major_version=major,minor_version=minor)
         fat={b"\xca\xfe\xba\xbe":">",b"\xbe\xba\xfe\xca":"<"}
         if magic in fat:
             order=fat[magic];count=struct.unpack(order+"I",data[4:8])[0]
@@ -80,11 +85,6 @@ def inspect(data):
             return result("Mach-O Universal","macOS/Darwin","multiple",None,
                           "big" if order==">" else "little",architecture_count=count,
                           architectures=archs)
-        if magic==bytes.fromhex("cafebabe") and len(data)>=8:
-            minor,major=struct.unpack(">HH",data[4:8])
-            if 45<=major<=1000:
-                return result("Java Class","JVM","bytecode",None,"big",
-                              major_version=major,minor_version=minor)
     if data.startswith(b"\0asm") and len(data)>=8:
         version=struct.unpack("<I",data[4:8])[0]
         return result("WebAssembly","WASI/Web","wasm",32,"little",version=version)
