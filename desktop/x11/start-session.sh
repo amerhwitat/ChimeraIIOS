@@ -3,9 +3,9 @@ set -euo pipefail
 
 desktop="${1:-aurora}"
 case "$desktop" in
-  aurora|marine) ;;
+  aurora|marine|freexp) ;;
   *)
-    echo "Usage: $0 {aurora|marine}" >&2
+    echo "Usage: $0 {aurora|marine|freexp}" >&2
     exit 64
     ;;
 esac
