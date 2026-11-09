@@ -45,26 +45,31 @@ PACKAGES=(
 INSTALLED=()
 UNAVAILABLE=()
 FAILED=()
+APT_AVAILABLE=1
+APT_UPDATE_SUCCEEDED=1
 write_report() {
   mkdir -p "$(dirname "$REPORT")"
-  python3 - "$REPORT" "$STRICT" "${INSTALLED[*]}" "${UNAVAILABLE[*]}" "${FAILED[*]}" <<'PY'
+  python3 - "$REPORT" "$STRICT" "$APT_AVAILABLE" "$APT_UPDATE_SUCCEEDED" "${INSTALLED[*]}" "${UNAVAILABLE[*]}" "${FAILED[*]}" <<'PY'
 import json, pathlib, sys, time
-path, strict, installed, unavailable, failed = sys.argv[1:]
+path, strict, apt_available, apt_update_succeeded, installed, unavailable, failed = sys.argv[1:]
 doc = {
     "schema": "CHM-COMMAND-PROVIDER-REPORT-1",
     "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     "strict": strict == "1",
+    "apt_available": apt_available == "1",
+    "apt_update_succeeded": apt_update_succeeded == "1",
     "installed": installed.split() if installed else [],
     "unavailable": unavailable.split() if unavailable else [],
     "failed": failed.split() if failed else [],
 }
-doc["complete"] = not doc["unavailable"] and not doc["failed"]
+doc["complete"] = doc["apt_available"] and doc["apt_update_succeeded"] and not doc["unavailable"] and not doc["failed"]
 pathlib.Path(path).write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
 print(f"[Chimera][COMMANDS] provider report: {path} complete={doc['complete']} installed={len(doc['installed'])} unavailable={len(doc['unavailable'])} failed={len(doc['failed'])}")
 PY
 }
 
 if ! command -v apt-get >/dev/null 2>&1; then
+  APT_AVAILABLE=0
   echo "[Chimera][COMMANDS][ERROR] apt-get unavailable; no package providers were installed."
   write_report
   [[ "$STRICT" == 1 ]] && exit 1
@@ -73,6 +78,7 @@ fi
 
 echo "[Chimera][COMMANDS] Updating apt metadata..."
 if ! apt-get update -o Acquire::Retries=5; then
+  APT_UPDATE_SUCCEEDED=0
   echo "[Chimera][COMMANDS][ERROR] apt metadata update failed."
   write_report
   [[ "$STRICT" == 1 ]] && exit 1
