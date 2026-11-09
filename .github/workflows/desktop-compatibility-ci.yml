@@ -192,12 +192,12 @@ jobs:
           root = Path("/tmp/compat-import-fixture")
           (root / "bin").mkdir(parents=True, exist_ok=True)
           (root / "share").mkdir(parents=True, exist_ok=True)
-          (root / "bin" / "fixture-tool").write_text("fixture\\n")
-          (root / "share" / "fixture.1").write_text("fixture man page\\n")
+          (root / "bin" / "fixture-tool").write_text("fixture\n")
+          (root / "share" / "fixture.1").write_text("fixture man page\n")
           entries = []
           for path in sorted(p for p in root.rglob("*") if p.is_file()):
               entries.append(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.relative_to(root).as_posix()}")
-          (root / "SHA256SUMS").write_text("\\n".join(entries) + "\\n")
+          (root / "SHA256SUMS").write_text("\n".join(entries) + "\n")
           with zipfile.ZipFile("/tmp/compat-import-fixture.zip", "w", zipfile.ZIP_DEFLATED) as archive:
               for path in root.rglob("*"):
                   if path.is_file():
