@@ -44,6 +44,22 @@ def menu_index(config: str, wanted_id: str) -> int:
     raise RuntimeError(f"production GRUB menu has no entry id {wanted_id!r}")
 
 
+def menu_block(config: str, wanted_id: str) -> str:
+    lines = config.splitlines()
+    start = next((i for i, line in enumerate(lines)
+                  if "menuentry" in line and re.search(r"--id\s+" + re.escape(wanted_id) + r"(?:\s|\{)", line)), None)
+    if start is None:
+        raise RuntimeError(f"production GRUB config has no entry id {wanted_id!r}")
+    depth = 0
+    block = []
+    for line in lines[start:]:
+        depth += line.count("{") - line.count("}")
+        block.append(line)
+        if depth == 0:
+            return "\n".join(block)
+    raise RuntimeError(f"unterminated GRUB menu entry {wanted_id!r}")
+
+
 def monitor_send(path: Path, command: str) -> None:
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
@@ -103,11 +119,6 @@ def boot_target(iso: Path, out: Path, target: str, index: int, nested_enter: int
         print(f"FAIL {target}: production QEMU boot emitted no debugcon trace")
         return 1
     data = trace.read_text(encoding="latin1", errors="replace")
-    required_module = f"chimera-user-init-elf target={target}"
-    if required_module not in data:
-        print(f"FAIL {target}: production GRUB did not pass {required_module!r} to Koronos")
-        print(data[-2500:])
-        return 1
     result = subprocess.run([sys.executable, str(VERIFY), target, str(trace)], text=True)
     return result.returncode
 
@@ -125,13 +136,23 @@ def main() -> int:
     grub = out / "production-grub.cfg"
     extract(iso, "/boot/grub/grub.cfg", grub)
     config = grub.read_text(encoding="utf-8", errors="replace")
-    # Check the actual production media contains all three init ELF modules.
+    # Check the actual production media contains all three init ELF modules
+    # and each selected GRUB/Jasper entry passes its matching Multiboot2 module.
+    # Do not require the kernel to print its internal module command line.
+    recovery_cfg = out / "production-recovery.cfg"
+    extract(iso, "/boot/jasper/recovery.cfg", recovery_cfg)
+    recovery_config = recovery_cfg.read_text(encoding="utf-8", errors="replace")
     for target in TARGETS:
         dest = out / f"target-init-{target}.elf"
         extract(iso, f"/boot/targets/target-init-{target}.elf", dest)
         run("readelf", "-h", str(dest))
-        if menu_index(config, TARGETS[target][0]) < 0:
-            raise RuntimeError(f"missing production GRUB entry for {target}")
+        if target == "recovery":
+            block = menu_block(recovery_config, "recovery-terminal")
+        else:
+            block = menu_block(config, TARGETS[target][0])
+        expected = f"module2 /boot/targets/target-init-{target}.elf chimera-user-init-elf target={target}"
+        if expected not in block:
+            raise RuntimeError(f"production GRUB/Jasper entry for {target} does not pass its target init ELF")
     failed = []
     for target, (entry_id, nested) in TARGETS.items():
         rc = boot_target(iso, out, target, menu_index(config, entry_id), nested)
