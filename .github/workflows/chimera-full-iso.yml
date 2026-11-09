@@ -1,5 +1,7 @@
 name: Build Chimera II Full ISO
 
+# Rebased canonical Koronos userspace acceptance run.
+
 on:
   workflow_dispatch:
   pull_request:
