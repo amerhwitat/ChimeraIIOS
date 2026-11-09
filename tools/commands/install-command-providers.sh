@@ -57,7 +57,7 @@ doc = {
     "failed": failed.split() if failed else [],
 }
 doc["complete"] = not doc["unavailable"] and not doc["failed"]
-pathlib.Path(path).write_text(json.dumps(doc, indent=2) + "\\n", encoding="utf-8")
+pathlib.Path(path).write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
 print(f"[Chimera][COMMANDS] provider report: {path} complete={doc['complete']} installed={len(doc['installed'])} unavailable={len(doc['unavailable'])} failed={len(doc['failed'])}")
 PY
 }
