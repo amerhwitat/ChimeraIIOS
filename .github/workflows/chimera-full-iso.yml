@@ -510,25 +510,29 @@ jobs:
               raise SystemExit(f"immutable ISO GRUB menu has no entry ID {wanted[target]!r}; entries={entries!r}")
           PY_MENU_INDEX
           )"
+                echo "Actual ISO selection: firmware=$firmware target=$target menu_index=$menu_index"
+                monitor_input="$base/actual-$firmware-$target-monitor-input.txt"
+                monitor_output="$base/actual-$firmware-$target-monitor-output.log"
+                rm -f "$trace" "$monitor_input" "$monitor_output"
                 set +e
                 (
                   sleep 20
-                  printf '%s\n' 'sendkey home'
-                  sleep 0.5
+                  printf '%s\n' 'sendkey home 250'
+                  sleep 1
                   for ((key=0; key<menu_index; key++)); do
-                    printf '%s\n' 'sendkey down'
-                    sleep 0.35
-                  done
-                  sleep 0.5
-                  printf '%s\n' 'sendkey ret'
-                  if [[ "$target" == "recovery" ]]; then
-                    # The root Recovery item opens Jasper's nested recovery menu.
-                    # Explicitly accept its first (Koronos rescue) entry.
+                    printf '%s\n' 'sendkey down 250'
                     sleep 1
-                    printf '%s\n' 'sendkey ret'
+                  done
+                  sleep 1
+                  printf '%s\n' 'sendkey ret 250'
+                  if [[ "$target" == "recovery" ]]; then
+                    # The root Recovery item opens Jasper nested recovery menu.
+                    # Wait for Jasper to load before selecting Koronos rescue.
+                    sleep 3
+                    printf '%s\n' 'sendkey ret 250'
                   fi
                   sleep 1
-                ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                ) | tee "$monitor_input" | timeout 45s "${qemu[@]}" >"$monitor_output" 2>&1
                 qemu_rc=$?
                 set -e
                 case_passed=true
