@@ -521,6 +521,12 @@ jobs:
                   done
                   sleep 0.5
                   printf '%s\n' 'sendkey ret'
+                  if [[ "$target" == "recovery" ]]; then
+                    # The root Recovery item opens Jasper's nested recovery menu.
+                    # Explicitly accept its first (Koronos rescue) entry.
+                    sleep 1
+                    printf '%s\n' 'sendkey ret'
+                  fi
                   sleep 1
                 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
                 qemu_rc=$?
