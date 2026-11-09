@@ -3,6 +3,7 @@
 #include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <string>
+#include <vector>
 
 static void usage() {
     std::cout << "Usage: chm-image-inspect IMAGE [--json] [--edges OUTPUT] "
