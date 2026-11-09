@@ -111,39 +111,33 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
     }
     koronos_target_log("[SYSC] accepted user syscall context");
     switch (frame->rax) {
-        case CHM_SYS_GETPID: {
-            /* PID comes from the active kernel-owned process record. Never
-             * fabricate PID 1 when no target process is actually running. */
+        // The freestanding target init ELFs deliberately use the Linux
+        // x86-64 syscall ABI (getpid=39, read=0, write=1, sched_yield=24,
+        // exit=60, exit_group=231). Translate those numbers at this boundary;
+        // CHM_SYS_* IDs are internal semantic IDs, not Linux syscall numbers.
+        case 39: { // Linux x86-64 getpid
             const uint32_t pid = koronos_target_active_pid();
             return pid ? static_cast<uint64_t>(pid) : static_cast<uint64_t>(-38ll);
         }
-        case CHM_SYS_YIELD:
-            // The bootstrap user entry is single-process until the scheduler owns
-            // address-space context switches; yielding is currently a safe no-op.
+        case 24: // Linux x86-64 sched_yield
             return 0;
-        case CHM_SYS_TIME_TICKS:
-            return chimera_timer_now();
-        case CHM_SYS_READ: {
+        case 0: { // Linux x86-64 read
             // No keyboard/TTY input provider is registered yet. Report a real
-            // end-of-file for stdin so target init programs can terminate
-            // cleanly in headless boots instead of spinning until the PIT
-            // watchdog expires. Other descriptors remain unsupported.
+            // end-of-file for stdin so headless target init exits cleanly.
             const uint64_t fd = frame->rdi;
-            const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
-            (void)address;
             if (fd != 0u || length > 4096u) return static_cast<uint64_t>(-22ll);
             return 0;
         }
-        case CHM_SYS_WRITE: {
+        case 1: { // Linux x86-64 write
             const uint64_t fd = frame->rdi;
             const uint64_t address = frame->rsi;
             const uint64_t length = frame->rdx;
             if (fd > 2u || length > 4096u) return static_cast<uint64_t>(-22ll);
             return static_cast<uint64_t>(koronos_console_write_user(address, length));
         }
-        case CHM_SYS_EXIT:
-        case CHM_SYS_EXIT_GROUP:
+        case 60: // Linux x86-64 exit
+        case 231: // Linux x86-64 exit_group
             koronos_user_exit_code = frame->rdi & 0xFFu;
             koronos_target_log("[SYSC] userspace exit syscall received");
             return KORONOS_USER_SYSCALL_EXIT_SENTINEL;
