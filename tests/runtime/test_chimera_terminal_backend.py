@@ -15,18 +15,18 @@ class AuroraBridgeSafeModeTests(unittest.TestCase):
   out,_,_,_=self.run_safe("pwd");self.assertEqual(out,str(self.workspace))
   out,_,_,_=self.run_safe("ls project");self.assertEqual(out,"README.txt")
  def test_path_escape_is_rejected(self):
-  outside=self.workspace.parent/"outside-secret.txt";outside.write_text("secret")
+  outside=self.workspace.parent/(self.workspace.name+"-outside-secret.txt");outside.write_text("secret")
   try:
    _,err,code,_=self.run_safe("cat ../outside-secret.txt");self.assertNotEqual(code,0);self.assertIn("outside",err)
   finally:outside.unlink(missing_ok=True)
  def test_shell_metacharacters_are_not_executed_in_safe_mode(self):
-  marker=self.workspace.parent/"must-not-exist";out,_,_,_=self.run_safe("echo hello; touch "+str(marker))
+  marker=self.workspace.parent/(self.workspace.name+"-must-not-exist");out,_,_,_=self.run_safe("echo hello; touch "+str(marker))
   self.assertEqual(out,"hello; touch "+str(marker));self.assertFalse(marker.exists())
  def test_shell_aliases(self):
   out,_,code,_=self.run_safe("Get-Location",shell="powershell");self.assertEqual(out,str(self.workspace));self.assertEqual(code,0)
   _,_,code,_=self.run_safe("dir",shell="cmd");self.assertEqual(code,0)
  def test_symlink_escape_is_rejected(self):
-  outside=self.workspace.parent/"outside-dir";outside.mkdir();link=self.workspace/"escape"
+  outside=self.workspace.parent/(self.workspace.name+"-outside-dir");outside.mkdir();link=self.workspace/"escape"
   try:
    link.symlink_to(outside,target_is_directory=True)
    with self.assertRaises(PermissionError):BRIDGE.resolve_path("escape/secret.txt",self.workspace,self.workspace)
