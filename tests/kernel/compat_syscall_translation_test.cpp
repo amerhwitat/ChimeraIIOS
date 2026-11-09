@@ -13,6 +13,10 @@ int main() {
     assert(id.canonical == CHM_SYS_GETPID);
 
     assert(chimera_compat_recognize_syscall(
+        CHM_ENTRY_X86_SYSCALL, 64u, 0u, &id) == 0);
+    assert(id.canonical == CHM_SYS_READ);
+
+    assert(chimera_compat_recognize_syscall(
         CHM_ENTRY_X86_SYSCALL, 64u, 1u, &id) == 0);
     assert(id.canonical == CHM_SYS_WRITE);
 

@@ -23,6 +23,8 @@ static uint32_t syscall_ack_seen = 0;
 static bool attempted = false;
 
 extern "C" void koronos_target_log(const char *message);
+extern "C" void koronos_user_timeout_disarm(void);
+extern "C" void koronos_user_timeout_disarm_keep_timer(void);
 
 static bool token(const char *text, const char *needle) {
     if (!text || !needle) return false;
@@ -152,21 +154,33 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
     if (syscall_ack_seen && active_pid &&
         target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
         ready_seen=1;
+        // The target init has emitted its readiness marker. stdin currently
+        // returns EOF because no keyboard/TTY provider is registered, so these
+        // programs print their startup state and exit cleanly rather than
+        // claiming an interactive console. Disarm the bootstrap deadline but
+        // retain PIT IRQ0 for kernel timekeeping and other timer-backed work.
+        koronos_user_timeout_disarm_keep_timer();
+        koronos_target_log("[RUN ] target readiness accepted; bootstrap deadline disarmed, PIT clock retained");
         return 1;
     }
     return 0;
 }
 
 extern "C" int koronos_launch_selected_userspace(void) {
-    if (attempted) return 0;
-    attempted=true;
+    if (attempted) {
+        koronos_target_log("[RUN ] ERROR: target userspace launch was already attempted");
+        return -12;
+    }
     const chimera_boot_module *selected=nullptr;
     uint32_t count=0;
     for (uint32_t i=0;i<chimera_multiboot_module_count();++i) {
         const chimera_boot_module *m=chimera_multiboot_module(i);
         if (m && m->kind==CHIMERA_MODULE_USER_INIT_ELF) { selected=m; ++count; }
     }
-    if (count==0) return 0; // Kernel-only smoke boots intentionally have no user ELF.
+    if (count==0) {
+        koronos_target_log("[RUN ] ERROR: no USER_INIT_ELF Multiboot2 module was supplied for the selected boot target");
+        return -1;
+    }
     if (count!=1 || !selected || !selected->base || selected->size<sizeof(koronos_elf64_ehdr) ||
         selected->size>MAX_INIT_IMAGE || selected->base>=KORONOS_FRAME_PHYS_LIMIT ||
         selected->size>KORONOS_FRAME_PHYS_LIMIT-selected->base) {
@@ -178,6 +192,9 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+    // Latch only after a unique, bounded, target-tagged module has been found.
+    // A missing module must never look like a successful or completed launch.
+    attempted=true;
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
@@ -232,7 +249,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: failed to arm PIT-backed in-kernel user timeout");
         return -10;
     }
-    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry with 10s kernel deadline");
+    koronos_target_log("[RUN ] Dispatching selected user init through CR3 + ring-3 entry; readiness deadline 10s; stdin reports EOF until a TTY provider is registered");
     /* _start is a freestanding C entry, not a CRT process-entry shim.
      * Give it the SysV function-entry stack alignment (RSP % 16 == 8).
      * The full final stack page is already mapped by the ELF loader. */

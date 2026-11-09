@@ -11,10 +11,29 @@ on:
       - "iso/**"
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
+      - "tools/aurora/**"
+      - "tools/boot/**"
+      - "system/commands/**"
+      - "tools/isa/**"
+      - "ISA.csv"
+      - "isa/**"
+      - "data/isa/**"
       - "tools/build-full-iso.*"
+      - "tools/aurora/**"
+      - "tools/boot/**"
+      - "system/commands/**"
+      - "tools/isa/**"
+      - "ISA.csv"
+      - "isa/**"
+      - "data/isa/**"
+      - "tools/build-live-boot-binaries.sh"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "tests/commands/**"
+      - "tools/commands/**"
+      - "tools/build-chimera-command-compat.sh"
       - ".github/workflows/chimera-full-iso.yml"
+      - ".dockerignore"
   push:
     branches: [main]
     paths:
@@ -30,9 +49,13 @@ on:
       - "userland/**"
       - "iso/**"
       - "tools/build-full-iso.*"
+      - "tools/build-live-boot-binaries.sh"
       - "sdk/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "tests/commands/**"
+      - "tools/commands/**"
+      - "tools/build-chimera-command-compat.sh"
       - ".github/workflows/chimera-full-iso.yml"
 
 permissions:
@@ -57,13 +80,43 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
+      - name: Validate rootless live rootfs staging
+        run: |
+          bash -n tools/commands/install-busybox-applets.sh tools/commands/build-chimera-native-tools.sh
+          bash -n tools/build-live-boot-binaries.sh
+          python3 tests/commands/test_rootless_rootfs_staging.py
       - name: Validate boot target routing and embedded artwork contract
-        run: python3 tests/boot/test_iso_target_routing_artwork.py
+        run: |
+          python3 tests/boot/test_iso_target_routing_artwork.py
+          python3 tests/boot/test_target_init_staging.py
 
       - name: Test fail-closed userspace handoff evidence verifier and release gate
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
+
+      - name: Import pinned source-backed RISC-V opcode catalogue
+        env:
+          CHIMERA_FETCH_SOURCES: "1"
+        run: |
+          set -euo pipefail
+          python3 tools/isa/import_riscv_opcodes.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("isa/sources/imports/riscv-opcodes.json")
+          data = json.loads(p.read_text(encoding="utf-8"))
+          expected = "5783cf3bea312a48d28e3e2c8a2fcb55603e4bed"
+          rows = data.get("instructions", [])
+          if data.get("schema") != "CHM-ISA-SOURCED-IMPORT-1":
+              raise SystemExit("RISC-V import schema mismatch")
+          if data.get("record_count") != len(rows) or len(rows) != 1459:
+              raise SystemExit(f"Expected 1,459 source-backed records, got {len(rows)}")
+          if data.get("failed_files") or any(row.get("source_revision") != expected for row in rows):
+              raise SystemExit("RISC-V source provenance or file-fetch validation failed")
+          print(f"Verified {len(rows)} RISC-V encoding records from pinned revision {expected}")
+          PY
+          python3 tools/isa/build_universal_catalog.py --input isa/sources/imports/riscv-opcodes.json
 
       - name: Build ASM/C/C++ and compose ISO
         env:
@@ -91,6 +144,12 @@ jobs:
             test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          mkdir -p "$tmp/targets"
+          for target in live installer recovery; do
+            extract "/boot/targets/target-init-$target.elf" "$tmp/targets/target-init-$target.elf"
+            readelf -h "$tmp/targets/target-init-$target.elf" | grep -Eq 'Class:[[:space:]]+ELF64'
+            readelf -h "$tmp/targets/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
+          done
           extract /boot/live/chimera-live-initramfs.img "$tmp/live-initramfs.img"
           extract /boot/live/live-manifest.json "$tmp/live-manifest.json"
           extract /boot/recovery/chimera-recovery-initramfs.img "$tmp/recovery-initramfs.img"
@@ -103,15 +162,40 @@ jobs:
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
           # Inspect the initramfs actually embedded in the ISO. This is a
           # payload-content check, not a substitute for target-specific QEMU.
-          mkdir -p "$tmp/live-root" "$tmp/recovery-root"
+          mkdir -p "$tmp/live-root" "$tmp/recovery-root" "$tmp/installer-root"
           (cd "$tmp/live-root" && gzip -dc "$tmp/live-initramfs.img" | cpio -id --quiet)
           (cd "$tmp/recovery-root" && gzip -dc "$tmp/recovery-initramfs.img" | cpio -id --quiet)
+          (cd "$tmp/installer-root" && gzip -dc "$tmp/installation.img" | cpio -id --quiet)
           grep -Fq 'USERSPACE READY: target=live' "$tmp/live-root/init"
           grep -Fq 'USERSPACE READY: target=recovery' "$tmp/recovery-root/init"
           grep -Fq 'exec /bin/sh -i' "$tmp/live-root/init"
           grep -Fq 'exec /bin/chimera-recovery-console.sh' "$tmp/recovery-root/init"
+          test -x "$tmp/installer-root/init"
+          test -s "$tmp/installer-root/etc/chimera/catalogs/native-command-candidates.json"
+          test -s "$tmp/installer-root/etc/chimera/catalogs/command-runtime-capabilities.json"
+          test -s "$tmp/installer-root/etc/chimera/catalogs/universal-instruction-catalog.json"
+          test -s "$tmp/installer-root/etc/chimera/catalogs/riscv-opcodes.json"
           extract /desktop/aurora/assets/chimera-infinite-research-horizon.svg "$tmp/chimera-wallpaper.svg"
           extract /desktop/aurora/assets/chimera-artwork-manifest.json "$tmp/chimera-artwork-manifest.json"
+          extract /desktop/app-icons/manifest.json "$tmp/app-icons-source-manifest.json"
+          extract /desktop/app-icons/icons/manifest.json "$tmp/app-icons-theme-manifest.json"
+          extract /desktop/app-icons/icons/chimera-settings.svg "$tmp/app-icon-settings.svg"
+          extract /desktop/aurora/icons/manifest.json "$tmp/aurora-icons-manifest.json"
+          extract /desktop/aurora/icons/chimera-settings.svg "$tmp/aurora-icon-settings.svg"
+          extract /desktop/aurora/media/manifest.json "$tmp/aurora-media-manifest.json"
+          extract /desktop/aurora/media/backgrounds/desktop.png "$tmp/aurora-desktop.png"
+          extract /desktop/aurora/assets/sounds/menu-select.wav "$tmp/aurora-menu-select.wav"
+          extract /boot/visual/aurora/manifest.json "$tmp/aurora-boot-media-manifest.json"
+          extract /boot/grub/aurora-boot.png "$tmp/aurora-boot.png"
+          extract /boot/grub/aurora-menu.png "$tmp/aurora-menu.png"
+          extract /boot/grub/aurora-splash.png "$tmp/aurora-splash.png"
+          extract /system/commands/chimera-command-list.json "$tmp/chimera-command-list.json"
+          extract /system/commands/command-runtime-capabilities.json "$tmp/command-runtime-capabilities.json"
+          extract /system/commands/compatibility-binary-policy.json "$tmp/compatibility-binary-policy.json"
+          extract /system/aurora/shells/registry.json "$tmp/shell-registry.json"
+          extract /system/aurora/terminals/registry.json "$tmp/terminal-registry.json"
+          extract /system/isa/isa_database.json "$tmp/isa-database.json"
+          extract /system/isa/ISA.csv "$tmp/ISA.csv"
           python3 - "$tmp" <<'PY'
           import json, pathlib, sys
           root = pathlib.Path(sys.argv[1])
@@ -122,6 +206,130 @@ jobs:
           if "<svg" not in (root / "chimera-wallpaper.svg").read_text():
               raise SystemExit("embedded Chimera wallpaper is not SVG source")
           artwork = json.loads((root / "chimera-artwork-manifest.json").read_text())
+          commands = json.loads((root / "chimera-command-list.json").read_text())
+          runtime = json.loads((root / "command-runtime-capabilities.json").read_text())
+          policy = json.loads((root / "compatibility-binary-policy.json").read_text())
+          shells = json.loads((root / "shell-registry.json").read_text())
+          terminals = json.loads((root / "terminal-registry.json").read_text())
+          isa = json.loads((root / "isa-database.json").read_text())
+          catalogue_roots = [root / "live-root/etc/chimera/catalogs", root / "recovery-root/etc/chimera/catalogs", root / "installer-root/etc/chimera/catalogs"]
+          source_root = pathlib.Path.cwd()
+          source_catalogues = (
+              list((source_root / "system/commands").glob("*.json"))
+              + list((source_root / "isa").rglob("*.json"))
+              + list((source_root / "data/isa").glob("*.json"))
+              + [source_root / "ISA.csv", source_root / "config/linux-command-registry.json",
+                 source_root / "tools/commands/os-command-runtime.json",
+                 source_root / "tools/commands/dos-legacy-payload-manifest.json"]
+          )
+          source_catalogues = [p for p in source_catalogues if p.name != "command-isa-coverage.json"]
+          source_names = [p.name for p in source_catalogues]
+          if len(source_names) != len(set(source_names)):
+              raise SystemExit("command/ISA catalogue basenames collide; refusing lossy initramfs staging")
+          import hashlib
+          for catalog_root in catalogue_roots:
+              for source in source_catalogues:
+                  staged = catalog_root / source.name
+                  if not staged.is_file():
+                      raise SystemExit(f"{catalog_root.parent.name} is missing catalogue {source.name}")
+                  if hashlib.sha256(source.read_bytes()).digest() != hashlib.sha256(staged.read_bytes()).digest():
+                      raise SystemExit(f"staged catalogue differs from source: {source.name}")
+              for required in ("terminals-registry.json", "terminals-binary-manifest.json",
+                               "shells-registry.json", "shells-binary-manifest.json"):
+                  if not (catalog_root / required).is_file():
+                      raise SystemExit(f"{catalog_root.parent.name} is missing terminal/shell registry: {required}")
+          catalogue_hashes = []
+          for catalog_root in catalogue_roots:
+              commands_full = json.loads((catalog_root / "native-command-candidates.json").read_text())
+              universal = json.loads((catalog_root / "universal-instruction-catalog.json").read_text())
+              riscv = json.loads((catalog_root / "riscv-opcodes.json").read_text())
+              coverage = json.loads((catalog_root / "command-isa-coverage.json").read_text())
+              if commands_full["counts"]["total"] != len(commands_full["commands"]) or commands_full["counts"]["total"] != 4081:
+                  raise SystemExit("full command candidate catalogue must contain exactly 4,081 source records")
+              if commands_full["counts"]["native_implemented"] != 37 or commands_full["counts"]["candidate_only"] != 4044:
+                  raise SystemExit("command candidate registry must distinguish 37 implementations from 4,044 non-executable candidates")
+              if any(item.get("execution_allowed") for item in commands_full["commands"] if item.get("status") == "candidate-only"):
+                  raise SystemExit("candidate-only command records must remain execution-disabled")
+              if universal["record_count"] != len(universal["instructions"]) or universal["record_count"] != 1613:
+                  raise SystemExit("universal ISA catalogue must contain 1,613 instruction records")
+              if len(universal["unique_architectures"]) != 15:
+                  raise SystemExit("universal ISA catalogue must cover all 15 imported architecture labels")
+              if riscv["record_count"] != len(riscv["instructions"]) or riscv["record_count"] != 1459 or len(riscv["failed_files"]) != 0:
+                  raise SystemExit(
+                      f"RISC-V opcode source import is incomplete in {catalog_root}: "
+                      f"record_count={riscv.get('record_count')}, "
+                      f"actual_records={len(riscv.get('instructions', []))}, "
+                      f"failed_files={len(riscv.get('failed_files', []))}, "
+                      f"source_tree_sha={riscv.get('source_tree_sha')}"
+                  )
+              source_import = root.parent.parent / "isa" / "sources" / "imports" / "riscv-opcodes.json"
+              if source_import.exists():
+                  import hashlib
+                  expected_hash = hashlib.sha256(source_import.read_bytes()).hexdigest()
+                  actual_hash = hashlib.sha256((catalog_root / "riscv-opcodes.json").read_bytes()).hexdigest()
+                  if actual_hash != expected_hash:
+                      raise SystemExit(
+                          f"RISC-V catalogue in {catalog_root} differs from pinned source import: "
+                          f"expected_sha256={expected_hash}, actual_sha256={actual_hash}"
+                      )
+              if (coverage["source_catalogue_unique_command_count"] != 855
+                      or coverage["source_catalogue_candidate_only_count"] != 818
+                      or coverage["linux_abi_multicall_alias_count"] != 37):
+                  raise SystemExit("platform command coverage report is stale or incomplete")
+              catalogue_hashes.append([
+                  __import__("hashlib").sha256((catalog_root / name).read_bytes()).hexdigest()
+                  for name in ("native-command-candidates.json", "universal-instruction-catalog.json", "riscv-opcodes.json")
+              ])
+          if not (catalogue_hashes[0] == catalogue_hashes[1] == catalogue_hashes[2]):
+              raise SystemExit("Live, Recovery and Installer initramfs command/ISA catalogues differ")
+          # Production release requires the native Koronos command ABI to
+          # execute every registered Chimera-native command, not merely carry
+          # Linux-hosted binaries or command metadata.
+          live_coverage = json.loads((catalogue_roots[0] / "command-isa-coverage.json").read_text(encoding="utf-8"))
+          native_commands = live_coverage.get("native_chimera_command_count", 0)
+          native_verified = live_coverage.get("native_chimera_koronos_runtime_verified_count", 0)
+          command_evidence = {
+              "schema": "chimera-native-command-provider-coverage/v1",
+              "passed": native_commands == 90 and native_verified == native_commands,
+              "native_chimera_command_count": native_commands,
+              "native_chimera_koronos_runtime_verified_count": native_verified,
+              "linux_abi_multicall_alias_count": live_coverage.get("linux_abi_multicall_alias_count", 0),
+              "source_catalogue_unique_command_count": live_coverage.get("source_catalogue_unique_command_count", 0),
+              "note": "Linux ABI binaries, BusyBox applets and host scripts are not Koronos-native execution evidence."
+          }
+          acceptance_dir = pathlib.Path("build/iso/acceptance")
+          acceptance_dir.mkdir(parents=True, exist_ok=True)
+          (acceptance_dir / "command-provider-coverage.json").write_text(
+              json.dumps(command_evidence, indent=2) + "\n", encoding="utf-8")
+          fields = ("linux_bash", "macos_core", "windows_cmd_core", "powershell_core",
+                    "vbscript_core", "sql_server_core", "native_chimera")
+          command_count = len({str(item.get("name") if isinstance(item, dict) else item).strip().casefold()
+                               for field in fields for item in commands.get(field, [])})
+          if command_count != 855:
+              raise SystemExit(f"expected all 855 command catalogue entries, found {command_count}")
+          if runtime.get("native_alias_count") != 37 or runtime.get("native_script_provider_count") != 90:
+              raise SystemExit("native command/provider manifest counts are stale")
+          if runtime.get("koronos_abi_compatible") is not False:
+              raise SystemExit("hosted Linux command binaries must not be claimed Koronos-ABI compatible")
+          if len(policy.get("native_build", {}).get("multicall_aliases", [])) != 37:
+              raise SystemExit("native multicall implementation policy does not match 37 source implementations")
+          if len(shells.get("entries", [])) != 8 or len(terminals.get("entries", [])) != 20:
+              raise SystemExit("the complete open-source shell/terminal registry is not embedded")
+          if len(isa.get("architectures", [])) != 104 or len(isa.get("instructions", [])) != 154:
+              raise SystemExit("the full ISA architecture/instruction catalogue is not embedded")
+          if not (root / "ISA.csv").stat().st_size:
+              raise SystemExit("ISA.csv is missing or empty")
+          source_icons = json.loads((root / "app-icons-source-manifest.json").read_text())
+          app_icons = json.loads((root / "app-icons-theme-manifest.json").read_text())
+          aurora_icons = json.loads((root / "aurora-icons-manifest.json").read_text())
+          media = json.loads((root / "aurora-media-manifest.json").read_text())
+          boot_media = json.loads((root / "aurora-boot-media-manifest.json").read_text())
+          if source_icons.get("count") != 133 or app_icons.get("count") != 133:
+              raise SystemExit("the complete 133-icon Aurora app artwork library is not embedded")
+          if aurora_icons.get("count") != 4:
+              raise SystemExit("the native Aurora desktop SVG icon theme is incomplete")
+          if media.get("schema") != "CHIMERA-AURORA-MEDIA-3" or boot_media.get("schema") != "CHIMERA-AURORA-MEDIA-3":
+              raise SystemExit("generated Aurora media manifest is missing or has the wrong schema")
           if not any(item.get("path") == "desktop/aurora/assets/chimera-infinite-research-horizon.svg" for item in artwork.get("artworks", [])):
               raise SystemExit("artwork manifest does not declare the embedded Chimera wallpaper")
           grub = (root / "grub.cfg").read_text()
@@ -191,7 +399,7 @@ jobs:
               done
             fi
             cat > "$tree/boot/grub/grub.cfg" <<GRUB
-          set timeout=0
+          set timeout=300
           set default=0
           terminal_output console
           menuentry "Chimera target $target handoff acceptance" {
@@ -229,7 +437,9 @@ jobs:
               continue
             fi
             set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            # Keep the real 300-second GRUB timeout; CI explicitly selects
+            # the highlighted default entry after the menu is visible.
+            ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor stdio -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             qemu_rc=$?
             set -e
             if [[ ! -s "$trace" ]]; then
@@ -247,6 +457,123 @@ jobs:
               accepted=false
             fi
           done
+          # Boot the SAME immutable composed ISO for all six target/firmware cases.
+          iso_sha="$(sha256sum "$iso" | awk '{print $1}')"
+          ovmf_code=/usr/share/OVMF/OVMF_CODE_4M.fd
+          ovmf_vars_template=/usr/share/OVMF/OVMF_VARS_4M.fd
+          if [[ ! -s "$ovmf_code" || ! -s "$ovmf_vars_template" ]]; then
+            ovmf_code=/usr/share/OVMF/OVMF_CODE.fd
+            ovmf_vars_template=/usr/share/OVMF/OVMF_VARS.fd
+          fi
+          mkdir -p "$base/init-elf-hashes"
+          for target in live installer recovery; do
+            init_elf="$base/init-elf-hashes/target-init-$target.elf"
+            if ! xorriso -osirrox on -indev "$iso" -extract "/boot/targets/target-init-$target.elf" "$init_elf" >/dev/null 2>&1 || [[ ! -s "$init_elf" ]]; then
+              echo "::warning::Could not extract target-init-$target.elf from the immutable ISO."
+              accepted=false
+            fi
+          done
+          : > "$base/actual-firmware-matrix.tsv"
+          if [[ ! -s "$ovmf_code" || ! -s "$ovmf_vars_template" ]]; then
+            echo "::warning::OVMF firmware files unavailable; UEFI actual-ISO cases cannot pass."
+            accepted=false
+          else
+            for firmware in bios uefi; do
+              for target in live installer recovery; do
+                trace="$base/actual-$firmware-$target-debugcon.log"
+                qemu=(qemu-system-x86_64 -machine q35 -accel tcg -cpu qemu64 -m 1536 -smp 2 \
+                  -cdrom "$iso" -boot d -display none -serial none -monitor stdio \
+                  -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9)
+                if [[ "$firmware" == "uefi" ]]; then
+                  vars="$base/OVMF_VARS-$target.fd"
+                  cp "$ovmf_vars_template" "$vars"
+                  qemu+=( -drive "if=pflash,format=raw,readonly=on,file=$ovmf_code" \
+                          -drive "if=pflash,format=raw,file=$vars" )
+                fi
+                case "$target" in
+                  live) keys="live" ;;
+                  installer) keys="installer" ;;
+                  recovery) keys="recovery" ;;
+                esac
+                set +e
+                case "$target" in
+                  live)
+                    ( sleep 20; printf '%s\n' 'sendkey home'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                    ;;
+                  installer)
+                    ( sleep 20; printf '%s\n' 'sendkey home'; sleep 1; printf '%s\n' 'sendkey down'; sleep 1; printf '%s\n' 'sendkey down'; sleep 1; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                    ;;
+                  recovery)
+                    ( sleep 20; printf '%s\n' 'sendkey home'; sleep 1; for _ in {1..5}; do printf '%s\n' 'sendkey down'; sleep 0.2; done; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 40s "${qemu[@]}" >/dev/null 2>&1
+                    ;;
+                esac
+                qemu_rc=$?
+                set -e
+                case_passed=true
+                if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 && "$qemu_rc" -ne 0 ]]; then
+                  case_passed=false
+                elif ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
+                  case_passed=false
+                fi
+                init_elf="$base/init-elf-hashes/target-init-$target.elf"
+                init_elf_sha=""
+                if [[ -s "$init_elf" ]]; then
+                  init_elf_sha="$(sha256sum "$init_elf" | awk '{print $1}')"
+                else
+                  case_passed=false
+                fi
+                printf '%s|%s|%s|%s|%s\n' "$firmware" "$target" "$case_passed" "$iso_sha" "$init_elf_sha" >> "$base/actual-firmware-matrix.tsv"
+                if [[ "$case_passed" != true ]]; then
+                  echo "::warning::Actual ISO $firmware/$target userspace boot failed."
+                  accepted=false
+                else
+                  echo "Actual ISO $firmware/$target userspace boot passed."
+                fi
+              done
+            done
+          fi
+          mkdir -p build/iso/acceptance
+          python3 - "$base/actual-firmware-matrix.tsv" "$iso_sha" build/iso/acceptance/firmware-matrix.json <<'PY_FIRMWARE_MATRIX'
+          import hashlib, json, pathlib, sys
+          tsv, iso_sha, output = pathlib.Path(sys.argv[1]), sys.argv[2], pathlib.Path(sys.argv[3])
+          cases = []
+          if tsv.exists():
+              for line in tsv.read_text().splitlines():
+                  if not line.strip():
+                      continue
+                  firmware, target, passed, case_sha, init_elf_sha = line.split("|")
+                  cases.append({"firmware": firmware, "target": target, "passed": passed == "true",
+                                "iso_sha256": case_sha, "init_elf_sha256": init_elf_sha})
+          expected = {(firmware, target) for firmware in ("bios", "uefi")
+                      for target in ("live", "installer", "recovery")}
+          actual = {(case["firmware"], case["target"]) for case in cases}
+          init_hashes = {
+              target: sorted({case["init_elf_sha256"] for case in cases if case["target"] == target})
+              for target in ("live", "installer", "recovery")
+          }
+          same_target_init_hash = all(len(values) == 1 and bool(values[0]) for values in init_hashes.values())
+          report = {
+              "schema": "chimera-same-iso-firmware-matrix/v2",
+              "passed": len(cases) == 6 and actual == expected and all(case["passed"] for case in cases),
+              "same_iso_sha256": len(cases) == 6 and all(case["iso_sha256"] == iso_sha for case in cases),
+              "same_target_init_elf_sha256_across_firmware": same_target_init_hash,
+              "init_elf_sha256_by_target": {target: values[0] if len(values) == 1 else None
+                                            for target, values in init_hashes.items()},
+              "iso_sha256": iso_sha,
+              "cases": cases,
+          }
+          output.write_text(json.dumps(report, indent=2) + "\n")
+          print(json.dumps(report, indent=2))
+          PY_FIRMWARE_MATRIX
+          if ! python3 - <<'PY_CHECK_FIRMWARE_MATRIX'
+          import json, pathlib, sys
+          report = json.loads(pathlib.Path("build/iso/acceptance/firmware-matrix.json").read_text())
+          sys.exit(0 if (report["passed"] and report["same_iso_sha256"]
+                          and report["same_target_init_elf_sha256_across_firmware"]) else 1)
+          PY_CHECK_FIRMWARE_MATRIX
+          then
+            accepted=false
+          fi
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
             echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
@@ -262,6 +589,99 @@ jobs:
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Evaluate full production release acceptance gates
+        id: production_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/iso/acceptance
+          python3 - <<'PY_PRODUCTION_GATE'
+          import json, pathlib, os
+          root = pathlib.Path("build/iso/acceptance")
+          required = {
+              "firmware_matrix": "firmware-matrix.json",
+              "filesystem_syscall_contract": "filesystem-syscall-contract.json",
+              "installer_persistence": "installer-persistence.json",
+              "recovery_repair": "recovery-repair-postcondition.json",
+              "smp_overlap": "smp-overlap.json",
+              "aurora_marine_health": "aurora-marine-runtime-health.json",
+              "native_x_server": "native-x-server.json",
+              "architecture_boot_matrix": "architecture-boot-matrix.json",
+              "isa_conformance": "isa-conformance.json",
+              "command_provider_coverage": "command-provider-coverage.json",
+              "native_koronos_default_boot": "native-koronos-default-boot.json",
+              "terminal_shell_gui_interaction": "terminal-shell-gui-interaction.json",
+          }
+          missing = [name for name, filename in required.items() if not (root / filename).is_file()]
+          checks = {}
+          for name, filename in required.items():
+              path = root / filename
+              if not path.is_file():
+                  continue
+              data = json.loads(path.read_text(encoding="utf-8"))
+              checks[name] = data.get("passed") is True
+              if name == "firmware_matrix":
+                  expected_cases = {(firmware, target) for firmware in ("bios", "uefi")
+                                    for target in ("live", "installer", "recovery")}
+                  actual_cases = {(case.get("firmware"), case.get("target"))
+                                  for case in data.get("cases", [])}
+                  checks[name] = (checks[name] and data.get("same_iso_sha256") is True
+                                  and data.get("same_target_init_elf_sha256_across_firmware") is True
+                                  and len(data.get("cases", [])) == 6
+                                  and expected_cases == actual_cases
+                                  and all(case.get("passed") is True and bool(case.get("init_elf_sha256"))
+                                          for case in data.get("cases", [])))
+              elif name == "filesystem_syscall_contract":
+                  checks[name] = (checks[name]
+                                  and data.get("etc_os_release_open") is True
+                                  and data.get("etc_os_release_read") is True
+                                  and data.get("etc_os_release_close") is True
+                                  and data.get("tmp_writable") is True)
+              elif name == "installer_persistence":
+                  checks[name] = (checks[name] and data.get("cold_boot_persisted") is True
+                                  and data.get("disk_identity_verified") is True
+                                  and data.get("same_iso_sha256") is True)
+              elif name == "recovery_repair":
+                  checks[name] = (checks[name] and data.get("repair_postcondition") is True
+                                  and data.get("filesystem_consistent") is True)
+              elif name == "smp_overlap":
+                  checks[name] = checks[name] and data.get("cpu_count", 0) >= 2 and data.get("overlap_intervals", 0) > 0
+              elif name == "architecture_boot_matrix":
+                  required_architectures = {"x86_64", "i686", "armel", "aarch64", "armv7", "riscv64", "ppc64le", "s390x"}
+                  actual_architectures = set(data.get("architectures", []))
+                  checks[name] = (checks[name] and data.get("all_supported_targets_passed") is True
+                                  and required_architectures.issubset(actual_architectures))
+              elif name == "aurora_marine_health":
+                  checks[name] = checks[name] and data.get("aurora_live") is True and data.get("marine_live") is True and data.get("gui_interaction_passed") is True
+              elif name == "terminal_shell_gui_interaction":
+                  checks[name] = checks[name] and data.get("providers_tested") == 28 and data.get("mouse_keyboard_input_passed") is True
+              elif name == "native_x_server":
+                  required_profiles = {"aurora", "jasper", "gates", "marine"}
+                  checks[name] = (checks[name] and data.get("native_koronos") is True
+                                  and data.get("x_server_started") is True
+                                  and data.get("gui_interaction_passed") is True
+                                  and required_profiles.issubset(set(data.get("desktop_profiles", []))))
+              elif name == "native_koronos_default_boot":
+                  checks[name] = checks[name] and data.get("koronos_is_default") is True and data.get("linux_fallback_preserved") is True
+              elif name == "isa_conformance":
+                  checks[name] = checks[name] and data.get("instruction_count") == 1613 and data.get("all_semantics_conformant") is True
+              elif name == "command_provider_coverage":
+                  checks[name] = (checks[name] and data.get("source_catalogue_unique_command_count") == 855
+                                  and data.get("source_catalogue_candidate_only_count") == 818
+                                  and data.get("source_catalogue_unverified_provider_count") == 0
+                                  and data.get("native_chimera_command_count") == 90
+                                  and data.get("native_chimera_koronos_runtime_verified_count") == 90)
+          failed_checks = [name for name in required if not checks.get(name, False)]
+          accepted = not missing and not failed_checks
+          report = {"schema": "chimera-production-acceptance/v2", "accepted": accepted,
+                    "missing_evidence": missing, "failed_checks": failed_checks, "checks": checks,
+                    "note": "Ring-3 console handoff is not production acceptance. File-backed OPEN/READ/CLOSE, writable /tmp, native Koronos X server with all four desktop profiles, installer persistence, recovery repair, SMP, command/ISA conformance and supported-architecture boot evidence are mandatory."}
+          (root / "production-acceptance-status.json").write_text(json.dumps(report, indent=2) + "\n")
+          print(json.dumps(report, indent=2))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"accepted={str(accepted).lower()}\n")
+          PY_PRODUCTION_GATE
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
@@ -287,11 +707,23 @@ jobs:
             build/iso/chimera-ii-os.iso.zst
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
+            build/iso/acceptance/firmware-matrix.json
+            build/iso/acceptance/production-acceptance-status.json
+            build/iso/acceptance/command-provider-coverage.json
+
+      - name: Fail closed when production acceptance is incomplete
+        if: steps.userspace_gate.outputs.accepted != 'true' || steps.production_gate.outputs.accepted != 'true'
+        shell: bash
+        run: |
+          echo "::error::Production acceptance is incomplete: userspace handoff or full production evidence gate failed."
+          echo "The ISO artifact is retained for diagnosis; release publication is forbidden."
+          cat build/iso/acceptance/production-acceptance-status.json || true
+          exit 1
 
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.production_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

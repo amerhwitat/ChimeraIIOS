@@ -16,6 +16,7 @@
 #error "CHIMERA_TARGET_NAME must be defined (live|installer|recovery)"
 #endif
 
+#define LINUX_X86_64_SYS_READ 0
 #define LINUX_X86_64_SYS_WRITE 1
 #define LINUX_X86_64_SYS_GETPID 39
 #define LINUX_X86_64_SYS_YIELD 24
@@ -51,9 +52,47 @@ static long init_getpid(void) {
 }
 static void init_yield(void) {
     (void)init_syscall1(LINUX_X86_64_SYS_YIELD);
+    __asm__ volatile("pause" ::: "memory");
+}
+static long init_read(long fd, char *buffer, long length) {
+    return init_syscall3(LINUX_X86_64_SYS_READ, fd, (long)buffer, length);
 }
 static long init_write(long fd, const char *buffer, long length) {
     return init_syscall3(LINUX_X86_64_SYS_WRITE, fd, (long)buffer, length);
+}
+static void init_write_uint(unsigned long value) {
+    char reversed[24];
+    char forward[24];
+    long digits = 0;
+    long used = 0;
+    if (value == 0) reversed[digits++] = '0';
+    else while (value && digits < (long)sizeof(reversed)) {
+        reversed[digits++] = (char)('0' + (value % 10u));
+        value /= 10u;
+    }
+    while (digits) forward[used++] = reversed[--digits];
+    (void)init_write(1, forward, used);
+}
+static int init_text_equal(const char *a, const char *b) {
+    long i = 0;
+    while (a[i] && b[i] && a[i] == b[i]) ++i;
+    return a[i] == 0 && b[i] == 0;
+}
+static int init_text_starts_with(const char *text, const char *prefix) {
+    long i = 0;
+    while (prefix[i]) {
+        if (text[i] != prefix[i]) return 0;
+        ++i;
+    }
+    return 1;
+}
+static long init_read_line(char *buffer, long capacity) {
+    if (!buffer || capacity < 2) return -22;
+    long n = init_read(0, buffer, capacity - 1);
+    if (n <= 0) return n;
+    while (n > 0 && (buffer[n - 1] == '\n' || buffer[n - 1] == '\r')) --n;
+    buffer[n] = 0;
+    return n;
 }
 
 __attribute__((noreturn)) static void init_exit(long code) {
@@ -72,6 +111,53 @@ static long init_strlen(const char *s) {
 
 static void init_writestr(const char *s) {
     (void)init_write(1, s, init_strlen(s));
+}
+
+/* Built-ins that need only the currently accepted ring-3 read/write/yield ABI.
+ * Filesystem, clock, process-launch and device commands stay unavailable until
+ * Koronos implements the corresponding kernel services. */
+static int init_command_common(const char *line, long pid) {
+    if (init_text_equal(line, "version")) {
+        init_writestr("Chimera II OS / Koronos x86_64 (native ring-3)\n");
+        return 1;
+    }
+    if (init_text_equal(line, "arch")) {
+        init_writestr("x86_64\n");
+        return 1;
+    }
+    if (init_text_equal(line, "uname")) {
+        init_writestr("Koronos x86_64 Chimera-II-OS native\n");
+        return 1;
+    }
+    if (init_text_equal(line, "pid")) {
+        init_writestr("pid=");
+        init_write_uint((unsigned long)pid);
+        init_writestr("\n");
+        return 1;
+    }
+    if (init_text_equal(line, "clear")) {
+        for (int i = 0; i < 25; ++i) init_writestr("\n");
+        return 1;
+    }
+    if (init_text_starts_with(line, "echo ")) {
+        (void)init_write(1, line + 5, init_strlen(line + 5));
+        init_writestr("\n");
+        return 1;
+    }
+    if (init_text_equal(line, "true")) {
+        init_writestr("status=0\n");
+        return 1;
+    }
+    if (init_text_equal(line, "false")) {
+        init_writestr("status=1 (nonzero)\n");
+        return 1;
+    }
+    if (init_text_equal(line, "yield")) {
+        init_yield();
+        init_writestr("scheduler yield returned\n");
+        return 1;
+    }
+    return 0;
 }
 
 static void init_emit_readiness(long pid) {

@@ -7,7 +7,7 @@
 # readable build report.
 #
 #   tools/build-sdks.sh [--out reports/sdk-build-report.json] [--timeout 300]
-#                       [--max 40] [--only cmake,rust] [--list]
+#                       [--max 40] [--only cmake,rust] [--strict] [--list]
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,6 +16,7 @@ TIMEOUT=300
 MAX=40
 ONLY=""
 LIST_ONLY=0
+STRICT=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -23,6 +24,7 @@ while [ $# -gt 0 ]; do
     --timeout) TIMEOUT="$2"; shift 2 ;;
     --max) MAX="$2"; shift 2 ;;
     --only) ONLY="$2"; shift 2 ;;
+    --strict) STRICT=1; shift ;;
     --list) LIST_ONLY=1; shift ;;
     -h|--help)
       sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
@@ -211,5 +213,20 @@ json.dump(payload, open(out_path, "w", encoding="utf-8"), indent=1)
 print("report: %s (%s)" % (out_path, summary))
 PY
 
-# Never fail the caller: the report carries the failures.
+if [ "$STRICT" -eq 1 ]; then
+  python3 - "$OUT" <<'PY' || exit $?
+import json, sys
+from pathlib import Path
+report = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+summary = report.get("summary", {})
+projects = report.get("projects", [])
+problems = {key: int(summary.get(key, 0)) for key in ("failed", "timeout", "skipped")
+            if int(summary.get(key, 0)) != 0}
+if not projects:
+    raise SystemExit("strict SDK build found no build definitions; refusing an empty success")
+if problems:
+    raise SystemExit(f"strict SDK build did not pass: {problems}")
+print(f"STRICT SDK PASS: {len(projects)} build/test records; no failures, timeouts or skipped toolchains")
+PY
+fi
 exit 0

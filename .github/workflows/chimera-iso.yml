@@ -28,6 +28,23 @@ on:
       - 'tools/portfolio/**'
       - 'tools/boot/**'
       - 'tools/commands/**'
+      - 'build-chimera-iso.sh'
+      - 'tools/build-sdks.sh'
+      - 'tools/build-chimera-iso.sh'
+      - 'tools/check-build-dependencies.sh'
+      - 'tools/chimera-asm/**'
+      - 'userland/commands/**'
+      - 'package-manager/**'
+      - 'tools/runtime/**'
+      - 'tools/help/**'
+      - 'tools/display/**'
+      - 'tools/drivers/**'
+      - 'tools/terminal/**'
+      - 'system/shell/**'
+      - 'sdk/bin/**'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
       - 'tools/build-boot-artifacts.sh'
       - 'tools/build-live-boot-binaries.sh'
       - 'tools/aurora/**'
@@ -63,6 +80,23 @@ on:
       - 'tools/portfolio/**'
       - 'tools/boot/**'
       - 'tools/commands/**'
+      - 'build-chimera-iso.sh'
+      - 'tools/build-sdks.sh'
+      - 'tools/build-chimera-iso.sh'
+      - 'tools/check-build-dependencies.sh'
+      - 'tools/chimera-asm/**'
+      - 'userland/commands/**'
+      - 'package-manager/**'
+      - 'tools/runtime/**'
+      - 'tools/help/**'
+      - 'tools/display/**'
+      - 'tools/drivers/**'
+      - 'tools/terminal/**'
+      - 'system/shell/**'
+      - 'sdk/bin/**'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
       - 'tools/build-boot-artifacts.sh'
       - 'tools/build-live-boot-binaries.sh'
       - 'tools/aurora/**'
@@ -84,8 +118,12 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: Validate full ISO builder safety and strict SDK gate
+        run: |
+          bash -n build-chimera-iso.sh tools/build-sdks.sh
+          python3 tests/build/test_iso_build_full_contract.py
       - name: Install ISO, EFI and visual-runtime tools
-        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc gcc-multilib binutils nasm python3 python3-pil python3-pytest clang lldb gdb cmake ninja-build qemu-system-x86 git nodejs npm openjdk-17-jdk golang-go rustc cargo perl librsvg2-bin ffmpeg gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good busybox-static cpio
+        run: sudo apt-get update && sudo apt-get install -y grub-pc-bin grub-common grub-efi-amd64-bin xorriso mtools gcc binutils nasm python3 python3-pil python3-pytest clang lldb gdb cmake ninja-build qemu-system-x86 git nodejs npm openjdk-17-jdk golang-go rustc cargo perl librsvg2-bin ffmpeg gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good busybox-static cpio gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu qemu-user-static
       - name: Validate platform registries
         run: |
           python3 -m json.tool repositories/platform-manifest.json >/dev/null

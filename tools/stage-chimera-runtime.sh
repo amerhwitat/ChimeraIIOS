@@ -92,9 +92,18 @@ for f in system/logging/chimera-logd.service system/logging/chimera-logrotate.se
   [ -f "$SRC/$f" ] && cp -f "$SRC/$f" "$DEST/etc/systemd/system/"
 done
 if [ -x "$SRC/tools/provision-aurora-rootfs.sh" ]; then
-  AURORA_PROVISION_LOG="${AURORA_PROVISION_LOG:-$DEST/var/log/aurora-provision.log}" \
-    "$SRC/tools/provision-aurora-rootfs.sh" "$DEST" || \
-    echo "[Aurora][WARN] optional Wayland package provisioning failed; retaining staged Aurora runtime and continuing ISO build." >&2
+  AURORA_PROVISION_LOG="${AURORA_PROVISION_LOG:-$DEST/var/log/aurora-provision.log}"
+  export AURORA_PROVISION_LOG
+  if "$SRC/tools/provision-aurora-rootfs.sh" "$DEST"; then
+    echo "[Aurora] Wayland package provisioning completed."
+  else
+    provision_rc=$?
+    echo "[Aurora][ERROR] required Wayland package provisioning failed (exit $provision_rc); refusing to stage an incomplete Aurora desktop. Diagnostics: $AURORA_PROVISION_LOG" >&2
+    if [ -s "$AURORA_PROVISION_LOG" ]; then
+      tail -n 40 "$AURORA_PROVISION_LOG" >&2 || true
+    fi
+    exit "$provision_rc"
+  fi
 fi
 mkdir -p "$DEST/etc/systemd/system/getty@tty1.service.d"
 cat > "$DEST/etc/systemd/system/getty@tty1.service.d/aurora-autologin.conf" <<'EOF'

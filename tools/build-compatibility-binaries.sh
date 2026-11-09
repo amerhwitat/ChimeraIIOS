@@ -19,7 +19,9 @@ CHIMERA_HELP
 fi
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-FOREIGN="$ROOT/build/foreign"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+FOREIGN="$BUILD_ROOT/foreign"
 SRC="$FOREIGN/source"
 BIN="$FOREIGN/binaries"
 mkdir -p "$BIN/windows" "$BIN/macos"

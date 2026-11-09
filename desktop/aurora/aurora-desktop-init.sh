@@ -41,6 +41,15 @@ if command -v wireplumber >/dev/null 2>&1 && ! pgrep -u "$(id -u)" -x wireplumbe
   wireplumber >/tmp/aurora-wireplumber.log 2>&1 &
 fi
 
+# Play the shipped startup cue after the user audio session has had a moment
+# to initialize. Sound failure is deliberately non-fatal to the desktop.
+if [[ -x "$AURORA/aurora-event-sound.sh" ]]; then
+  (
+    sleep 1
+    "$AURORA/aurora-event-sound.sh" startup
+  ) >/tmp/aurora-startup-sound.log 2>&1 &
+fi
+
 # Optional initialization video. It is launched only after Wayland is ready and
 # never blocks the desktop if video playback is unavailable.
 if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then

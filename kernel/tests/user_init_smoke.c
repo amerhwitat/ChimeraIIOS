@@ -39,7 +39,7 @@ __attribute__((noreturn, used)) void _start(void) {
     }
 
     char ready_message[96];
-    const char prefix[] = "USERSPACE READY: target=" CHIMERA_TARGET_NAME " init_pid=";
+    const char prefix[] = "USERSPACE READY: " CHIMERA_TARGET_NAME " init pid=";
     size_t used = 0;
     for (size_t i = 0; i < sizeof(prefix) - 1u; ++i)
         ready_message[used++] = prefix[i];
@@ -52,7 +52,7 @@ __attribute__((noreturn, used)) void _start(void) {
         pid /= 10u;
     }
     if (digits == 0 || used + digits + 2u > sizeof(ready_message)) {
-        number = 60; /* Linux x86-64 exit */
+        number = 1;
         register long failure_code __asm__("rdi") = 1;
         __asm__ volatile("syscall"
                          : "+a"(number)
@@ -74,7 +74,7 @@ __attribute__((noreturn, used)) void _start(void) {
 
     /* This second write proves the native syscall returned to ring 3. */
     static const char returned_message[] = "USERSPACE SYSCALL RETURNED TO RING3\n";
-    number = 1; /* Linux x86-64 write */
+    number = 1;
     fd = 1;
     buffer = returned_message;
     length = (long)(sizeof(returned_message) - 1u);

@@ -2,6 +2,19 @@ name: ISA and Native Command Runtime CI
 on:
   push:
     paths:
+      - 'tools/commands/**'
+      - 'tools/build-chimera-command-compat.sh'
+      - 'system/commands/**'
+      - 'config/linux-command-registry.json'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
+      - 'kernel/arch/**'
+      - 'kernel/core/**'
+      - 'kernel/targets/**'
+      - 'boot/**'
+      - 'userland/commands/**'
+      - 'tools/chimera-asm/**'
       - 'isa/**'
       - 'build-chimera-iso.sh'
       - 'kernel/core/isa_registry.cpp'
@@ -27,6 +40,35 @@ on:
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
+      - 'tests/commands/test-native-command-matrix.sh'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
+      - 'tools/commands/generate_runtime_manifest.py'
+      - 'tests/commands/test-native-command-matrix.sh'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/command-isa-matrix.yml'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'tools/aurora/export-icon-theme.py'
+      - 'tools/boot/verify-menu-timeouts.py'
+      - 'live-image/build.sh'
+      - 'boot/jasper/**'
+      - 'boot/spitfire/**'
+      - 'boot/installation/**'
+      - 'desktop/aurora/icons/**'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/command-isa-matrix.yml'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'tools/aurora/export-icon-theme.py'
+      - 'tools/boot/verify-menu-timeouts.py'
+      - 'live-image/build.sh'
+      - 'boot/jasper/**'
+      - 'boot/spitfire/**'
+      - 'boot/installation/**'
+      - 'desktop/aurora/icons/**'
       - 'tools/commands/chimera-run'
       - 'tools/commands/install-command-providers.sh'
       - 'tools/commands/os-command-runtime.json'
@@ -67,10 +109,24 @@ on:
       - 'tools/isa/test_isa_candidate_router.py'
       - 'tools/isa/import_riscv_opcodes.py'
       - 'tests/isa/test_import_riscv_opcodes.py'
+      - 'tests/commands/**'
       - 'tools/cognition/**'
       - '.github/workflows/isa-command-runtime-ci.yml'
   pull_request:
     paths:
+      - 'tools/commands/**'
+      - 'tools/build-chimera-command-compat.sh'
+      - 'system/commands/**'
+      - 'config/linux-command-registry.json'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
+      - 'kernel/arch/**'
+      - 'kernel/core/**'
+      - 'kernel/targets/**'
+      - 'boot/**'
+      - 'userland/commands/**'
+      - 'tools/chimera-asm/**'
       - 'isa/**'
       - 'kernel/core/isa_registry.cpp'
       - 'kernel/include/chimera/isa_registry.h'
@@ -87,6 +143,20 @@ on:
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
+      - 'tests/commands/test-native-command-matrix.sh'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/command-isa-matrix.yml'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'tools/aurora/export-icon-theme.py'
+      - 'tools/boot/verify-menu-timeouts.py'
+      - 'live-image/build.sh'
+      - 'boot/jasper/**'
+      - 'boot/spitfire/**'
+      - 'boot/installation/**'
+      - 'desktop/aurora/icons/**'
       - 'tools/commands/chimera-run'
       - 'tools/commands/chimera-cpu-mode.py'
       - 'tools/commands/chimera-cpu-mode'
@@ -119,6 +189,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.head_ref || github.ref_name }}
+      - name: Validate native command and ISA coverage generation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y busybox-static gcc-14-i686-linux-gnu gcc-14-arm-linux-gnueabi gcc-14-aarch64-linux-gnu gcc-14-arm-linux-gnueabihf gcc-14-riscv64-linux-gnu gcc-14-powerpc64le-linux-gnu gcc-14-s390x-linux-gnu binutils qemu-user-static
+          busybox --list >/dev/null
+          python3 tools/commands/build_linux_abi_command_matrix.py \
+            --source src/chimera-command-compat/chimera-cmd.c \
+            --policy system/commands/compatibility-binary-policy.json \
+            --output build/native-command-isa --require-all
+          python3 tools/commands/build-command-isa-coverage.py \
+            --root . --busybox "$(command -v busybox)" \
+            --native-matrix build/native-command-isa/manifest.json \
+            --output build/runtime/command-isa-coverage.json
+          python3 tools/commands/build-command-isa-coverage.py \
+            --root . --busybox "$(command -v busybox)" \
+            --native-matrix build/native-command-isa/manifest.json \
+            --output system/commands/command-isa-coverage.json
+          python3 tools/commands/generate_runtime_manifest.py
+          python3 - <<'PY'
+          import json
+          d=json.load(open("system/commands/command-runtime-capabilities.json",encoding="utf-8"))
+          assert d["native_alias_count"] == 37, d.get("native_alias_count")
+          # 90 Chimera-specific names have explicit provider mappings; these
+          # are declarations, not proof of Koronos ABI compatibility. The
+          # live-image target-rootfs audit verifies every actual staged file.
+          assert d["native_script_provider_count"] == 90, d.get("native_script_provider_count")
+          assert d["mode_counts"]["native"] == d["native_alias_count"] + d["native_script_provider_count"], d["mode_counts"]
+          assert d["koronos_abi_compatible"] is False
+          print("37 POSIX multicall command implementations generated; Koronos ABI remains explicitly separate.")
+          PY
+          bash tests/commands/test-native-command-matrix.sh build/native-command-isa
+          python3 -m json.tool build/runtime/command-isa-coverage.json >/dev/null
+          grep -q 'catalogued-provider-required' build/runtime/command-isa-coverage.json
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
@@ -176,7 +282,7 @@ jobs:
           from pathlib import Path
           d=json.loads(Path("system/commands/command-runtime-capabilities.json").read_text(encoding="utf-8"))
           assert d["command_count"] == len(d["commands"]) and d["command_count"] >= 800
-          # The 15 C-native built-ins remain present; the new native dispatcher adds its own registered entry.
+          # The 37 compiled POSIX multicall commands are tracked from their real source implementations.
           assert d["mode_counts"].get("native", 0) >= 15
           assert all(c.get("provider") and c.get("mode") for c in d["commands"])
           print("Command capability inventory valid:", d["command_count"], d["mode_counts"])
@@ -194,16 +300,30 @@ jobs:
           python3 -m unittest tools.isa.test_isa_candidate_router -v
           python3 tools/isa/isa_candidate_router.py "riscv add" --limit 10
           python3 tools/commands/import_command_candidates.py
+          # The importer refreshes the catalogue inventory. Regenerate the
+          # coverage report after it so command counts and provider rows refer
+          # to the same source revision used by the alignment tests.
+          python3 tools/commands/build-command-isa-coverage.py \
+            --root . --busybox "$(command -v busybox)" \
+            --native-matrix build/native-command-isa/manifest.json \
+            --output system/commands/command-isa-coverage.json
           python3 -m py_compile tools/commands/import_command_candidates.py tools/commands/command_candidate_router.py tools/commands/test_import_command_candidates.py tools/commands/test_command_candidate_router.py
           python3 -m unittest tools.commands.test_import_command_candidates tools.commands.test_command_candidate_router -v
+          python3 tests/commands/test_command_isa_coverage_report.py
+          python3 tests/commands/test_native_catalogue_alignment.py
+          bash -n tools/build-chimera-command-compat.sh
+          python3 tests/commands/test_native_provider_aliases.py
           python3 tools/commands/command_candidate_router.py "list files" --limit 10
           python3 - <<'PY'
           import json
           from pathlib import Path
           p=json.loads(Path("system/commands/native-command-candidates.json").read_text(encoding="utf-8"))
           assert p["counts"]["total"] == len(p["commands"])
-          assert p["counts"]["native_implemented"] == 15
+          assert p["counts"]["native_implemented"] == 37
           assert p["counts"]["candidate_only"] > 1000
+          assert p["counts"]["catalogue_unique"] == 855
+          assert p["counts"]["catalogue_native_implemented"] == 37
+          assert p["counts"]["catalogue_candidate_only"] == 818
           assert all((c["execution_allowed"] is False and c["learning"]["state"] == "unresolved") for c in p["commands"] if c["status"] == "candidate-only")
           print("Imported native/candidate command inventory:", p["counts"])
           PY
@@ -274,14 +394,14 @@ jobs:
           cp /tmp/chimera-command-rootfs/usr/share/chimera/cognition/trained-command-isa-rnn.json build/runtime/trained-command-isa-rnn.json
 
       - name: Persist regenerated source-backed catalogs
-        if: github.event_name != 'pull_request'
+        if: success() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add isa/sources/imports/riscv-opcodes.json isa/generated/universal-instruction-catalog.json system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json
+          git add isa/sources/imports/riscv-opcodes.json isa/generated/universal-instruction-catalog.json system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json system/commands/command-isa-coverage.json
           if ! git diff --cached --quiet; then
             git commit -m "chore(isa): persist sourced ISA and command imports [catalog-bot]"
-            git push
+            git push origin "HEAD:${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
           else
             echo "Generated catalogs already match the committed sources."
           fi
@@ -295,6 +415,7 @@ jobs:
             isa/generated/universal-instruction-catalog.json
             system/commands/native-command-candidates.json
             system/commands/command-runtime-capabilities.json
+            system/commands/command-isa-coverage.json
             build/runtime/trained-command-isa-rnn.json
           if-no-files-found: error
           retention-days: 30

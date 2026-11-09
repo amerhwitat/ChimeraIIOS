@@ -232,7 +232,24 @@ static void console_modules() {
 static volatile uint32_t console_task_runs = 0;
 static volatile uint32_t module_task_runs = 0;
 static volatile uint32_t live_task_runs = 0;
-static volatile uint32_t installer_phase = 0;
+
+static bool module_cmdline_selects_target(const chimera_boot_module *module,
+                                          const char *target) {
+    if (!module || !target || !*target) return false;
+    const char prefix[] = "target=";
+    for (const char *p = module->cmdline; *p; ++p) {
+        if (p != module->cmdline && p[-1] != ' ') continue;
+        const char *a = prefix;
+        const char *b = p;
+        while (*a && *b == *a) { ++a; ++b; }
+        if (*a) continue;
+        const char *wanted = target;
+        while (*wanted && *b == *wanted) { ++wanted; ++b; }
+        if (*wanted == 0 && (*b == 0 || *b == ' ')) return true;
+    }
+    return false;
+}
+
 
 static void task_console(void *) {
     if (console_task_runs++ == 0) console_write("[TASK] Console service online");
@@ -251,10 +268,11 @@ static void task_modules(void *) {
 
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
-        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+        const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+        if (module_cmdline_selects_target(user_init, "live")) {
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
-                console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
+                console_write("[RUN ] Live userspace target failed its launch/readiness acceptance gate");
             chimera_sched_block();
             return;
         }
@@ -276,6 +294,14 @@ static void task_live(void *) {
 }
 
 static void task_recovery(void *) {
+    const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
+    if (module_cmdline_selects_target(user_init, "recovery")) {
+        const int launch_rc = koronos_launch_selected_userspace();
+        if (launch_rc != 0)
+            console_write("[RUN ] Recovery userspace failed its launch/readiness acceptance gate");
+        chimera_sched_block();
+        return;
+    }
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
@@ -290,48 +316,47 @@ static void task_installer(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE);
     const chimera_boot_module *manifest = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_MANIFEST);
     const chimera_boot_module *contract = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_CONTRACT);
-    const chimera_boot_module *phases = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PHASES);
-    const chimera_boot_module *profiles = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PROFILES);
+    const chimera_boot_module *user_init = chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF);
 
-    if (!image && !manifest && !contract && !phases && !profiles) {
-        if (installer_phase++ == 0)
-            console_write("[INST] Installer target not selected: no installer modules");
+    /* Installer media may be present on a multi-target image. Presence of
+       those modules is not itself a request to enter the installer: only the
+       boot-selected init ELF may select that target. */
+    if (user_init && !module_cmdline_selects_target(user_init, "installer")) {
+        console_write("[INST] Installer target not selected; boot-selected userspace belongs to another target");
         chimera_sched_block();
         return;
     }
 
-    switch (installer_phase++) {
-        case 0:
-            console_write("[INST] Installer target detected");
-            if (image) console_write("[INST] Installation image accepted");
-            else console_write("[INST] ERROR: installation image module missing");
-            if (manifest) console_write("[INST] Installation manifest accepted");
-            else console_write("[INST] WARNING: installation manifest module missing");
-            if (contract) console_write("[INST] Installer contract accepted");
-            else console_write("[INST] WARNING: installer contract module missing");
-            break;
-        case 1:
-            console_write("[INST] Installer runtime initialization");
-            console_write("[INST] Initializing installer services in parallel");
-            break;
-        case 2:
-            console_write("[INST] Hardware discovery service started");
-            console_write("[INST] Storage discovery service started");
-            break;
-        case 3:
-            if (phases) console_write("[INST] Installation phases loaded");
-            if (profiles) console_write("[INST] Installer profiles loaded");
-            console_write("[INST] Installer UI scaffolding initialized; graphical userspace is not running");
-            break;
-        case 4:
-            console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
-            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
-            chimera_sched_block();
-            break;
-        default:
-            chimera_sched_block();
-            break;
+    if (!image && !manifest && !contract) {
+        console_write("[INST] Installer target not selected: no installer modules");
+        chimera_sched_block();
+        return;
     }
+    if (!image || !manifest || !contract) {
+        console_write("[INST] ERROR: installer media is incomplete (image, manifest and contract are all required)");
+        chimera_sched_block();
+        return;
+    }
+    if (!user_init) {
+        console_write("[INST] ERROR: installer payload exists but target-init-installer.elf is missing or was not classified as USER_INIT_ELF");
+        console_write("[INST] Refusing to wait for a userspace loader that was not supplied by Jasper/GRUB");
+        chimera_sched_block();
+        return;
+    }
+    if (!module_cmdline_selects_target(user_init, "installer")) {
+        console_write("[INST] ERROR: supplied USER_INIT_ELF does not select target=installer");
+        console_write("[INST] Module command line:");
+        console_write(user_init->cmdline);
+        chimera_sched_block();
+        return;
+    }
+
+    console_write("[INST] Installer image, manifest and contract verified as present");
+    console_write("[INST] Dispatching the target-specific installer init ELF");
+    const int launch_rc = koronos_launch_selected_userspace();
+    if (launch_rc != 0)
+        console_write("[RUN ] Installer userspace launch failed; see preceding [RUN] error for the failed stage");
+    chimera_sched_block();
 }
 
 static const char *task_state_name(uint32_t state) {
@@ -353,13 +378,15 @@ static void task_monitor(void *) {
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
     console_write("[MON ] CPUs: ");
     console_u32(chimera_sched_cpu_count());
-    console_write("[MON ] Runnable: ");
+    console_write("[MON ] Runnable tasks: ");
     console_u32(chimera_sched_runnable_count());
+    console_write("[MON ] Registered process contexts: ");
+    console_u32(chimera_process_count());
     for (uint32_t i = 0; i < n; ++i) {
-        // Keep each process record on one VGA/serial line. The previous
-        // label/value-per-line format made the monitor look corrupted once
-        // the 25-row VGA console started scrolling.
-        console_raw("[PROC] id=");
+        // Scheduler callbacks are tasks, not user processes. Keep the
+        // monitor label semantically exact and report process contexts
+        // separately using chimera_process_count().
+        console_raw("[TASK] id=");
         console_u32_raw(info[i].id);
         console_raw(" cpu=");
         console_u32_raw(info[i].cpu);
@@ -381,8 +408,8 @@ static void task_kore(void *) {
     if (!started) {
         started = true;
         chimera_kore_bootstrap();
-        console_write("[KORE] Service orchestration online");
-        console_write("[KORE] Core storage/security/logging services active");
+        console_write("[KORE] Service registry initialized; activation pending provider callbacks");
+        console_write("[KORE] Core device/storage/security/logging services remain DECLARED until started and health-checked");
     }
     // Bootstrap orchestration is complete; a service worker must block until
     // an event source wakes it rather than consume every scheduler dispatch.
@@ -587,4 +614,99 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
     console_write("[RUN ] Entering Koronos scheduler loop");
     console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
+}
+
+static char koronos_scancode_ascii(uint8_t code, bool shift, bool caps) {
+    const bool upper = shift ^ caps;
+    switch (code) {
+        case 0x02: return shift ? '!' : '1'; case 0x03: return shift ? '@' : '2';
+        case 0x04: return shift ? '#' : '3'; case 0x05: return shift ? '$' : '4';
+        case 0x06: return shift ? '%' : '5'; case 0x07: return shift ? '^' : '6';
+        case 0x08: return shift ? '&' : '7'; case 0x09: return shift ? '*' : '8';
+        case 0x0A: return shift ? '(' : '9'; case 0x0B: return shift ? ')' : '0';
+        case 0x0C: return shift ? '_' : '-'; case 0x0D: return shift ? '+' : '=';
+        case 0x0E: return '\b'; case 0x0F: return '\t';
+        case 0x10: return upper ? 'Q' : 'q'; case 0x11: return upper ? 'W' : 'w';
+        case 0x12: return upper ? 'E' : 'e'; case 0x13: return upper ? 'R' : 'r';
+        case 0x14: return upper ? 'T' : 't'; case 0x15: return upper ? 'Y' : 'y';
+        case 0x16: return upper ? 'U' : 'u'; case 0x17: return upper ? 'I' : 'i';
+        case 0x18: return upper ? 'O' : 'o'; case 0x19: return upper ? 'P' : 'p';
+        case 0x1A: return shift ? '{' : '['; case 0x1B: return shift ? '}' : ']';
+        case 0x1C: return '\n';
+        case 0x1E: return upper ? 'A' : 'a'; case 0x1F: return upper ? 'S' : 's';
+        case 0x20: return upper ? 'D' : 'd'; case 0x21: return upper ? 'F' : 'f';
+        case 0x22: return upper ? 'G' : 'g'; case 0x23: return upper ? 'H' : 'h';
+        case 0x24: return upper ? 'J' : 'j'; case 0x25: return upper ? 'K' : 'k';
+        case 0x26: return upper ? 'L' : 'l'; case 0x27: return shift ? ':' : ';';
+        case 0x28: return shift ? '"' : '\x27'; case 0x29: return shift ? '~' : '\x60';
+        case 0x2B: return shift ? '|' : '\x5c';
+        case 0x2C: return upper ? 'Z' : 'z'; case 0x2D: return upper ? 'X' : 'x';
+        case 0x2E: return upper ? 'C' : 'c'; case 0x2F: return upper ? 'V' : 'v';
+        case 0x30: return upper ? 'B' : 'b'; case 0x31: return upper ? 'N' : 'n';
+        case 0x32: return upper ? 'M' : 'm'; case 0x33: return shift ? '<' : ',';
+        case 0x34: return shift ? '>' : '.'; case 0x35: return shift ? '?' : '/';
+        case 0x39: return ' ';
+        default: return 0;
+    }
+}
+
+/* Poll input without pinning the cooperative kernel in a syscall. */
+static bool koronos_console_try_getchar(char *out) {
+    static bool shift = false;
+    static bool caps = false;
+    static bool extended = false;
+    if (!out) return false;
+    if (serial_in8(0x3FD) & 0x01u) {
+        char c = static_cast<char>(serial_in8(0x3F8));
+        if (c == '\r') c = '\n';
+        if (c == 0x7f) c = '\b';
+        *out = c;
+        return true;
+    }
+    const uint8_t status = serial_in8(0x64);
+    if ((status & 0x01u) == 0) return false;
+    if (status & 0x20u) { (void)serial_in8(0x60); return false; }
+    const uint8_t code = serial_in8(0x60);
+    if (code == 0xE0u) { extended = true; return false; }
+    if (code == 0x2Au || code == 0x36u) { shift = true; return false; }
+    if (code == 0xAAu || code == 0xB6u) { shift = false; return false; }
+    if (code == 0x3Au) { caps = !caps; return false; }
+    if (code & 0x80u) { extended = false; return false; }
+    if (extended) { extended = false; return false; }
+    const char c = koronos_scancode_ascii(code, shift, caps);
+    if (!c) return false;
+    *out = c;
+    return true;
+}
+
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length) {
+    if (length == 0) return 0;
+    if (length > 4096u) return -22;
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 1u) != 0) {
+        koronos_target_log("[SYSC] READ rejected: user buffer is not writable mapped memory");
+        return -14;
+    }
+    auto *buffer = reinterpret_cast<char *>(static_cast<uintptr_t>(address));
+    uint64_t used = 0;
+    while (used < length) {
+        char c = 0;
+        if (!koronos_console_try_getchar(&c)) {
+            /* Wait for an IRQ rather than spin in ring 0; timer/keyboard
+             * interrupts wake the poll without monopolizing the CPU. */
+            __asm__ volatile("sti; hlt; cli" ::: "memory");
+            continue;
+        }
+        if (c == '\r') c = '\n';
+        if (c == '\b') {
+            if (used) { --used; console_raw("\b \b"); }
+            continue;
+        }
+        buffer[used++] = c;
+        char one[2] = {c, 0};
+        console_raw(one);
+        if (c == '\n') break;
+    }
+    return used ? static_cast<int64_t>(used) : -11; /* -EAGAIN */
 }

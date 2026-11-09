@@ -38,9 +38,11 @@ chimera_copy_if_distinct() {
 }
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-BUILD="$ROOT/build/chimera-live"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+BUILD="$BUILD_ROOT/chimera-live"
+LIVE_BOOT="${CHIMERA_LIVE_BOOT_DIR:-$BUILD_ROOT/live-boot}"
 STAGE="$BUILD/iso-root"
-OUT="${CHIMERA_OUTPUT_ISO:-$ROOT/build/iso/chimera-ii-os.iso}"
+OUT="${CHIMERA_OUTPUT_ISO:-$BUILD_ROOT/iso/chimera-ii-os.iso}"
 # grub-mkrescue uses mtools/mformat to create the EFI FAT image. Keep its
 # temporary FAT image on a native Linux filesystem (important for WSL /mnt/c).
 ISO_TMP="${CHIMERA_ISO_TMPDIR:-$(mktemp -d /tmp/chimera-iso.XXXXXX)}"
@@ -65,18 +67,18 @@ cp "$ROOT/boot/livecd/live-manifest.json" "$STAGE/boot/live/live-manifest.json"
 cp -a "$ROOT/installer" "$STAGE/install/installer-source"
 cp -a "$ROOT/userland" "$STAGE/system/userland"
 cp -a "$ROOT/desktop" "$STAGE/system/desktop"
-if [[ -d "$ROOT/build/desktop" ]]; then cp -a "$ROOT/build/desktop/." "$STAGE/desktop/"; fi
-if [[ -d "$ROOT/build/foreign" ]]; then cp -a "$ROOT/build/foreign/." "$STAGE/compat/"; fi
-if [[ -d "$ROOT/build/mobile" ]]; then cp -a "$ROOT/build/mobile/." "$STAGE/mobile/"; fi
-if [[ -d "$ROOT/build/drivers" ]]; then cp -a "$ROOT/build/drivers/." "$STAGE/drivers/"; fi
-if [[ -d "$ROOT/build/network-tools" ]]; then cp -a "$ROOT/build/network-tools/." "$STAGE/opt/chimera/network-tools/"; cp -a "$ROOT/build/network-tools" "$STAGE/network-tools/"; fi
-if [[ -d "$ROOT/build/toolchains" ]]; then cp -a "$ROOT/build/toolchains/." "$STAGE/opt/chimera/toolchains/"; cp -a "$ROOT/build/toolchains/." "$STAGE/toolchains/"; fi
+if [[ -d "$BUILD_ROOT/desktop" ]]; then cp -a "$BUILD_ROOT/desktop/." "$STAGE/desktop/"; fi
+if [[ -d "$BUILD_ROOT/foreign" ]]; then cp -a "$BUILD_ROOT/foreign/." "$STAGE/compat/"; fi
+if [[ -d "$BUILD_ROOT/mobile" ]]; then cp -a "$BUILD_ROOT/mobile/." "$STAGE/mobile/"; fi
+if [[ -d "$BUILD_ROOT/drivers" ]]; then cp -a "$BUILD_ROOT/drivers/." "$STAGE/drivers/"; fi
+if [[ -d "$BUILD_ROOT/network-tools" ]]; then cp -a "$BUILD_ROOT/network-tools/." "$STAGE/opt/chimera/network-tools/"; cp -a "$BUILD_ROOT/network-tools" "$STAGE/network-tools/"; fi
+if [[ -d "$BUILD_ROOT/toolchains" ]]; then cp -a "$BUILD_ROOT/toolchains/." "$STAGE/opt/chimera/toolchains/"; cp -a "$BUILD_ROOT/toolchains/." "$STAGE/toolchains/"; fi
 for x in route-manager.desktop.json networking_panel.json wallpaper-service.json wallpaper-service.py; do [[ -f "$ROOT/desktop/aurora/$x" ]] && cp "$ROOT/desktop/aurora/$x" "$STAGE/system/desktop/"; done
 [[ -d "$ROOT/network" ]] && cp -a "$ROOT/network" "$STAGE/system/network"
 if [[ -f "$ROOT/desktop/aurora/network-discovery.desktop.json" ]]; then cp "$ROOT/desktop/aurora/network-discovery.desktop.json" "$STAGE/system/desktop/"; fi
 cp -a "$ROOT/services" "$STAGE/system/services"
 cp -a "$ROOT/boot" "$STAGE/system/boot"
-if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+if [[ -d "$LIVE_BOOT/boot" ]]; then cp -a "$LIVE_BOOT/boot/." "$STAGE/boot/"; fi
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
@@ -151,7 +153,6 @@ else
   exit 2
 fi
 
-LIVE_BOOT="$ROOT/build/live-boot"
 for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
   "$LIVE_BOOT/boot/live/live-manifest.json" \
@@ -179,6 +180,34 @@ for required in \
   "$STAGE/install/installer/installer_profiles.json"; do
   [[ -s "$required" ]] || { echo "ERROR: missing installer media artifact: $required" >&2; exit 2; }
 done
+
+# Merge the full ISO builder's prepared runtime payload into the bootable ISO
+# stage. The fallback ISO path used to ignore this stage entirely, dropping
+# the offline app-icon library, command/ISA catalogues, SDK and other payloads.
+EXTRA_STAGE="${CHIMERA_EXTRA_STAGE_DIR:-}"
+if [[ -n "$EXTRA_STAGE" ]]; then
+  [[ -d "$EXTRA_STAGE" ]] || { echo "ERROR: extra ISO stage is missing: $EXTRA_STAGE" >&2; exit 2; }
+  for rel in install system desktop sdk mobile drivers toolchains network-tools compat build-artifacts; do
+    if [[ -d "$EXTRA_STAGE/$rel" ]]; then
+      mkdir -p "$STAGE/$rel"
+      cp -a "$EXTRA_STAGE/$rel/." "$STAGE/$rel/"
+    fi
+  done
+  for rel in visual grub; do
+    if [[ -d "$EXTRA_STAGE/boot/$rel" ]]; then
+      mkdir -p "$STAGE/boot/$rel"
+      cp -a "$EXTRA_STAGE/boot/$rel/." "$STAGE/boot/$rel/"
+    fi
+  done
+  for required in \
+    desktop/app-icons/manifest.json \
+    desktop/app-icons/catalog.svg \
+    desktop/app-icons/icons/chimera-settings.svg \
+    system/commands/command-runtime-capabilities.json \
+    system/isa/ISA.csv; do
+    [[ -s "$STAGE/$required" ]] || { echo "ERROR: full ISO payload missing after stage merge: $required" >&2; exit 2; }
+  done
+fi
 
 # Verify mformat can create a FAT image in the native temporary filesystem before
 # invoking GRUB. This turns a vague grub-mkrescue failure into a useful error.

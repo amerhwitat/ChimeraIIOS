@@ -1,6 +1,11 @@
+import contextlib
 import importlib.util
+import io
+import json
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "isa" / "import_riscv_opcodes.py"
@@ -14,7 +19,7 @@ class RiscVOpcodeImportTests(unittest.TestCase):
     def test_source_revision_is_pinned_in_record(self):
         revision = "5783cf3bea312a48d28e3e2c8a2fcb55603e4bed"
         rows = MODULE.parse_file(
-            "add 6..0=0x33 11..7=1\n", "extensions/rv_i",
+            "add 6..0=0x33 11..7=1\\n", "extensions/rv_i",
             "a" * 64, revision
         )
         self.assertEqual(len(rows), 1)
@@ -24,17 +29,41 @@ class RiscVOpcodeImportTests(unittest.TestCase):
         self.assertEqual(rows[0]["memory_effects"], "unknown")
 
     def test_cached_import_must_match_pinned_revision(self):
-        import json, tempfile
-        revision=MODULE.DEFAULT_REVISION
-        valid={"schema":"CHM-ISA-SOURCED-IMPORT-1","record_count":1,
-               "instructions":[{"source_revision":revision}]}
+        revision = MODULE.DEFAULT_REVISION
+        valid = {"schema": "CHM-ISA-SOURCED-IMPORT-1", "record_count": 1,
+                 "failed_files": [], "instructions": [{"source_revision": revision}]}
         with tempfile.TemporaryDirectory() as td:
-            path=Path(td)/"cached.json"
-            path.write_text(json.dumps(valid),encoding="utf-8")
-            self.assertTrue(MODULE.cached_import_is_valid(path,revision))
-            self.assertFalse(MODULE.cached_import_is_valid(path,"0"*40))
-            path.write_text(json.dumps({"schema":"wrong","record_count":1,"instructions":valid["instructions"]}),encoding="utf-8")
-            self.assertFalse(MODULE.cached_import_is_valid(path,revision))
+            path = Path(td) / "cached.json"
+            path.write_text(json.dumps(valid), encoding="utf-8")
+            self.assertTrue(MODULE.cached_import_is_valid(path, revision))
+            self.assertFalse(MODULE.cached_import_is_valid(path, "0" * 40))
+            path.write_text(json.dumps({"schema": "wrong", "record_count": 1,
+                                        "instructions": valid["instructions"]}), encoding="utf-8")
+            self.assertFalse(MODULE.cached_import_is_valid(path, revision))
+
+    def test_cached_import_is_the_default_for_reproducible_builds(self):
+        revision = MODULE.DEFAULT_REVISION
+        cached = {"schema": "CHM-ISA-SOURCED-IMPORT-1", "record_count": 1,
+                  "failed_files": [], "instructions": [{"source_revision": revision}]}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "cached.json"
+            path.write_text(json.dumps(cached), encoding="utf-8")
+            with mock.patch.object(MODULE, "get", side_effect=OSError("HTTP 503")):
+                with mock.patch.object(MODULE.sys, "argv", ["import_riscv_opcodes.py", "--output", str(path)]):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(MODULE.main(), 0)
+
+    def test_require_refresh_disables_cached_fallback(self):
+        revision = MODULE.DEFAULT_REVISION
+        cached = {"schema": "CHM-ISA-SOURCED-IMPORT-1", "record_count": 1,
+                  "failed_files": [], "instructions": [{"source_revision": revision}]}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "cached.json"
+            path.write_text(json.dumps(cached), encoding="utf-8")
+            with mock.patch.object(MODULE, "get", side_effect=OSError("HTTP 503")):
+                with mock.patch.object(MODULE.sys, "argv", ["import_riscv_opcodes.py", "--output", str(path), "--require-refresh"]):
+                    with self.assertRaises(SystemExit):
+                        MODULE.main()
 
     def test_unfixed_source_revision_is_not_the_default(self):
         self.assertRegex(MODULE.DEFAULT_REVISION, r"^[0-9a-f]{40}$")

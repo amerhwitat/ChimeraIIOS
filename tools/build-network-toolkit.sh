@@ -20,7 +20,9 @@ fi
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
-OUT="$ROOT/build/network-tools"
+BUILD_ROOT="${CHIMERA_BUILD_DIR:-$ROOT/build}"
+export CHIMERA_BUILD_DIR="$BUILD_ROOT"
+OUT="$BUILD_ROOT/network-tools"
 mkdir -p "$OUT/bin" "$OUT/rootfs" "$OUT/packages" "$OUT/manifests"
 
 # APT must never write to the host package database/cache during ISO staging.

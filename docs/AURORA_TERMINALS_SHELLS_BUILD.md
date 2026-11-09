@@ -4,9 +4,13 @@
 
 Aurora now has registries for terminal emulators and command shells.
 
-Terminals: XTerm, GNOME Terminal, Konsole, XFCE Terminal, Foot, Kitty, Alacritty, WezTerm, Ghostty and Contour.
+**Terminal emulators (20):** XTerm, GNOME Terminal, GNOME Console, Konsole, XFCE Terminal, Foot, Kitty, Ptyxis, Alacritty, WezTerm, Ghostty, Contour, Terminator, Tilix, MATE Terminal, QTerminal, Sakura, Terminology, LXTerminal and Black Box Terminal.
 
-Shells: Bash, Zsh, fish, Dash, mksh, Yash, Elvish and Nushell.
+**Shells (8):** Bash, Zsh, fish, Dash, mksh, Yash, Elvish and Nushell.
+
+The hosted Linux image gate requires every registered terminal and shell to resolve to a real target-rootfs executable and pass a basic version/command smoke test before its Aurora launcher is retained. Package-installed providers are preferred; the source builder contains reproducible build recipes for Bash, Zsh, fish, Dash, mksh, Yash, Elvish, Nushell, Alacritty, Foot, Black Box, WezTerm, Ghostty and Contour. The remaining terminal providers use verified target distribution packages when available. A missing package and missing source recipe is a build failure, not a reason to add a fake launcher.
+
+This is hosted Linux userspace support. These terminal applications are not yet native Koronos applications: a Koronos port still requires its own process/syscall, PTY, TTY, font, graphics, Wayland/X11 and device-service backends.
 
 ## Acquisition policy
 

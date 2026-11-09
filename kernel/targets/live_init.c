@@ -1,21 +1,40 @@
 #include "init_common.h"
 
-/* Native Live target: a ring-3 text console session. This is a freestanding
- * init payload, not a desktop shell; no graphical session is started. */
 __attribute__((noreturn, used)) void _start(void) {
     init_int80();
-
     const long pid = init_getpid();
     if (pid <= 0) init_exit(1);
-
     init_emit_readiness(pid);
-
-    init_writestr("LIVE: native console session banner\n");
-    init_writestr("LIVE: ring-3 text console active (no graphical session)\n");
-
-    /* Exercise the mapped yield ABI without depending on preemption. */
+    init_writestr("LIVE: native Koronos ring-3 console ready\n");
+    init_writestr("LIVE: built-ins only; VFS, external ELF execution and graphics are not yet enabled\n");
     init_yield();
     init_writestr("LIVE: scheduler yield returned\n");
 
-    init_exit(0);
+    char line[128];
+    for (;;) {
+        init_writestr("chimera> ");
+        const long length = init_read_line(line, (long)sizeof(line));
+        if (length <= 0) {
+            init_writestr("LIVE: stdin reached EOF; no keyboard/TTY input provider is registered\n");
+            init_exit(0);
+        }
+        if (init_command_common(line, pid)) {
+            init_yield();
+            continue;
+        }
+        if (init_text_equal(line, "help")) {
+            init_writestr("help       list built-in commands\n");
+            init_writestr("uname      show kernel identity\n");
+            init_writestr("pid        show active process id\n");
+            init_writestr("echo TEXT  print TEXT\n");
+            init_writestr("clear      clear the text display\n");
+            init_writestr("exit       leave the live console\n");
+        } else if (init_text_equal(line, "exit")) {
+            init_writestr("LIVE: console exit requested\n");
+            init_exit(0);
+        } else if (length) {
+            init_writestr("LIVE: command unavailable; only the documented built-ins execute here\n");
+        }
+        init_yield();
+    }
 }

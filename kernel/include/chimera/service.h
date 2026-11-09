@@ -16,8 +16,27 @@ struct chimera_service_manifest {
 };
 /* The array slots are writable; the strings they point to remain immutable. */
 struct chimera_service_plan { uint32_t count; uint32_t capacity; const char** ordered_ids; };
+/* A service is RUNNING only after both callbacks return zero. These callbacks
+ * must perform real work; absent callbacks are an error, never a readiness
+ * shortcut. The health callback must independently inspect service health. */
+typedef int (*chimera_service_start_fn)(const chimera_service_manifest*, void*);
+typedef int (*chimera_service_health_fn)(const chimera_service_manifest*, void*);
+struct chimera_service_ops {
+  chimera_service_start_fn start;
+  chimera_service_health_fn health;
+};
+struct chimera_service_report {
+  uint32_t attempted;
+  uint32_t ready;
+  uint32_t failed;
+  uint32_t blocked;
+  const char* failed_service;
+};
 int chimera_service_validate(const chimera_service_manifest* services, uint32_t count);
 int chimera_service_resolve(const chimera_service_manifest* services, uint32_t count, chimera_service_plan* plan);
+int chimera_service_start_graph(const chimera_service_manifest* services, uint32_t count,
+                                const chimera_service_ops* ops, void* context,
+                                chimera_service_report* report);
 int chimera_service_set_state(const char* id, uint32_t state);
 uint32_t chimera_service_get_state(const char* id);
 void chimera_kore_bootstrap(void);

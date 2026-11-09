@@ -8,6 +8,11 @@ class ImportTests(unittest.TestCase):
   self.assertTrue(rows["echo"]["execution_allowed"])
   self.assertFalse(rows["curl"]["execution_allowed"])
   self.assertFalse(rows["mystery"]["execution_allowed"])
+  self.assertEqual(data["counts"]["catalogue_unique"], 3)
+  self.assertEqual(data["counts"]["catalogue_native_implemented"], 1)
+  self.assertEqual(data["counts"]["catalogue_candidate_only"], 2)
+  self.assertTrue(rows["echo"]["catalogue_member"])
+  self.assertEqual(rows["curl"]["catalogue_status"], "candidate-only")
  def test_preserves_unknown_for_runtime_learning(self):
   data=build({"custom":["futurecmd"]},{},{})
   row=next(x for x in data["commands"] if x["name"]=="futurecmd")

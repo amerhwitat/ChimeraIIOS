@@ -108,6 +108,12 @@ chimera_copy_if_distinct() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Publish aliases for Windows volumes already mounted by WSL2 DrvFs.
+# This is a no-op on native Linux/CI and never mounts or copies a drive twice.
+if [[ -f "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh" ]]; then
+  bash "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh"
+fi
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 DOCKER_IMAGE="chimera2os-comprehensive"
 DOCKER_TAG="${DOCKER_TAG:-latest}"
@@ -119,19 +125,21 @@ ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 LOG_DIR="$BUILD_DIR/logs"
-LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-${TMPDIR:-/tmp}/chimera-build-logs-${UID:-$(id -u)}}"
+LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-/tmp/chimera-build-logs-${UID:-$(id -u)}}"
 WATCHDOG_PID=""
 STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
+FULL_BUILD=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
-CHIMERA_PUSH="${CHIMERA_PUSH:-1}"
+CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+GENERATED_DOCKER_IMAGE_ID=""
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -171,7 +179,9 @@ ensure_log_dir(){
     echo "[CHIMERA] Build logs redirected to $LOG_DIR because the selected storage is not writable." >&2
   fi
 }
-ensure_log_dir
+# Defer log-directory creation until CLI storage options are parsed. A read-only
+# inherited build mount must not abort --storage-auto before it can select a
+# writable destination; log_file() will fall back to /tmp when needed.
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
 log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
@@ -221,6 +231,7 @@ while [[ $# -gt 0 ]]; do
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
+    --full) FULL_BUILD=1; CLEAN_STATE=1; RESUME_BUILD=0; shift;;
     --storage-auto) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
     --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
@@ -236,6 +247,12 @@ while [[ $# -gt 0 ]]; do
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# --full always invalidates prior checkpoints and cannot be weakened by option order.
+if [[ "$FULL_BUILD" == 1 ]]; then
+  CLEAN_STATE=1
+  RESUME_BUILD=0
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
@@ -277,14 +294,58 @@ cleanup_generated_build_artifacts(){
   find "$BUILD_DIR" -maxdepth 3 -type f \
     \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
     -delete 2>/dev/null || true
-  # Remove empty build-owned directories left after the sweep.
-  find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  docker container prune -f >/dev/null 2>&1 || true
+  # Remove additional disposable outputs produced only by this build. Keep
+  # source assets, kernel ELF/debug artifacts, logs, command/ISA reports and
+  # every final ISO/checksum. These directories are deterministic rebuilds.
+  rm -rf -- \
+    "$BUILD_DIR/aurora-media" \
+    "$BUILD_DIR/aurora-icons" \
+    "$BUILD_DIR/aurora-app-icons" \
+    "$BUILD_DIR/aurora-selected-artwork.png" \
+    "$BUILD_DIR/native-command-isa" \
+    "$SCRIPT_DIR/build/aurora-media" \
+    "$SCRIPT_DIR/build/aurora-icons" \
+    "$SCRIPT_DIR/build/aurora-app-icons" \
+    "$SCRIPT_DIR/build/aurora-selected-artwork.png" \
+    "$SCRIPT_DIR/build/native-command-isa" \
+    "$SCRIPT_DIR/boot/iso/work" 2>/dev/null || true
+  # Rootfs is disposable only when it resolves inside this build's own tree.
+  local build_real rootfs_real
+  build_real="$(realpath -m "$BUILD_DIR")"
+  rootfs_real="$(realpath -m "$ROOTFS_DIR")"
+  if [[ "$rootfs_real" == "$build_real"/* ]]; then
+    rm -rf -- "$ROOTFS_DIR" 2>/dev/null || true
+  fi
+  # Preserve the canonical native ISO and checksum, but remove other files
+  # left in its generated dist directory.
+  if [[ -d "$SCRIPT_DIR/boot/iso/dist" ]]; then
+    find "$SCRIPT_DIR/boot/iso/dist" -mindepth 1 -maxdepth 1 \
+      ! -name output.iso ! -name output.iso.sha256 -exec rm -rf -- {} + 2>/dev/null || true
+  fi
+  # Remove only stopped containers carrying Chimera's private build labels.
+  # Never run docker container prune: that would affect unrelated projects.
+  if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    local container_id
+    while IFS= read -r container_id; do
+      [[ -n "$container_id" ]] || continue
+      docker rm "$container_id" >/dev/null 2>&1 || true
+    done < <(docker ps -aq --filter 'status=exited' --filter 'label=chimera.build.managed=true')
+    while IFS= read -r container_id; do
+      [[ -n "$container_id" ]] || continue
+      docker rm "$container_id" >/dev/null 2>&1 || true
+    done < <(docker ps -aq --filter 'status=exited' --filter 'label=chimera.rootfs.export=true')
+  fi
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
   log_info "Cleaning unused generated ISO build intermediates..."
   cleanup_generated_build_artifacts
+  # The rootfs has already been exported and the ISO verified, so the exact
+  # image built by this invocation is now disposable. Keep it on request, or
+  # whenever a container still references it. Never prune unrelated images.
+  if [[ -n "$GENERATED_DOCKER_IMAGE_ID" && "${CHIMERA_KEEP_DOCKER_IMAGE:-0}" != 1 ]]; then
+    cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$GENERATED_DOCKER_IMAGE_ID"
+  fi
   # Resume/failure state is no longer useful after a complete verified build.
   rm -f -- "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true
   log_success "Unused generated build artifacts removed; final ISO/checksum retained."
@@ -338,7 +399,8 @@ push_docker_image(){
     docker push "$target:latest"
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
-  cleanup_generated_docker_image "$source" "$image_id"
+  # Defer local image deletion until the ISO has been built and verified; the
+  # rootfs export stage still needs this image after publication.
 }
 
 is_writable_dir(){
@@ -349,15 +411,24 @@ is_writable_dir(){
   return 0
 }
 is_wsl(){ grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null || [[ -n "${WSL_INTEROP:-}" ]] || [[ -d /mnt/wsl ]]; }
+# Make WSL2's already-mounted Windows volumes available through a stable
+# /mnt/drive/<letter> namespace for build inputs, logs and ISO handoff.
+if is_wsl && [[ -x "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh" ]]; then
+  if ! "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh"; then
+    log_warning "Unable to refresh /mnt/drive aliases; native WSL /mnt/<letter> mounts remain available."
+  fi
+fi
 choose_storage(){
   local need="${1:-20}"; local best="" free path
   if is_wsl; then
-    for path in /mnt/*; do
+    # Prefer explicit Windows-drive aliases; retain native WSL mount paths as
+    # a fallback for existing installations that have not refreshed aliases.
+    for path in /mnt/drive/[a-z] /mnt/[a-z]; do
       [[ -d "$path" ]] || continue
+      [[ "$path" != /mnt/c && "$path" != /mnt/drive/c ]] || continue
       free="$(free_gib "$path")"
       ((free>=need)) || continue
       is_writable_dir "$path" || { log_warning "Skipping non-writable storage candidate: $path"; continue; }
-      [[ "$path" != /mnt/c ]] || continue
       best="$path"; break
     done
   else
@@ -495,9 +566,17 @@ build_docker(){
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
-  docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
-  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
+  docker buildx version >/dev/null 2>&1 && build_opts+=(--progress=plain)
+  [[ "$FULL_BUILD" == 1 ]] && build_opts+=(--no-cache)
+  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" \\
+    --label chimera.build.managed=true \\
+    --label chimera.build.repository=ChimeraIIOS \\
+    -f "$SCRIPT_DIR/Dockerfile.comprehensive" \\
+    -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" \\
+    "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  GENERATED_DOCKER_IMAGE_ID="$(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG")"
+  log_info "Tracked this invocation's generated Docker image: $GENERATED_DOCKER_IMAGE_ID"
 }
 
 export_rootfs(){
@@ -522,7 +601,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --label chimera.build.managed=true --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
@@ -1568,18 +1647,29 @@ main(){
 
 stage_sdks(){
   header 'STEP: COMPILE ALL REPOSITORY SDKS'
-  # Compiles every build definition the host toolchains support (CMake, Cargo, Swift,
-  # Dart, Maven, Gradle, dotnet, npm, Go, Python) and stages an honest report in the
-  # ISO. Missing toolchains are reported as skipped, never as passed.
+  # A full build must prove every discovered SDK build succeeded; skipped
+  # toolchains, failures, timeouts, or an empty inventory fail closed.
   local report="$ISO_DIR/opt/chimera/reports/sdk-build-report.json"
   mkdir -p "$(dirname "$report")"
-  if [[ -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
-    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \
-      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
-    log_info "SDK report staged at $report"
-  else
+  if [[ ! -x "$SCRIPT_DIR/tools/build-sdks.sh" ]]; then
+    if [[ "$FULL_BUILD" == 1 ]]; then
+      log_error 'Full build requires tools/build-sdks.sh; refusing to skip SDK compilation.'
+      return 1
+    fi
     log_warning 'tools/build-sdks.sh is missing; SDK stage skipped'
+    return 0
   fi
+  if [[ "$FULL_BUILD" == 1 ]]; then
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --strict --out "$report" --max "${CHIMERA_SDK_MAX:-1000}" \\
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || {
+        log_error 'Full build SDK gate failed; inspect sdk-build-report.json.'
+        return 1
+      }
+  else
+    bash "$SCRIPT_DIR/tools/build-sdks.sh" --out "$report" --max "${CHIMERA_SDK_MAX:-12}" \\
+      --timeout "${CHIMERA_SDK_TIMEOUT:-240}" || log_warning 'SDK compilation reported failures (see sdk-build-report.json)'
+  fi
+  log_info "SDK report staged at $report"
 }
 
 trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT

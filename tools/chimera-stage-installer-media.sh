@@ -27,8 +27,60 @@ P="$WORK/initramfs"
 mkdir -p "$P"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer,var/log}
 BB="$(command -v busybox || true)"
 if [[ -z "$BB" ]]; then echo "ERROR: busybox is required to build installation.img" >&2; exit 2; fi
+if command -v file >/dev/null 2>&1 && ! file "$BB" | grep -qi 'statically linked'; then
+  echo "ERROR: a statically linked BusyBox is required for the initramfs; install busybox-static." >&2
+  exit 2
+fi
 cp "$BB" "$P/bin/busybox"
+# Expose every applet implemented by the shipped BusyBox binary, not just a hand-picked subset.
+while IFS= read -r applet; do
+  [[ -n "$applet" && "$applet" != "busybox" ]] || continue
+  [[ "$applet" == */* ]] && continue
+  ln -sf busybox "$P/bin/$applet"
+done < <("$BB" --list)
+# Keep compatibility aliases required by the init scripts even if a BusyBox
+# build omits an optional applet.
 for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head ip udhcpc nslookup gzip; do ln -sf busybox "$P/bin/$x"; done
+
+# Embed the same full command/ISA source catalogues in Installer as in
+# Live and Recovery. Missing source databases fail the build rather than
+# silently producing a reduced installer inventory.
+for required in \
+  system/commands/chimera-command-list.json \
+  system/commands/native-command-candidates.json \
+  system/commands/command-runtime-capabilities.json \
+  isa/sources/imports/riscv-opcodes.json \
+  isa/generated/universal-instruction-catalog.json; do
+  [[ -s "$ROOT/$required" ]] || {
+    echo "ERROR: complete installer command/ISA catalogue is missing: $ROOT/$required" >&2
+    exit 2
+  }
+done
+install -d "$P/etc/chimera/catalogs"
+for rel in "$ROOT"/system/commands/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+done
+for rel in "$ROOT"/isa/*.json "$ROOT"/isa/generated/*.json \
+           "$ROOT"/isa/sources/*.json "$ROOT"/isa/sources/imports/*.json \
+           "$ROOT"/isa/koronos/*.json "$ROOT"/data/isa/*.json; do
+  [[ -s "$rel" ]] || continue
+  install -D -m 0644 "$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+done
+install -D -m 0644 "$ROOT/ISA.csv" "$P/etc/chimera/catalogs/ISA.csv"
+for rel in "$ROOT/config/linux-command-registry.json" \
+           "$ROOT/tools/commands/os-command-runtime.json" \
+           "$ROOT/tools/commands/dos-legacy-payload-manifest.json"; do
+  [[ -s "$rel" ]] && install -D -m 0644 "$rel" "$P/etc/chimera/catalogs/$(basename "$rel")"
+done
+install -D -m 0644 "$ROOT/aurora/terminals/registry.json" "$P/etc/chimera/catalogs/terminals-registry.json"
+install -D -m 0644 "$ROOT/aurora/terminals/binary-manifest.json" "$P/etc/chimera/catalogs/terminals-binary-manifest.json"
+install -D -m 0644 "$ROOT/aurora/shells/registry.json" "$P/etc/chimera/catalogs/shells-registry.json"
+install -D -m 0644 "$ROOT/aurora/shells/binary-manifest.json" "$P/etc/chimera/catalogs/shells-binary-manifest.json"
+bash "$ROOT/tools/commands/install-busybox-applets.sh" "$P"
+python3 "$ROOT/tools/commands/build-command-isa-coverage.py" \
+  --root "$ROOT" --busybox "$BB" --rootfs "$P" \
+  --output "$P/etc/chimera/catalogs/command-isa-coverage.json"
 if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/chimera-installer-runtime.sh" "$P/bin/"; chmod +x "$P/bin/chimera-installer-runtime.sh"; fi
 for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
 cat > "$P/init" <<'EOF'

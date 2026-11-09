@@ -22,7 +22,9 @@ REQUIRED_SYMBOLS = [
 ]
 
 REQUIRED_STRINGS = [
-    "[INST] Installer runtime initialization",
+    "[INST] Installer image, manifest and contract verified as present",
+    "[INST] Dispatching the target-specific installer init ELF",
+    "[INST] ERROR: installer payload exists but target-init-installer.elf is missing",
     "[SCH ] Bootstrap tasks submitted",
     "[KORE] Service orchestration online",
     "[ABI ] Compatibility syscall/interrupt registry ready",

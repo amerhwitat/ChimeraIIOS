@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pwd.h>
 #include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -132,15 +133,37 @@ static int copy_file(const char *src, const char *dst)
         return 1;
     }
 
+    /* Do not use O_TRUNC until the opened destination inode is compared
+     * with the source: two different paths may be hard links to one file. */
     int out = open(
         dst,
-        O_WRONLY | O_CREAT | O_TRUNC,
+        O_WRONLY | O_CREAT,
         st.st_mode & 0777
     );
 
     if (out < 0) {
         perror(dst);
         close(in);
+        return 1;
+    }
+
+    struct stat dst_st;
+    if (fstat(out, &dst_st) < 0) {
+        perror(dst);
+        close(in);
+        close(out);
+        return 1;
+    }
+    if (st.st_dev == dst_st.st_dev && st.st_ino == dst_st.st_ino) {
+        fprintf(stderr, "cp: '%s' and '%s' are the same file\\n", src, dst);
+        close(in);
+        close(out);
+        return 1;
+    }
+    if (ftruncate(out, 0) < 0) {
+        perror(dst);
+        close(in);
+        close(out);
         return 1;
     }
 
@@ -234,8 +257,14 @@ static int cmd_touch(int argc, char **argv)
             continue;
         }
 
-        close(fd);
-
+        if (futimens(fd, NULL) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
+        if (close(fd) < 0) {
+            perror(argv[i]);
+            rc = 1;
+        }
     }
 
     return rc;
@@ -350,14 +379,17 @@ static int cmd_clear(void)
 
 static int cmd_whoami(void)
 {
-    const char *u = getenv("USER");
-
-    if (u) {
-        puts(u);
-        return 0;
+    /* USER is an environment variable and is not an identity credential.
+     * Resolve the effective UID through the account database instead. */
+    const uid_t uid = geteuid();
+    struct passwd *account = getpwuid(uid);
+    if (!account || !account->pw_name) {
+        fprintf(stderr, "whoami: cannot find name for user ID %lu\\n",
+                (unsigned long)uid);
+        return 1;
     }
-
-    return system("id -un");
+    puts(account->pw_name);
+    return ferror(stdout) ? 1 : 0;
 }
 
 static int cmd_hostname(void)
@@ -409,10 +441,461 @@ static int cmd_false(void)
 
 static int cmd_chimera_native(void)
 {
-    puts("Chimera II native command runtime");
-    puts("ABI: native");
-    puts("Status: operational");
+    puts("Chimera II POSIX command multicall");
+    puts("ABI: Linux userspace ELF");
+    puts("Koronos native syscall compatibility: not verified");
     return 0;
+}
+
+
+static int cmd_rmdir(int argc, char **argv)
+{
+    int rc = 0;
+    if (argc < 2) { fprintf(stderr, "rmdir: missing operand\n"); return 1; }
+    for (int i = 1; i < argc; ++i) {
+        if (rmdir(argv[i]) != 0) { perror(argv[i]); rc = 1; }
+    }
+    return rc;
+}
+
+static int cmd_ln(int argc, char **argv)
+{
+    int symbolic = 0, force = 0, i = 1;
+    while (i < argc && argv[i][0] == '-') {
+        if (!strcmp(argv[i], "--")) { ++i; break; }
+        for (const char *p = argv[i] + 1; *p; ++p) {
+            if (*p == 's') symbolic = 1;
+            else if (*p == 'f') force = 1;
+            else { fprintf(stderr, "ln: unsupported option -%c\n", *p); return 1; }
+        }
+        ++i;
+    }
+    if (argc - i != 2) { fprintf(stderr, "usage: ln [-sf] TARGET LINK_NAME\n"); return 1; }
+    if (force && unlink(argv[i + 1]) != 0 && errno != ENOENT) { perror(argv[i + 1]); return 1; }
+    int rc = symbolic ? symlink(argv[i], argv[i + 1]) : link(argv[i], argv[i + 1]);
+    if (rc != 0) { perror(argv[i + 1]); return 1; }
+    return 0;
+}
+
+static int cmd_readlink(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: readlink LINK\n"); return 1; }
+    char buf[PATH_MAX + 1];
+    ssize_t n = readlink(argv[1], buf, PATH_MAX);
+    if (n < 0) { perror(argv[1]); return 1; }
+    buf[n] = '\0';
+    puts(buf);
+    return 0;
+}
+
+static char *trim_path_copy(const char *input)
+{
+    char *p = strdup(input);
+    if (!p) return NULL;
+    size_t n = strlen(p);
+    while (n > 1 && p[n - 1] == '/') p[--n] = '\0';
+    return p;
+}
+
+static int cmd_basename(int argc, char **argv)
+{
+    if (argc < 2 || argc > 3) { fprintf(stderr, "usage: basename PATH [SUFFIX]\n"); return 1; }
+    char *p = trim_path_copy(argv[1]);
+    if (!p) return 1;
+    char *base = strrchr(p, '/');
+    base = base ? base + 1 : p;
+    if (argc == 3) {
+        size_t n = strlen(base), sn = strlen(argv[2]);
+        if (sn && sn <= n && !strcmp(base + n - sn, argv[2])) base[n - sn] = '\0';
+    }
+    puts(*base ? base : "/");
+    free(p);
+    return 0;
+}
+
+static int cmd_dirname(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: dirname PATH\n"); return 1; }
+    char *p = trim_path_copy(argv[1]);
+    if (!p) return 1;
+    char *slash = strrchr(p, '/');
+    if (!slash) puts(".");
+    else if (slash == p) puts("/");
+    else { *slash = '\0'; puts(p); }
+    free(p);
+    return 0;
+}
+
+static int cmd_uname(int argc, char **argv)
+{
+    struct utsname u;
+    if (uname(&u) != 0) { perror("uname"); return 1; }
+    if (argc == 1) { puts(u.sysname); return 0; }
+    int any = 0;
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "-a")) { printf("%s %s %s %s %s\n", u.sysname,u.nodename,u.release,u.version,u.machine); return 0; }
+        for (const char *p = argv[i] + (argv[i][0] == '-' ? 1 : 0); *p; ++p) {
+            const char *v = NULL;
+            switch (*p) {
+                case 's': v=u.sysname; break; case 'n': v=u.nodename; break;
+                case 'r': v=u.release; break; case 'v': v=u.version; break;
+                case 'm': v=u.machine; break; case 'o': v="GNU/Linux"; break;
+                default: fprintf(stderr,"uname: invalid option -- '%c'\n",*p); return 1;
+            }
+            if (any) putchar(' ');
+            fputs(v, stdout); any = 1;
+        }
+    }
+    if (any) putchar('\n');
+    return 0;
+}
+
+static int cmd_wc(int argc, char **argv)
+{
+    int lines=0, words=0, bytes=0, i=1, files=0, rc=0;
+    while (i < argc && argv[i][0]=='-' && argv[i][1]) {
+        for (const char *p=argv[i]+1; *p; ++p) {
+            if (*p=='l') lines=1; else if (*p=='w') words=1; else if (*p=='c') bytes=1;
+            else { fprintf(stderr,"wc: unsupported option -%c\n",*p); return 1; }
+        }
+        ++i;
+    }
+    if (!lines && !words && !bytes) lines=words=bytes=1;
+    do {
+        FILE *f = (i < argc) ? fopen(argv[i], "rb") : stdin;
+        if (!f) { perror(argv[i]); rc=1; ++i; continue; }
+        unsigned long long l=0,w=0,b=0; int c, inword=0;
+        while ((c=fgetc(f)) != EOF) { ++b; if (c=='\n') ++l; if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\f'||c=='\v') inword=0; else if(!inword){++w;inword=1;} }
+        if (ferror(f)) { if (f!=stdin) perror(argv[i]); rc=1; }
+        if (f!=stdin) fclose(f);
+        int col=0;
+        if(lines){printf("%llu",l);col=1;} if(words){printf("%s%llu",col?" ":"",w);col=1;}
+        if(bytes)printf("%s%llu",col?" ":"",b);
+        if(i<argc)printf(" %s",argv[i]);
+        putchar('\n'); ++files; ++i;
+    } while(i<argc);
+    (void)files;
+    return rc;
+}
+
+static int stream_lines(int argc, char **argv, int tail_mode)
+{
+    long count=10; int i=1;
+    if (i<argc && !strcmp(argv[i],"-n")) {
+        if (++i>=argc) { fprintf(stderr,"line utility: -n requires a count\n"); return 1; }
+        char *end=NULL; count=strtol(argv[i++],&end,10);
+        if (!end || *end || count<0 || count>1000000) { fprintf(stderr,"line utility: invalid line count\n"); return 1; }
+    }
+    if (i>=argc) {
+        char *line=NULL; size_t cap=0; ssize_t n; long shown=0;
+        if (!tail_mode) { while(shown<count && (n=getline(&line,&cap,stdin))>=0){fwrite(line,1,(size_t)n,stdout);++shown;} }
+        else {
+            char **ring=calloc((size_t)(count?count:1),sizeof(*ring)); size_t *lens=calloc((size_t)(count?count:1),sizeof(*lens));
+            if(!ring||!lens){free(ring);free(lens);free(line);return 1;}
+            long total=0; while((n=getline(&line,&cap,stdin))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
+            long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
+        }
+        free(line); return ferror(stdin)?1:0;
+    }
+    int rc=0;
+    for(;i<argc;++i){FILE*f=fopen(argv[i],"r");if(!f){perror(argv[i]);rc=1;continue;}
+        char *line=NULL;size_t cap=0;ssize_t n;long shown=0;
+        if(!tail_mode){while(shown<count&&(n=getline(&line,&cap,f))>=0){fwrite(line,1,(size_t)n,stdout);++shown;}}
+        else {char **ring=calloc((size_t)(count?count:1),sizeof(*ring));size_t*lens=calloc((size_t)(count?count:1),sizeof(*lens));long total=0;
+            if(!ring||!lens){free(ring);free(lens);free(line);fclose(f);return 1;}
+            while((n=getline(&line,&cap,f))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
+            long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
+        }
+        free(line);fclose(f);
+    }
+    return rc;
+}
+static int cmd_head(int argc,char**argv){return stream_lines(argc,argv,0);}
+static int cmd_tail(int argc,char**argv){return stream_lines(argc,argv,1);}
+static int cmd_sleep(int argc,char**argv)
+{
+    if(argc!=2){fprintf(stderr,"usage: sleep SECONDS\n");return 1;}
+    char *end=NULL;double sec=strtod(argv[1],&end);
+    if(!end||*end||sec<0){fprintf(stderr,"sleep: invalid time interval\n");return 1;}
+    struct timespec req={(time_t)sec,(long)((sec-(time_t)sec)*1000000000.0)};
+    while(nanosleep(&req,&req)!=0){if(errno!=EINTR){perror("sleep");return 1;}}
+    return 0;
+}
+
+
+extern char **environ;
+
+static int cmd_printenv(int argc, char **argv)
+{
+    int rc = 0;
+    if (argc == 1) {
+        for (char **p = environ; p && *p; ++p)
+            puts(*p);
+        return ferror(stdout) ? 1 : 0;
+    }
+    for (int i = 1; i < argc; ++i) {
+        const char *value = getenv(argv[i]);
+        if (!value) { rc = 1; continue; }
+        puts(value);
+    }
+    return rc;
+}
+
+static int cmd_env(int argc, char **argv)
+{
+    if (argc == 1) return cmd_printenv(1, argv);
+    execvp(argv[1], &argv[1]);
+    fprintf(stderr, "env: %s: %s\n", argv[1], strerror(errno));
+    return errno == ENOENT ? 127 : 126;
+}
+
+static int cmd_which(int argc, char **argv)
+{
+    if (argc < 2) { fprintf(stderr, "usage: which COMMAND...\n"); return 2; }
+    const char *path = getenv("PATH");
+    if (!path) path = "/bin:/usr/bin";
+    int rc = 0;
+    for (int i = 1; i < argc; ++i) {
+        int found = 0;
+        const char *part = path;
+        while (!found) {
+            const char *end = strchr(part, ':');
+            size_t dirlen = end ? (size_t)(end - part) : strlen(part);
+            char candidate[PATH_MAX];
+            const char *dir = part;
+            if (dirlen == 0) { dir = "."; dirlen = 1; }
+            int n = snprintf(candidate, sizeof(candidate), "%.*s/%s",
+                             (int)dirlen, dir, argv[i]);
+            if (n > 0 && (size_t)n < sizeof(candidate) &&
+                access(candidate, X_OK) == 0) {
+                puts(candidate);
+                found = 1;
+            }
+            if (!end) break;
+            part = end + 1;
+        }
+        if (!found) rc = 1;
+    }
+    return rc;
+}
+
+static int parse_long_arg(const char *text, long *value)
+{
+    char *end = NULL;
+    errno = 0;
+    long parsed = strtol(text, &end, 10);
+    if (errno || !end || *end) return -1;
+    *value = parsed;
+    return 0;
+}
+
+static int cmd_seq(int argc, char **argv)
+{
+    long first = 1, step = 1, last = 0;
+    if (argc == 2) {
+        if (parse_long_arg(argv[1], &last)) goto invalid;
+    } else if (argc == 3) {
+        if (parse_long_arg(argv[1], &first) ||
+            parse_long_arg(argv[2], &last)) goto invalid;
+    } else if (argc == 4) {
+        if (parse_long_arg(argv[1], &first) ||
+            parse_long_arg(argv[2], &step) ||
+            parse_long_arg(argv[3], &last)) goto invalid;
+    } else goto invalid;
+    if (step == 0 || (step > 0 && first > last) ||
+        (step < 0 && first < last)) goto invalid;
+    for (long value = first;;) {
+        if (printf("%ld\n", value) < 0) return 1;
+        if (value == last) break;
+        if ((step > 0 && value > LONG_MAX - step) ||
+            (step < 0 && value < LONG_MIN - step)) return 1;
+        long next = value + step;
+        if ((step > 0 && next > last) || (step < 0 && next < last)) break;
+        value = next;
+    }
+    return ferror(stdout) ? 1 : 0;
+invalid:
+    fprintf(stderr, "usage: seq [FIRST [INCREMENT]] LAST (integer arguments)\n");
+    return 2;
+}
+
+static int cmd_yes(int argc, char **argv)
+{
+    const char *value = argc > 1 ? argv[1] : "y";
+    for (;;) {
+        if (write_all_fd(STDOUT_FILENO, value, strlen(value)) < 0 ||
+            write_all_fd(STDOUT_FILENO, "\n", 1) < 0)
+            return 1;
+    }
+}
+
+static int cmd_tty(void)
+{
+    if (isatty(STDIN_FILENO)) {
+        puts("/dev/tty");
+        return 0;
+    }
+    puts("not a tty");
+    return 1;
+}
+
+static int cmd_id(void)
+{
+    printf("uid=%lu gid=%lu\n",
+           (unsigned long)getuid(), (unsigned long)getgid());
+    return ferror(stdout) ? 1 : 0;
+}
+
+
+static int cmd_fold(int argc, char **argv)
+{
+    long width = 80;
+    int i = 1;
+    if (i + 1 < argc && !strcmp(argv[i], "-w")) {
+        if (parse_long_arg(argv[i + 1], &width) != 0 || width < 1 || width > 1000000) {
+            fprintf(stderr, "fold: invalid width\n");
+            return 2;
+        }
+        i += 2;
+    }
+    int rc = 0;
+    int files = i < argc ? argc - i : 1;
+    for (int fidx = 0; fidx < files; ++fidx) {
+        FILE *input = i < argc ? fopen(argv[i + fidx], "rb") : stdin;
+        if (!input) { perror(argv[i + fidx]); rc = 1; continue; }
+        long column = 0;
+        int ch;
+        while ((ch = fgetc(input)) != EOF) {
+            if (ch == '\n') {
+                if (putchar(ch) == EOF) rc = 1;
+                column = 0;
+                continue;
+            }
+            if (column >= width) {
+                if (putchar('\n') == EOF) rc = 1;
+                column = 0;
+            }
+            if (putchar(ch) == EOF) rc = 1;
+            ++column;
+        }
+        if (ferror(input)) rc = 1;
+        if (input != stdin) fclose(input);
+    }
+    return rc || ferror(stdout) ? 1 : 0;
+}
+
+static int cmd_nl(int argc, char **argv)
+{
+    if (argc > 2) { fprintf(stderr, "usage: nl [FILE]\n"); return 2; }
+    FILE *input = argc == 2 ? fopen(argv[1], "rb") : stdin;
+    if (!input) { perror(argv[1]); return 1; }
+    char *line = NULL;
+    size_t capacity = 0;
+    ssize_t length;
+    unsigned long number = 1;
+    int rc = 0;
+    while ((length = getline(&line, &capacity, input)) >= 0) {
+        if (printf("%6lu\t", number++) < 0 ||
+            fwrite(line, 1, (size_t)length, stdout) != (size_t)length) {
+            rc = 1;
+            break;
+        }
+    }
+    if (ferror(input)) rc = 1;
+    free(line);
+    if (input != stdin) fclose(input);
+    return rc || ferror(stdout) ? 1 : 0;
+}
+
+static int cmd_tr(int argc, char **argv)
+{
+    if (argc != 3 || !argv[1][0] || !argv[2][0]) {
+        fprintf(stderr, "usage: tr SET1 SET2 < INPUT\n");
+        return 2;
+    }
+    size_t from_len = strlen(argv[1]);
+    size_t to_len = strlen(argv[2]);
+    unsigned char input[8192], output[8192];
+    for (;;) {
+        ssize_t n = read(STDIN_FILENO, input, sizeof(input));
+        if (n < 0) { if (errno == EINTR) continue; perror("tr: read"); return 1; }
+        if (n == 0) break;
+        for (ssize_t i = 0; i < n; ++i) {
+            output[i] = input[i];
+            for (size_t j = 0; j < from_len; ++j) {
+                if (input[i] == (unsigned char)argv[1][j]) {
+                    output[i] = (unsigned char)argv[2][j < to_len ? j : to_len - 1];
+                    break;
+                }
+            }
+        }
+        if (write_all_fd(STDOUT_FILENO, output, (size_t)n) < 0) {
+            perror("tr: write");
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int cmd_tee(int argc, char **argv)
+{
+    int *outputs = calloc((size_t)(argc > 1 ? argc - 1 : 1), sizeof(*outputs));
+    if (!outputs) return 1;
+    int rc = 0;
+    for (int i = 1; i < argc; ++i) {
+        outputs[i - 1] = open(argv[i], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (outputs[i - 1] < 0) { perror(argv[i]); rc = 1; }
+    }
+    unsigned char buffer[8192];
+    for (;;) {
+        ssize_t n = read(STDIN_FILENO, buffer, sizeof(buffer));
+        if (n < 0) { if (errno == EINTR) continue; perror("tee: read"); rc = 1; break; }
+        if (n == 0) break;
+        if (write_all_fd(STDOUT_FILENO, buffer, (size_t)n) < 0) { perror("tee: stdout"); rc = 1; break; }
+        for (int i = 1; i < argc; ++i) {
+            if (outputs[i - 1] >= 0 &&
+                write_all_fd(outputs[i - 1], buffer, (size_t)n) < 0) {
+                perror(argv[i]);
+                close(outputs[i - 1]);
+                outputs[i - 1] = -1;
+                rc = 1;
+            }
+        }
+    }
+    for (int i = 1; i < argc; ++i)
+        if (outputs[i - 1] >= 0) close(outputs[i - 1]);
+    free(outputs);
+    return rc;
+}
+
+static int cmd_cmp(int argc, char **argv)
+{
+    if (argc != 3) { fprintf(stderr, "usage: cmp FILE1 FILE2\n"); return 2; }
+    FILE *left = fopen(argv[1], "rb");
+    if (!left) { perror(argv[1]); return 2; }
+    FILE *right = fopen(argv[2], "rb");
+    if (!right) { perror(argv[2]); fclose(left); return 2; }
+    unsigned long long offset = 1;
+    int rc = 0;
+    for (;;) {
+        int a = fgetc(left), b = fgetc(right);
+        if (a != b) {
+            if (a == EOF || b == EOF)
+                printf("cmp: files differ at byte %llu (EOF)\n", offset);
+            else
+                printf("cmp: files differ at byte %llu\n", offset);
+            rc = 1;
+            break;
+        }
+        if (a == EOF) break;
+        ++offset;
+    }
+    if (ferror(left) || ferror(right)) rc = 2;
+    fclose(left);
+    fclose(right);
+    return rc;
 }
 
 int main(int argc, char **argv)
@@ -466,6 +949,52 @@ int main(int argc, char **argv)
 
     if (!strcmp(cmd, "false"))
         return cmd_false();
+    if (!strcmp(cmd, "rmdir"))
+        return cmd_rmdir(argc, argv);
+    if (!strcmp(cmd, "ln"))
+        return cmd_ln(argc, argv);
+    if (!strcmp(cmd, "readlink"))
+        return cmd_readlink(argc, argv);
+    if (!strcmp(cmd, "basename"))
+        return cmd_basename(argc, argv);
+    if (!strcmp(cmd, "dirname"))
+        return cmd_dirname(argc, argv);
+    if (!strcmp(cmd, "uname"))
+        return cmd_uname(argc, argv);
+    if (!strcmp(cmd, "wc"))
+        return cmd_wc(argc, argv);
+    if (!strcmp(cmd, "head"))
+        return cmd_head(argc, argv);
+    if (!strcmp(cmd, "tail"))
+        return cmd_tail(argc, argv);
+    if (!strcmp(cmd, "sleep"))
+        return cmd_sleep(argc, argv);
+
+    if (!strcmp(cmd, "env"))
+        return cmd_env(argc, argv);
+    if (!strcmp(cmd, "printenv"))
+        return cmd_printenv(argc, argv);
+    if (!strcmp(cmd, "which"))
+        return cmd_which(argc, argv);
+    if (!strcmp(cmd, "seq"))
+        return cmd_seq(argc, argv);
+    if (!strcmp(cmd, "yes"))
+        return cmd_yes(argc, argv);
+    if (!strcmp(cmd, "tty"))
+        return cmd_tty();
+    if (!strcmp(cmd, "id"))
+        return cmd_id();
+
+    if (!strcmp(cmd, "fold"))
+        return cmd_fold(argc, argv);
+    if (!strcmp(cmd, "nl"))
+        return cmd_nl(argc, argv);
+    if (!strcmp(cmd, "tr"))
+        return cmd_tr(argc, argv);
+    if (!strcmp(cmd, "tee"))
+        return cmd_tee(argc, argv);
+    if (!strcmp(cmd, "cmp"))
+        return cmd_cmp(argc, argv);
 
     /* Route unknown command names through the shared runtime dispatcher.
        Preserve argv exactly and never parse command text through a shell. */
