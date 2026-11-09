@@ -40,7 +40,11 @@ jobs:
           assert "CHIMERA_X11_RUNTIME_VERIFIED" in launcher
           assert "CHIMERA_X11_FORCE_UNVERIFIED" in launcher
           assert "xserver-xorg" in providers
-          print("Aurora semantic icons and guarded X.Org provider contract: PASS")
+          desktop_profiles = json.loads(Path("desktop/desktop_profiles.json").read_text(encoding="utf-8"))
+          assert any(item["id"] == "freexp" for item in desktop_profiles["profiles"]["chimera"])
+          package_profiles = json.loads(Path("desktop/profiles/desktop-profiles.json").read_text(encoding="utf-8"))
+          assert any(item["id"] == "freexp" for item in package_profiles["profiles"])
+          print("Aurora semantic icons, guarded X.Org provider and FreeXP profile contracts: PASS")
           PY
       - name: Build and runtime-test OpenGL and OpenCV tools
         run: |
