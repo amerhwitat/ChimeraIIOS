@@ -46,6 +46,28 @@ verify_target_binary() {
   command -v readelf >/dev/null 2>&1 || { log "readelf is required to verify $binary"; return 1; }
   arch="$(normalize_arch "$TARGET_ARCH")" || { log "Unsupported target architecture: $TARGET_ARCH"; return 1; }
   machine="$(readelf -h "$binary" 2>/dev/null | sed -n 's/^[[:space:]]*Machine:[[:space:]]*//p')"
+  # Some packaged terminal launchers (notably Python entry points) are
+  # executable scripts. Verify their shebang interpreter's target ELF rather
+  # than incorrectly treating the script text as a native binary.
+  if [[ -z "$machine" ]]; then
+    local shebang interpreter target_interpreter
+    IFS= read -r shebang < "$binary" || shebang=""
+    [[ "$shebang" == '#!'* ]] || { log "Not an ELF binary or recognized shebang script: $binary"; return 1; }
+    interpreter="${shebang#\#!}"
+    interpreter="${interpreter%% *}"
+    if [[ "$interpreter" == "/usr/bin/env" ]]; then
+      local env_command
+      env_command="$(sed -n '1s/^#![[:space:]]*\/usr\/bin\/env[[:space:]]*//p' "$binary" | awk '{print $1}')"
+      [[ -n "$env_command" ]] || { log "Unresolvable env shebang: $binary"; return 1; }
+      target_interpreter="$DEST/usr/bin/$env_command"
+      [[ -x "$target_interpreter" ]] || target_interpreter="$DEST/bin/$env_command"
+    else
+      target_interpreter="$DEST$interpreter"
+    fi
+    [[ -x "$target_interpreter" ]] || { log "Target shebang interpreter missing: $target_interpreter"; return 1; }
+    machine="$(readelf -h "$target_interpreter" 2>/dev/null | sed -n 's/^[[:space:]]*Machine:[[:space:]]*//p')"
+    [[ -n "$machine" ]] || { log "Target shebang interpreter is not a verified ELF: $target_interpreter"; return 1; }
+  fi
   case "$arch" in
     x86_64) expected="Advanced Micro Devices X86-64" ;;
     aarch64) expected="AArch64" ;;
