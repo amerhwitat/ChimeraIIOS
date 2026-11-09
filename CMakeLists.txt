@@ -49,7 +49,7 @@ install(PROGRAMS tools/inspect-binary-headers.py DESTINATION ${CMAKE_INSTALL_LIB
 install(PROGRAMS tools/binary/scan-binaries.py tools/binary/run-compat.py DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/chimera/tools/binary)
 install(PROGRAMS tools/ide/install-development-suite.sh DESTINATION bin)
 install(PROGRAMS tools/graphics/install-opengl-opencv.sh DESTINATION bin)
-install(PROGRAMS tools/ide/install-vscode.py tools/ide/install-vscodium.py DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/chimera/tools/ide)
+install(PROGRAMS tools/ide/install-vscode.py tools/ide/install-vscodium.py DESTINATION bin)
 install(FILES man/chm-install-graphics.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install(FILES man/chm-binary-scan.1 man/chm-run-compat.1 man/chm-install-dev-suite.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install(FILES man/chm-binary-headers.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
