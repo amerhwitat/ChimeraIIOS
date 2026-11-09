@@ -557,9 +557,10 @@ jobs:
                 wait "$qemu_pid"
                 qemu_rc=$?
                 set -e
-                set -e
                 case_passed=true
-                if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 && "$qemu_rc" -ne 0 ]]; then
+                if [[ "$serial_rc" -ne 0 ]]; then
+                  case_passed=false
+                elif [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 && "$qemu_rc" -ne 0 ]]; then
                   case_passed=false
                 elif ! python3 tests/boot/verify-userspace-handoff.py "$target" "$trace"; then
                   case_passed=false
