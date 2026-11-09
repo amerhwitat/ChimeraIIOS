@@ -24,6 +24,71 @@ install_delegate lprintd /usr/bin/lprm "Delete print jobs using the real LPRng l
 install_delegate lprintq /usr/bin/lpq "List print jobs using the real LPRng lpq provider."
 install_delegate slocate /usr/bin/plocate "Secure locate compatibility frontend using plocate."
 
+# rcp keeps the familiar host:path interface but uses OpenSSH's real scp
+# transport. Legacy rsh/Kerberos-only flags are rejected rather than ignored.
+if [[ -x "$ROOTFS/usr/bin/scp" ]]; then
+  cat > "$BIN/rcp" <<'RCP'
+#!/bin/sh
+for arg in "$@"; do
+  case "$arg" in
+    -x|-k) echo "rcp: legacy rsh encryption/realm flags are unsupported; use SSH keys and scp options" >&2; exit 2 ;;
+  esac
+done
+exec scp "$@"
+RCP
+  chmod 0755 "$BIN/rcp"
+  echo "[COMMAND-COMPAT] rcp -> secure OpenSSH scp transport (legacy rsh flags rejected)"
+fi
+
+# chkconfig compatibility for current systemd hosts. It handles the common
+# list/add/delete/on/off forms and explicitly rejects unsupported runlevel
+# requests rather than pretending systemd provides exact SysV runlevel state.
+if [[ -x "$ROOTFS/usr/bin/systemctl" ]]; then
+  cat > "$BIN/chkconfig" <<'CHKCONFIG'
+#!/bin/sh
+set -eu
+usage() {
+  echo "usage: chkconfig [--list [service]] | [--add|--del service] | [--level 2345 service on|off] | service on|off" >&2
+  exit 2
+}
+systemctl_cmd() {
+  command -v systemctl >/dev/null 2>&1 || { echo "chkconfig: systemctl is unavailable" >&2; exit 127; }
+  systemctl "$@"
+}
+[ "$#" -gt 0 ] || usage
+case "$1" in
+  --list|-l)
+    if [ "$#" -gt 1 ]; then
+      systemctl_cmd is-enabled "$2"
+    else
+      systemctl_cmd list-unit-files --type=service --no-legend
+    fi
+    ;;
+  --add)
+    [ "$#" -eq 2 ] || usage
+    systemctl_cmd enable "$2"
+    ;;
+  --del)
+    [ "$#" -eq 2 ] || usage
+    systemctl_cmd disable "$2"
+    ;;
+  --level)
+    [ "$#" -eq 4 ] || usage
+    levels="$2"; service="$3"; action="$4"
+    case "$levels" in *[016]*) echo "chkconfig: systemd cannot represent runlevels 0, 1, or 6 independently" >&2; exit 2 ;; esac
+    case "$levels" in *[2345]*) ;; *) echo "chkconfig: no supported systemd runlevels selected" >&2; exit 2 ;; esac
+    case "$action" in on) systemctl_cmd enable "$service" ;; off) systemctl_cmd disable "$service" ;; *) usage ;; esac
+    ;;
+  *)
+    [ "$#" -eq 2 ] || usage
+    case "$2" in on) systemctl_cmd enable "$1" ;; off) systemctl_cmd disable "$1" ;; *) usage ;; esac
+    ;;
+esac
+CHKCONFIG
+  chmod 0755 "$BIN/chkconfig"
+  echo "[COMMAND-COMPAT] chkconfig -> systemd common-operation compatibility frontend"
+fi
+
 # mkfile is a real utility with sparse and allocated-file modes. The default
 # allocates/zero-fills the requested extent and sets the sticky bit, while -n
 # creates a sparse file. Size suffixes follow the SS64 interface.
