@@ -1,0 +1,69 @@
+{
+  "schema": "chimera-binary-compatibility-runtimes/v1",
+  "runtimes": [
+    {
+      "id": "qemu-user",
+      "purpose": "Foreign-architecture Linux ELF user-mode emulation",
+      "packages": [
+        "qemu-user",
+        "qemu-user-static"
+      ],
+      "commands": [
+        "qemu-i386",
+        "qemu-x86_64",
+        "qemu-arm",
+        "qemu-aarch64",
+        "qemu-riscv32",
+        "qemu-riscv64",
+        "qemu-ppc",
+        "qemu-ppc64",
+        "qemu-ppc64le",
+        "qemu-mips",
+        "qemu-mipsel",
+        "qemu-s390x"
+      ]
+    },
+    {
+      "id": "wine",
+      "purpose": "Windows PE application compatibility on Linux",
+      "packages": [
+        "wine64"
+      ],
+      "commands": [
+        "wine",
+        "wine64"
+      ]
+    },
+    {
+      "id": "dosbox",
+      "purpose": "DOS MZ application emulation",
+      "packages": [
+        "dosbox"
+      ],
+      "commands": [
+        "dosbox"
+      ]
+    },
+    {
+      "id": "wasmtime",
+      "purpose": "WebAssembly runtime",
+      "packages": [
+        "wasmtime"
+      ],
+      "commands": [
+        "wasmtime"
+      ],
+      "optional": true
+    },
+    {
+      "id": "darling",
+      "purpose": "macOS user-space compatibility on Linux",
+      "packages": [],
+      "commands": [
+        "darling"
+      ],
+      "optional": true,
+      "limitation": "Not installed by this bootstrap; full macOS VM remains the reliable route for arbitrary Mach-O applications."
+    }
+  ]
+}
