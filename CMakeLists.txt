@@ -174,5 +174,5 @@ install(FILES man/chm-binary-inspect.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 if(BUILD_TESTING AND Python3_Interpreter_FOUND)
   add_test(NAME chimera_binary_header_inspection
     COMMAND ${Python3_EXECUTABLE} -m unittest discover
-      -s ${CMAKE_SOURCE_DIR}/tests/compat -p test_binary_headers.py -v)
+      -s ${CMAKE_CURRENT_SOURCE_DIR}/tests/compat -p test_binary_headers.py -v)
 endif()
