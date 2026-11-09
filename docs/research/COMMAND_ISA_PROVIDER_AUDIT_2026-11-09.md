@@ -56,6 +56,8 @@ The existing source catalogue identifies these primary upstream families:
 
 The provider install script currently declares 103 Ubuntu package names. This is a provider package set, not proof that all 301 Linux/Bash commands or the other platform namespaces are available. Some package names are unavailable on a given Ubuntu release; the new report records each package as installed, unavailable, or failed.
 
+The runtime capability generator currently hard-codes 15 names as native Chimera command implementations. The native command catalogue namespace contains 90 entries, so the other names must resolve through a real provider or remain explicitly unavailable. The separate runtime-provider registry declares 284 command/provider associations across POSIX, GNU Coreutils, BusyBox, BSD/macOS, Windows CMD, PowerShell, developer tools, networking, storage, services, DOS and database groups. Those 284 associations are metadata and do not prove that each binary/runtime is installed or behaviorally conformant.
+
 ## ISA inventory
 
 The canonical ISA database contains:
@@ -122,7 +124,7 @@ The cross-platform system terminal manifest contains 18 terminal applications; t
 
 ## Build gate added in this change
 
-The provider installer now writes a JSON report with package outcomes. Best-effort mode remains available for development images. The `--full` release build passes `CHIMERA_STRICT_COMMAND_PROVIDERS=1` into Docker, where missing or failed declared package providers stop the image build rather than silently passing.
+The provider installer now writes a JSON report with package outcomes. Full mode also enables the allowlisted online ISA/command source refresh, source-discovery crawler and RISC-V opcode import; DOS discovery is metadata-only and payload staging downloads only manifest entries that have a reviewed redistribution license, explicit redistributable approval, a pinned SHA-256 and smoke-test status. Best-effort mode remains available for development images. The `--full` release build passes `CHIMERA_STRICT_COMMAND_PROVIDERS=1` into Docker, where missing or failed declared package providers stop the image build rather than silently passing.
 
 This strict gate is intentionally expected to reveal unresolved providers. It does not by itself prove full catalogue coverage; the per-command namespace ledger and ISA-specific conformance matrix remain required.
 
