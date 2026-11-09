@@ -278,7 +278,9 @@ static const chimera_boot_module *find_target_init(const char *target) {
 }
 
 static void launch_target_init(const char *target) {
-    console_write("[RUN ] Launching target-specific native init ELF");
+    console_write(target[0] == 'l' ? "[RUN ] Launching Live native init ELF" :
+                  (target[0] == 'i' ? "[RUN ] Launching Installer native init ELF" :
+                   "[RUN ] Launching Recovery native init ELF"));
     const int rc = koronos_launch_selected_userspace();
     if (rc != 0) {
         console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
