@@ -1,0 +1,132 @@
+{
+  "schema": "chimera-open-toolchains/v1",
+  "providers": [
+    {
+      "id": "gnu-binutils",
+      "role": [
+        "assembler",
+        "linker",
+        "disassembler",
+        "object-inspection"
+      ],
+      "tools": [
+        "as",
+        "ld",
+        "objdump",
+        "readelf",
+        "nm",
+        "ar"
+      ],
+      "targets": [
+        "x86",
+        "x86_64",
+        "arm",
+        "aarch64",
+        "riscv64",
+        "powerpc",
+        "s390x",
+        "mips"
+      ]
+    },
+    {
+      "id": "llvm",
+      "role": [
+        "compiler",
+        "assembler",
+        "linker",
+        "disassembler",
+        "debugger"
+      ],
+      "tools": [
+        "clang",
+        "llvm-mc",
+        "lld",
+        "llvm-objdump",
+        "llvm-readobj",
+        "lldb"
+      ],
+      "targets": [
+        "x86",
+        "x86_64",
+        "arm",
+        "aarch64",
+        "riscv32",
+        "riscv64",
+        "powerpc64le",
+        "s390x"
+      ]
+    },
+    {
+      "id": "nasm",
+      "role": [
+        "assembler"
+      ],
+      "tools": [
+        "nasm"
+      ],
+      "targets": [
+        "x86",
+        "x86_64"
+      ]
+    },
+    {
+      "id": "yasm",
+      "role": [
+        "assembler"
+      ],
+      "tools": [
+        "yasm"
+      ],
+      "targets": [
+        "x86",
+        "x86_64"
+      ]
+    },
+    {
+      "id": "gdb",
+      "role": [
+        "debugger"
+      ],
+      "tools": [
+        "gdb",
+        "gdb-multiarch"
+      ],
+      "targets": [
+        "x86",
+        "x86_64",
+        "arm",
+        "aarch64",
+        "riscv64",
+        "powerpc64le",
+        "s390x",
+        "mipsel"
+      ]
+    },
+    {
+      "id": "qemu-user",
+      "role": [
+        "user-mode-emulator"
+      ],
+      "tools": [
+        "qemu-i386",
+        "qemu-arm",
+        "qemu-aarch64",
+        "qemu-riscv32",
+        "qemu-riscv64",
+        "qemu-ppc64le",
+        "qemu-s390x",
+        "qemu-mipsel"
+      ],
+      "targets": [
+        "i386",
+        "arm",
+        "aarch64",
+        "riscv32",
+        "riscv64",
+        "powerpc64le",
+        "s390x",
+        "mipsel"
+      ]
+    }
+  ]
+}
