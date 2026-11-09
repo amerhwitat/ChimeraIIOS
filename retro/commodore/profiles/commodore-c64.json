@@ -1,0 +1,6 @@
+{
+  "machine": "C64",
+  "video": "PAL",
+  "sid_engine": "FastSID",
+  "drive": "1541"
+}
