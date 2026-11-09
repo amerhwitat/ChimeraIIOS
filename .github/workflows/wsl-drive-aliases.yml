@@ -1,0 +1,19 @@
+name: WSL Windows drive alias validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  wsl-drive-aliases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate helper syntax
+        run: bash -n tools/wsl/map-windows-drives.sh tests/wsl/test-map-windows-drives.sh
+      - name: Test mapping behavior and safety
+        run: bash tests/wsl/test-map-windows-drives.sh
