@@ -545,7 +545,7 @@ jobs:
               if target == "recovery":
                   # Root Recovery opens Jasper nested rescue menu.
                   time.sleep(3)
-                  client.sendall(b"\\r")
+                  client.sendall(b"\r")
                   output.write("nested-recovery-enter\n")
                   output.flush()
           client.close()
