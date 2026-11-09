@@ -53,7 +53,7 @@ verify_target_binary() {
     local shebang interpreter target_interpreter
     IFS= read -r shebang < "$binary" || shebang=""
     [[ "$shebang" == '#!'* ]] || { log "Not an ELF binary or recognized shebang script: $binary"; return 1; }
-    interpreter="${shebang#\#!}"
+    interpreter="${shebang:2}"
     interpreter="${interpreter%% *}"
     if [[ "$interpreter" == "/usr/bin/env" ]]; then
       local env_command
