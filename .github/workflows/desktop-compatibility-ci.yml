@@ -11,7 +11,7 @@ jobs:
       - name: Install OpenGL and OpenCV development runtimes
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglfw3-dev libopencv-dev xvfb mesa-utils pkg-config vice python3-venv
+          sudo apt-get install -y libgl1-mesa-dev libglfw3-dev libopencv-dev xvfb mesa-utils pkg-config vice fs-uae python3-venv
       - name: Test ELF, PE/COFF, Mach-O and WASM header inspection
         run: python3 -m unittest discover -s tests/compat -p test_binary_headers.py -v
       - name: Validate semantic Aurora desktop icon integration
@@ -61,6 +61,10 @@ jobs:
           . /tmp/chimera-retro-media-venv/bin/activate
           python -m pip install --disable-pip-version-check amitools
           command -v c1541
+          command -v fs-uae
+          fs-uae --version
+          bash -n tools/retro-media/install-emulators.sh
+          python3 -m json.tool tools/retro-media/emulator-packages.json >/dev/null
           python tools/retro-media/build_retro_media.py --output /tmp/chimera-retro-media
           CHIMERA_RETRO_MEDIA_DIR=/tmp/chimera-retro-media python -m unittest discover -s tests/retro_media -v
       - name: Upload Amiga and Commodore disk images
