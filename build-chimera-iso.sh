@@ -1062,6 +1062,14 @@ stage_retro_and_dev_tools(){
   local emulator_root="$ROOTFS_DIR/usr/lib/chimera/retro/emulators"
   mkdir -p "$retro_root/commodore" "$retro_root/media" "$emulator_root" \
     "$ROOTFS_DIR/usr/lib/chimera/tools/binary" "$ROOTFS_DIR/usr/share/man/man1" "$ROOTFS_DIR/usr/bin"
+  mkdir -p "$ROOTFS_DIR/usr/share/icons/hicolor/scalable/apps" "$ISO_DIR/system/retro/icons"
+  for icon in amiga-500 amiga-2000 commodore-64; do
+    source_icon="$SCRIPT_DIR/assets/icons/retro/$icon.svg"
+    if [[ -s "$source_icon" ]]; then
+      install -m 0644 "$source_icon" "$ROOTFS_DIR/usr/share/icons/hicolor/scalable/apps/chimera-$icon.svg"
+      cp -f "$source_icon" "$ISO_DIR/system/retro/icons/chimera-$icon.svg"
+    fi
+  done
   # Build media/providers only when explicitly requested. Existing verified
   # artifacts are always reused and staged into the next ISO build.
   if [[ "${CHIMERA_BUILD_RETRO_MEDIA:-0}" == 1 ]]; then
