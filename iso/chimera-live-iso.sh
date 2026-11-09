@@ -165,6 +165,27 @@ cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
+# Ensure the three ring-3 target payloads are built and attached as Multiboot2
+# modules. Staging only initramfs/installer metadata leaves the kernel with
+# nothing executable to hand off to, even though the target menu appears.
+TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"
+if [[ ! -s "$TARGET_INIT_DIR/target-init-live.elf" ||
+      ! -s "$TARGET_INIT_DIR/target-init-installer.elf" ||
+      ! -s "$TARGET_INIT_DIR/target-init-recovery.elf" ]]; then
+  echo "[INFO] Building Koronos and target-specific native init ELFs..."
+  bash "$ROOT/kernel/build-koronos.sh"
+fi
+mkdir -p "$STAGE/boot/targets"
+for target in live installer recovery; do
+  target_elf="$TARGET_INIT_DIR/target-init-$target.elf"
+  [[ -s "$target_elf" ]] || { echo "ERROR: missing target init ELF: $target_elf" >&2; exit 2; }
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: target init is not an executable ELF: $target_elf" >&2; exit 2;
+  }
+  cp -f "$target_elf" "$STAGE/boot/targets/"
+done
+cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"
+
 install_iso_dependencies
 if [[ ! -f "$ROOT/tools/chimera-stage-installer-media.sh" ]]; then
   echo "ERROR: tools/chimera-stage-installer-media.sh is missing or not executable." >&2
