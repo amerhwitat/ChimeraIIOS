@@ -48,6 +48,11 @@ jobs:
           assert any(item["id"] == "freexp" for item in package_profiles["profiles"])
           print("Aurora semantic icons, guarded X.Org provider and FreeXP profile contracts: PASS")
           PY
+      - name: Validate X11 provider script and manifest syntax
+        run: |
+          bash -n desktop/x11/start-session.sh
+          bash -n tools/commands/install-command-providers.sh
+          python3 -m json.tool desktop/x11/xorg-provider.json >/dev/null
       - name: Build and runtime-test OpenGL and OpenCV tools
         run: |
           cmake -S . -B /tmp/chimera-graphics-build -DCMAKE_BUILD_TYPE=Release
