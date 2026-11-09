@@ -33,6 +33,13 @@ class BinaryHeaderTests(unittest.TestCase):
         self.assertEqual((result["format"], result["os"], result["architecture"]),
                          ("Mach-O", "macOS/Darwin", "AArch64"))
 
+
+    def test_java_class_and_universal_macho(self):
+        java = b"\\xca\\xfe\\xba\\xbe" + struct.pack(">HH", 0, 65) + bytes(24)
+        self.assertEqual(MODULE.inspect(java)["format"], "Java Class")
+        fat = b"\\xca\\xfe\\xba\\xbe" + struct.pack(">I", 2) + bytes(24)
+        self.assertEqual(MODULE.inspect(fat)["format"], "Mach-O Universal")
+
     def test_dos_and_wasm(self):
         mz = bytearray(64); mz[:2] = b"MZ"
         self.assertEqual(MODULE.inspect(bytes(mz))["format"], "DOS MZ")
