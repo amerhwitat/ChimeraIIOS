@@ -59,6 +59,10 @@ if [[ -f "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" ]]; then
 fi
 while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
+python3 "$ROOT/tools/build-desktop-icon-files.py" \
+  --sprite "$ROOT/desktop/aurora/icons/catalog.svg" \
+  --manifest "$ROOT/desktop/aurora/icons/manifest.json" \
+  --output "$OUT/icons"
 cp -a "$ROOT/desktop/aurora/gates_menu.json" "$OUT/manifests/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/platform_personality_model.json" "$OUT/manifests/" 2>/dev/null || true
 cp -a "$ROOT/desktop/aurora/session_profiles.json" "$OUT/manifests/" 2>/dev/null || true
@@ -68,6 +72,7 @@ cat > "$OUT/manifests/desktop-build-manifest.json" <<EOF
   "aurora": "Wayland Glass",
   "native_binaries": ["bin/aurora-launcher","bin/chimera-neural-chat","bin/voiceconnect","bin/aurora-peripherals","bin/aurora-settings","bin/chm-utf8"],
   "native_objects": ["aurora_input.o","aurora_input_router.o","aurora_locale.o","aurora_utf.o","aurora_emoji.o","chimera_icons.o"],
+  "semantic_icon_files": "icons/",
   "source_tree": "aurora-source",
   "internationalization": ["UTF-8","Unicode","BCP-47","CLDR-oriented","RTL","LTR","combining-marks","variation-selectors","emoji","logical-start-end"],
   "icons": {"provider":"native","fallback":"hardcoded-svg","emoji":true},
