@@ -22,7 +22,8 @@ for model in 500 2000; do
 done
 python3 "$ROOT/retro/commodore/create-c64-demo.py" --output "$TMP/CHIMERA.PRG"
 D64="$OUT/CHIMERA-Commodore-64.d64"; rm -f "$D64"
-c1541 -format "CHIMERA,01" "$D64" -write "$TMP/CHIMERA.PRG" CHIMERA
+c1541 -format "CHIMERA,01" d64 "$D64"
+c1541 -attach "$D64" -write "$TMP/CHIMERA.PRG" CHIMERA
 c1541 -attach "$D64" -list > "$TMP/c64-list.txt"; grep -qi CHIMERA "$TMP/c64-list.txt"
 (cd "$OUT" && sha256sum CHIMERA-Amiga-500.adf CHIMERA-Amiga-2000.adf CHIMERA-Commodore-64.d64 > SHA256SUMS)
 echo "Retro media created and inspected:"; ls -lh "$OUT"/CHIMERA-*
