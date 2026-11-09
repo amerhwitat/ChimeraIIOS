@@ -1,0 +1,40 @@
+name: Retro ADF and D64 Media Build
+on:
+  pull_request:
+    paths: ['retro/commodore/**', '.github/workflows/retro-media-build.yml']
+  push:
+    branches: [main]
+    paths: ['retro/commodore/**', '.github/workflows/retro-media-build.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-retro-media:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install image tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vice
+          python3 -m pip install --user --break-system-packages amitools
+      - name: Test original C64 BASIC program and launcher
+        run: |
+          python3 -m unittest discover -s retro/commodore/tests -v
+          bash -n retro/commodore/create-retro-media.sh retro/commodore/launch-machine.sh
+      - name: Create and inspect ADF and D64 images
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          retro/commodore/create-retro-media.sh --out build/retro-media
+          xdftool build/retro-media/CHIMERA-Amiga-500.adf list
+          xdftool build/retro-media/CHIMERA-Amiga-2000.adf list
+          c1541 -attach build/retro-media/CHIMERA-Commodore-64.d64 -list
+          sha256sum -c build/retro-media/SHA256SUMS
+      - name: Upload downloadable retro media
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-amiga-commodore-adf-d64
+          path: build/retro-media/
+          if-no-files-found: error
+          retention-days: 90
