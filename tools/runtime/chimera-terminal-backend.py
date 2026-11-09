@@ -36,7 +36,7 @@ class TerminalService:
     def execute(self,payload):
         raw=str(payload.get("command","")).strip()
         shell=str(payload.get("shell","bash")).lower()
-        if shell not in {"bash","zsh","fish","pwsh","powershell","cmd","nu"}:raise ValueError("Unsupported shell profile")
+        if shell not in {"bash","zsh","fish","pwsh","powershell","cmd","nu","chimera"}:raise ValueError("Unsupported shell profile")
         if not raw:return {"ok":True,"output":"","cwd":str(self.workspace),"mode":"safe"}
         if len(raw)>4096 or chr(0) in raw:raise ValueError("Command is too long or contains invalid characters")
         sid,s=self._session(payload.get("session"))
@@ -141,8 +141,8 @@ class TerminalService:
                 if not p.is_dir():return "cd: not a directory",1
                 s["cwd"]=p;return "",0
             except Exception as e:return str(e),1
-        if shell in {"bash","zsh","fish","nu"}:
-            exe=shell;args=[exe,"-lc",raw] if shell in {"bash","zsh","fish"} else [exe,"-c",raw]
+        if shell in {"bash","zsh","fish","nu","chimera"}:
+            exe="bash" if shell=="chimera" else shell;args=[exe,"-lc",raw] if exe in {"bash","zsh","fish"} else [exe,"-c",raw]
         elif shell in {"pwsh","powershell"}:exe="pwsh";args=[exe,"-NoLogo","-NoProfile","-NonInteractive","-Command",raw]
         elif shell=="cmd":
             if os.name!="nt":return "cmd.exe is only available on Windows hosts",69
