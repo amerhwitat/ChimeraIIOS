@@ -176,8 +176,9 @@ class H(BaseHTTPRequestHandler):
                 if model not in allowed_models:return send(self,400,{"error":"unsupported-amiga-model"})
                 a=exe(["fs-uae","uae"])
                 if not a:return send(self,503,{"error":"fs-uae-not-installed"})
+                model_arg={"A500PLUS":"A500+"}.get(model,model)
                 args=[a]
-                if model!="AUTO":args.append(f"--amiga-model={model}")
+                if model!="AUTO":args.append(f"--amiga-model={model_arg}")
                 args.append(f"--floppy-drive-0={p}")
                 kickstart=str(d.get("kickstart","")).strip()
                 if kickstart:
