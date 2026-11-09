@@ -5,7 +5,7 @@ MOD=importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(MOD)
 class RetroMediaTests(unittest.TestCase):
  def test_basic_program(self):
   data=MOD.build_program("HELLO CHIMERA")
-  self.assertEqual(data[:2],b"\x01\x08"); self.assertEqual(data[4],10); self.assertEqual(data[6],0x99); self.assertTrue(data.endswith(b"\0\0"))
+  self.assertEqual(data[:2],b"\x01\x08"); self.assertEqual(data[4],10); self.assertEqual(data[6],0x99); self.assertEqual(int.from_bytes(data[2:4],"little"),0x0801+len(data)-4); self.assertTrue(data.endswith(b"\0\0"))
  def test_catalogue(self):
   d=json.loads((ROOT/"retro/commodore/machines.json").read_text()); ids={x["id"] for x in d["machines"]}
   self.assertEqual(ids,{"amiga-a500","amiga-a2000","commodore-c64"})
