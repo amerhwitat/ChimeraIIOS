@@ -166,10 +166,10 @@ manifest.setdefault("external_bundles", []).append({
 manifest_path.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
 with sums_path.open("w", encoding="utf-8") as fh:
     for item in manifest["entries"]:
-        fh.write(f'{item["sha256"]}  {item["kind"]}/{item["path"]}\\n')
+        fh.write(f'{item["sha256"]}  {item["kind"]}/{item["path"]}\n')
 PYCOMPAT
   (cd "$DIST/iso/payload" && sha256sum -c SHA256SUMS)
-  printf '%s\\n' "[3d+] Verified Linux desktop compatibility tools staged under /payload/desktop-compat-tools"
+  printf '%s\n' "[3d+] Verified Linux desktop compatibility tools staged under /payload/desktop-compat-tools"
 fi
 
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
