@@ -39,3 +39,29 @@ jobs:
           path: build/retro-media/
           if-no-files-found: error
           retention-days: 90
+  build-emulator-providers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install emulator build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git make autoconf automake libtool gettext autopoint pkg-config nasm libsdl2-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev libxss-dev libjpeg-dev libpng-dev zlib1g-dev libpcap-dev libreadline-dev
+      - name: Build pinned open-source PUAE and VICE providers
+        run: |
+          chmod +x retro/commodore/build-emulator-providers.sh
+          bash retro/commodore/build-emulator-providers.sh --out build/retro-emulators --jobs 2
+      - name: Verify emulator binary headers and dependencies
+        run: |
+          readelf -h build/retro-emulators/puae_libretro.so
+          readelf -h build/retro-emulators/x64sc
+          readelf -h build/retro-emulators/c1541
+          (cd build/retro-emulators && sha256sum -c SHA256SUMS)
+      - name: Upload compiled emulator providers
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-amiga-commodore-emulator-binaries-linux-x86_64
+          path: build/retro-emulators/
+          if-no-files-found: error
+          retention-days: 90
