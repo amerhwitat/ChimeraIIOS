@@ -172,20 +172,16 @@ class H(BaseHTTPRequestHandler):
                 if p.suffix.lower() not in {".adf",".adz",".dms",".ipf",".hdf",".hdz",".lha",".zip",".m3u"}:
                     return send(self,415,{"error":"unsupported-amiga-media"})
                 model=str(d.get("model","auto")).upper()
-                allowed_models={"AUTO","A500","A500PLUS","A600","A1200","A2000","A3000","A4000","CDTV","CD32"}
-                if model not in allowed_models:return send(self,400,{"error":"unsupported-amiga-model"})
-                a=exe(["fs-uae","uae"])
-                if not a:return send(self,503,{"error":"fs-uae-not-installed"})
-                model_arg={"A500PLUS":"A500+"}.get(model,model)
+                allowed={"AUTO","A500","A500PLUS","A600","A1200","A2000","A3000","A4000","A4000/040","CDTV","CD32"}
+                if model not in allowed:return send(self,400,{"error":"unsupported-amiga-model"})
                 args=[a]
-                if model!="AUTO":args.append(f"--amiga-model={model_arg}")
+                if model=="A2000":
+                    # FS-UAE models A2000 chipset compatibility on its A500 base profile.
+                    args.extend(["--amiga-model=A500","--uae-chipset-compatible=A2000","--uae-rtc=MSM6242B"])
+                elif model!="AUTO":
+                    model_arg={"A500PLUS":"A500+","A4000":"A4000/040"}.get(model,model)
+                    args.append(f"--amiga-model={model_arg}")
                 args.append(f"--floppy-drive-0={p}")
-                kickstart=str(d.get("kickstart","")).strip()
-                if kickstart:
-                    rom=safe_path(kickstart)
-                    if not rom.is_file() or rom.suffix.lower() not in {".rom",".bin"}:
-                        return send(self,400,{"error":"invalid-kickstart-file"})
-                    args.append(f"--kickstart-file={rom}")
                 subprocess.Popen(args,start_new_session=True)
                 return send(self,200,{"status":"launched","machine":model,"executable":a,"media":str(p)})
             if path=="/launch/commodore":
