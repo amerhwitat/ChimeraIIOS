@@ -81,6 +81,12 @@ def choose_command(report, path, host=None, which=shutil.which, extra_args=None,
         return [java,"-jar",str(path),*args],"jvm"
     raise RuntimeError(f"No reviewed execution route for {fmt} ({arch}); file was not run")
 
+def inspect_binary(path):
+    """Read enough bounded header bytes to reach a valid PE header (up to 1 MiB)."""
+    with path.open("rb") as stream:
+        header = stream.read(1024 * 1024 + 4096)
+    return HEADERS.inspect(header)
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary",type=Path)
@@ -93,7 +99,7 @@ def main():
     ns=parser.parse_args()
     path=ns.binary.resolve()
     if not path.is_file(): parser.error(f"not a regular file: {path}")
-    report=HEADERS.inspect(path.read_bytes()[:4096])
+    report=inspect_binary(path)
     output={"path":str(path),**report}
     if not ns.run and not ns.dry_run:
         print(json.dumps(output,indent=2) if ns.json else
