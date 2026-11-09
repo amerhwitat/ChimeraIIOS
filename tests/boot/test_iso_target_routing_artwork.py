@@ -79,6 +79,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('for ((key=0; key<menu_index; key++))', FULL_ISO_WORKFLOW)
         self.assertIn("'sendkey home 250'", FULL_ISO_WORKFLOW)
         self.assertIn("'sendkey down 250'", FULL_ISO_WORKFLOW)
+        self.assertIn('timeout --kill-after=5s 45s "${qemu[@]}"', FULL_ISO_WORKFLOW)
         self.assertNotIn("for _ in {1..5}", FULL_ISO_WORKFLOW)
 
     def test_boot_artwork_is_staged_offline_by_both_builders(self):
