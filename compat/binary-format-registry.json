@@ -6,7 +6,7 @@
       "extensions": [
         ".elf"
       ],
-      "loader": "native"
+      "loader": "native-or-qemu-user"
     },
     {
       "name": "PE/COFF",
@@ -15,7 +15,15 @@
         ".dll",
         ".sys"
       ],
-      "loader": "cef-compat"
+      "loader": "wine"
+    },
+    {
+      "name": "DOS MZ",
+      "extensions": [
+        ".com",
+        ".exe"
+      ],
+      "loader": "dosbox"
     },
     {
       "name": "PE32+ EFI",
@@ -30,14 +38,14 @@
         ".dylib",
         ".bundle"
       ],
-      "loader": "cef-compat"
+      "loader": "darling"
     },
     {
       "name": "WebAssembly",
       "extensions": [
         ".wasm"
       ],
-      "loader": "wasm-runtime"
+      "loader": "wasmtime-or-wasmer"
     },
     {
       "name": "Java",
@@ -70,5 +78,31 @@
       "loader": "interpreter-registry"
     }
   ],
-  "policy": "Format recognition is not an assertion that a foreign binary is safe, licensed or executable on every target."
+  "policy": "Format recognition is not an assertion that a foreign binary is safe, licensed or executable on every target.",
+  "runtime_selection": {
+    "header_inspector": "tools/inspect-binary-headers.py",
+    "recursive_scanner": "tools/binary/scan-binaries.py",
+    "launcher": "tools/binary/run-compat.py",
+    "dry_run_default": true,
+    "execute_only_when_explicit": true,
+    "foreign_runtime_candidates": {
+      "ELF": [
+        "qemu-user"
+      ],
+      "PE/COFF": [
+        "wine"
+      ],
+      "Mach-O": [
+        "darling"
+      ],
+      "DOS MZ": [
+        "dosbox"
+      ],
+      "WebAssembly": [
+        "wasmtime",
+        "wasmer"
+      ]
+    },
+    "package_source_policy": "Install through the host distribution or official upstream package manager; do not mirror unverified or proprietary binary archives."
+  }
 }
