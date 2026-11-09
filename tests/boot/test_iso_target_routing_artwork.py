@@ -24,6 +24,16 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("--id installer", INSTALL)
         self.assertIn("/install/installer/installation.img", INSTALL)
 
+
+    def test_full_iso_builder_stages_all_target_init_elf_modules(self):
+        for target in ("live", "installer", "recovery"):
+            self.assertIn(f"target-init-{target}.elf", FULL_BUILDER)
+            self.assertIn(f"target={target}", GRUB if target == "live" else (INSTALL if target == "installer" else RECOVERY))
+        self.assertIn('TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"', FULL_BUILDER)
+        self.assertIn('cp -f "$target_elf" "$STAGE/boot/targets/"', FULL_BUILDER)
+        self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
+        self.assertIn('cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"', FULL_BUILDER)
+
     def test_recovery_menu_routes_to_recovery_config(self):
         start = GRUB.index('--id recovery {')
         end = GRUB.index('\n}', start)
