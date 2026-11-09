@@ -59,7 +59,10 @@ def choose_command(report, path, host=None, which=shutil.which, extra_args=None,
         return [wine,str(path),*args],"wine-compat"
     if fmt=="Mach-O":
         if system=="Darwin": return [str(path),*args],"native-macos"
-        raise RuntimeError("Mach-O execution requires macOS or a full macOS virtual machine; CPU emulation alone is insufficient")
+        if system=="Linux":
+            darling=which("darling")
+            if darling: return [darling,str(path),*args],"darling-compat"
+        raise RuntimeError("Mach-O execution requires macOS, Darling on Linux, or a full macOS virtual machine; CPU emulation alone is insufficient")
     if fmt=="DOS MZ":
         dosbox=which("dosbox-x") or which("dosbox")
         if not dosbox: raise RuntimeError("DOS MZ execution requires DOSBox or DOSBox-X")
