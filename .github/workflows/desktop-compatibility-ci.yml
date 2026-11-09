@@ -8,6 +8,29 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Validate semantic Aurora desktop icon integration
+        run: |
+          node --check desktop/aurora-shell/assets/shell.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("desktop/aurora/icons/manifest.json").read_text(encoding="utf-8"))
+          theme = json.loads(Path("desktop/aurora/icons/icon_theme.json").read_text(encoding="utf-8"))
+          sprite = Path("desktop/aurora/icons/catalog.svg").read_text(encoding="utf-8")
+          shell = Path("desktop/aurora-shell/assets/shell.js").read_text(encoding="utf-8")
+          css = Path("desktop/aurora-shell/assets/shell.css").read_text(encoding="utf-8")
+          ids = {item["id"] for item in manifest["apps"]}
+          required = {"aurora-files", "chromium", "terminal", "settings", "network", "voiceconnect", "system-monitor", "aurora-media-player", "store", "about", "docs"}
+          assert required <= ids, f"missing manifest IDs: {sorted(required - ids)}"
+          for icon_id in required:
+              assert f'id="app-{icon_id}"' in sprite, f"missing SVG symbol app-{icon_id}"
+          assert theme["desktops"]["aurora"]["finder"] == "aurora-files"
+          assert theme["desktops"]["marine"]["file_explorer"] == "aurora-files"
+          assert "appGlyphNode(icon.glyph, ICON_SYMBOLS[icon.id])" in shell
+          assert "../aurora/icons/catalog.svg#app-" in shell
+          assert ".app-symbol" in css
+          print("Aurora semantic icon contract: PASS")
+          PY
       - name: Compile C++ desktop header
         run: |
           printf '#include "desktop/cpp/chm_desktop.hpp"\nint main(){auto p=chimera::desktop::profile(chimera::desktop::Platform::WindowsWin32); return p.menu_bar ? 0 : 1;}' | c++ -std=c++17 -I. -x c++ - -o /tmp/chm-desktop
