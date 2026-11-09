@@ -30,5 +30,5 @@
       "downloads": "archive-manager"
     }
   },
-  "note": "The SVG sprite contains original project icon artwork. Native renderers must resolve each semantic ID from this local sprite; web launchers use the same IDs via SVG use."
+  "note": "Original project SVG icon artwork. Native renderers should resolve semantic IDs from this local sprite; browser launchers use the same IDs via SVG use."
 }
