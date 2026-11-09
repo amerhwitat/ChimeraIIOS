@@ -263,6 +263,12 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Fail build when any production target lacks a real CPL3 userspace handoff
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        run: |
+          echo "::error::Live, Installer, and Recovery must each prove kernel-ready -> CPL3-origin init syscall -> matching nonzero PID readiness. See chimera-target-userspace-traces artifact."
+          exit 1
+
       - name: Compress ISO for GitHub release asset size limit
         run: |
           set -euo pipefail
