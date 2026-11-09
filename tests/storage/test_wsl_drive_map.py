@@ -45,6 +45,37 @@ esac
                 self.assertTrue(link.is_symlink(), str(link))
                 self.assertEqual(link.resolve(), target.resolve())
 
+
+    def test_unrelated_symlink_is_never_replaced(self):
+        with tempfile.TemporaryDirectory() as temp:
+            temp = pathlib.Path(temp)
+            mnt = temp / "mnt"
+            drive = mnt / "c"
+            drive.mkdir(parents=True)
+            elsewhere = temp / "elsewhere"
+            elsewhere.mkdir()
+            aliases = mnt / "drive"
+            aliases.mkdir()
+            (aliases / "c").symlink_to(elsewhere, target_is_directory=True)
+            fake_bin = temp / "bin"
+            fake_bin.mkdir()
+            findmnt = fake_bin / "findmnt"
+            findmnt.write_text(r"""#!/bin/sh
+printf 'C:\\ %s 9p rw,aname=drvfs\\n' "$FAKE_C"
+""")
+            findmnt.chmod(0o755)
+            env = os.environ.copy()
+            env.update({
+                "WSL_INTEROP": "test",
+                "CHIMERA_WSL_MNT_ROOT": str(mnt),
+                "CHIMERA_WSL_DRIVE_ROOT": str(aliases),
+                "FAKE_C": str(drive),
+                "PATH": str(fake_bin) + os.pathsep + env["PATH"],
+            })
+            result = subprocess.run(["bash", str(MAPPER)], env=env, text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual((aliases / "c").resolve(), elsewhere.resolve())
+
     def test_main_iso_builder_refreshes_wsl_drive_aliases(self):
         source = BUILD.read_text()
         self.assertIn('bash "$SCRIPT_DIR/tools/storage/chimera-wsl-drive-map.sh"', source)

@@ -2,6 +2,7 @@
 """Static regressions for the x86-64 ISO menu routing and offline artwork contract."""
 from pathlib import Path
 import unittest
+import re
 
 ROOT = Path(__file__).resolve().parents[2]
 GRUB = (ROOT / "boot/iso/grub.cfg").read_text()
@@ -9,6 +10,9 @@ INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
+FULL_ISO_WORKFLOW = (ROOT / ".github/workflows/chimera-full-iso.yml").read_text()
+PREPARE_LAYOUT = (ROOT / "boot/iso/prepare-layout.sh").read_text()
+TARGET_INIT_BUILDER = (ROOT / "tools/build-live-boot-binaries.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -30,6 +34,30 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
+        # prepare-layout.sh overwrites the checked-in recovery menu while mastering the ISO.
+        generated_start = PREPARE_LAYOUT.index('cat > "$DIST/boot/jasper/recovery.cfg"')
+        generated_end = PREPARE_LAYOUT.index("\nEOF", generated_start)
+        generated = PREPARE_LAYOUT[generated_start:generated_end]
+        self.assertIn("module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery", generated)
+        self.assertIn("module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs", generated)
+        self.assertIn("  boot", generated)
+        self.assertIn('"$LIVE_BOOT/boot/targets/target-init-$target.elf"', PREPARE_LAYOUT)
+        self.assertIn('"$LIVE_BOOT/boot/recovery/$required"', PREPARE_LAYOUT)
+        self.assertIn('mkdir -p "$DIST/boot/live" "$DIST/boot/targets" "$DIST/boot/recovery"', PREPARE_LAYOUT)
+
+    def test_full_iso_injection_replaces_stale_base_grub_menu(self):
+        self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
+
+    def test_live_builder_stages_real_target_elfs_and_checksums(self):
+        for target in ("live", "installer", "recovery"):
+            self.assertIn('target_elf="$BUILD_DIR/koronos/x86_64/target-init-$target.elf"', TARGET_INIT_BUILDER)
+            self.assertIn('chimera_copy_if_distinct "$target_elf" "$TARGETS_OUT/target-init-$target.elf"', TARGET_INIT_BUILDER)
+            self.assertIn('sha256sum "target-init-$target.elf" > "target-init-$target.elf.sha256"', TARGET_INIT_BUILDER)
+            self.assertIn('sha256sum --check "target-init-$target.elf.sha256"', TARGET_INIT_BUILDER)
+        self.assertIn('TARGETS_OUT="$OUT/boot/targets"', TARGET_INIT_BUILDER)
+
+    def test_full_iso_builder_builds_kernel_before_staging_live_targets(self):
+        self.assertLess(FULL_BUILDER.index("koronos-x86_64"), FULL_BUILDER.index('"$ROOT/tools/build-live-boot-binaries.sh"'))
 
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
@@ -37,6 +65,25 @@ class IsoTargetRoutingTests(unittest.TestCase):
         entry = GRUB[start:end]
         self.assertIn("not supported by this x86-64 ISO build", entry)
         self.assertNotIn("multiboot2", entry)
+
+    def test_firmware_matrix_selects_targets_by_ids_from_the_immutable_iso(self):
+        self.assertIn("terminal_input console serial", GRUB)
+        # The workflow extracts GRUB from the ISO under test and resolves each
+        # target by its stable --id. This guards against stale positional offsets
+        # when menu entries are inserted or firmware-specific entries change.
+        ids = re.findall(r"(?m)^\s*menuentry\b.*?--id\s+([A-Za-z0-9_-]+)", GRUB)
+        for target, menu_id in (("live", "aurora-live"), ("installer", "install"), ("recovery", "recovery")):
+            self.assertIn(menu_id, ids)
+        self.assertIn('actual_grub="$base/actual-grub.cfg"', FULL_ISO_WORKFLOW)
+        self.assertIn('entries.index(wanted[target])', FULL_ISO_WORKFLOW)
+        self.assertIn('-serial "unix:$serial_socket,server=on,wait=off"', FULL_ISO_WORKFLOW)
+        self.assertIn("socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)", FULL_ISO_WORKFLOW)
+        self.assertIn('sequence = [b"\\x1b[H"] + [b"\\x1b[B"] * index + [b"\\r"]', FULL_ISO_WORKFLOW)
+        self.assertIn('client.sendall(b"\\r")', FULL_ISO_WORKFLOW)
+        self.assertIn('timeout --kill-after=5s 45s "${qemu[@]}"', FULL_ISO_WORKFLOW)
+        self.assertNotIn("sendkey home", FULL_ISO_WORKFLOW)
+        self.assertIn('if [[ "$serial_rc" -ne 0 ]]; then', FULL_ISO_WORKFLOW)
+        self.assertNotIn("for _ in {1..5}", FULL_ISO_WORKFLOW)
 
     def test_boot_artwork_is_staged_offline_by_both_builders(self):
         for builder in (FULL_BUILDER, LIVE_BUILDER):

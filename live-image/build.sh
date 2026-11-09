@@ -119,9 +119,10 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed-v5" ]; then
+if [ ! -f "$BASE/.packages-installed-v6" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
+   install -D -m 0755 "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$BASE/tmp/chimera-install-legacy-command-compat.sh"
   install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
   install -D -m 0644 "$REPO_DIR/system/commands/chimera-command-list.json" "$BASE/tmp/chimera-command-list.json"
   install -D -m 0644 "$REPO_DIR/system/commands/ss64-command-catalog.json" "$BASE/tmp/ss64-command-catalog.json"
@@ -170,12 +171,13 @@ if [ ! -f "$BASE/.packages-installed-v5" ]; then
       gcc g++ make cmake ninja-build meson gdb python3 python3-pip perl ruby nodejs npm \
       e2fsprogs dosfstools parted gdisk alsa-utils kmod
     bash /tmp/chimera-install-command-providers.sh
+    bash /tmp/chimera-install-legacy-command-compat.sh
     python3 /tmp/chimera-resolve-command-providers.py \
       --catalog /tmp/chimera-command-list.json \
       --ss64 /tmp/ss64-command-catalog.json \
       --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \
       --require-all
-    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
+    rm -f /tmp/chimera-install-command-providers.sh /tmp/chimera-install-legacy-command-compat.sh /tmp/chimera-resolve-command-providers.py /tmp/chimera-command-list.json /tmp/ss64-command-catalog.json
     apt-get clean
     rm -rf /var/lib/apt/lists/*
   '
@@ -319,10 +321,19 @@ mkdir -p "$PAY/wallpapers" "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . \
   | tar -C "$PAY/repo" -xf -
 
+# Compile real native replacements for legacy write and floppy-format tools before provider audit.
+bash "$REPO_DIR/tools/commands/build-native-legacy-providers.sh" "$WORK" "$REPO_DIR"
+for command in write fdformat; do
+  [[ -x "$WORK/usr/local/bin/$command" ]] || { echo "required native command provider missing: $command" >&2; exit 2; }
+done
+
+# Stage genuine compatibility frontends before the provider resolver runs.
+bash "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$WORK"
+
 # Resolve the complete Linux command catalogue against real target-rootfs
 # binaries and Debian packages. The resolver is executed inside the chroot so
 # PATH, apt-file and dpkg all describe the image being built, not the runner.
-chroot "$WORK" python3 /opt/aurora/repo/tools/commands/resolve-catalogue-command-providers.py \
+chroot "$WORK" /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/python3 /opt/aurora/repo/tools/commands/resolve-catalogue-command-providers.py \
   --catalog /opt/aurora/repo/system/commands/chimera-command-list.json \
   --ss64 /opt/aurora/repo/system/commands/ss64-command-catalog.json \
   --output /usr/share/chimera/catalogs/linux-command-provider-resolution.json \

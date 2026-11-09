@@ -13,7 +13,7 @@ with tempfile.TemporaryDirectory() as temp:
     catalog = temp / "catalog.json"
     report = temp / "report.json"
     ss64 = temp / "ss64.json"
-    catalog.write_text(json.dumps({"linux_bash": ["printf", "case", ".", "[[", "chimera-no-such-command-9f3"]}), encoding="utf-8")
+    catalog.write_text(json.dumps({"linux_bash": ["printf", "case", ".", "[[", "format", "ram", "symlink", "chimera-no-such-command-9f3"]}), encoding="utf-8")
     ss64.write_text(json.dumps({"platforms":{"linux_bash":{"commands":[
         {"name":"chimera-ss64-only-command-7d2","source":"https://ss64.com/bash/chimera-ss64-only-command-7d2.html"},
         {"name":"Arguments","source":"https://ss64.com/bash/syntax-args.html"},
@@ -27,6 +27,9 @@ with tempfile.TemporaryDirectory() as temp:
     assert rows["."]["status"] == "provided-by-shell-builtin"
     assert rows["[["]["status"] == "provided-by-shell-builtin"
     assert rows["printf"]["status"] == "existing-executable-provider"
+    for non_executable in ("format", "ram", "symlink"):
+        assert rows[non_executable]["status"] == "non-executable-catalogue-entry"
+        assert rows[non_executable]["reason"]
     missing = rows["chimera-no-such-command-9f3"]
     assert missing["status"] == "provider-not-found-yet"
     ss64_missing = rows["chimera-ss64-only-command-7d2"]

@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'desktop/aurora/**'
+      - 'tests/desktop/test_aurora_splash_launch.py'
       - 'mobile/**'
       - 'tools/provision-aurora-rootfs.sh'
       - 'tools/stage-chimera-runtime.sh'
@@ -56,6 +57,8 @@ jobs:
           shellcheck -x tools/provision-aurora-rootfs.sh tools/stage-chimera-runtime.sh tools/storage/chimera-wsl-drive-map.sh tools/chimera-installer-runtime.sh || true
       - name: Test WSL drive aliases and Aurora provisioning contracts
         run: python3 tests/storage/test_wsl_drive_map.py
+      - name: Test Aurora startup splash launch contract
+        run: python3 tests/desktop/test_aurora_splash_launch.py -v
       - name: Validate JSON contracts
         run: |
           jq empty desktop/aurora/assets/library-artwork-manifest.json

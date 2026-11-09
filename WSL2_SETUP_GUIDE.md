@@ -751,3 +751,29 @@ wsl -d Ubuntu-22.04 -e bash -c "cd ~/projects/ChimeraIIOS && docker build ..."
 
 **"created by Amer Abdullah Suleiman Hwitat - عامر الحويطات"**  
 **Amman 11814, Jordan | amer.hwitat@proton.me**
+
+
+## PART 9: OPTIONAL /mnt/drive WINDOWS DRIVE ALIASES
+
+WSL2 normally mounts Windows volumes at `/mnt/c`, `/mnt/d`, and so on.
+Chimera's DrvFs-aware helper exposes those already-mounted volumes under
+`/mnt/drive/c`, `/mnt/drive/C`, etc. It creates symlinks only: it does not
+copy data, mount a volume, change permissions, or format a disk.
+
+Run inside the WSL2 distribution from the ChimeraIIOS checkout:
+
+```bash
+bash tools/storage/chimera-wsl-drive-map.sh
+ls -la /mnt/drive
+```
+
+The build script refreshes these aliases automatically when it detects WSL2.
+The helper identifies actual DrvFs mounts (including WSL2's 9p-backed
+`aname=drvfs` representation), is idempotent, and refuses to replace
+unrelated symlinks or existing files/directories.
+
+**Scope limitation:** this is a WSL2 host namespace alias. It is not a native
+Koronos NTFS/DrvFs filesystem driver. Native Koronos VFS and block-device
+backends remain unimplemented; the OS must not advertise Windows-volume
+read/write support until a real driver or separately qualified userspace
+transport passes mount, read, write, flush, unmount, and corruption tests.

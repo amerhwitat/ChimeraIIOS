@@ -23,6 +23,9 @@ NON_EXECUTABLE_CATALOGUE_ENTRIES = {
     "openssl-enc": "OpenSSL subcommand; invoke through the openssl executable",
     "printcap": "print-capability configuration file, not an executable",
     "sticky": "filesystem permission bit/concept, not an executable",
+    "format": "generic disk/tape formatting operation; use a filesystem-specific mkfs tool or fdformat",
+    "ram": "RAM disk block-device node, not a standalone executable",
+    "symlink": "POSIX symlink(2) library/system call, not a standalone executable",
 }
 
 def run(args: list[str], *, capture: bool = False):

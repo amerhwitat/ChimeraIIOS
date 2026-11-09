@@ -19,6 +19,7 @@ on:
       - 'include/**'
       - 'tests/**'
       - 'network/**'
+      - '.github/workflows/repository-validation.yml'
   workflow_dispatch:
 
 concurrency:

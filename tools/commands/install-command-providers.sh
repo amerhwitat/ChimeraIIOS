@@ -27,7 +27,7 @@ set -u
 PACKAGES=(
   coreutils util-linux findutils grep sed gawk mawk diffutils file busybox-static
   # Verified upstream command providers (where available in this Debian rootfs).
-  chkconfig inetutils-ftp krb5-user lprng plocate rsh-client
+  chkconfig inetutils-ftp krb5-user lprng plocate rsh-client fdutils sntp
   # Open-source interactive shells from the Aurora Shells registry.
   bash zsh fish dash mksh yash elvish nushell
   # Open-source terminal emulators from the Aurora Terminals registry.

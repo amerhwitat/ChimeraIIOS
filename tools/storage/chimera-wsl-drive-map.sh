@@ -41,14 +41,21 @@ while IFS=' ' read -r source target fstype options; do
 
   for alias in "$letter" "$(printf '%s' "$letter" | tr '[:lower:]' '[:upper:]')"; do
     link="$DRIVE_ROOT/$alias"
-    if [ -e "$link" ] && [ ! -L "$link" ]; then
+    if [ -L "$link" ]; then
+      existing=$(readlink -f "$link" 2>/dev/null || true)
+      desired=$(readlink -f "$target" 2>/dev/null || true)
+      if [ -n "$existing" ] && [ "$existing" = "$desired" ]; then
+        continue
+      fi
+      echo "[WSL][ERROR] Refusing to replace unrelated symlink: $link -> $(readlink "$link")" >&2
+      exit 1
+    fi
+    if [ -e "$link" ]; then
       echo "[WSL][WARN] Preserving existing non-symlink path: $link" >&2
       continue
     fi
-    tmp="$DRIVE_ROOT/.$alias.$$"
-    rm -f "$tmp"
-    ln -s "$target" "$tmp"
-    mv -f "$tmp" "$link"
+    # Create the alias only when absent; never atomically replace user paths.
+    ln -s "$target" "$link"
   done
   echo "[WSL] $source -> $DRIVE_ROOT/$letter ($target)"
   mapped=$((mapped + 1))

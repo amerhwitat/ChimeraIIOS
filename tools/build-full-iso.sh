@@ -123,6 +123,11 @@ mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/des
 if [[ -d "$BUILD_ROOT/live-boot/boot" ]]; then cp -a "$BUILD_ROOT/live-boot/boot/." "$STAGE/boot/"; fi
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
+# A base ISO may carry an older GRUB menu. Always replace it with the exact
+# source-controlled target router so Live/Installer/Recovery module tags match
+# the target ELFs staged from build/live-boot above.
+mkdir -p "$STAGE/boot/grub"
+cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
 cp -a "$ROOT/boot/installation/menu.cfg" "$STAGE/boot/installation/"
 cp -a "$ROOT/boot/recovery/." "$STAGE/boot/recovery/"

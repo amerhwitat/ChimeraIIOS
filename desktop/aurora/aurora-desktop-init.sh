@@ -54,9 +54,16 @@ fi
 # never blocks the desktop if video playback is unavailable.
 if [[ -f "$AURORA/aurora-init-splash.sh" ]]; then
   CHIMERA_INIT_VIDEO="${CHIMERA_INIT_VIDEO:-$AURORA/assets/Init.mp4}"
-  [[ -s "$CHIMERA_INIT_VIDEO" ]] || CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4" \
+  if [[ ! -s "$CHIMERA_INIT_VIDEO" ]]; then
+    CHIMERA_INIT_VIDEO="$AURORA/assets/init.mp4"
+  fi
+  if [[ -s "$CHIMERA_INIT_VIDEO" ]]; then
     CHIMERA_PROGRESS_FILE="${CHIMERA_PROGRESS_FILE:-/run/chimera/koronos-progress.state}" \
-    bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+      CHIMERA_INIT_VIDEO="$CHIMERA_INIT_VIDEO" \
+      bash "$AURORA/aurora-init-splash.sh" >/tmp/aurora-init-splash.log 2>&1 &
+  else
+    log "startup video unavailable; continuing without splash"
+  fi
 fi
 
 if command -v swaybg >/dev/null 2>&1; then
