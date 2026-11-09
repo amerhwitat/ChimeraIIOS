@@ -10,6 +10,7 @@ on:
       - 'include/**'
       - 'tests/**'
       - 'network/**'
+      - 'tools/wsl/**'
       - '.github/workflows/repository-validation.yml'
   pull_request:
     paths:
@@ -19,6 +20,8 @@ on:
       - 'include/**'
       - 'tests/**'
       - 'network/**'
+      - 'tools/wsl/**'
+      - '.github/workflows/repository-validation.yml'
   workflow_dispatch:
 
 concurrency:
@@ -46,6 +49,11 @@ jobs:
 
       - name: Validate network capability JSON
         run: python -m json.tool network/routing_capabilities.json >/dev/null
+
+      - name: Test WSL Windows drive aliases
+        run: |
+          python3 -m py_compile tools/wsl/chimera-wsl-drive-map.py tools/wsl/test_chimera_wsl_drive_map.py
+          python3 tools/wsl/test_chimera_wsl_drive_map.py -v
 
       - name: Configure core CMake build
         run: cmake -S . -B build/ci
