@@ -182,6 +182,32 @@ jobs:
           (cd "$out" && find bin share -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
           (cd "$out" && sha256sum -c SHA256SUMS)
           (cd "$out" && find bin -type f -maxdepth 1 -print0 | sort -z | while IFS= read -r -d '' file; do ldd "$file" 2>&1 || true; done) > "$out/share/chimera/runtime-dependencies.txt"
+      - name: Test verified desktop artifact import and checksum enforcement
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import zipfile
+          root = Path("/tmp/compat-import-fixture")
+          (root / "bin").mkdir(parents=True, exist_ok=True)
+          (root / "share").mkdir(parents=True, exist_ok=True)
+          (root / "bin" / "fixture-tool").write_text("fixture\\n")
+          (root / "share" / "fixture.1").write_text("fixture man page\\n")
+          entries = []
+          for path in sorted(p for p in root.rglob("*") if p.is_file()):
+              entries.append(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.relative_to(root).as_posix()}")
+          (root / "SHA256SUMS").write_text("\\n".join(entries) + "\\n")
+          with zipfile.ZipFile("/tmp/compat-import-fixture.zip", "w", zipfile.ZIP_DEFLATED) as archive:
+              for path in root.rglob("*"):
+                  if path.is_file():
+                      archive.write(path, path.relative_to(root).as_posix())
+          PY
+          bash tools/import-verified-desktop-artifacts.sh /tmp/compat-import-fixture.zip /tmp/compat-imported
+          (cd /tmp/compat-imported && sha256sum -c SHA256SUMS)
+          test -s /tmp/compat-imported/bin/fixture-tool
+          test -s /tmp/compat-imported/IMPORT-MANIFEST.json
+
       - name: Upload verified desktop and compatibility tools
         uses: actions/upload-artifact@v4
         with:
