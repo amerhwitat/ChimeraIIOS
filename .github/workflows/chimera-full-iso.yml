@@ -535,18 +535,18 @@ jobs:
                   time.sleep(0.1)
           if client is None:
               raise SystemExit(f"could not connect to QEMU GRUB serial console: {path}")
-          sequence = [b"\\x1b[H"] + [b"\\x1b[B"] * index + [b"\\r"]
+          sequence = [b"\x1b[H"] + [b"\x1b[B"] * index + [b"\r"]
           with open(record, "w", encoding="utf-8") as output:
               for key in sequence:
                   client.sendall(key)
-                  output.write(repr(key) + "\\n")
+                  output.write(repr(key) + "\n")
                   output.flush()
                   time.sleep(0.5)
               if target == "recovery":
                   # Root Recovery opens Jasper nested rescue menu.
                   time.sleep(3)
                   client.sendall(b"\\r")
-                  output.write("nested-recovery-enter\\n")
+                  output.write("nested-recovery-enter\n")
                   output.flush()
           client.close()
           PY_SERIAL_KEYS
