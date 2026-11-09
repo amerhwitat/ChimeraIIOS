@@ -217,6 +217,9 @@ jobs:
           exec python3 "$HERE/../share/chimera/inspect_binary.py" "$@"
           SH
           chmod 0755 "$out/bin/chm-run-compatible-binary" "$out/bin/chm-binary-headers" "$out/bin/chm-binary-inspect"
+          "$out/bin/chm-run-compatible-binary" --dry-run /bin/true
+          "$out/bin/chm-binary-headers" --json /bin/true >/dev/null
+          "$out/bin/chm-binary-inspect" --json /bin/true >/dev/null
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a "$out/bin/chm-opengl-smoke" --self-test
           "$out/bin/chm-image-inspect" --self-test
           install -m 0644 tools/run-compatible-binary.py tools/inspect-binary-headers.py "$out/share/chimera/"
