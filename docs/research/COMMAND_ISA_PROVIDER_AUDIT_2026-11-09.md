@@ -130,6 +130,8 @@ This strict gate is intentionally expected to reveal unresolved providers. It do
 
 ## Linux reference and cross-compilation notes
 
+As of 2026-11-09, kernel.org lists Linux 7.3.3 as the latest stable release (2026-11-06) and 7.4-rc2 as mainline. Use the stable 7.3.3 source/docs for reproducible compatibility crosswalks; use mainline only for forward-looking research, not as an unpinned release dependency. The 7.2 series is marked end-of-life by the kernel release index. See https://kernel.org/ and https://kernel.org/category/releases.html.
+
 Use Linux as a reference for subsystem contracts, not as a source to copy wholesale into the Chimera kernel. Clang cross-compilation requires a correct target triple and matching target headers/libraries/sysroot. QEMU user-mode execution is useful for testing foreign Linux userspace binaries, but does not prove a target kernel or physical machine boot. Linux's own LLVM build documentation also explicitly distinguishes architectures that the toolchain can target from architectures that build and run successfully.
 
 References:
