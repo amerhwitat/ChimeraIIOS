@@ -44,6 +44,8 @@ install(FILES system/containers/quadlet/chimera-web.container DESTINATION share/
 # Apache ecosystem package ingestion and verification tools
 install(FILES platform/systemd/chimera-web.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
 install(PROGRAMS tools/web/init-chimera-web-token.sh DESTINATION bin)
+install(PROGRAMS tools/inspect-binary-headers.py DESTINATION bin RENAME chm-binary-headers)
+install(FILES man/chm-binary-headers.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install(FILES services/chimera-web/README.md DESTINATION share/chimera/web)
 install(PROGRAMS tools/build-boot-artifacts.sh DESTINATION bin)
 install(FILES boot/jasper/jasper_entry.asm boot/jasper/jasper_main.cpp boot/jasper/jasper.ld DESTINATION share/chimera/boot/jasper)
