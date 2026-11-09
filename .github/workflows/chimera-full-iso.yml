@@ -488,8 +488,10 @@ jobs:
             for firmware in bios uefi; do
               for target in live installer recovery; do
                 trace="$base/actual-$firmware-$target-debugcon.log"
+                serial_socket="${RUNNER_TEMP:-/tmp}/chm-$firmware-$target.sock"
+                serial_input="$base/actual-$firmware-$target-serial-input.txt"
                 qemu=(qemu-system-x86_64 -machine q35 -accel tcg -cpu qemu64 -m 1536 -smp 2 \
-                  -cdrom "$iso" -boot d -display none -serial none -monitor stdio \
+                  -cdrom "$iso" -boot d -display none -serial "unix:$serial_socket,server=on,wait=off" -monitor none \
                   -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9)
                 if [[ "$firmware" == "uefi" ]]; then
                   vars="$base/OVMF_VARS-$target.fd"
@@ -511,29 +513,50 @@ jobs:
           PY_MENU_INDEX
           )"
                 echo "Actual ISO selection: firmware=$firmware target=$target menu_index=$menu_index"
-                monitor_input="$base/actual-$firmware-$target-monitor-input.txt"
-                monitor_output="$base/actual-$firmware-$target-monitor-output.log"
-                rm -f "$trace" "$monitor_input" "$monitor_output"
+                qemu_output="$base/actual-$firmware-$target-qemu-output.log"
+                rm -f "$trace" "$serial_socket" "$serial_input" "$qemu_output"
                 set +e
-                (
-                  sleep 20
-                  printf '%s\n' 'sendkey home 250'
-                  sleep 1
-                  for ((key=0; key<menu_index; key++)); do
-                    printf '%s\n' 'sendkey down 250'
-                    sleep 1
-                  done
-                  sleep 1
-                  printf '%s\n' 'sendkey ret 250'
-                  if [[ "$target" == "recovery" ]]; then
-                    # The root Recovery item opens Jasper nested recovery menu.
-                    # Wait for Jasper to load before selecting Koronos rescue.
-                    sleep 3
-                    printf '%s\n' 'sendkey ret 250'
-                  fi
-                  sleep 1
-                ) | tee "$monitor_input" | timeout --kill-after=5s 45s "${qemu[@]}" >"$monitor_output" 2>&1
+                timeout --kill-after=5s 45s "${qemu[@]}" >"$qemu_output" 2>&1 &
+                qemu_pid=$!
+                python3 - "$serial_socket" "$menu_index" "$target" "$serial_input" <<'PY_SERIAL_KEYS'
+          import socket, sys, time
+          path, index, target, record = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
+          # Let firmware and GRUB initialize, then drive the configured serial terminal.
+          time.sleep(20)
+          client = None
+          for _ in range(100):
+              candidate = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+              try:
+                  candidate.connect(path)
+                  client = candidate
+                  break
+              except OSError:
+                  candidate.close()
+                  time.sleep(0.1)
+          if client is None:
+              raise SystemExit(f"could not connect to QEMU GRUB serial console: {path}")
+          sequence = [b"\\x1b[H"] + [b"\\x1b[B"] * index + [b"\\r"]
+          with open(record, "w", encoding="utf-8") as output:
+              for key in sequence:
+                  client.sendall(key)
+                  output.write(repr(key) + "\\n")
+                  output.flush()
+                  time.sleep(0.5)
+              if target == "recovery":
+                  # Root Recovery opens Jasper nested rescue menu.
+                  time.sleep(3)
+                  client.sendall(b"\\r")
+                  output.write("nested-recovery-enter\\n")
+                  output.flush()
+          client.close()
+          PY_SERIAL_KEYS
+                serial_rc=$?
+                if [[ "$serial_rc" -ne 0 ]]; then
+                  kill "$qemu_pid" >/dev/null 2>&1 || true
+                fi
+                wait "$qemu_pid"
                 qemu_rc=$?
+                set -e
                 set -e
                 case_passed=true
                 if [[ "$qemu_rc" -ne 124 && "$qemu_rc" -ne 137 && "$qemu_rc" -ne 0 ]]; then
