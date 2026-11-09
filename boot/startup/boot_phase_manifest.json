@@ -1,25 +1,158 @@
 {
-  "schema":"CHM-STARTUP-PHASES-1",
-  "ui":"Aurora Wayland Glass",
-  "background":"embedded:boot/splash/aurora_boot_splash.svg",
-  "high_resolution_reference":"3840x2160",
-  "phases":[
-    {"id":"firmware","label":"Firmware / CPU mode","progress":5},
-    {"id":"spitfire","label":"Spit Fire native bootstrap","progress":10},
-    {"id":"jasper","label":"Jasper boot policy manager","progress":16},
-    {"id":"grub","label":"GRUB filesystem boot adapter","progress":22},
-    {"id":"menu","label":"Jasper/GRUB boot menu","progress":26},
-    {"id":"hardware","label":"Hardware and firmware discovery","progress":27},
-    {"id":"nbit_policy","label":"N-bit mode and compatibility policy","progress":32},
-    {"id":"memory","label":"Memory manager and address spaces","progress":36},
-    {"id":"graphics","label":"Framebuffer / UEFI GOP / display adapter","progress":44},
-    {"id":"koronos","label":"Koronos microkernel","progress":56},
-    {"id":"drivers","label":"Device drivers and MHAL","progress":66},
-    {"id":"spotnik","label":"Spotnik networking","progress":74},
-    {"id":"nucleus","label":"Nucleus / Hive / Kore / Aegis","progress":82},
-    {"id":"aurora","label":"Aurora compositor and desktop services","progress":92},
-    {"id":"session","label":"User session and applications","progress":100}
+  "schema": "CHM-STARTUP-PHASES-2",
+  "boot_model": "Linux-style staged boot with explicit Koronos microkernel handoff",
+  "ui": "Aurora Wayland Glass",
+  "background": "embedded:boot/splash/aurora_boot_splash.svg",
+  "high_resolution_reference": "3840x2160",
+  "menu": {
+    "timeout_seconds": 300,
+    "timeout_style": "menu",
+    "default_entry": 0
+  },
+  "phases": [
+    {
+      "id": "firmware",
+      "label": "BIOS / UEFI firmware and CPU mode",
+      "progress": 3,
+      "status": "firmware-contract"
+    },
+    {
+      "id": "spitfire",
+      "label": "Spit Fire architecture bootstrap",
+      "progress": 6,
+      "status": "implemented-x86-path"
+    },
+    {
+      "id": "jasper",
+      "label": "Jasper policy and signed boot selection",
+      "progress": 9,
+      "status": "boot-manager-contract"
+    },
+    {
+      "id": "grub",
+      "label": "GRUB2 filesystem and module loader",
+      "progress": 12,
+      "status": "implemented"
+    },
+    {
+      "id": "menu",
+      "label": "Interactive Gates / Jasper menu",
+      "progress": 15,
+      "status": "300-second-visible-menu"
+    },
+    {
+      "id": "kernel_entry",
+      "label": "Koronos kernel entry and CHMBOOT1 validation",
+      "progress": 18,
+      "status": "implemented-x86_64"
+    },
+    {
+      "id": "early_console",
+      "label": "Early VGA / serial / debug console",
+      "progress": 21,
+      "status": "implemented-x86_64"
+    },
+    {
+      "id": "memory_map",
+      "label": "Physical map and frame allocator",
+      "progress": 28,
+      "status": "implemented-x86_64"
+    },
+    {
+      "id": "address_space",
+      "label": "Kernel address space, user page tables and ring-3 entry",
+      "progress": 34,
+      "status": "partial-runtime-tested"
+    },
+    {
+      "id": "initramfs",
+      "label": "CPIO newc validation and read-only initramfs VFS",
+      "progress": 40,
+      "status": "implementation-gated-by-contract-tests"
+    },
+    {
+      "id": "platform",
+      "label": "CPU, ACPI, SMBIOS, PCI and device inventory",
+      "progress": 47,
+      "status": "partial-driver-coverage"
+    },
+    {
+      "id": "smp",
+      "label": "Scheduler and CPU topology",
+      "progress": 54,
+      "status": "partial"
+    },
+    {
+      "id": "drivers",
+      "label": "Storage, network, display, audio and input drivers",
+      "progress": 61,
+      "status": "partial"
+    },
+    {
+      "id": "processes",
+      "label": "Target init ELF admission and userspace readiness",
+      "progress": 68,
+      "status": "ring3-targets-partial"
+    },
+    {
+      "id": "kore",
+      "label": "Kore service dependency and target orchestration",
+      "progress": 74,
+      "status": "bootstrap-only"
+    },
+    {
+      "id": "spotnik",
+      "label": "Spotnik network stack and services",
+      "progress": 80,
+      "status": "partial"
+    },
+    {
+      "id": "display_server",
+      "label": "Native Koronos display server and graphics protocol",
+      "progress": 86,
+      "status": "not-yet-production"
+    },
+    {
+      "id": "aurora_compositor",
+      "label": "Aurora compositor, Wayland and X11 session integration",
+      "progress": 91,
+      "status": "hosted-linux-implemented-native-koronos-pending"
+    },
+    {
+      "id": "desktop_session",
+      "label": "Aurora shell, terminals, applications and user session",
+      "progress": 96,
+      "status": "hosted-linux-implemented-native-koronos-pending"
+    },
+    {
+      "id": "ready",
+      "label": "Desktop readiness and release acceptance",
+      "progress": 100,
+      "status": "must-be-reported-by-runtime-not-assumed"
+    }
   ],
-  "application_load_list":["Kore","Aegis","Nucleus","Hive","Spotnik","Aurora Compositor","Aurora Shell","System Center","Network Center","File Manager","Terminal","Application Registry"],
-  "failure_actions":["retry_phase","safe_graphics","diagnostics","recovery","chainload_native"]
+  "application_load_list": [
+    "Kore",
+    "Aegis",
+    "Nucleus",
+    "Hive",
+    "Spotnik",
+    "Aurora compositor",
+    "Aurora shell",
+    "X.Org session manager (hosted Linux)",
+    "Xwayland (hosted Linux)",
+    "System Center",
+    "Network Center",
+    "File Manager",
+    "Terminal",
+    "Application Registry"
+  ],
+  "failure_actions": [
+    "retry_phase",
+    "safe_graphics",
+    "diagnostics",
+    "recovery",
+    "chainload_native"
+  ],
+  "acceptance_policy": "A phase is complete only when its own runtime test reports success. Progress values are planned stage markers, not proof of readiness."
 }

@@ -1,0 +1,1339 @@
+{
+  "schema": "chimera-octavian-app-icons/v1",
+  "generated": "2026-11-06",
+  "count": 133,
+  "usage": "Render each icon by referencing #app-{id} from this SVG sprite. These are original generic app icons, not upstream trademarks. Icon presence does not imply installation, porting, licensing, or runtime support. The six additional shell shortcut symbols (voiceconnect, network, settings, store, about, docs) cover Aurora's default desktop launcher.",
+  "sprite": "catalog.svg",
+  "apps": [
+    {
+      "id": "7zip",
+      "name": "7-Zip",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-7zip",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "algorand",
+      "name": "go-algorand",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-algorand",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "appcleaner",
+      "name": "AppCleaner",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-appcleaner",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "appimage",
+      "name": "AppImage ecosystem",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-appimage",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "aptos-core",
+      "name": "Aptos Core",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-aptos-core",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "archive-manager",
+      "name": "archive-manager",
+      "category": "archive",
+      "source": "applications/catalog.json",
+      "integration": "reference",
+      "symbol": "#app-archive-manager",
+      "availability": "upstream-reference-only",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "ardour",
+      "name": "ardour",
+      "category": "digital-audio-workstation",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-ardour",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "audacity",
+      "name": "audacity",
+      "category": "audio-editor",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-audacity",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "aurora-files",
+      "name": "aurora-files",
+      "category": "file-manager",
+      "source": "applications/catalog.json",
+      "integration": "native",
+      "symbol": "#app-aurora-files",
+      "availability": "native-integration-catalogued",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "aurora-flash-tool",
+      "name": "Aurora Flash Tool",
+      "category": "System",
+      "source": "applications/catalog.json",
+      "integration": "unspecified",
+      "symbol": "#app-aurora-flash-tool",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "aurora-media-player",
+      "name": "aurora-media-player",
+      "category": "media-player",
+      "source": "applications/catalog.json",
+      "integration": "native",
+      "symbol": "#app-aurora-media-player",
+      "availability": "native-integration-catalogued",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "aurora-video-player",
+      "name": "aurora-video-player",
+      "category": "video-player",
+      "source": "applications/catalog.json",
+      "integration": "native",
+      "symbol": "#app-aurora-video-player",
+      "availability": "native-integration-catalogued",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "avalanchego",
+      "name": "AvalancheGo",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-avalanchego",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "bitcoin-core",
+      "name": "Bitcoin Core",
+      "category": "Crypto;Wallet;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-bitcoin-core",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "bizx",
+      "name": "BizX",
+      "category": "Business;Development",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-bizx",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "bizxtreme",
+      "name": "BizXtreme",
+      "category": "Games;Business;WebGL",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-bizxtreme",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "blender",
+      "name": "blender",
+      "category": "vfx-3d",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-blender",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "bottles",
+      "name": "Bottles",
+      "category": "games",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-bottles",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "brave",
+      "name": "Brave Browser",
+      "category": "internet",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-brave",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "bruteforce",
+      "name": "bruteforce",
+      "category": "Security;Research",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-bruteforce",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "calibre",
+      "name": "calibre",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-calibre",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "cardano-node",
+      "name": "Cardano Node",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-cardano-node",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "chimera-boot-manager",
+      "name": "Jasper Boot Manager",
+      "category": "System",
+      "source": "applications/catalog.json",
+      "integration": "unspecified",
+      "symbol": "#app-chimera-boot-manager",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "chimera-installer",
+      "name": "Chimera II Installer",
+      "category": "System",
+      "source": "applications/catalog.json",
+      "integration": "unspecified",
+      "symbol": "#app-chimera-installer",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "chromium",
+      "name": "Chromium",
+      "category": "internet",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-chromium",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "cpu4096",
+      "name": "CPU4096",
+      "category": "Development;Hardware",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-cpu4096",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "cpu4096simulator",
+      "name": "CPU4096Simulator",
+      "category": "Development;Simulation;Web",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-cpu4096simulator",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "curl",
+      "name": "curl",
+      "category": "network",
+      "source": "applications/catalog.json",
+      "integration": "native",
+      "symbol": "#app-curl",
+      "availability": "native-integration-catalogued",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "darktable",
+      "name": "darktable",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-darktable",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "dash-core",
+      "name": "Dash Core",
+      "category": "Crypto;Wallet;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-dash-core",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "dbeaver",
+      "name": "DBeaver Community",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-dbeaver",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "discover",
+      "name": "KDE Discover",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-discover",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "docker-desktop",
+      "name": "Docker Desktop",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-docker-desktop",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "dogecoin-core",
+      "name": "Dogecoin Core",
+      "category": "Crypto;Wallet;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-dogecoin-core",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "dolphin-file-manager",
+      "name": "Dolphin File Manager",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-dolphin-file-manager",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "element",
+      "name": "Element",
+      "category": "communication",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-element",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "eth-key-check",
+      "name": "eth-key-check",
+      "category": "Security;Crypto",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-eth-key-check",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "everything-search",
+      "name": "Everything Search",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-everything-search",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "file-manager",
+      "name": "file-manager",
+      "category": "file-manager",
+      "source": "applications/catalog.json",
+      "integration": "reference",
+      "symbol": "#app-file-manager",
+      "availability": "upstream-reference-only",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "filezilla",
+      "name": "FileZilla",
+      "category": "network",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-filezilla",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "category": "internet",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-firefox",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "flatpak",
+      "name": "Flatpak",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-flatpak",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "garageband",
+      "name": "GarageBand",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-garageband",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "gates",
+      "name": "Gates System Control Center",
+      "category": "System",
+      "source": "applications/catalog.json",
+      "integration": "unspecified",
+      "symbol": "#app-gates",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "general",
+      "name": "general",
+      "category": "Development;Integration;Mobile",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-general",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "geth",
+      "name": "Go Ethereum (Geth)",
+      "category": "Crypto;Ethereum;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-geth",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "gimp",
+      "name": "gimp",
+      "category": "image-editor",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-gimp",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "git",
+      "name": "git",
+      "category": "developer",
+      "source": "applications/catalog.json",
+      "integration": "native",
+      "symbol": "#app-git",
+      "availability": "native-integration-catalogued",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "gnome-files",
+      "name": "GNOME Files (Nautilus)",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-gnome-files",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "gnome-software",
+      "name": "GNOME Software",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-gnome-software",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "gparted",
+      "name": "GParted",
+      "category": "system",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-gparted",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "handbrake",
+      "name": "HandBrake",
+      "category": "media",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-handbrake",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "homebrew",
+      "name": "Homebrew",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-homebrew",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "inkscape",
+      "name": "Inkscape",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-inkscape",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "irfanview",
+      "name": "IrfanView",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-irfanview",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "iterm2",
+      "name": "iTerm2",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-iterm2",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "joplin",
+      "name": "Joplin",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-joplin",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "kaspa",
+      "name": "Rusty Kaspa",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-kaspa",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "kde-connect",
+      "name": "KDE Connect",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-kde-connect",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "kdenlive",
+      "name": "kdenlive",
+      "category": "video-editor",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-kdenlive",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "keepassxc",
+      "name": "KeePassXC",
+      "category": "security",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-keepassxc",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "keygen",
+      "name": "keygen",
+      "category": "Security;Development;Java",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-keygen",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "keynote",
+      "name": "Keynote",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-keynote",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "krita",
+      "name": "Krita",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-krita",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "libreoffice",
+      "name": "libreoffice",
+      "category": "office",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-libreoffice",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "litecoin-core",
+      "name": "Litecoin Core",
+      "category": "Crypto;Wallet;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-litecoin-core",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "lutris",
+      "name": "Lutris",
+      "category": "games",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-lutris",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "macports",
+      "name": "MacPorts",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-macports",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "microsoft-365",
+      "name": "Microsoft 365 apps",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-microsoft-365",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "microsoft-edge",
+      "name": "Microsoft Edge",
+      "category": "internet",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-microsoft-edge",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "microsoft-powertoys",
+      "name": "Microsoft PowerToys",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-microsoft-powertoys",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "monero",
+      "name": "Monero",
+      "category": "Crypto;Wallet;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-monero",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "mpv",
+      "name": "mpv",
+      "category": "media-player",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-mpv",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "natron",
+      "name": "natron",
+      "category": "vfx-compositor",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-natron",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "nearcore",
+      "name": "NEAR Core",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-nearcore",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud Desktop",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-nextcloud",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "nlp",
+      "name": "nlp",
+      "category": "AI;NLP;Research",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-nlp",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "notepad",
+      "name": "Windows Notepad",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-notepad",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "notepad-plus-plus",
+      "name": "Notepad++",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-notepad-plus-plus",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "numbers",
+      "name": "Numbers",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-numbers",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "obs-studio",
+      "name": "obs-studio",
+      "category": "screen-recorder-streamer",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-obs-studio",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-obsidian",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "onenote",
+      "name": "Microsoft OneNote",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-onenote",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "onlyoffice",
+      "name": "ONLYOFFICE Desktop Editors",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-onlyoffice",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "openshot",
+      "name": "OpenShot",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-openshot",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "pages",
+      "name": "Pages",
+      "category": "productivity",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-pages",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "paint",
+      "name": "Microsoft Paint",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-paint",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "pdfreaderpy",
+      "name": "PDFreaderPY",
+      "category": "Documents;PDF",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-pdfreaderpy",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "photos",
+      "name": "Microsoft Photos",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-photos",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "podman",
+      "name": "Podman",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-podman",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-postman",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "proton-vpn",
+      "name": "Proton VPN",
+      "category": "security",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-proton-vpn",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "putty",
+      "name": "PuTTY",
+      "category": "network",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-putty",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-python",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "category": "network",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-qbittorrent",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "quicktime",
+      "name": "QuickTime / AVFoundation tools",
+      "category": "media",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-quicktime",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "raycast",
+      "name": "Raycast",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-raycast",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "rectangle",
+      "name": "Rectangle Window Manager",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-rectangle",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "repository-portfolio",
+      "name": "Repository Application Center",
+      "category": "Development",
+      "source": "applications/catalog.json",
+      "integration": "unspecified",
+      "symbol": "#app-repository-portfolio",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "safari",
+      "name": "Safari",
+      "category": "internet",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-safari",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "sharex",
+      "name": "ShareX",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-sharex",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "shotcut",
+      "name": "Shotcut",
+      "category": "creative",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-shotcut",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "signal",
+      "name": "Signal Desktop",
+      "category": "communication",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-signal",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "solana-agave",
+      "name": "Solana Agave",
+      "category": "Crypto;Validator;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-solana-agave",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "steam",
+      "name": "Steam",
+      "category": "games",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-steam",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "stellar-core",
+      "name": "Stellar Core",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-stellar-core",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "sui",
+      "name": "Sui",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-sui",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-syncthing",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "system-monitor",
+      "name": "system-monitor",
+      "category": "system-monitor",
+      "source": "applications/catalog.json",
+      "integration": "reference",
+      "symbol": "#app-system-monitor",
+      "availability": "upstream-reference-only",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "teams",
+      "name": "Microsoft Teams",
+      "category": "communication",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-teams",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "terminal",
+      "name": "terminal",
+      "category": "terminal",
+      "source": "applications/catalog.json",
+      "integration": "wrapped",
+      "symbol": "#app-terminal",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "test",
+      "name": "test",
+      "category": "Development;Testing;Integration",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-test",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "thunar",
+      "name": "Thunar File Manager",
+      "category": "utilities",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-thunar",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "thunderbird",
+      "name": "Thunderbird",
+      "category": "communication",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-thunderbird",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "timeshift",
+      "name": "Timeshift",
+      "category": "system",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-timeshift",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "transmission",
+      "name": "Transmission",
+      "category": "network",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-transmission",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "vlc",
+      "name": "vlc",
+      "category": "media-player",
+      "source": "applications/catalog.json",
+      "integration": "fetched",
+      "symbol": "#app-vlc",
+      "availability": "upstream-fetch-target",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-vscode",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "vscodium",
+      "name": "VSCodium",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-vscodium",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "web-portal",
+      "name": "amerhwitat.github.io",
+      "category": "Internet;Documentation",
+      "source": "applications/catalog.json",
+      "integration": "repository-application-center",
+      "symbol": "#app-web-portal",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "webkit-shell",
+      "name": "webkit-shell",
+      "category": "browser-engine",
+      "source": "applications/catalog.json",
+      "integration": "wrapped",
+      "symbol": "#app-webkit-shell",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "wine",
+      "name": "Wine",
+      "category": "compatibility",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-wine",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "winscp",
+      "name": "WinSCP",
+      "category": "network",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-winscp",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "xcode",
+      "name": "Xcode",
+      "category": "development",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-xcode",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "xrpl-rippled",
+      "name": "XRPL rippled",
+      "category": "Crypto;Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-xrpl-rippled",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "zcash",
+      "name": "Zcash",
+      "category": "Crypto;Wallet;Full Node",
+      "source": "applications/catalog.json",
+      "integration": "Aurora Crypto Center",
+      "symbol": "#app-zcash",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom Workplace",
+      "category": "communication",
+      "source": "desktop/optional_apps_catalog.json",
+      "integration": "external-package-or-provider",
+      "symbol": "#app-zoom",
+      "availability": "external-or-wrapped-catalog-entry",
+      "installation_status": "not_verified"
+    },
+    {
+      "id": "voiceconnect",
+      "name": "VoiceConnect",
+      "category": "communication",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-voiceconnect",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "network",
+      "name": "Network Applications",
+      "category": "network",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-network",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "category": "system",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-settings",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "store",
+      "name": "App Center",
+      "category": "system",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-store",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "about",
+      "name": "About",
+      "category": "system",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-about",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    },
+    {
+      "id": "docs",
+      "name": "Documentation",
+      "category": "documents",
+      "source": "desktop/aurora-shell/DEFAULT_DESKTOP",
+      "integration": "native-shell-shortcut",
+      "symbol": "#app-docs",
+      "availability": "native-shell-shortcut",
+      "installation_status": "not_applicable"
+    }
+  ]
+}

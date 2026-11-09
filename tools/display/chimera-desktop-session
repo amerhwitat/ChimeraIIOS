@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  cat <<'HELP'
+Chimera desktop session dispatcher
+
+Usage:
+  chimera-desktop-session list
+  chimera-desktop-session status
+  chimera-desktop-session start [--backend auto|wayland|x11] SESSION_ID
+
+Wayland sessions are launched from installed /usr/share/wayland-sessions entries.
+X11 sessions are launched through the installed X.Org X server using
+chimera-xserver-session. Only real installed session entries and executables
+are accepted; no placeholder sessions are generated.
+HELP
+}
+
+SELF_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+XSESSION_HELPER="${CHIMERA_XSESSION_HELPER:-$SELF_DIR/chimera-xsession}"
+XSERVER_SESSION="${CHIMERA_XSERVER_SESSION:-$SELF_DIR/chimera-xserver-session}"
+WAYLAND_DIRS="${CHIMERA_WAYLAND_SESSION_DIRS:-/usr/local/share/wayland-sessions:/usr/share/wayland-sessions}"
+X11_DIRS="${CHIMERA_XSESSION_DIRS:-/usr/local/share/xsessions:/usr/share/xsessions}"
+
+has_session() {
+  local dirs="$1" id="$2" dir
+  IFS=: read -r -a search_dirs <<< "$dirs"
+  for dir in "${search_dirs[@]}"; do
+    [[ -f "$dir/$id.desktop" ]] && return 0
+  done
+  return 1
+}
+
+command_name="${1:-list}"
+case "$command_name" in
+  --help|-h|help) usage; exit 0 ;;
+  list)
+    [[ -f "$XSESSION_HELPER" ]] && command -v python3 >/dev/null 2>&1 || { echo "Missing Python XDG session validator: $XSESSION_HELPER" >&2; exit 127; }
+    found=0
+    if python3 "$XSESSION_HELPER" --type wayland --list; then found=1; else code=$?; [[ "$code" -eq 1 ]] || exit "$code"; fi
+    if python3 "$XSESSION_HELPER" --type x11 --list; then found=1; else code=$?; [[ "$code" -eq 1 ]] || exit "$code"; fi
+    [[ "$found" -eq 1 ]] || { echo "No XDG desktop sessions are installed." >&2; exit 1; }
+    exit 0
+    ;;
+  status)
+    case "${XDG_SESSION_TYPE:-x11}" in
+      wayland)
+        [[ -n "${WAYLAND_DISPLAY:-}" && -n "${XDG_RUNTIME_DIR:-}" ]] || { echo "Wayland session: not connected"; exit 1; }
+        socket="$WAYLAND_DISPLAY"
+        [[ "$socket" = /* ]] || socket="$XDG_RUNTIME_DIR/$socket"
+        [[ -S "$socket" ]] || { echo "Wayland socket unavailable: $socket"; exit 1; }
+        if command -v wayland-info >/dev/null 2>&1; then wayland-info >/dev/null; fi
+        echo "Wayland session: connected ($WAYLAND_DISPLAY)"
+        ;;
+      x11)
+        [[ -x "$XSERVER_SESSION" ]] || { echo "Missing X.Org session manager: $XSERVER_SESSION" >&2; exit 127; }
+        exec "$XSERVER_SESSION" status
+        ;;
+      *) echo "Unknown XDG_SESSION_TYPE: $XDG_SESSION_TYPE" >&2; exit 2 ;;
+    esac
+    ;;
+  start)
+    shift
+    backend=auto
+    if [[ "${1:-}" == "--backend" ]]; then
+      backend="${2:-}"
+      shift 2
+    fi
+    session="${1:-}"
+    [[ $# -eq 1 && "$session" =~ ^[A-Za-z0-9_.+-]{1,80}$ ]] || { usage >&2; exit 2; }
+    [[ "$backend" == auto || "$backend" == wayland || "$backend" == x11 ]] || { usage >&2; exit 2; }
+    [[ "$(id -u)" -ne 0 ]] || { echo "Refusing to launch a graphical user session as root." >&2; exit 2; }
+    [[ -x "$XSESSION_HELPER" ]] || { echo "Missing XDG session validator: $XSESSION_HELPER" >&2; exit 127; }
+    if [[ "$backend" == auto || "$backend" == wayland ]]; then
+      if has_session "$WAYLAND_DIRS" "$session"; then
+        exec python3 "$XSESSION_HELPER" --type wayland "$session"
+      fi
+      [[ "$backend" != wayland ]] || { echo "Wayland session not installed: $session" >&2; exit 127; }
+    fi
+    if [[ "$backend" == auto || "$backend" == x11 ]]; then
+      if has_session "$X11_DIRS" "$session"; then
+        [[ -x "$XSERVER_SESSION" ]] || { echo "Missing X.Org session manager: $XSERVER_SESSION" >&2; exit 127; }
+        exec "$XSERVER_SESSION" start "$session"
+      fi
+    fi
+    echo "Desktop session not installed: $session" >&2
+    exit 127
+    ;;
+  *) usage >&2; exit 2 ;;
+esac

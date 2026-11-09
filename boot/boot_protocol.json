@@ -95,34 +95,41 @@
       "Chimera II OS Recovery",
       "Chainload Native Bootloader"
     ],
-    "timeout_seconds": 5,
+    "timeout_seconds": 300,
     "keyboard": [
       "arrows",
       "enter",
       "escape",
       "function_keys"
-    ]
+    ],
+    "timeout_style": "menu"
   },
   "handoff": {
     "phase_order": [
       "firmware_detect",
-      "spitfire",
-      "jasper",
-      "grub",
-      "menu",
-      "hardware_discovery",
-      "nbit_policy",
-      "memory",
-      "framebuffer",
-      "koronos",
-      "drivers",
-      "spotnik",
-      "nucleus",
-      "aurora",
-      "session"
+      "spitfire_bootstrap",
+      "jasper_policy",
+      "grub_filesystem_and_menu",
+      "kernel_entry_and_boot_context",
+      "multiboot_module_validation",
+      "early_console",
+      "physical_memory_map",
+      "frame_allocator",
+      "address_space_and_user_entry",
+      "initramfs_cpio_vfs_mount",
+      "cpu_and_platform_discovery",
+      "smp_scheduler",
+      "pci_device_discovery",
+      "driver_probe_and_start",
+      "process_admission",
+      "kore_services",
+      "spotnik_networking",
+      "display_backend",
+      "aurora_compositor",
+      "desktop_session"
     ],
     "progress_ui": "aurora_boot_ui",
-    "failure_policy": "show_phase_error_then_offer_recovery",
+    "failure_policy": "fail_closed_to_diagnostics_or_recovery; never launch userspace when initramfs root validation fails",
     "firmware_detection": [
       "BIOS",
       "UEFI",
@@ -142,7 +149,22 @@
       "network",
       "display_gpu",
       "other"
-    ]
+    ],
+    "initramfs_contract": {
+      "archive_format": "CPIO newc 070701/070702",
+      "required_files": [
+        "/init",
+        "/bin/busybox"
+      ],
+      "mount": "read-only in-memory VFS",
+      "handoff": "only after transactional CPIO validation and required-file checks",
+      "current_process_entry": "explicit CHIMERA_MODULE_USER_INIT_ELF Multiboot2 module",
+      "limitation": "Koronos does not yet interpret shell scripts or execute /init directly from the CPIO VFS; the selected ring-3 target ELF is launched as a separate validated module."
+    },
+    "display_contract": {
+      "native_koronos": "framebuffer/GOP text and registered display drivers; no production native X.Org/Wayland server yet",
+      "hosted_linux": "X.Org X server with XDG xsessions and Wayland compositor sessions"
+    }
   },
   "security": {
     "verify_signatures_when_available": true,

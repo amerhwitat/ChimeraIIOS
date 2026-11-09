@@ -27,8 +27,23 @@ export CHIMERA_SHELL_MODE="${CHIMERA_SHELL_MODE:-source-first}"
 export CHIMERA_TERMINAL_CACHE="${CHIMERA_TERMINAL_CACHE:-${BUILD_DIR:-$ROOT/build}/terminal-cache}"
 export CHIMERA_SHELL_CACHE="${CHIMERA_SHELL_CACHE:-${BUILD_DIR:-$ROOT/build}/shell-cache}"
 mkdir -p "$CHIMERA_ROOTFS_DIR"
+# Install all 28 registered open-source shells/terminal packages into the
+# target rootfs, compile source fallbacks for unavailable packages, then fail
+# closed unless every provider is executable and matches the target ELF ABI.
+bash "$ROOT/tools/aurora/install-terminal-shell-suite.sh" "$CHIMERA_ROOTFS_DIR"
+bash "$ROOT/tools/aurora/build-terminal-shell-sources.sh" "$CHIMERA_ROOTFS_DIR" "$CHIMERA_TERMINAL_CACHE"
+CHIMERA_TERMINAL_REQUIRE_ALL=1 bash "$ROOT/live-image/verify-terminal-shell-suite.sh" \
+  "$CHIMERA_ROOTFS_DIR" "${CHIMERA_TARGET_ARCH:-$(uname -m)}"
+# Build all eight registered open-source shells from source in addition to verified package providers.
+bash "$ROOT/scripts/import-aurora-shell-suite.sh"
+export CHIMERA_TERMINAL_MODE=binary-only
 bash "$ROOT/scripts/import-aurora-terminal-shell-suite.sh"
 bash "$ROOT/aurora/terminals/install-desktop-entries.sh"
+python3 "$ROOT/tools/aurora/verify-terminal-shell-providers.py" \
+  --rootfs "$CHIMERA_ROOTFS_DIR" \
+  --shell-registry "$ROOT/aurora/shells/registry.json" \
+  --terminal-registry "$ROOT/aurora/terminals/registry.json" \
+  --output "$CHIMERA_ROOTFS_DIR/usr/share/chimera/aurora/terminal-shell-provider-status.json"
 # Copy the shell launcher into the image.
 install -Dm0755 "$ROOT/aurora/shells/launch-shell.sh" "$CHIMERA_ROOTFS_DIR/usr/lib/chimera/aurora/launch-shell.sh"
 printf '[CHIMERA-ISO] Aurora terminal/shell suite staged: %s\n' "$CHIMERA_ROOTFS_DIR"

@@ -139,5 +139,12 @@
       "PS4",
       "PS5"
     ]
+  },
+  "boot_menu": {
+    "timeout_seconds": 300,
+    "timeout_style": "menu",
+    "default_item": 0,
+    "behavior": "wait-for-keyboard-input-until-timeout-then-boot-default",
+    "scope": "Gates primary boot selection"
   }
 }

@@ -1,11 +1,10 @@
 #pragma once
 /* Freestanding ring-3 init payload helpers for native Koronos targets.
  *
- * These payloads enter through the Linux x86-64 SYSCALL compatibility ABI:
- *   getpid=39, write=1, sched_yield=24, exit=60.
- * Do not pass Chimera's semantic syscall IDs directly to SYSCALL: that entry
- * translates Linux syscall numbers before dispatch. No libc, CRT or stack
- * protector is linked into these freestanding payloads.
+ * The entry uses Linux x86-64 syscall numbers translated by Koronos:
+ *   read=0, write=1, getpid=39, sched_yield=24, exit=60.
+ * TIME_TICKS uses the private Chimera extension 0x43484D04.
+ * No libc, no builtins, no stack protector, no CRT shim.
  *
  * The DPL3 INT 0x80 gate is entered first so the kernel can prove the call
  * originated at CPL 3 from the saved CS.RPL; the readiness line itself is
@@ -16,10 +15,12 @@
 #error "CHIMERA_TARGET_NAME must be defined (live|installer|recovery)"
 #endif
 
-#define LINUX_X86_64_SYS_WRITE 1
-#define LINUX_X86_64_SYS_GETPID 39
-#define LINUX_X86_64_SYS_YIELD 24
-#define LINUX_X86_64_SYS_EXIT 60
+#define CHM_LINUX_SYS_READ 0
+#define CHM_LINUX_SYS_WRITE 1
+#define CHM_LINUX_SYS_GETPID 39
+#define CHM_LINUX_SYS_YIELD 24
+#define CHM_CHIMERA_SYS_TIME_TICKS 0x43484D04u
+#define CHM_LINUX_SYS_EXIT 60
 
 static void init_int80(void) {
     __asm__ volatile("int $0x80" ::: "memory");
@@ -46,21 +47,21 @@ static long init_syscall3(long number, long arg1, long arg2, long arg3) {
     return rax;
 }
 
-static long init_getpid(void) {
-    return init_syscall1(LINUX_X86_64_SYS_GETPID);
-}
-static void init_yield(void) {
-    (void)init_syscall1(LINUX_X86_64_SYS_YIELD);
+static long init_getpid(void) { return init_syscall1(CHM_LINUX_SYS_GETPID); }
+static void init_yield(void) { (void)init_syscall1(CHM_LINUX_SYS_YIELD); }
+static long init_time_ticks(void) { return init_syscall1(CHM_CHIMERA_SYS_TIME_TICKS); }
+static inline long init_read(long fd, char *buffer, long length) {
+    return init_syscall3(CHM_LINUX_SYS_READ, fd, (long)buffer, length);
 }
 static long init_write(long fd, const char *buffer, long length) {
-    return init_syscall3(LINUX_X86_64_SYS_WRITE, fd, (long)buffer, length);
+    return init_syscall3(CHM_LINUX_SYS_WRITE, fd, (long)buffer, length);
 }
-
 __attribute__((noreturn)) static void init_exit(long code) {
-    register long rax __asm__("rax") = LINUX_X86_64_SYS_EXIT;
+    register long rax __asm__("rax") = CHM_LINUX_SYS_EXIT;
     register long rdi __asm__("rdi") = code;
     __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi) : "rcx", "r11", "memory");
-    /* The exit syscall must not return to ring 3. */
+    /* The native exit syscall does not return to ring 3; this loop only guards
+     * against an unexpected return. */
     for (;;) __asm__ volatile("pause" ::: "memory");
 }
 
@@ -98,4 +99,21 @@ static void init_emit_readiness(long pid) {
     while (digits) message[used++] = reversed[--digits];
     message[used++] = '\n';
     (void)init_write(1, message, used);
+}
+
+static void init_write_uint(unsigned long value) {
+    char reversed[24];
+    char forward[24];
+    long digits = 0;
+    long i = 0;
+    if (value == 0) {
+        reversed[digits++] = '0';
+    } else {
+        while (value && digits < (long)sizeof(reversed)) {
+            reversed[digits++] = (char)('0' + (value % 10u));
+            value /= 10u;
+        }
+    }
+    while (digits) forward[i++] = reversed[--digits];
+    (void)init_write(1, forward, i);
 }

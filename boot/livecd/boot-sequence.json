@@ -1,0 +1,190 @@
+{
+  "schema": "CHM-KORONOS-BOOT-SEQUENCE-1",
+  "purpose": "Linux- and Windows-referenced boot-stage map with explicit implementation evidence and current gaps. Analogies describe phase ordering, not ABI compatibility.",
+  "references": {
+    "linux": "Firmware/UEFI → bootloader → Linux kernel → initramfs → PID 1/systemd → services → display manager/session → X.Org or Wayland compositor → desktop",
+    "windows": "UEFI/BIOS → Windows Boot Manager → OS Loader → NT kernel/HAL → Session Manager → Winlogon/services → desktop shell"
+  },
+  "native_koronos": [
+    {
+      "stage": 1,
+      "id": "firmware",
+      "name": "BIOS/UEFI handoff",
+      "status": "boot-path-declared",
+      "evidence": [
+        "boot/livecd/boot-entry-contract.json",
+        "boot/livecd/live-manifest.json"
+      ],
+      "next": "spitfire"
+    },
+    {
+      "stage": 2,
+      "id": "spitfire",
+      "name": "Spit Fire bootloader",
+      "status": "boot-path-declared",
+      "evidence": [
+        "boot/spitfire/spitfire-menu.cfg"
+      ],
+      "next": "jasper"
+    },
+    {
+      "stage": 3,
+      "id": "jasper",
+      "name": "Jasper boot manager and interactive menu",
+      "status": "menu-timeout-policy-300s",
+      "evidence": [
+        "boot/jasper/recovery.cfg",
+        "tools/boot/verify-menu-timeouts.py"
+      ],
+      "next": "koronos"
+    },
+    {
+      "stage": 4,
+      "id": "grub2",
+      "name": "GRUB2 Multiboot2 compatibility path",
+      "status": "fallback-path-declared",
+      "evidence": [
+        "boot/iso/build-iso.sh"
+      ],
+      "next": "koronos"
+    },
+    {
+      "stage": 5,
+      "id": "koronos",
+      "name": "Koronos kernel entry and early kernel runtime",
+      "status": "x86_64-kernel-build-and-qemu-boot-target",
+      "evidence": [
+        "kernel/build-koronos.sh",
+        "kernel/arch/x86_64/entry.asm",
+        ".github/workflows/koronos-boot-matrix.yml"
+      ],
+      "next": "initramfs"
+    },
+    {
+      "stage": 6,
+      "id": "initramfs",
+      "name": "CPIO newc mount and validated VFS root",
+      "status": "transactional-read-only-root-mount",
+      "evidence": [
+        "kernel/core",
+        "boot/livecd"
+      ],
+      "next": "ring3-target"
+    },
+    {
+      "stage": 7,
+      "id": "ring3-target",
+      "name": "Validated ring-3 target ELF handoff",
+      "status": "target-elf-handoff-tested",
+      "evidence": [
+        "kernel/targets/live_init.c",
+        "kernel/targets/installer_init.c",
+        "kernel/targets/recovery_init.c"
+      ],
+      "next": "live-target"
+    },
+    {
+      "stage": 8,
+      "id": "live-target",
+      "name": "Native live target",
+      "status": "interactive-builtins-only",
+      "evidence": [
+        "kernel/targets/live_init.c"
+      ],
+      "next": "kore"
+    },
+    {
+      "stage": 9,
+      "id": "kore",
+      "name": "Kore service manager and PID 1 service graph",
+      "status": "not-yet-started-by-native-live-target",
+      "evidence": [
+        "system/terminal/chimera-terminald.service"
+      ],
+      "next": "display-server"
+    },
+    {
+      "stage": 10,
+      "id": "display-server",
+      "name": "Native Koronos display server",
+      "status": "not-implemented",
+      "evidence": [
+        "desktop/aurora/xserver-sessions.json",
+        "desktop/aurora/desktop-session-policy.json",
+        "tools/display/chimera-desktop-session",
+        "tools/display/chimera-xsession.py"
+      ],
+      "next": "desktop"
+    },
+    {
+      "stage": 11,
+      "id": "desktop",
+      "name": "Native Aurora and other graphical desktops",
+      "status": "not-yet-runnable-on-native-koronos",
+      "evidence": [
+        "desktop/aurora-shell/index.html"
+      ],
+      "next": "ready"
+    },
+    {
+      "stage": 12,
+      "id": "installer",
+      "name": "Native disk installer",
+      "status": "dry-run-only-no-block-write-backend",
+      "evidence": [
+        "kernel/targets/installer_init.c"
+      ],
+      "next": "installer-complete"
+    },
+    {
+      "stage": 13,
+      "id": "recovery",
+      "name": "Native recovery environment",
+      "status": "diagnostics-only-no-repair-backend",
+      "evidence": [
+        "kernel/targets/recovery_init.c"
+      ],
+      "next": "recovery-complete"
+    }
+  ],
+  "architecture_status": [
+    {
+      "arch": "x86_64",
+      "status": "kernel-build-and-boot-matrix"
+    },
+    {
+      "arch": "aarch64",
+      "status": "entry-uart-probe-only-not-full-kernel"
+    },
+    {
+      "arch": "riscv64",
+      "status": "entry-uart-probe-only-not-full-kernel"
+    },
+    {
+      "arch": "x86_32",
+      "status": "serial-probe-only"
+    }
+  ],
+  "hosted_linux_desktop": {
+    "status": "separate-linux-kernel-live-image",
+    "display_servers": [
+      "X.Org X Server",
+      "Xwayland"
+    ],
+    "wayland_compositor": "labwc",
+    "session_launcher": "tools/display/chimera-desktop-session",
+    "x11_server_launcher": "tools/display/chimera-xserver-session",
+    "xdg_session_dispatcher": "tools/display/chimera-xsession.py",
+    "sessions": "XDG wayland-sessions and xsessions are discovered and launched only when their real executables exist",
+    "note": "This provides real X.Org and Wayland session dispatch for hosted Linux desktop sessions. It does not create a native Koronos X server or compositor."
+  },
+  "release_gates": [
+    "Koronos writable VFS, block-device API, partition/filesystem drivers and safe transaction/rollback",
+    "Native PID 1, process lifecycle, generic executable/script loading and Kore service dependency management",
+    "Native graphics stack: DRM/KMS, framebuffer/display/input drivers, X.Org port or native Wayland compositor",
+    "Native sound, network and desktop service integration",
+    "Installer destructive-write confirmation, partitioning, filesystem creation, installation and recovery rollback tests",
+    "AArch64 and RV64 full kernel ports with interrupt, memory, scheduler, syscall and QEMU/device conformance",
+    "Koronos-native command execution and ISA semantics/conformance; Linux ABI command binaries are not Koronos binaries"
+  ]
+}

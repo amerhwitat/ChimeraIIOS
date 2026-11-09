@@ -27,6 +27,29 @@ every command from every OS is shipped or fully compatible. The effective comman
 set is the intersection of registry entries, installed providers, permissions,
 and tested behavior.
 
+## Current build evidence (2026-11-07)
+
+- The generated capability manifest contains 4,141 command/platform records and
+  distinguishes native, shell-builtin, native-provider-required, and
+  compatibility-provider-required entries.
+- The native Linux userspace multicall currently implements 25 POSIX command
+  aliases. The same source is cross-built and ELF-machine-validated for
+  x86-64, i686, armel, AArch64, ARMv7, RISC-V 64, PowerPC64LE, and s390x.
+- The hosted desktop builder also stages 19 real Chimera userland script/front-end
+  providers (diagnostics, update/package, Kore, shell, display, driver and
+  assembler/disassembler tools). The target-rootfs coverage report verifies
+  each declared executable path; conditional providers remain missing until
+  their runtime is actually installed.
+- CI runs QEMU-user smoke tests for those eight Linux ABIs. This is Linux
+  userspace validation only; these binaries are **not Koronos syscall-ABI
+  binaries**.
+- The 90-entry Chimera-native command catalogue is tracked separately. Hosted
+  Linux frontends or package providers do not count as Koronos-native
+  implementations. Missing backends remain explicitly marked as candidates or
+  provider-required until a real implementation and runtime test exist.
+- The ISA index remains discovery metadata. Instruction encodings, semantics,
+  privileged operations, and per-architecture conformance are separate gates.
+
 ## Binary and provider policy
 
 Keep Chimera-native executable wrappers and generated native binaries under

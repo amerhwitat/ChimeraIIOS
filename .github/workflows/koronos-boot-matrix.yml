@@ -6,6 +6,13 @@ on:
     paths:
       - "kernel/**"
       - "boot/iso/**"
+      - "boot/jasper/**"
+      - "boot/spitfire/**"
+      - "boot/installation/**"
+      - "boot/loader-menu.cfg"
+      - "tools/boot/verify-menu-timeouts.py"
+      - "tools/boot/verify-native-boot-sequence.py"
+      - "tools/build-chimera-iso.sh"
       - "desktop/**"
       - "tools/build-koronos-targets.sh"
       - "tools/build-desktop-binaries.sh"
@@ -15,6 +22,8 @@ on:
     branches: [main]
     paths:
       - "kernel/**"
+      - "tools/build-koronos-targets.sh"
+      - "tools/boot/verify-native-boot-sequence.py"
       - "boot/iso/**"
       - "desktop/**"
       - "tools/build-koronos-targets.sh"
@@ -27,6 +36,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  architecture-port-probes:
+    name: AArch64 and RV64 boot-entry probes (not full kernel ports)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cross compilers and emulators
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils gcc-multilib qemu-system-arm qemu-system-misc make
+      - name: Build and boot architecture probes
+        run: |
+          chmod +x tools/build-koronos-targets.sh
+          ./tools/build-koronos-targets.sh --require-all
+      - name: Upload architecture probe manifests and serial logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-architecture-port-probes
+          path: build/koronos/ports/
+          if-no-files-found: warn
+
   x86_64-boot:
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +65,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Validate all interactive boot menu timeouts
+        run: python3 tools/boot/verify-menu-timeouts.py --root .
+      - name: Validate native boot sequence and release gates
+        run: python3 tools/boot/verify-native-boot-sequence.py
       - name: Build Koronos
         run: |
           chmod +x kernel/build-koronos.sh tools/build-desktop-binaries.sh tools/build-koronos-targets.sh
@@ -49,6 +83,7 @@ jobs:
           mkdir -p build/qemu-iso/boot/grub
           install -m 0644 build/koronos/x86_64/koronos.elf build/qemu-iso/boot/koronos.elf
           cat > build/qemu-iso/boot/grub/grub.cfg <<'GRUB'
+          # Production menu timeout is checked separately; this smoke ISO must boot immediately.
           set timeout=0
           set default=0
           insmod serial

@@ -15,9 +15,15 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/vfs.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
+namespace { static void debugcon_write(const char *s); }
+extern "C" void koronos_syscall_trace(const char *message) {
+    /* Syscall-context diagnostics must not touch VGA or UART console paths. */
+    debugcon_write(message);
+}
 
 /* Monitor task id, used by the idle loop to drive a periodic diagnostic tick.
    Without it every bootstrap service blocks and the scheduler has no runnable
@@ -104,6 +110,13 @@ static void vga_write(const char *s) {
             col = 0;
             continue;
         }
+        if (c == '\b') {
+            if (col > 0) {
+                --col;
+                v[row * 80 + col] = 0x0720;
+            }
+            continue;
+        }
         if (c == '\n') {
             col = 0;
             if (++row >= 25) {
@@ -128,6 +141,45 @@ static void console_write(const char *s) {
     vga_write(s);
     vga_write("\r\n");
     serial_write(s);
+}
+
+/* Bounded, read-only CPIO initramfs index. The archive is owned by the
+ * Multiboot2 module and remains resident; the node table is static kernel
+ * storage. This is not yet a writable disk VFS or a POSIX file-descriptor API.
+ */
+static chimera_vfs_tree g_boot_initramfs_vfs{};
+static chimera_vfs_node g_boot_initramfs_nodes[8192]{};
+static bool g_boot_initramfs_ready = false;
+static bool mount_boot_initramfs_vfs() {
+    const chimera_boot_module *module = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_INITRAMFS_CPIO);
+    if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS_CPIO);
+    if (!module) module = chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS_CPIO);
+    if (!module || module->base == 0 || module->size == 0) {
+        debugcon_write("[VFS ] No raw CPIO initramfs module selected");
+        return false;
+    }
+    const void *archive = reinterpret_cast<const void *>(static_cast<uintptr_t>(module->base));
+    const int rc = chimera_vfs_mount_newc(archive, module->size,
+        &g_boot_initramfs_vfs, g_boot_initramfs_nodes,
+        static_cast<uint32_t>(sizeof(g_boot_initramfs_nodes) / sizeof(g_boot_initramfs_nodes[0])));
+    if (rc != 0) {
+        debugcon_write("[VFS ] ERROR: transactional CPIO initramfs mount rejected");
+        debugcon_write("[VFS ] No root was published; userspace handoff remains gated");
+        return false;
+    }
+    debugcon_write("[VFS ] Read-only CPIO initramfs tree published");
+    const chimera_vfs_node *init_node = chimera_vfs_lookup("/init");
+    const chimera_vfs_node *busybox_node = chimera_vfs_lookup("/bin/busybox");
+    if (!init_node || init_node->kind != CHIMERA_VFS_REGULAR ||
+        !busybox_node || busybox_node->kind != CHIMERA_VFS_REGULAR) {
+        debugcon_write("[VFS ] ERROR: initramfs must contain regular /init and /bin/busybox files");
+        debugcon_write("[VFS ] Userspace handoff remains disabled until the root contract is satisfied");
+        return false;
+    }
+    g_boot_initramfs_ready = true;
+    debugcon_write("[VFS ] /init and /bin/busybox verified in the mounted read-only root");
+    debugcon_write("[INIT] initramfs root is ready; target ELF handoff may proceed");
+    return true;
 }
 
 static void console_raw(const char *s) {
@@ -198,6 +250,9 @@ static void console_hex32(uint32_t v) {
 static const char *module_kind_name(uint32_t k) {
     switch (k) {
         case CHIMERA_MODULE_LIVE_INITRAMFS: return "LIVE INITRAMFS";
+        case CHIMERA_MODULE_LIVE_INITRAMFS_CPIO: return "LIVE CPIO VFS";
+        case CHIMERA_MODULE_RECOVERY_INITRAMFS_CPIO: return "RECOVERY CPIO VFS";
+        case CHIMERA_MODULE_INSTALL_INITRAMFS_CPIO: return "INSTALLER CPIO VFS";
         case CHIMERA_MODULE_LIVE_MANIFEST: return "LIVE MANIFEST";
         case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
         case CHIMERA_MODULE_RECOVERY_MANIFEST: return "RECOVERY MANIFEST";
@@ -252,6 +307,11 @@ static void task_modules(void *) {
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
         if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
+            if (!g_boot_initramfs_ready) {
+                console_write("[INIT] User handoff withheld: initramfs root/VFS did not pass validation");
+                chimera_sched_block();
+                return;
+            }
             const int launch_rc = koronos_launch_selected_userspace();
             if (launch_rc != 0)
                 console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
@@ -279,7 +339,10 @@ static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
     if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
-        console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
+        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) && g_boot_initramfs_ready)
+            console_write("[REC ] Recovery ring-3 init ELF is routed through the shared target launcher");
+        else
+            console_write("[USER] Recovery handoff withheld: recovery init ELF or initramfs root is unavailable");
     } else {
         console_write("[REC ] Recovery target not selected: no recovery initramfs module");
     }
@@ -322,10 +385,11 @@ static void task_installer(void *) {
             if (phases) console_write("[INST] Installation phases loaded");
             if (profiles) console_write("[INST] Installer profiles loaded");
             console_write("[INST] Installer UI scaffolding initialized; graphical userspace is not running");
+            if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) && g_boot_initramfs_ready)
+                console_write("[INST] Installer ring-3 init ELF is routed through the shared target launcher (dry-run only)");
             break;
         case 4:
-            console_write("[INST] Installer metadata/service scaffolding complete; install execution is not verified");
-            console_write("[USER] Installer handoff withheld: production payload has no supported native init ELF/runtime");
+            console_write("[INST] Installer metadata/service scaffolding complete; disk installation remains dry-run only");
             chimera_sched_block();
             break;
         default:
@@ -409,34 +473,6 @@ extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 
-extern "C" void koronos_syscall_trace(const char *message) {
-    /* Syscall-context diagnostics must not touch VGA or UART console paths. */
-    debugcon_write(message);
-}
-
-extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
-    koronos_syscall_trace("[SYSC] WRITE entered kernel copy path");
-    if (length == 0) return 0;
-    if (length > 4096u) {
-        koronos_syscall_trace("[SYSC] WRITE rejected: length exceeds one-page limit");
-        return -22;
-    }
-    uint64_t root = 0;
-    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
-    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0) {
-        koronos_syscall_trace("[SYSC] WRITE rejected: user buffer is outside mapped user pages");
-        return -14;
-    }
-    koronos_syscall_trace("[SYSC] WRITE user range validated");
-    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
-    if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
-        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
-    koronos_syscall_trace("[SYSC] WRITE copying bytes to debug console");
-    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
-    koronos_syscall_trace("[SYSC] WRITE completed");
-    return static_cast<int64_t>(length);
-}
-
 extern "C" void koronos_target_log(const char *message) {
     if (!message) return;
     debugcon_write(message);
@@ -493,6 +529,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     } else {
         console_write("[MM  ] ERROR: physical frame allocator initialization failed");
         console_write("[MM  ] User-image launch must remain disabled until memory ownership is valid");
+    }
+    if (physmap_init == 0 && frame_init == 0) {
+        if (!mount_boot_initramfs_vfs())
+            console_write("[INIT] Linux-style initramfs root setup failed; graphical and installer handoff is gated");
     }
     console_progress(15, "Multiboot2 modules scanned");
     console_write("[MB2 ] Count: ");
@@ -587,4 +627,117 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
     console_write("[RUN ] Entering Koronos scheduler loop");
     console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
+}
+static char koronos_scancode_ascii(uint8_t code, bool shift, bool caps) {
+    const bool upper = shift ^ caps;
+    switch (code) {
+        case 0x02: return shift ? '!' : '1'; case 0x03: return shift ? '@' : '2';
+        case 0x04: return shift ? '#' : '3'; case 0x05: return shift ? '$' : '4';
+        case 0x06: return shift ? '%' : '5'; case 0x07: return shift ? '^' : '6';
+        case 0x08: return shift ? '&' : '7'; case 0x09: return shift ? '*' : '8';
+        case 0x0A: return shift ? '(' : '9'; case 0x0B: return shift ? ')' : '0';
+        case 0x0C: return shift ? '_' : '-'; case 0x0D: return shift ? '+' : '=';
+        case 0x0E: return '\b'; case 0x0F: return '\t';
+        case 0x10: return upper ? 'Q' : 'q'; case 0x11: return upper ? 'W' : 'w';
+        case 0x12: return upper ? 'E' : 'e'; case 0x13: return upper ? 'R' : 'r';
+        case 0x14: return upper ? 'T' : 't'; case 0x15: return upper ? 'Y' : 'y';
+        case 0x16: return upper ? 'U' : 'u'; case 0x17: return upper ? 'I' : 'i';
+        case 0x18: return upper ? 'O' : 'o'; case 0x19: return upper ? 'P' : 'p';
+        case 0x1A: return shift ? '{' : '['; case 0x1B: return shift ? '}' : ']';
+        case 0x1C: return '\n';
+        case 0x1E: return upper ? 'A' : 'a'; case 0x1F: return upper ? 'S' : 's';
+        case 0x20: return upper ? 'D' : 'd'; case 0x21: return upper ? 'F' : 'f';
+        case 0x22: return upper ? 'G' : 'g'; case 0x23: return upper ? 'H' : 'h';
+        case 0x24: return upper ? 'J' : 'j'; case 0x25: return upper ? 'K' : 'k';
+        case 0x26: return upper ? 'L' : 'l'; case 0x27: return shift ? ':' : ';';
+        case 0x28: return shift ? '"' : '\x27'; case 0x29: return shift ? '~' : '\x60';
+        case 0x2B: return shift ? '|' : '\x5c';
+        case 0x2C: return upper ? 'Z' : 'z'; case 0x2D: return upper ? 'X' : 'x';
+        case 0x2E: return upper ? 'C' : 'c'; case 0x2F: return upper ? 'V' : 'v';
+        case 0x30: return upper ? 'B' : 'b'; case 0x31: return upper ? 'N' : 'n';
+        case 0x32: return upper ? 'M' : 'm'; case 0x33: return shift ? '<' : ',';
+        case 0x34: return shift ? '>' : '.'; case 0x35: return shift ? '?' : '/';
+        case 0x39: return ' ';
+        default: return 0;
+    }
+}
+
+static char koronos_console_getchar() {
+    static bool shift = false;
+    static bool caps = false;
+    static bool extended = false;
+    for (;;) {
+        // Prefer COM1 input when a serial console is connected; fall back to
+        // the legacy PS/2 keyboard controller for VGA-attached machines.
+        if (serial_in8(0x3FD) & 0x01u) {
+            char c = static_cast<char>(serial_in8(0x3F8));
+            if (c == '\r') c = '\n';
+            if (c == 0x7f) c = '\b';
+            return c;
+        }
+        const uint8_t status = serial_in8(0x64);
+        if ((status & 0x01u) == 0) {
+            __asm__ volatile("pause" ::: "memory");
+            continue;
+        }
+        if (status & 0x20u) { (void)serial_in8(0x60); continue; }
+        const uint8_t code = serial_in8(0x60);
+        if (code == 0xE0u) { extended = true; continue; }
+        if (code == 0x2Au || code == 0x36u) { shift = true; continue; }
+        if (code == 0xAAu || code == 0xB6u) { shift = false; continue; }
+        if (code == 0x3Au) { caps = !caps; continue; }
+        if (code & 0x80u) { extended = false; continue; }
+        if (extended) { extended = false; continue; }
+        const char c = koronos_scancode_ascii(code, shift, caps);
+        if (c) return c;
+    }
+}
+
+extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length) {
+    koronos_syscall_trace("[SYSC] WRITE entered kernel copy path");
+    if (length == 0) return 0;
+    if (length > 4096u) {
+        koronos_syscall_trace("[SYSC] WRITE rejected: length exceeds one-page limit");
+        return -22;
+    }
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 0u) != 0) {
+        koronos_syscall_trace("[SYSC] WRITE rejected: user buffer is outside mapped user pages");
+        return -14;
+    }
+    koronos_syscall_trace("[SYSC] WRITE user range validated");
+    const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
+    if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
+        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
+    koronos_syscall_trace("[SYSC] WRITE copying bytes to debug console");
+    for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    koronos_syscall_trace("[SYSC] WRITE completed");
+    return static_cast<int64_t>(length);
+}
+
+extern "C" int64_t koronos_console_read_user(uint64_t address, uint64_t length) {
+    if (length == 0) return 0;
+    if (length > 4096u) return -22;
+    uint64_t root = 0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    if (koronos_address_space_validate_user_range(root, address, length, 1u) != 0) {
+        koronos_target_log("[SYSC] READ rejected: user buffer is not writable mapped memory");
+        return -14;
+    }
+    auto *buffer = reinterpret_cast<char *>(static_cast<uintptr_t>(address));
+    uint64_t used = 0;
+    while (used < length) {
+        char c = koronos_console_getchar();
+        if (c == '\r') c = '\n';
+        if (c == '\b') {
+            if (used) { --used; console_raw("\b \b"); }
+            continue;
+        }
+        buffer[used++] = c;
+        char one[2] = {c, 0};
+        console_raw(one);
+        if (c == '\n') break;
+    }
+    return static_cast<int64_t>(used);
 }

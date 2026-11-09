@@ -418,7 +418,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs commands terminals-shells docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -426,14 +426,18 @@ run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
-  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
+  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null || ! command -v git >/dev/null || ! command -v make >/dev/null || ! command -v gcc >/dev/null || ! command -v g++ >/dev/null || ! command -v cmake >/dev/null || ! command -v ninja >/dev/null || ! command -v cargo >/dev/null || ! command -v rustc >/dev/null || ! command -v go >/dev/null || ! command -v autoconf >/dev/null || ! command -v autoreconf >/dev/null || ! command -v readelf >/dev/null || ! command -v meson >/dev/null || ! command -v pkg-config >/dev/null || ! command -v python3 >/dev/null; then
     if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
       bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
     else
-      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso and mksquashfs; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
+      log_error 'Required ISO and terminal/shell source-build tools are missing. Install Docker, cpio, GRUB, xorriso, SquashFS, Git, C/C++/Rust/Go, CMake/Ninja/Meson, Autoconf, binutils and Python; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
       exit 2
     fi
   fi
+  CHIMERA_AUTO_INSTALL_DEPS="${CHIMERA_INSTALL_BUILD_DEPS:-0}" bash "$SCRIPT_DIR/tools/check-build-dependencies.sh" || {
+    log_error 'Comprehensive cross-ABI, QEMU, graphics and terminal/shell build dependency validation failed'
+    exit 2
+  }
   command -v docker >/dev/null || { log_error 'Docker is required'; exit 2; }
   command -v cpio >/dev/null || { log_error 'cpio is required'; exit 2; }
   command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }

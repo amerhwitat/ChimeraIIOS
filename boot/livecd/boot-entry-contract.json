@@ -1,10 +1,22 @@
 {
-  "schema":"CHM-BOOT-LIVE-CONTRACT-1",
-  "firmware":["BIOS","UEFI"],
-  "primary":"Spit Fire",
-  "menu":"Jasper",
-  "kernel":"Koronos",
-  "fallback":"GRUB2/Multiboot2",
-  "entry_symbol":"chimera_live_entry",
-  "modes":{"live":"boot without disk mutation","install":"launch installer transaction","safe-graphics":"software graphics profile","diagnostics":"hardware and boot tests","recovery":"repair services and filesystem","network":"network-enabled maintenance"}
+  "schema": "CHM-BOOT-LIVE-CONTRACT-2",
+  "firmware": [
+    "BIOS",
+    "UEFI"
+  ],
+  "primary": "Spit Fire",
+  "menu": "Jasper",
+  "fallback": "GRUB2/Multiboot2",
+  "kernel": "Koronos",
+  "entry_symbol": "chimera_live_entry",
+  "sequence_manifest": "/boot/live/boot-sequence.json",
+  "modes": {
+    "live": "launch native Koronos ring-3 interactive built-in console",
+    "install": "launch installer preflight report; disk mutation unavailable",
+    "safe_graphics": "boot safe text/serial profile; native graphics backend unavailable",
+    "diagnostics": "run boot and syscall diagnostics target",
+    "recovery": "run diagnostics-only recovery target; repair operations unavailable",
+    "network": "maintenance target; native Koronos network service not yet available"
+  },
+  "policy": "Menu and launcher selection is shared across Jasper, Gates, Spit Fire and GRUB2. The selected target must declare its actual runtime capability; unavailable capabilities fail closed."
 }

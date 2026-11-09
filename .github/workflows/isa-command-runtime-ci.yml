@@ -2,6 +2,18 @@ name: ISA and Native Command Runtime CI
 on:
   push:
     paths:
+      - 'tools/commands/**'
+      - 'system/commands/**'
+      - 'config/linux-command-registry.json'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
+      - 'kernel/arch/**'
+      - 'kernel/core/**'
+      - 'kernel/targets/**'
+      - 'boot/**'
+      - 'userland/commands/**'
+      - 'tools/chimera-asm/**'
       - 'isa/**'
       - 'build-chimera-iso.sh'
       - 'kernel/core/isa_registry.cpp'
@@ -27,6 +39,35 @@ on:
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
+      - 'tests/commands/test-native-command-matrix.sh'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
+      - 'tools/commands/generate_runtime_manifest.py'
+      - 'tests/commands/test-native-command-matrix.sh'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/command-isa-matrix.yml'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'tools/aurora/export-icon-theme.py'
+      - 'tools/boot/verify-menu-timeouts.py'
+      - 'live-image/build.sh'
+      - 'boot/jasper/**'
+      - 'boot/spitfire/**'
+      - 'boot/installation/**'
+      - 'desktop/aurora/icons/**'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/command-isa-matrix.yml'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'tools/aurora/export-icon-theme.py'
+      - 'tools/boot/verify-menu-timeouts.py'
+      - 'live-image/build.sh'
+      - 'boot/jasper/**'
+      - 'boot/spitfire/**'
+      - 'boot/installation/**'
+      - 'desktop/aurora/icons/**'
       - 'tools/commands/chimera-run'
       - 'tools/commands/install-command-providers.sh'
       - 'tools/commands/os-command-runtime.json'
@@ -71,6 +112,18 @@ on:
       - '.github/workflows/isa-command-runtime-ci.yml'
   pull_request:
     paths:
+      - 'tools/commands/**'
+      - 'system/commands/**'
+      - 'config/linux-command-registry.json'
+      - 'ISA.csv'
+      - 'isa/**'
+      - 'data/isa/**'
+      - 'kernel/arch/**'
+      - 'kernel/core/**'
+      - 'kernel/targets/**'
+      - 'boot/**'
+      - 'userland/commands/**'
+      - 'tools/chimera-asm/**'
       - 'isa/**'
       - 'kernel/core/isa_registry.cpp'
       - 'kernel/include/chimera/isa_registry.h'
@@ -87,6 +140,20 @@ on:
       - 'tools/isa/validate_isa_coverage.py'
       - 'tools/validate_isa_catalog.py'
       - 'tools/commands/generate_runtime_manifest.py'
+      - 'tests/commands/test-native-command-matrix.sh'
+      - 'tools/commands/build-command-isa-coverage.py'
+      - 'tools/commands/build_linux_abi_command_matrix.py'
+      - 'system/commands/compatibility-binary-policy.json'
+      - '.github/workflows/command-isa-matrix.yml'
+      - 'tools/build-live-boot-binaries.sh'
+      - 'tools/chimera-stage-installer-media.sh'
+      - 'tools/aurora/export-icon-theme.py'
+      - 'tools/boot/verify-menu-timeouts.py'
+      - 'live-image/build.sh'
+      - 'boot/jasper/**'
+      - 'boot/spitfire/**'
+      - 'boot/installation/**'
+      - 'desktop/aurora/icons/**'
       - 'tools/commands/chimera-run'
       - 'tools/commands/chimera-cpu-mode.py'
       - 'tools/commands/chimera-cpu-mode'
@@ -119,6 +186,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate native command and ISA coverage generation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y busybox-static gcc-i686-linux-gnu gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-riscv64-linux-gnu gcc-powerpc64le-linux-gnu gcc-s390x-linux-gnu binutils qemu-user-static
+          busybox --list >/dev/null
+          python3 tools/commands/build_linux_abi_command_matrix.py \
+            --source src/chimera-command-compat/chimera-cmd.c \
+            --policy system/commands/compatibility-binary-policy.json \
+            --output build/linux-abi-command-matrix --require-all
+          python3 tools/commands/build-command-isa-coverage.py \
+            --root . --busybox "$(command -v busybox)" \
+            --linux-abi-matrix build/linux-abi-command-matrix/manifest.json \
+            --output build/runtime/command-isa-coverage.json
+          python3 tools/commands/generate_runtime_manifest.py
+          python3 - <<'PY'
+          import json
+          d=json.load(open("system/commands/command-runtime-capabilities.json",encoding="utf-8"))
+          assert d["native_alias_count"] == 25, d.get("native_alias_count")
+          # 90 Chimera-specific names have explicit provider mappings; these
+          # are declarations, not proof of Koronos ABI compatibility. The
+          # live-image target-rootfs audit verifies every actual staged file.
+          assert d["native_script_provider_count"] == 90, d.get("native_script_provider_count")
+          assert d["mode_counts"]["native"] == d["native_alias_count"] + d["native_script_provider_count"], d["mode_counts"]
+          assert d["koronos_abi_compatible"] is False
+          print("25 native Linux ABI command entries generated; Koronos ABI remains explicitly separate.")
+          PY
+          bash tests/commands/test-native-command-matrix.sh build/linux-abi-command-matrix
+          python3 -m json.tool build/runtime/command-isa-coverage.json >/dev/null
+          grep -q 'catalogued-provider-required' build/runtime/command-isa-coverage.json
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
@@ -274,7 +370,7 @@ jobs:
           cp /tmp/chimera-command-rootfs/usr/share/chimera/cognition/trained-command-isa-rnn.json build/runtime/trained-command-isa-rnn.json
 
       - name: Persist regenerated source-backed catalogs
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

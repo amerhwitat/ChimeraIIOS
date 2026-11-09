@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Aurora Desktop (X.Org fallback)
+Comment=Aurora desktop session using the X.Org X server
+Exec=/usr/local/bin/aurora-x11-session
+TryExec=/usr/local/bin/aurora-x11-session
+DesktopNames=Aurora;
+X-GDM-SessionRegisters=true

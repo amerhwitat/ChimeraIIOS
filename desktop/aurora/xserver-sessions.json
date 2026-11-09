@@ -1,0 +1,37 @@
+{
+  "schema": "CHIMERA-AURORA-XSERVER-SESSIONS-1",
+  "x_server": {
+    "implementation": "X.Org X Server",
+    "binary": "/usr/bin/Xorg",
+    "launcher": "/usr/local/bin/chimera-xserver-session",
+    "session_registry": [
+      "/usr/local/share/xsessions",
+      "/usr/share/xsessions"
+    ],
+    "network_listening": false,
+    "startx_server_arguments": [
+      ":0",
+      "-nolisten",
+      "tcp",
+      "-noreset"
+    ]
+  },
+  "aurora_fallback_session": {
+    "id": "chimera-aurora-x11",
+    "desktop_file": "/usr/share/xsessions/chimera-aurora-x11.desktop",
+    "command": "/usr/local/bin/aurora-x11-session",
+    "window_manager": "openbox-session",
+    "web_shell": "/usr/local/bin/aurora-kiosk.py"
+  },
+  "policy": "The dispatcher discovers installed XDG sessions and verifies real Exec/TryExec providers. X.Org handles X11 sessions; the selected Wayland compositor owns Wayland sessions. Missing providers are unavailable, not fabricated.",
+  "session_dispatcher": "/usr/local/bin/chimera-desktop-session",
+  "wayland_compositor": "labwc",
+  "wayland_session_registry": [
+    "/usr/local/share/wayland-sessions",
+    "/usr/share/wayland-sessions"
+  ],
+  "x11_session_registry": [
+    "/usr/local/share/xsessions",
+    "/usr/share/xsessions"
+  ]
+}

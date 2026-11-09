@@ -1,7 +1,10 @@
+#define _DEFAULT_SOURCE 1
 #define _POSIX_C_SOURCE 200809L
 
 #include <errno.h>
 #include <fcntl.h>
+#include <pwd.h>
+#include <signal.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -409,9 +412,415 @@ static int cmd_false(void)
 
 static int cmd_chimera_native(void)
 {
-    puts("Chimera II native command runtime");
-    puts("ABI: native");
-    puts("Status: operational");
+    puts("Chimera II POSIX command multicall");
+    puts("ABI: Linux userspace ELF");
+    puts("Koronos native syscall compatibility: not verified");
+    return 0;
+}
+
+
+static int cmd_rmdir(int argc, char **argv)
+{
+    int rc = 0;
+    if (argc < 2) { fprintf(stderr, "rmdir: missing operand\n"); return 1; }
+    for (int i = 1; i < argc; ++i) {
+        if (rmdir(argv[i]) != 0) { perror(argv[i]); rc = 1; }
+    }
+    return rc;
+}
+
+static int cmd_ln(int argc, char **argv)
+{
+    int symbolic = 0, force = 0, i = 1;
+    while (i < argc && argv[i][0] == '-') {
+        if (!strcmp(argv[i], "--")) { ++i; break; }
+        for (const char *p = argv[i] + 1; *p; ++p) {
+            if (*p == 's') symbolic = 1;
+            else if (*p == 'f') force = 1;
+            else { fprintf(stderr, "ln: unsupported option -%c\n", *p); return 1; }
+        }
+        ++i;
+    }
+    if (argc - i != 2) { fprintf(stderr, "usage: ln [-sf] TARGET LINK_NAME\n"); return 1; }
+    if (force && unlink(argv[i + 1]) != 0 && errno != ENOENT) { perror(argv[i + 1]); return 1; }
+    int rc = symbolic ? symlink(argv[i], argv[i + 1]) : link(argv[i], argv[i + 1]);
+    if (rc != 0) { perror(argv[i + 1]); return 1; }
+    return 0;
+}
+
+static int cmd_readlink(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: readlink LINK\n"); return 1; }
+    char buf[PATH_MAX + 1];
+    ssize_t n = readlink(argv[1], buf, PATH_MAX);
+    if (n < 0) { perror(argv[1]); return 1; }
+    buf[n] = '\0';
+    puts(buf);
+    return 0;
+}
+
+static char *trim_path_copy(const char *input)
+{
+    char *p = strdup(input);
+    if (!p) return NULL;
+    size_t n = strlen(p);
+    while (n > 1 && p[n - 1] == '/') p[--n] = '\0';
+    return p;
+}
+
+static int cmd_basename(int argc, char **argv)
+{
+    if (argc < 2 || argc > 3) { fprintf(stderr, "usage: basename PATH [SUFFIX]\n"); return 1; }
+    char *p = trim_path_copy(argv[1]);
+    if (!p) return 1;
+    char *base = strrchr(p, '/');
+    base = base ? base + 1 : p;
+    if (argc == 3) {
+        size_t n = strlen(base), sn = strlen(argv[2]);
+        if (sn && sn <= n && !strcmp(base + n - sn, argv[2])) base[n - sn] = '\0';
+    }
+    puts(*base ? base : "/");
+    free(p);
+    return 0;
+}
+
+static int cmd_dirname(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: dirname PATH\n"); return 1; }
+    char *p = trim_path_copy(argv[1]);
+    if (!p) return 1;
+    char *slash = strrchr(p, '/');
+    if (!slash) puts(".");
+    else if (slash == p) puts("/");
+    else { *slash = '\0'; puts(p); }
+    free(p);
+    return 0;
+}
+
+static int cmd_uname(int argc, char **argv)
+{
+    struct utsname u;
+    if (uname(&u) != 0) { perror("uname"); return 1; }
+    if (argc == 1) { puts(u.sysname); return 0; }
+    int any = 0;
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "-a")) { printf("%s %s %s %s %s\n", u.sysname,u.nodename,u.release,u.version,u.machine); return 0; }
+        for (const char *p = argv[i] + (argv[i][0] == '-' ? 1 : 0); *p; ++p) {
+            const char *v = NULL;
+            switch (*p) {
+                case 's': v=u.sysname; break; case 'n': v=u.nodename; break;
+                case 'r': v=u.release; break; case 'v': v=u.version; break;
+                case 'm': v=u.machine; break; case 'o': v="GNU/Linux"; break;
+                default: fprintf(stderr,"uname: invalid option -- '%c'\n",*p); return 1;
+            }
+            if (any) putchar(' ');
+            fputs(v, stdout); any = 1;
+        }
+    }
+    if (any) putchar('\n');
+    return 0;
+}
+
+static int cmd_wc(int argc, char **argv)
+{
+    int lines=0, words=0, bytes=0, i=1, files=0, rc=0;
+    while (i < argc && argv[i][0]=='-' && argv[i][1]) {
+        for (const char *p=argv[i]+1; *p; ++p) {
+            if (*p=='l') lines=1; else if (*p=='w') words=1; else if (*p=='c') bytes=1;
+            else { fprintf(stderr,"wc: unsupported option -%c\n",*p); return 1; }
+        }
+        ++i;
+    }
+    if (!lines && !words && !bytes) lines=words=bytes=1;
+    do {
+        FILE *f = (i < argc) ? fopen(argv[i], "rb") : stdin;
+        if (!f) { perror(argv[i]); rc=1; ++i; continue; }
+        unsigned long long l=0,w=0,b=0; int c, inword=0;
+        while ((c=fgetc(f)) != EOF) { ++b; if (c=='\n') ++l; if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\f'||c=='\v') inword=0; else if(!inword){++w;inword=1;} }
+        if (ferror(f)) { if (f!=stdin) perror(argv[i]); rc=1; }
+        if (f!=stdin) fclose(f);
+        int col=0;
+        if(lines){printf("%llu",l);col=1;} if(words){printf("%s%llu",col?" ":"",w);col=1;}
+        if(bytes)printf("%s%llu",col?" ":"",b);
+        if(i<argc)printf(" %s",argv[i]);
+        putchar('\n'); ++files; ++i;
+    } while(i<argc);
+    (void)files;
+    return rc;
+}
+
+static int stream_lines(int argc, char **argv, int tail_mode)
+{
+    long count=10; int i=1;
+    if (i<argc && !strcmp(argv[i],"-n")) {
+        if (++i>=argc) { fprintf(stderr,"line utility: -n requires a count\n"); return 1; }
+        char *end=NULL; count=strtol(argv[i++],&end,10);
+        if (!end || *end || count<0 || count>1000000) { fprintf(stderr,"line utility: invalid line count\n"); return 1; }
+    }
+    if (i>=argc) {
+        char *line=NULL; size_t cap=0; ssize_t n; long shown=0;
+        if (!tail_mode) { while(shown<count && (n=getline(&line,&cap,stdin))>=0){fwrite(line,1,(size_t)n,stdout);++shown;} }
+        else {
+            char **ring=calloc((size_t)(count?count:1),sizeof(*ring)); size_t *lens=calloc((size_t)(count?count:1),sizeof(*lens));
+            if(!ring||!lens){free(ring);free(lens);free(line);return 1;}
+            long total=0; while((n=getline(&line,&cap,stdin))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
+            long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
+        }
+        free(line); return ferror(stdin)?1:0;
+    }
+    int rc=0;
+    for(;i<argc;++i){FILE*f=fopen(argv[i],"r");if(!f){perror(argv[i]);rc=1;continue;}
+        char *line=NULL;size_t cap=0;ssize_t n;long shown=0;
+        if(!tail_mode){while(shown<count&&(n=getline(&line,&cap,f))>=0){fwrite(line,1,(size_t)n,stdout);++shown;}}
+        else {char **ring=calloc((size_t)(count?count:1),sizeof(*ring));size_t*lens=calloc((size_t)(count?count:1),sizeof(*lens));long total=0;
+            if(!ring||!lens){free(ring);free(lens);free(line);fclose(f);return 1;}
+            while((n=getline(&line,&cap,f))>=0){size_t k=(size_t)(total%(count?count:1));free(ring[k]);ring[k]=strndup(line,(size_t)n);lens[k]=(size_t)n;++total;}
+            long start=total>count?total-count:0;for(long x=start;x<total;++x){size_t k=(size_t)(x%(count?count:1));if(ring[k])fwrite(ring[k],1,lens[k],stdout);}
+            for(long x=0;x<(count?count:1);++x) { free(ring[x]); } free(ring); free(lens);
+        }
+        free(line);fclose(f);
+    }
+    return rc;
+}
+static int cmd_head(int argc,char**argv){return stream_lines(argc,argv,0);}
+static int cmd_tail(int argc,char**argv){return stream_lines(argc,argv,1);}
+static int cmd_sleep(int argc,char**argv)
+{
+    if(argc!=2){fprintf(stderr,"usage: sleep SECONDS\n");return 1;}
+    char *end=NULL;double sec=strtod(argv[1],&end);
+    if(!end||*end||sec<0){fprintf(stderr,"sleep: invalid time interval\n");return 1;}
+    struct timespec req={(time_t)sec,(long)((sec-(time_t)sec)*1000000000.0)};
+    while(nanosleep(&req,&req)!=0){if(errno!=EINTR){perror("sleep");return 1;}}
+    return 0;
+}
+
+
+extern char **environ;
+
+static int cmd_env(int argc, char **argv)
+{
+    int index = 1;
+    if (index < argc && (!strcmp(argv[index], "-i") || !strcmp(argv[index], "--ignore-environment"))) {
+        if (clearenv() != 0) { perror("env: clearenv"); return 1; }
+        ++index;
+    }
+    while (index < argc) {
+        if (!strcmp(argv[index], "--")) { ++index; break; }
+        if (!strcmp(argv[index], "-u") || !strcmp(argv[index], "--unset")) {
+            if (++index >= argc) { fprintf(stderr, "env: -u requires a variable name\n"); return 2; }
+            if (unsetenv(argv[index++]) != 0) { perror("env: unsetenv"); return 1; }
+            continue;
+        }
+        char *equals = strchr(argv[index], '=');
+        if (!equals) break;
+        size_t name_length = (size_t)(equals - argv[index]);
+        if (!name_length) break;
+        char *name = strndup(argv[index], name_length);
+        if (!name) return 1;
+        int rc = setenv(name, equals + 1, 1);
+        free(name);
+        if (rc != 0) { perror("env: setenv"); return 1; }
+        ++index;
+    }
+    if (index == argc) {
+        for (char **p = environ; p && *p; ++p) puts(*p);
+        return 0;
+    }
+    execvp(argv[index], &argv[index]);
+    perror(argv[index]);
+    return errno == ENOENT ? 127 : 126;
+}
+
+static int cmd_printenv(int argc, char **argv)
+{
+    if (argc == 1) {
+        for (char **p = environ; p && *p; ++p) puts(*p);
+        return 0;
+    }
+    int rc = 0;
+    for (int i = 1; i < argc; ++i) {
+        const char *value = getenv(argv[i]);
+        if (value) puts(value); else rc = 1;
+    }
+    return rc;
+}
+
+static int cmd_id(int argc, char **argv)
+{
+    if (argc == 2 && (!strcmp(argv[1], "-u") || !strcmp(argv[1], "--user")))
+        { printf("%lu\n", (unsigned long)getuid()); return 0; }
+    if (argc == 2 && (!strcmp(argv[1], "-g") || !strcmp(argv[1], "--group")))
+        { printf("%lu\n", (unsigned long)getgid()); return 0; }
+    if (argc == 2 && !strcmp(argv[1], "-ru"))
+        { printf("%lu\n", (unsigned long)geteuid()); return 0; }
+    if (argc == 2 && !strcmp(argv[1], "-rg"))
+        { printf("%lu\n", (unsigned long)getegid()); return 0; }
+    if (argc != 1) { fprintf(stderr, "usage: id [-u|-g|-ru|-rg]\n"); return 2; }
+    printf("uid=%lu gid=%lu euid=%lu egid=%lu\n",
+           (unsigned long)getuid(), (unsigned long)getgid(),
+           (unsigned long)geteuid(), (unsigned long)getegid());
+    return 0;
+}
+
+static int parse_integer(const char *text, long long *value)
+{
+    char *end = NULL;
+    errno = 0;
+    long long parsed = strtoll(text, &end, 10);
+    if (errno || !end || end == text || *end) return -1;
+    *value = parsed;
+    return 0;
+}
+
+static int cmd_seq(int argc, char **argv)
+{
+    if (argc < 2 || argc > 4) { fprintf(stderr, "usage: seq [FIRST [INCREMENT]] LAST\n"); return 2; }
+    long long first = 1, step = 1, last = 0;
+    if (argc == 2) {
+        if (parse_integer(argv[1], &last)) return 2;
+    } else if (argc == 3) {
+        if (parse_integer(argv[1], &first) || parse_integer(argv[2], &last)) return 2;
+    } else if (parse_integer(argv[1], &first) || parse_integer(argv[2], &step) || parse_integer(argv[3], &last)) {
+        return 2;
+    }
+    if (step == 0 || (first < last && step < 0) || (first > last && step > 0)) {
+        fprintf(stderr, "seq: increment has the wrong sign or is zero\n");
+        return 1;
+    }
+    for (long long n = first; step > 0 ? n <= last : n >= last; ) {
+        printf("%lld\n", n);
+        if ((step > 0 && n > LLONG_MAX - step) || (step < 0 && n < LLONG_MIN - step)) break;
+        n += step;
+    }
+    return ferror(stdout) ? 1 : 0;
+}
+
+static int cmd_yes(int argc, char **argv)
+{
+    const char *text = argc > 1 ? argv[1] : "y";
+    const size_t length = strlen(text);
+    for (;;) {
+        if (write_all_fd(STDOUT_FILENO, text, length) != 0 ||
+            write_all_fd(STDOUT_FILENO, "\n", 1u) != 0)
+            return 1;
+    }
+}
+
+static int cmd_mktemp(int argc, char **argv)
+{
+    int directory = 0, index = 1;
+    if (index < argc && !strcmp(argv[index], "-d")) { directory = 1; ++index; }
+    if (argc - index > 1) { fprintf(stderr, "usage: mktemp [-d] [TEMPLATE]\n"); return 2; }
+    const char *source = index < argc ? argv[index] : "/tmp/tmp.XXXXXX";
+    char *template = strdup(source);
+    if (!template) return 1;
+    size_t n = strlen(template);
+    if (n < 6u || strcmp(template + n - 6u, "XXXXXX")) {
+        fprintf(stderr, "mktemp: template must end in XXXXXX\n");
+        free(template);
+        return 1;
+    }
+    char *result = directory ? mkdtemp(template) : NULL;
+    if (!directory) {
+        int fd = mkstemp(template);
+        if (fd >= 0) close(fd);
+        result = fd >= 0 ? template : NULL;
+    }
+    if (!result) { perror("mktemp"); free(template); return 1; }
+    puts(result);
+    free(template);
+    return 0;
+}
+
+static int cmd_chmod(int argc, char **argv)
+{
+    if (argc < 3) { fprintf(stderr, "usage: chmod OCTAL_MODE FILE...\n"); return 2; }
+    char *end = NULL; errno = 0;
+    unsigned long mode = strtoul(argv[1], &end, 8);
+    if (errno || !end || *end || mode > 07777ul) { fprintf(stderr, "chmod: invalid octal mode\n"); return 2; }
+    int rc = 0;
+    for (int i = 2; i < argc; ++i) if (chmod(argv[i], (mode_t)mode) != 0) { perror(argv[i]); rc = 1; }
+    return rc;
+}
+
+static int cmd_stat(int argc, char **argv)
+{
+    if (argc != 2) { fprintf(stderr, "usage: stat FILE\n"); return 2; }
+    struct stat st;
+    if (stat(argv[1], &st) != 0) { perror(argv[1]); return 1; }
+    printf("File: %s\nSize: %lld\nMode: %04o\nUid: %lu\nGid: %lu\nInode: %llu\nLinks: %llu\n",
+           argv[1], (long long)st.st_size, (unsigned)(st.st_mode & 07777),
+           (unsigned long)st.st_uid, (unsigned long)st.st_gid,
+           (unsigned long long)st.st_ino, (unsigned long long)st.st_nlink);
+    return 0;
+}
+
+static int cmd_sync(void) { sync(); return 0; }
+
+static int cmd_tty(void)
+{
+    const char *name = ttyname(STDIN_FILENO);
+    if (!name) { puts("not a tty"); return 1; }
+    puts(name);
+    return 0;
+}
+
+static int cmd_logname(void)
+{
+    const char *name = getlogin();
+    if (!name || !*name) {
+        struct passwd *pw = getpwuid(getuid());
+        name = pw ? pw->pw_name : NULL;
+    }
+    if (!name || !*name) { fprintf(stderr, "logname: login name unavailable\n"); return 1; }
+    puts(name);
+    return 0;
+}
+
+static int command_signal(const char *name)
+{
+    if (!strcmp(name, "HUP")) return SIGHUP;
+    if (!strcmp(name, "INT")) return SIGINT;
+    if (!strcmp(name, "QUIT")) return SIGQUIT;
+    if (!strcmp(name, "KILL")) return SIGKILL;
+    if (!strcmp(name, "TERM")) return SIGTERM;
+    if (!strcmp(name, "USR1")) return SIGUSR1;
+    if (!strcmp(name, "USR2")) return SIGUSR2;
+    if (!strcmp(name, "STOP")) return SIGSTOP;
+    if (!strcmp(name, "CONT")) return SIGCONT;
+    long long number = 0;
+    if (parse_integer(name, &number) == 0 && number >= 0 && number <= 64) return (int)number;
+    return -1;
+}
+
+static int cmd_kill(int argc, char **argv)
+{
+    int sig = SIGTERM, index = 1;
+    if (index < argc && argv[index][0] == '-') {
+        const char *name = argv[index] + 1;
+        if (!strncmp(name, "SIG", 3)) name += 3;
+        sig = command_signal(name);
+        if (sig < 0) { fprintf(stderr, "kill: invalid signal %s\n", argv[index]); return 2; }
+        ++index;
+    }
+    if (index >= argc) { fprintf(stderr, "usage: kill [-SIGNAL] PID...\n"); return 2; }
+    int rc = 0;
+    for (; index < argc; ++index) {
+        long long pid = 0;
+        if (parse_integer(argv[index], &pid) != 0 || pid == 0 || pid < -1 || pid > INT_MAX) {
+            fprintf(stderr, "kill: invalid pid: %s\n", argv[index]); rc = 1; continue;
+        }
+        if (kill((pid_t)pid, sig) != 0) { perror(argv[index]); rc = 1; }
+    }
+    return rc;
+}
+
+static int cmd_uptime(void)
+{
+    struct timespec value = {0, 0};
+    if (clock_gettime(CLOCK_MONOTONIC, &value) != 0) { perror("uptime"); return 1; }
+    printf("up %.1f seconds\n", (double)value.tv_sec + (double)value.tv_nsec / 1000000000.0);
     return 0;
 }
 
@@ -466,6 +875,40 @@ int main(int argc, char **argv)
 
     if (!strcmp(cmd, "false"))
         return cmd_false();
+    if (!strcmp(cmd, "rmdir"))
+        return cmd_rmdir(argc, argv);
+    if (!strcmp(cmd, "ln"))
+        return cmd_ln(argc, argv);
+    if (!strcmp(cmd, "readlink"))
+        return cmd_readlink(argc, argv);
+    if (!strcmp(cmd, "basename"))
+        return cmd_basename(argc, argv);
+    if (!strcmp(cmd, "dirname"))
+        return cmd_dirname(argc, argv);
+    if (!strcmp(cmd, "uname"))
+        return cmd_uname(argc, argv);
+    if (!strcmp(cmd, "wc"))
+        return cmd_wc(argc, argv);
+    if (!strcmp(cmd, "head"))
+        return cmd_head(argc, argv);
+    if (!strcmp(cmd, "tail"))
+        return cmd_tail(argc, argv);
+    if (!strcmp(cmd, "sleep"))
+        return cmd_sleep(argc, argv);
+
+    if (!strcmp(cmd, "env")) return cmd_env(argc, argv);
+    if (!strcmp(cmd, "printenv")) return cmd_printenv(argc, argv);
+    if (!strcmp(cmd, "id")) return cmd_id(argc, argv);
+    if (!strcmp(cmd, "seq")) return cmd_seq(argc, argv);
+    if (!strcmp(cmd, "yes")) return cmd_yes(argc, argv);
+    if (!strcmp(cmd, "mktemp")) return cmd_mktemp(argc, argv);
+    if (!strcmp(cmd, "chmod")) return cmd_chmod(argc, argv);
+    if (!strcmp(cmd, "stat")) return cmd_stat(argc, argv);
+    if (!strcmp(cmd, "sync")) return cmd_sync();
+    if (!strcmp(cmd, "tty")) return cmd_tty();
+    if (!strcmp(cmd, "logname")) return cmd_logname();
+    if (!strcmp(cmd, "kill")) return cmd_kill(argc, argv);
+    if (!strcmp(cmd, "uptime")) return cmd_uptime();
 
     /* Route unknown command names through the shared runtime dispatcher.
        Preserve argv exactly and never parse command text through a shell. */
