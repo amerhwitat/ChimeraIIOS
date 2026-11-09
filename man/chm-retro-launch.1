@@ -1,0 +1,25 @@
+.TH CHM-RETRO-LAUNCH 1
+.SH NAME
+chm-retro-launch \- launch Amiga 500/2000 or Commodore 64 emulator profiles
+.SH SYNOPSIS
+.B retro/commodore/launch-machine.sh
+.I MACHINE DISK_IMAGE
+.SH MACHINES
+.TP
+.B amiga-a500
+Launch an Amiga 500 profile using FS-UAE or RetroArch/PUAE.
+.TP
+.B amiga-a2000
+Launch an Amiga 2000 profile using FS-UAE or RetroArch/PUAE.
+.TP
+.B commodore-c64
+Launch a Commodore 64 disk using VICE x64sc/x64 or MAME.
+.SH ENVIRONMENT
+.TP
+.B CHIMERA_KICKSTART_ROM
+Optional user-provided Kickstart ROM. PUAE can use its built-in AROS replacement if unset.
+.TP
+.B CHIMERA_PUAE_CORE
+Optional path to puae_libretro.so.
+.SH NOTES
+Generated ADFs are formatted data disks, not a bundled Workbench. Commercial firmware and media are not redistributed.

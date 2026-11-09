@@ -1,0 +1,4 @@
+# FS-UAE profile template
+amiga_model = A2000
+chip_memory = 1024
+fast_memory = 0

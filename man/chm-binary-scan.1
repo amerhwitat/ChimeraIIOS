@@ -1,0 +1,20 @@
+.TH CHM-BINARY-SCAN 1
+.SH NAME
+chm-binary-scan \- recursively inspect executable headers and hashes
+.SH SYNOPSIS
+.B python3 tools/binary/scan-binaries.py
+.RI [ ROOT ] [ --json FILE ] [ --max-size BYTES ] [ --include-vendor ]
+.SH DESCRIPTION
+Identifies ELF, PE/COFF, DOS MZ, Mach-O, Java class and WebAssembly files recursively. Computes SHA-256 hashes and never executes discovered files.
+.SH OPTIONS
+.TP
+.B --json FILE
+Write the machine-readable report.
+.TP
+.B --max-size BYTES
+Skip files larger than the limit. Default: 536870912.
+.TP
+.B --include-vendor
+Include vendored trees.
+.SH SAFETY
+Header recognition is not a trust decision. Verify provenance and signatures before execution.

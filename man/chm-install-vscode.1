@@ -1,0 +1,12 @@
+.TH CHM-INSTALL-VSCODE 1
+.SH NAME
+chm-install-vscode \- install Visual Studio Code using an official package manager
+.SH SYNOPSIS
+.B python3 tools/ide/install-vscode.py
+.RI [ --install ]
+.SH OPTIONS
+.TP
+.B --install
+Run Flatpak/Snap, winget or Homebrew installation. Without this option, print the plan only.
+.SH SAFETY
+Does not download an unverified archive. Uses the host's official package manager.

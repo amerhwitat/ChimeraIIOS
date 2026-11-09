@@ -1,0 +1,15 @@
+.TH CHM-RETRO-EMULATOR-BUILD 1
+.SH NAME
+chm-retro-emulator-build \- compile pinned PUAE and VICE providers
+.SH SYNOPSIS
+.B retro/commodore/build-emulator-providers.sh
+.RI [ --out DIRECTORY ] [ --jobs N ]
+.SH OPTIONS
+.TP
+.B --out DIRECTORY
+Output directory for puae_libretro.so, x64sc, x64, c1541 and checksums.
+.TP
+.B --jobs N
+Parallel build jobs. Default: 2.
+.SH SOURCE
+Builds pinned upstream PUAE and VICE revisions; see retro/commodore/README.md for commit IDs and license information.

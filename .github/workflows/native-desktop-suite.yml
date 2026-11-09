@@ -5,6 +5,12 @@ on:
     paths:
       - 'desktop/**'
       - 'desktop/native/**'
+      - 'retro/commodore/**'
+      - 'tools/binary/**'
+      - 'tools/ide/install-development-suite.sh'
+      - 'tools/ide/install-vscode.py'
+      - 'tools/graphics/**'
+      - 'tests/ide/test_install_vscode.py'
       - 'tools/build-desktop-binaries.sh'
       - 'tools/binary/inspect_binary.py'
       - 'tools/ide/install-vscodium.py'
@@ -27,8 +33,19 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Test retro media and binary compatibility tools
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s retro/commodore/tests -v
+          python3 -m unittest discover -s tools/binary/tests -v
+          bash -n retro/commodore/create-retro-media.sh retro/commodore/launch-machine.sh
       - name: Install native build tools
         run: sudo apt-get update && sudo apt-get install --yes build-essential cmake python3 libgtk-4-dev librsvg2-common xvfb libgl1-mesa-dev libglfw3-dev libopencv-dev mesa-utils pkg-config
+      - name: Verify graphics SDK and IDE installer plans
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests/ide -p test_install_vscode.py -v
+          bash tools/graphics/install-opengl-opencv.sh --verify
       - name: Compile Aurora native desktop components
         env:
           CHIMERA_DESKTOP_BUILD_DIR: ${{ runner.temp }}/chimera-desktop
@@ -106,7 +123,7 @@ jobs:
           python3 -m json.tool "$out/manifests/binary-headers.json" >/dev/null
           python3 -m json.tool "$out/manifests/runtime-requirements.json" >/dev/null
           ! find "$out/aurora-source" -type d -name __pycache__ | grep .
-          ! find "$out/aurora-source" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) | grep .
+          ! find "$out/aurora-source" -type f \( -name '*.pyc' -o -name '*.pyo' \) | grep .
       - name: Publish compiled desktop component bundle
         uses: actions/upload-artifact@v4
         with:

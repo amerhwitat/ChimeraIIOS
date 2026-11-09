@@ -1,0 +1,15 @@
+.TH CHM-RUN-COMPAT 1
+.SH NAME
+chm-run-compat \- select a compatible runtime for an explicitly chosen binary
+.SH SYNOPSIS
+.B python3 tools/binary/run-compat.py
+.I BINARY
+.RI [ --run ] [ -- ARGS ]
+.SH DESCRIPTION
+Selects native ELF execution, QEMU user-mode, Wine, DOSBox, Darling, or Wasmtime/Wasmer when available. Without --run it only prints the proposed command.
+.SH OPTIONS
+.TP
+.B --run
+Execute the selected file after header inspection. Omit for dry-run.
+.SH SAFETY
+Does not download binaries or execute files discovered by the recursive scanner. Run only software from trusted sources.

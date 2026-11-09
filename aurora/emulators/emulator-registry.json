@@ -127,6 +127,38 @@
       "media_policy": "user-provisioned-only",
       "firmware_policy": "Kickstart user-provided; never bundled",
       "notes": "Uses FS-UAE when installed and falls back to MAME when available; the optional PUAE local bridge is separate from the OS-native launcher."
+    },
+    {
+      "id": "amiga-a500",
+      "name": "Amiga 500",
+      "vendor": "Commodore",
+      "system": "Amiga 500",
+      "architecture": "Motorola 68000",
+      "launcher": "retro/commodore/launch-machine.sh amiga-a500",
+      "status": "requires-local-emulator-and-user-kickstart",
+      "media_policy": "generated ADF starter disk; user-provided commercial media only",
+      "firmware_policy": "user-provided-only"
+    },
+    {
+      "id": "amiga-a2000",
+      "name": "Amiga 2000",
+      "vendor": "Commodore",
+      "system": "Amiga 2000",
+      "architecture": "Motorola 68000",
+      "launcher": "retro/commodore/launch-machine.sh amiga-a2000",
+      "status": "requires-local-emulator-and-user-kickstart",
+      "media_policy": "generated ADF starter disk; user-provided commercial media only",
+      "firmware_policy": "user-provided-only"
+    },
+    {
+      "id": "commodore-c64",
+      "name": "Commodore 64",
+      "vendor": "Commodore",
+      "system": "Commodore 64",
+      "architecture": "MOS 6510",
+      "launcher": "retro/commodore/launch-machine.sh commodore-c64",
+      "status": "requires-local-vice-or-mame",
+      "media_policy": "generated D64 includes original BASIC demo; commercial media user-provided only"
     }
   ]
 }
