@@ -98,6 +98,9 @@ jobs:
           python3 tests/tools/test_run_compatible_binary.py
           bash -n tools/binary/install-compat-runtimes.sh
           python3 -m json.tool tools/binary/compatibility-runtimes.json >/dev/null
+          bash -n tools/toolchains/bootstrap-open-toolchains.sh
+          bash tools/toolchains/bootstrap-open-toolchains.sh list >/dev/null
+          python3 -m json.tool tools/toolchains/cross-targets.json >/dev/null
           sudo apt-get install -y gcc-aarch64-linux-gnu qemu-user
           cat > /tmp/chimera-aarch64-smoke.c <<'EOF'
           #include <stdio.h>
