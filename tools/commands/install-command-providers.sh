@@ -39,6 +39,7 @@ PACKAGES=(
   lvm2 mdadm smartmontools parted gdisk dosfstools exfatprogs
   squashfs-tools xorriso mtools shellcheck dosbox dosbox-x
   xterm konsole xfce4-terminal foot kitty
+  xserver-xorg xinit xauth xwayland xvfb x11-xserver-utils x11-utils openbox
   ptyxis gnome-terminal terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal
 )
 
