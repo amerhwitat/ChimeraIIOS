@@ -106,6 +106,8 @@ The listed backend providers are Clang, LLVM MC, LLVM/GNU objdump, QEMU user-mod
 
 ### Build and conformance order
 
+The image build now runs `tools/isa/build-architecture-smokes.py`. It attempts freestanding Clang object compilation for every declared LLVM target and a NASM 16-bit DOS `.COM` smoke for `dos-x86`, recording artifact hashes, object headers/file types and failures in `isa-smokes/report.json`. `--full` makes this smoke matrix strict. These are compile-only backend checks, not full OS binaries or instruction conformance tests.
+
 1. Normalize the architecture ID and define exact ISA revision/extensions/ABI.
 2. Confirm upstream source/specification provenance and license.
 3. Probe the actual assembler/compiler backend for the target triple.
