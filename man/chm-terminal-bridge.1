@@ -1,0 +1,23 @@
+.TH CHM-TERMINAL-BRIDGE 1
+.SH NAME
+chm-terminal-bridge \- connect Aurora Web Terminal to a local workspace or shell
+.SH SYNOPSIS
+.B python3 tools/runtime/chimera-terminal-backend.py
+.RI [ --profile chimera|octavian ] [ --workspace DIRECTORY ] [ --port PORT ] [ --unsafe-shell ]
+.SH DESCRIPTION
+Starts a loopback-only HTTP bridge for Aurora Terminal. Safe workspace mode is the default and does not invoke a shell. A one-time bearer token is printed at startup.
+.SH OPTIONS
+.TP
+.B --profile PROFILE
+Label this host as chimera or octavian. Default: chimera.
+.TP
+.B --workspace DIRECTORY
+Workspace root for safe file operations. Default: ~/ChimeraTerminalWorkspace.
+.TP
+.B --port PORT
+Loopback HTTP port. Default: 8767.
+.TP
+.B --unsafe-shell
+Explicitly enable real local shell execution with current-user privileges. This is not a sandbox.
+.SH SECURITY
+Binds only to 127.0.0.1, requires a bearer token, restricts CORS and bounds command size, output and execution time.
