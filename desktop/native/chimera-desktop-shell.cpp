@@ -42,6 +42,26 @@ bool spawn_command(const char* program, const char* argument) {
   return started;
 }
 
+bool spawn_command_args(const char* program, const char* first,
+                        const char* second) {
+  gchar* path = g_find_program_in_path(program);
+  if (!path) return false;
+  g_free(path);
+  gchar* argv[4] = {const_cast<gchar*>(program),
+                    const_cast<gchar*>(first),
+                    const_cast<gchar*>(second), nullptr};
+  GError* error = nullptr;
+  const gboolean started = g_spawn_async(
+      nullptr, argv, nullptr, G_SPAWN_SEARCH_PATH,
+      nullptr, nullptr, nullptr, &error);
+  if (!started) {
+    set_status(std::string(program) + ": " +
+               (error ? error->message : "process launch failed"));
+    if (error) g_error_free(error);
+  }
+  return started;
+}
+
 void launch_clicked(GtkButton*, gpointer data) {
   const char* action = static_cast<const char*>(data);
   if (std::strcmp(action, "terminal") == 0) {
@@ -76,6 +96,21 @@ void launch_clicked(GtkButton*, gpointer data) {
         return;
       }
     }
+  }
+  } else if (std::strcmp(action, "ide") == 0) {
+    const char* candidates[] = {"codium", "vscodium", "code-oss", nullptr};
+    for (size_t i = 0; candidates[i]; ++i) {
+      if (spawn_command(candidates[i], nullptr)) {
+        set_status(std::string(candidates[i]) + " launched.");
+        return;
+      }
+    }
+    if (spawn_command_args("chm-ide-manager", "install", "vscodium")) {
+      set_status("VSCodium installation requested through the configured package manager.");
+      return;
+    }
+    set_status("Install VSCodium with: chm-ide-manager install vscodium");
+    return;
   }
   set_status(std::string(action) +
              ": no supported host application is installed.");
@@ -258,10 +293,12 @@ void activate(GtkApplication* app, gpointer) {
       "Open a URL using the configured browser handler.", "browser", "chromium"), 2, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(grid), app_card("⚙", "Settings",
       "Open host settings when the provider is installed.", "settings", "settings"), 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), app_card("⌘", "Code Studio",
+      "Open or install VSCodium with the configured IDE manager.", "ide", "vscode"), 1, 1, 1, 1);
   if (freexp) {
     gtk_grid_attach(GTK_GRID(grid), app_card("▣", "DOS Applications",
         "Launch DOSBox or DOSBox-X when an emulator provider is installed.",
-        "dos", "terminal"), 1, 1, 1, 1);
+        "dos", "terminal"), 2, 1, 1, 1);
   }
 
   if (freexp) {
@@ -280,6 +317,7 @@ void activate(GtkApplication* app, gpointer) {
     gtk_box_append(GTK_BOX(start_menu), action_button("File Explorer", "files", "freexp-menu-item"));
     gtk_box_append(GTK_BOX(start_menu), action_button("Internet", "browser", "freexp-menu-item"));
     gtk_box_append(GTK_BOX(start_menu), action_button("Control Panel", "settings", "freexp-menu-item"));
+    gtk_box_append(GTK_BOX(start_menu), action_button("Code Studio", "ide", "freexp-menu-item"));
     gtk_box_append(GTK_BOX(start_menu), action_button("DOS Applications", "dos", "freexp-menu-item"));
     gtk_popover_set_child(GTK_POPOVER(popover), start_menu);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(start_button), popover);
