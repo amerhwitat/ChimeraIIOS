@@ -8,10 +8,11 @@ install_delegate() {
   local name="$1" provider="$2" description="$3"
   local provider_path="$ROOTFS$provider"
   [[ -x "$provider_path" ]] || return 0
+  local command_name="${provider##*/}"
   cat > "$BIN/$name" <<EOF
 #!/bin/sh
 # $description
-exec $provider "\$@"
+exec $command_name "$@"
 EOF
   chmod 0755 "$BIN/$name"
   echo "[COMMAND-COMPAT] $name -> $provider"
