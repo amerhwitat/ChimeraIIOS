@@ -1,0 +1,12 @@
+.TH CHM-BINARY-INSPECT 1
+.SH NAME
+chm-binary-inspect \- inspect executable headers without executing the file
+.SH SYNOPSIS
+.B chm-binary-inspect
+.RI [ --json ] " FILE..."
+.SH DESCRIPTION
+Identifies ELF, PE/COFF, Mach-O thin and universal, and WebAssembly file headers. Reports architecture, bitness, endianness where applicable, object type or subsystem, and file size. The inspector reads header metadata only; it does not load, execute, emulate, or certify the binary.
+.SH SAFETY
+File-format recognition is not a trust decision. Do not execute untrusted files. Check signatures, provenance, hashes, architecture, ABI, dependencies, and license terms before installation or compatibility execution.
+.SH EXIT STATUS
+0 when all files were recognized; 1 when one or more files were unrecognized, truncated, or unreadable; 2 for invalid command-line usage.
