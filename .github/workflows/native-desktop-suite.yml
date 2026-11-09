@@ -43,6 +43,11 @@ jobs:
           test -s "$out/aurora_utf.o"
           test -s "$out/aurora_emoji.o"
           test -s "$out/chimera_icons.o"
+          test -s "$out/icons/icon-index.json"
+          test -s "$out/icons/aurora-files.svg"
+          test -s "$out/icons/chromium.svg"
+          test -s "$out/icons/terminal.svg"
+          test -s "$out/icons/settings.svg"
           "$out/bin/aurora-utf-selftest"
           python3 -m json.tool "$out/manifests/desktop-build-manifest.json" >/dev/null
       - name: Compile shell and desktop application targets
@@ -54,6 +59,7 @@ jobs:
       - name: Build and headlessly smoke-test native Aurora and Marine GTK shells
         env:
           CHIMERA_DESKTOP_BUILD_DIR: ${{ runner.temp }}/chimera-desktop
+          CHIMERA_ICON_DIR: ${{ runner.temp }}/chimera-desktop/icons
         run: |
           set -euo pipefail
           mkdir -p "$CHIMERA_DESKTOP_BUILD_DIR/bin"
