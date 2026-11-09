@@ -5,7 +5,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 SCANNER = ROOT / "tools/binary/scan-binaries.py"
 RUNNER = ROOT / "tools/binary/run-compat.py"
 
