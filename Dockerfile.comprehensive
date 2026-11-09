@@ -344,7 +344,6 @@ RUN set -eux; \
 # Strict command-provider mode is enabled by the full release build. It
 # preserves the per-package report and stops the image build on missing or
 # failed providers instead of silently treating partial coverage as complete.
-ARG CHIMERA_STRICT_COMMAND_PROVIDERS=0
 RUN if [ -f /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh ]; then \
       if CHIMERA_STRICT_COMMAND_PROVIDERS="$CHIMERA_STRICT_COMMAND_PROVIDERS" bash /build/repos/ChimeraIIOS/tools/commands/install-command-providers.sh; then \
         echo "[Chimera][COMMANDS] provider installer completed."; \
