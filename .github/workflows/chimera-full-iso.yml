@@ -532,7 +532,7 @@ jobs:
                     printf '%s\n' 'sendkey ret 250'
                   fi
                   sleep 1
-                ) | tee "$monitor_input" | timeout 45s "${qemu[@]}" >"$monitor_output" 2>&1
+                ) | tee "$monitor_input" | timeout --kill-after=5s 45s "${qemu[@]}" >"$monitor_output" 2>&1
                 qemu_rc=$?
                 set -e
                 case_passed=true
