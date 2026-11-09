@@ -12,6 +12,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglfw3-dev libopencv-dev xvfb mesa-utils pkg-config
+      - name: Validate interactive Aurora web terminal
+        run: |
+          node --check web/aurora_terminal.js
+          node --test web/tests/aurora_terminal_static.test.mjs
       - name: Test ELF, PE/COFF, Mach-O and WASM header inspection
         run: python3 -m unittest discover -s tests/compat -p test_binary_headers.py -v
       - name: Validate semantic Aurora desktop icon integration
