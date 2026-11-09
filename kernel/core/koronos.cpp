@@ -249,12 +249,48 @@ static void task_modules(void *) {
     chimera_sched_block();
 }
 
+static bool module_has_target(const chimera_boot_module *module, const char *target) {
+    if (!module || !target) return false;
+    const char *text = module->cmdline;
+    const size_t target_len = __builtin_strlen(target);
+    for (size_t i = 0; text && text[i]; ++i) {
+        if (i && text[i - 1] != ' ') continue;
+        const char key[] = "target=";
+        size_t k = 0;
+        while (key[k] && text[i + k] == key[k]) ++k;
+        if (key[k]) continue;
+        size_t j = 0;
+        while (j < target_len && text[i + k + j] == target[j]) ++j;
+        if (j == target_len && (text[i + k + j] == 0 || text[i + k + j] == ' '))
+            return true;
+    }
+    return false;
+}
+
+static const chimera_boot_module *find_target_init(const char *target) {
+    for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
+        const chimera_boot_module *module = chimera_multiboot_module(i);
+        if (module && module->kind == CHIMERA_MODULE_USER_INIT_ELF &&
+            module_has_target(module, target))
+            return module;
+    }
+    return nullptr;
+}
+
+static void launch_target_init(const char *target) {
+    console_write("[RUN ] Launching target-specific native init ELF");
+    const int rc = koronos_launch_selected_userspace();
+    if (rc != 0) {
+        console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
+    } else {
+        console_write("[RUN ] Target userspace launch/readiness gate passed");
+    }
+}
+
 static void task_live(void *) {
     if (live_task_runs++ == 0) {
-        if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF)) {
-            const int launch_rc = koronos_launch_selected_userspace();
-            if (launch_rc != 0)
-                console_write("[RUN ] Selected userspace target failed its launch/readiness acceptance gate");
+        if (find_target_init("live")) {
+            launch_target_init("live");
             chimera_sched_block();
             return;
         }
@@ -277,7 +313,10 @@ static void task_live(void *) {
 
 static void task_recovery(void *) {
     const chimera_boot_module *image = chimera_multiboot_find(CHIMERA_MODULE_RECOVERY_INITRAMFS);
-    if (image) {
+    if (find_target_init("recovery")) {
+        if (image) console_write("[REC ] Recovery initramfs module recognized");
+        launch_target_init("recovery");
+    } else if (image) {
         console_write("[REC ] Recovery initramfs module recognized");
         console_write("[USER] Recovery handoff withheld: no native recovery init ELF/runtime is wired to this payload");
     } else {
@@ -296,6 +335,13 @@ static void task_installer(void *) {
     if (!image && !manifest && !contract && !phases && !profiles) {
         if (installer_phase++ == 0)
             console_write("[INST] Installer target not selected: no installer modules");
+        chimera_sched_block();
+        return;
+    }
+
+    if (find_target_init("installer")) {
+        console_write("[INST] Installer target metadata recognized");
+        launch_target_init("installer");
         chimera_sched_block();
         return;
     }
