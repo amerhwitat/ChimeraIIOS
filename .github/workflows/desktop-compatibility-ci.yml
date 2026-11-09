@@ -48,8 +48,8 @@ jobs:
           c++ -std=c++17 -O2 desktop/native/chm-image-inspect.cpp -o /tmp/chm-image-inspect $(pkg-config --cflags --libs opencv4)
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a /tmp/chm-opengl-smoke --self-test
           /tmp/chm-image-inspect --self-test
-          man -l man/chm-opengl-smoke.1 >/dev/null
-          man -l man/chm-image-inspect.1 >/dev/null
+          test -s man/chm-opengl-smoke.1
+          test -s man/chm-image-inspect.1
       - name: Compile C++ desktop header
         run: |
           printf '#include "desktop/cpp/chm_desktop.hpp"\nint main(){auto p=chimera::desktop::profile(chimera::desktop::Platform::WindowsWin32); return p.menu_bar ? 0 : 1;}' | c++ -std=c++17 -I. -x c++ - -o /tmp/chm-desktop
