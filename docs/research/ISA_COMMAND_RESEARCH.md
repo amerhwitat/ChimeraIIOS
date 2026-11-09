@@ -1,6 +1,6 @@
 # ISA, command, kernel and mobile OS research
 
-Generated: 2026-11-07T21:38:03.543921+00:00
+Generated: 2026-11-08T15:59:53.265770+00:00
 
 > Discovery only: remote code is not executed and findings are not auto-added to privileged command registries.
 
@@ -27,8 +27,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Jamesits/dropWPBT](https://github.com/Jamesits/dropWPBT) — Disables the Windows Platform Binary Table (WPBT) in your UEFI firmware.; language C; stars 448; license BSD-2-Clause
 - [pkgw/elfx86exts](https://github.com/pkgw/elfx86exts) — Decode binaries and print out which instruction set extensions they use. This program's name is a lie: it supports not just x86/ELF but also ARM64, MachO, and possibly more.; language Rust; stars 230; license MIT
 - [overducast/RiftByte](https://github.com/overducast/RiftByte) — Binary diff tool for PE (EXE/DLL) and ELF files. Compares two binaries, resolves virtual addresses, decodes x86/x64/ARM instructions, identifies changed sections, and exports a human-readable log and an x64dbg-compatible .1337 patch file. Supports x32, x64, ARM32, ARM64.; language C; stars 25; license MIT
-- [duckyduckG/android_kernel_xiaomi_sm8150_419](https://github.com/duckyduckG/android_kernel_xiaomi_sm8150_419) — WIP!!!!!!!!! to be rebased on common_qcom_419, be careful; language C; stars 9; license NOASSERTION
-- [GoRhanHee/android_kernel_samsung_sm8550_common](https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common) — Samsung SM8550 Platform Common Kernel Source; language C; stars 7; license NOASSERTION
+- [MillenniumOSS/android_device_millennium_common-kernel](https://github.com/MillenniumOSS/android_device_millennium_common-kernel) — Common Prebuilt Kernel Tree; language C; stars 3; license unspecified
 - [malfallah/symrisc](https://github.com/malfallah/symrisc) — A 32-bit RISC instruction set where the mnemonics are the operators, with a working assembler, disassembler, and signal-level single-cycle CPU simulator.; language Python; stars 2; license Apache-2.0
 - [FISC-Project/FISC-LLVM](https://github.com/FISC-Project/FISC-LLVM) — FISC - Flexible Instruction Set Computer - Is the new Instruction Set Architecture inspired by ARMv8 and x86-64; language C++; stars 2; license unspecified
 - [yntha/arm64_insn_decoder](https://github.com/yntha/arm64_insn_decoder) — Simple project to decode arm64 instructions and display all their encoded fields; language Python; stars 2; license GPL-3.0
@@ -37,7 +36,7 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [kobby-pentangeli/lc3box](https://github.com/kobby-pentangeli/lc3box) — Assembler, disassembler, virtual machine, debugger, and compiler for the Little Computer 3 (LC-3) assembly language and instruction-set architecture; language Rust; stars 1; license Apache-2.0
 - [gpellicci/InstructionSetArchitecture-code-assembler](https://github.com/gpellicci/InstructionSetArchitecture-code-assembler) — Definition of a new Instruction Set Architecture and implementation of an assembler and disassembler for an ad-hoc assembly language. Documentation inside; language Java; stars 1; license unspecified
 - [sxbari/Avalanche-OS](https://github.com/sxbari/Avalanche-OS) — A custom x86_64 operating system built from scratch, featuring a custom kernel, memory management, process scheduling, interrupts, device drivers, filesystem, system calls, and a command-line shell.; language C; stars 1; license MIT
-- [aosp-mirror-neo/kernel_common](https://github.com/aosp-mirror-neo/kernel_common) — Common Android Kernel Tree; language C; stars 1; license NOASSERTION
+- [mt6768-S/android_kernel_xiaomi_mt6768](https://github.com/mt6768-S/android_kernel_xiaomi_mt6768) — mt6768 common kernel; language C; stars 1; license NOASSERTION
 - [kquieter-debug/Android_kernel_source_TB375FC](https://github.com/kquieter-debug/Android_kernel_source_TB375FC) — The common kernel for TB375FC; language C; stars 1; license NOASSERTION
 - [ccclosed/pagh-api](https://github.com/ccclosed/pagh-api) — libpagh: native userland API (syscalls, runtime, filesystem, allocator) for the pagh-riscv kernel — no Linux compatibility layer; language Rust; stars 1; license unspecified
 - [MattJackson/thumb-asm](https://github.com/MattJackson/thumb-asm) — An ARM Thumb/Thumb-2 decoder, disassembler, assembler and detour installer in pure safe Rust. Decodes and re-encodes the instruction set against Arm's own architecture reference manuals, relocates instructions, and installs trampolines over live code in a firmware image.; language Rust; stars 0; license MIT
@@ -57,16 +56,17 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - [Ruthik85/pipelined-16bit-riscv-core](https://github.com/Ruthik85/pipelined-16bit-riscv-core) — A 16-bit pipelined RISC-V processor core written in SystemVerilog, featuring modular instruction fetch, decode, and execute stages along with a hazard forwarding unit.; language SystemVerilog; stars 0; license unspecified
 - [DharanidharanRavikumar/riscv-decoder](https://github.com/DharanidharanRavikumar/riscv-decoder) — A C-based RISC-V RV32I instruction decoder with opcode, register, immediate, and instruction identification support.; language C; stars 0; license unspecified
 - [DharanidharanRavikumar/riscv-simulator](https://github.com/DharanidharanRavikumar/riscv-simulator) — A from-scratch RV32I instruction-set simulator written in C, It fetches, decodes (using the same match/mask technique as the official Spike simulator), and executes real RISC-V machine code, one instruction at a time.; language C; stars 0; license MIT
-- [Aneesh495/stratum](https://github.com/Aneesh495/stratum) — Multiprocessor x86-64 operating system kernel booting via a custom UEFI loader into preemptive per-core scheduling, demand-paged copy-on-write memory, virtio drivers, journaled StrataFS, and TCP/IP.; language C; stars 0; license MIT
 - [JorgeGBeltre/EspressoOS](https://github.com/JorgeGBeltre/EspressoOS) — EspressoOS: A from‑scratch operating system for ESP32-S3, written entirely in Rust. A Linux‑inspired kernel (VFS, scheduler, syscalls, everything is a file) with no dependencies on Espressif IDF or Arduino. Includes custom bootloader, memory management, drivers, OTA with A/B slots, and an interactive shell.; language Rust; stars 0; license MIT
 - [aleksandraastojanovic/riscv-kernel](https://github.com/aleksandraastojanovic/riscv-kernel) — A small operating system kernel for RISC-V (rv64), running on QEMU: custom memory allocator, trap-based system calls, cooperative multithreading with context switching — semaphores, preemptive scheduling and console driver in progress.; language C++; stars 0; license NOASSERTION
 - [Onsase-cpu/Asterion-OS](https://github.com/Onsase-cpu/Asterion-OS) — Asterion is a modular 64-bit operating-system research project for x86-64 PCs. It is designed to make kernel concepts readable while growing toward a complete desktop system: boot, CPU setup, memory, processes, scheduling, system calls, VFS, ASTFS, drivers, networking, security, and user-space tools.; language C; stars 0; license NOASSERTION
 - [zizadhrmaa/rOSes-are-red_Operating-System](https://github.com/zizadhrmaa/rOSes-are-red_Operating-System) — A Unix-like operating system kernel built in C and x86 Assembly, featuring process scheduling, virtual memory, an EXT2 filesystem, device drivers, and an interactive shell. The project showcases low-level systems programming through custom kernel development, hardware interaction, and operating system fundamentals.; language C; stars 0; license unspecified
 - [sowjithanumola/NovaOS](https://github.com/sowjithanumola/NovaOS) — NovaOS is an open-source x86_64 operating system developed from the ground up. It includes a custom BIOS bootloader, 64-bit kernel, memory management, process scheduler, command-line shell, device drivers, and a modular architecture designed for learning and future expansion.; language C; stars 0; license unspecified
+- [dnchabalala/NEXOS](https://github.com/dnchabalala/NEXOS) — NexOS is a custom 64-bit operating system built entirely from scratch in C and Assembly — no Linux, no Unix, no borrowed kernel. Every component was designed and written from the ground up: the bootloader configuration, memory manager, filesystem driver, process scheduler, hardware drivers, interactive shell, and graphical desktop. It boots in a vm; language unknown; stars 0; license unspecified
+- [UNSTOP4BLE124/android_kernel_samsung_s921b_e1s](https://github.com/UNSTOP4BLE124/android_kernel_samsung_s921b_e1s) — kernel for aosp for samsung s24, based on android common kernel + samsung kernel source; language C; stars 0; license NOASSERTION
+- [legion1581/bgw320-kbuild](https://github.com/legion1581/bgw320-kbuild) — Build loadable kernel modules for the AT&T BGW320-500 stock Linux 5.15.167 kernel (Android Common Kernel + Broadcom layout patches); language C; stars 0; license NOASSERTION
+- [dobraeuyan/android_kernel_qcom_msm8909-common](https://github.com/dobraeuyan/android_kernel_qcom_msm8909-common) — Linux 4.9 kernel source tree for Snapdragon 205/210/212; language C; stars 0; license NOASSERTION
+- [MillenniumOSS/android_kernel_common_millennium_android12-5.10](https://github.com/MillenniumOSS/android_kernel_common_millennium_android12-5.10) — MillenniumOSS Common Kernel Source; language C; stars 0; license NOASSERTION
 - [LineageOS/android_kernel_amlogic_common_drivers](https://github.com/LineageOS/android_kernel_amlogic_common_drivers) — No description; language C; stars 0; license unspecified
-- [SavoryBanana/sailfish-linux-6.18](https://github.com/SavoryBanana/sailfish-linux-6.18) — Android Common Kernel 6.18 (Android 17) port for Google Pixel (sailfish); language C; stars 0; license NOASSERTION
-- [etnperlong/android_kernel_common-6.1](https://github.com/etnperlong/android_kernel_common-6.1) — No description; language C; stars 0; license NOASSERTION
-- [ramabondanp/android_kernel_common-6.12](https://github.com/ramabondanp/android_kernel_common-6.12) — No description; language C; stars 0; license NOASSERTION
 - [suhteevah/linux-compat-nostd](https://github.com/suhteevah/linux-compat-nostd) — no_std Linux syscall compatibility layer — run Linux binaries on bare metal; language Rust; stars 0; license Apache-2.0
 - [jdhruv1503/LinuxCompatibilityLayer](https://github.com/jdhruv1503/LinuxCompatibilityLayer) — Run Linux syscalls on non-Linux environments — compatibility shim layer; language Python; stars 0; license unspecified
 - [dyber-pqc/bsdulator](https://github.com/dyber-pqc/bsdulator) — FreeBSD binary compatibility layer for Linux — run FreeBSD binaries and jails natively using real-time syscall translation. No VMs, no overhead.; language C; stars 0; license NOASSERTION
@@ -280,9 +280,9 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - docs/kernel/LINUX_7_2_2_COMPATIBILITY.md — 3220 bytes; SHA-256 35fe67834ae12ef1ad4ff6fce401cea0f3aadc90fbd42c1b5a2a1e7041c66400
 - docs/kernel/linux_feature_matrix.json — 1132 bytes; SHA-256 021632ed478fb7db8ac257056f26fd2aec835ed1e63540dd8d65722dda8fd785
 - docs/network/ai-browser-networking-2026.md — 2469 bytes; SHA-256 35ced6e4fcacdcd264ba9b0941fa78cd94422677ed3f149d3fbc3316b77a110f
-- docs/research/isa-command-research.json — 254256 bytes; SHA-256 ccd4dc045c338f8860984e0afafba16041476520cfcd40a8f1a0a0477c3baf0c
+- docs/research/isa-command-research.json — 257016 bytes; SHA-256 7f6e52436191580a0ab6c5955475d794c0cae20867e61dd7bf66b0b31c187b2d
 - docs/research/ISA_CANDIDATE_EXECUTION.md — 3759 bytes; SHA-256 9161adadc3e6788ce08947f919ba7151e4bc5786aef6ca787157d86af5364974
-- docs/research/ISA_COMMAND_RESEARCH.md — 51508 bytes; SHA-256 9a493b1286a62b25405f4b49c7e29cb2f6402f7e8e27191b0c061bb1b3059bbe
+- docs/research/ISA_COMMAND_RESEARCH.md — 53048 bytes; SHA-256 80c8506c7a96834a76b03368d3e6528a9bac1a6514a2cdbfae088f7aafe82da0
 - docs/toolchains/managed-and-apple-compatibility.md — 3489 bytes; SHA-256 659bb9e747b7a0f518ce7497d05903c62949d245930ec0f63b9110e18ca21524
 - docs/toolchains/universal-toolchains.md — 2362 bytes; SHA-256 21adabd7788b9abb5f6e8d584f4d8543515d2fe62310e3d56ce9705b86a4e7b1
 - docs/validation/capability-evidence.json — 6482 bytes; SHA-256 f4d97231813359c19928d9d2ecfde1cddec33c1304604aa0536176e300c6d3cc
@@ -333,10 +333,10 @@ Search is broad but not exhaustive: results are capped per query and subject to 
 - system/aurora/README.md — 560 bytes; SHA-256 cbf7f5b1c5a528d990aec01b6827d5c9b13e477621aa2ec30c666c0ab1bca802
 - system/commands/chimera-arabic.json — 15130 bytes; SHA-256 41b972dcbcb28deba30c4101bac6e5cfc4f04b5b7ab14050a7fd77b844933795
 - system/commands/chimera-command-list.json — 22441 bytes; SHA-256 c25792073b721640b7c96eb98e10bbd1a73cd05404c6f77c38c9767a253a7c52
-- system/commands/command-runtime-capabilities.json — 1504211 bytes; SHA-256 4d5324f39f67c6aae2ebf379064230e79f35a2901ddecee8ce785e460cfe4212
+- system/commands/command-runtime-capabilities.json — 1504526 bytes; SHA-256 346f7d859dd92b258b955955dadf067e29e7fb1fe02aa3932e05d347119fb3a2
 - system/commands/compatibility-binary-policy.json — 2614 bytes; SHA-256 1ce577b4bf47de8c6714477f9ab0ea606c3c00ee8dff2c2d09ea42dbcd48e2e8
 - system/commands/online-command-catalog.json — 1491009 bytes; SHA-256 2ac035a488be06a80c06033b72c48b2682a74b0b566a2a42f94a385ef03c3d36
-- system/commands/ss64-command-catalog.ar.json — 864753 bytes; SHA-256 c1a7c52e138a839374af02272fac6f6df25e622ee7dd6d76f3e442135f9ba0b9
+- system/commands/ss64-command-catalog.ar.json — 864951 bytes; SHA-256 dbea49182ccc75dd3030ef09b4bc7a7d1a07ac94fbbd6f7c97370fe64b9ad119
 - system/hardware/chimera-hardware-profile.json — 524 bytes; SHA-256 884360f762b99759b446f4c61788f61a8528d362203f3f85383c5de44867c343
 - system/hardware/compatibility-modes.json — 5990 bytes; SHA-256 06a4b6bc1d6def4e225f12afde786cbed04b7330806b514f60eff7b33a3fe8e5
 - system/hosted/compatibility-matrix.json — 6671 bytes; SHA-256 689ca9caf01845e1aaff4aba8516dce28cdbcde22230285ade642c01d79dd76a

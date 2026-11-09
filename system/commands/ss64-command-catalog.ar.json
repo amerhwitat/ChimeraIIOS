@@ -23048,6 +23048,14 @@
         "windows_cmd"
       ]
     },
+    "ports.jpg": {
+      "name": "Ports.jpg",
+      "label": "أمر نظام — Ports.jpg",
+      "translation_status": "identifier-preserved",
+      "platforms": [
+        "tools"
+      ]
+    },
     "português": {
       "name": "português",
       "label": "أمر نظام — português",
