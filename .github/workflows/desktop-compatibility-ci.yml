@@ -61,6 +61,8 @@ jobs:
           . /tmp/chimera-retro-media-venv/bin/activate
           python -m pip install --disable-pip-version-check amitools
           command -v c1541
+          command -v x64sc
+          x64sc --version || true
           command -v fs-uae
           fs-uae --version
           bash -n tools/retro-media/install-emulators.sh
