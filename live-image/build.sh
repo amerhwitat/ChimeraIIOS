@@ -119,9 +119,10 @@ umount_chroot() {
 trap 'umount_chroot "$WORK"; umount_chroot "$BASE"' EXIT
 
 # ------------------------------------------------------------- package set
-if [ ! -f "$BASE/.packages-installed-v5" ]; then
+if [ ! -f "$BASE/.packages-installed-v6" ]; then
   log "installing shared package set (one-off)"
   install -D -m 0755 "$REPO_DIR/tools/commands/install-command-providers.sh" "$BASE/tmp/chimera-install-command-providers.sh"
+   install -D -m 0755 "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$BASE/tmp/chimera-install-legacy-command-compat.sh"
   install -D -m 0755 "$REPO_DIR/tools/commands/resolve-catalogue-command-providers.py" "$BASE/tmp/chimera-resolve-command-providers.py"
   install -D -m 0644 "$REPO_DIR/system/commands/chimera-command-list.json" "$BASE/tmp/chimera-command-list.json"
   install -D -m 0644 "$REPO_DIR/system/commands/ss64-command-catalog.json" "$BASE/tmp/ss64-command-catalog.json"
@@ -318,6 +319,9 @@ rm -rf "$PAY"
 mkdir -p "$PAY/wallpapers" "$PAY/repo"
 tar -C "$REPO_DIR" --exclude=./.git --exclude=./live-image/.build -cf - . \
   | tar -C "$PAY/repo" -xf -
+
+# Stage genuine compatibility frontends before the provider resolver runs.
+bash "$REPO_DIR/tools/commands/install-legacy-command-compat.sh" "$WORK"
 
 # Resolve the complete Linux command catalogue against real target-rootfs
 # binaries and Debian packages. The resolver is executed inside the chroot so
