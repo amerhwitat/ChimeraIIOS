@@ -12,6 +12,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglfw3-dev libopencv-dev xvfb mesa-utils pkg-config
+      - name: Test ELF, PE/COFF, Mach-O and WASM header inspection
+        run: python3 -m unittest discover -s tests/compat -p test_binary_headers.py -v
       - name: Validate semantic Aurora desktop icon integration
         run: |
           node --check desktop/aurora-shell/assets/shell.js
