@@ -37,6 +37,8 @@ jobs:
           launcher = Path("desktop/x11/start-session.sh").read_text(encoding="utf-8")
           providers = Path("tools/commands/install-command-providers.sh").read_text(encoding="utf-8")
           assert "xserver-xorg" in x11["packages"] and "xwayland" in x11["packages"]
+          assert "freexp" in x11["desktop_sessions"]
+          assert "freexp" in launcher
           assert "CHIMERA_X11_RUNTIME_VERIFIED" in launcher
           assert "CHIMERA_X11_FORCE_UNVERIFIED" in launcher
           assert "xserver-xorg" in providers
