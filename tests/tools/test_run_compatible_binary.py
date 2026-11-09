@@ -59,6 +59,11 @@ class RuntimeSelectionTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             MODULE.choose_command(report,Path("/tmp/app"),("Linux","x86_64"),self.fake_which())
 
+    def test_macos_uses_darling_when_available(self):
+        report={"format":"Mach-O","architecture":"x86_64"}
+        command,mode=MODULE.choose_command(report,Path("/tmp/app"),("Linux","x86_64"),self.fake_which("darling"))
+        self.assertEqual((command,mode),(["/usr/bin/darling","/tmp/app"],"darling-compat"))
+
     def test_dos_uses_dosbox(self):
         report={"format":"DOS MZ","architecture":"x86"}
         command,mode=MODULE.choose_command(report,Path("/tmp/APP.EXE"),("Linux","x86_64"),self.fake_which("dosbox"))
