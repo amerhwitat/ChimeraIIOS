@@ -54,7 +54,7 @@ The existing source catalogue identifies these primary upstream families:
 | e2fsprogs/dosfstools/exfatprogs | filesystem tools | https://e2fsprogs.sourceforge.net/ ; https://github.com/dosfstools/dosfstools ; https://github.com/exfatprogs/exfatprogs |
 | DOSBox-X | DOS application compatibility runtime | https://github.com/joncampbell123/dosbox-x |
 
-The provider install script currently declares 87 Ubuntu package names. This is a provider package set, not proof that all 301 Linux/Bash commands or the other platform namespaces are available. Some package names are unavailable on a given Ubuntu release; the new report records each package as installed, unavailable, or failed.
+The provider install script currently declares 98 Ubuntu package names. This is a provider package set, not proof that all 301 Linux/Bash commands or the other platform namespaces are available. Some package names are unavailable on a given Ubuntu release; the new report records each package as installed, unavailable, or failed.
 
 ## ISA inventory
 
@@ -118,7 +118,7 @@ Do not infer native OS support from a QEMU user-mode test or a successful compil
 
 ## Terminal and shell inventory
 
-The Aurora terminal registry contains 18 terminal applications. The shell registry contains 8 shells: Bash, Zsh, fish, Dash, mksh, Yash, Elvish and Nushell. These are registry entries. The source-first import scripts and rootfs architecture checks must produce target binaries; a desktop entry or registry record is not proof of an installed, launchable terminal.
+The cross-platform system terminal manifest contains 18 terminal applications; the Aurora launch registry now contains 20 entries (the 18 system entries plus Ghostty and Contour). The shell registry contains 8 shells: Bash, Zsh, fish, Dash, mksh, Yash, Elvish and Nushell. These are registry entries. The source-first import scripts and rootfs architecture checks must produce target binaries; a desktop entry or registry record is not proof of an installed, launchable terminal.
 
 ## Build gate added in this change
 
