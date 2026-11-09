@@ -162,9 +162,20 @@ for required in \
   "$LIVE_BOOT/boot/live/live-manifest.json"; do
   [[ -s "$required" ]] || { echo "Required live artifact missing: $required" >&2; exit 2; }
 done
-mkdir -p "$DIST/boot/live"
+mkdir -p "$DIST/boot/live" "$DIST/boot/targets" "$DIST/boot/recovery"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$DIST/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$DIST/boot/live/"
+# Stage all production target ELFs and the matching recovery payload built above.
+for target in live installer recovery; do
+  source_elf="$LIVE_BOOT/boot/targets/target-init-$target.elf"
+  [[ -s "$source_elf" ]] || { echo "Required native target ELF missing: $source_elf" >&2; exit 2; }
+  cp -f "$source_elf" "$DIST/boot/targets/"
+done
+for required in chimera-recovery-initramfs.img recovery-manifest.json; do
+  source_payload="$LIVE_BOOT/boot/recovery/$required"
+  [[ -s "$source_payload" ]] || { echo "Required recovery artifact missing: $source_payload" >&2; exit 2; }
+  cp -f "$source_payload" "$DIST/boot/recovery/"
+done
 if [[ -s "$LIVE_BOOT/boot/vmlinuz" ]]; then
   cp -f "$LIVE_BOOT/boot/vmlinuz" "$DIST/boot/live/vmlinuz"
 fi
@@ -211,7 +222,6 @@ if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/backgr
 menuentry "Jasper Recovery — Koronos Rescue" {
   multiboot2 /boot/koronos/koronos.elf chm.log=verbose chm.progress=events
   module2 /boot/targets/target-init-recovery.elf chimera-user-init-elf target=recovery
-  module2 /boot/ai/knowledge-db.json ai-knowledge-db
   module2 /boot/recovery/chimera-recovery-initramfs.img chimera-recovery-initramfs
   module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest
   boot
