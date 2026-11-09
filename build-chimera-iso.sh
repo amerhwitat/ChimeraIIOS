@@ -125,6 +125,7 @@ STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
+FULL_BUILD=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
@@ -221,7 +222,7 @@ while [[ $# -gt 0 ]]; do
     --iso-only) BUILD_DOCKER=0; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
-    --full) CLEAN_STATE=1; RESUME_BUILD=0; export CHIMERA_DOCKER_NO_CACHE=1; shift;;
+    --full) FULL_BUILD=1; shift;;
     --storage-auto) STORAGE_AUTO=1; shift;;
     --no-storage-prompt) STORAGE_PROMPT=0; shift;;
     --storage) [[ -n "${2:-}" ]] || { log_error '--storage requires a path'; exit 2; }; export CHIMERA_BUILD_STORAGE_ROOT="$2"; shift 2;;
@@ -237,6 +238,13 @@ while [[ $# -gt 0 ]]; do
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# Apply full-build invariants after parsing so option order cannot re-enable resume.
+if [[ "$FULL_BUILD" == 1 ]]; then
+  CLEAN_STATE=1
+  RESUME_BUILD=0
+  export CHIMERA_DOCKER_NO_CACHE=1
+fi
 
 if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   root="${CHIMERA_BUILD_STORAGE_ROOT%/}"
