@@ -31,6 +31,18 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
         self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
 
+
+    def test_ring3_init_elf_is_dispatched_by_matching_target_service(self):
+        source = (ROOT / "kernel/core/koronos.cpp").read_text()
+        self.assertIn('find_target_init("live")', source)
+        self.assertIn('find_target_init("installer")', source)
+        self.assertIn('find_target_init("recovery")', source)
+        self.assertIn("module_has_target(module, target)", source)
+        self.assertIn("koronos_launch_selected_userspace()", source)
+        self.assertNotIn('if (chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF))', source)
+        self.assertIn('Recovery handoff withheld: no native recovery init ELF/runtime', source)
+        self.assertIn('Installer handoff withheld: production payload has no supported native init ELF/runtime', source)
+
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
         end = GRUB.index('\n}', start)
