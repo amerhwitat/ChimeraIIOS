@@ -334,16 +334,16 @@ static void task_installer(void *) {
     const chimera_boot_module *phases = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PHASES);
     const chimera_boot_module *profiles = chimera_multiboot_find(CHIMERA_MODULE_INSTALL_PROFILES);
 
-    if (!image && !manifest && !contract && !phases && !profiles) {
-        if (installer_phase++ == 0)
-            console_write("[INST] Installer target not selected: no installer modules");
+    if (find_target_init("installer")) {
+        console_write("[INST] Installer target native init ELF recognized");
+        launch_target_init("installer");
         chimera_sched_block();
         return;
     }
 
-    if (find_target_init("installer")) {
-        console_write("[INST] Installer target metadata recognized");
-        launch_target_init("installer");
+    if (!image && !manifest && !contract && !phases && !profiles) {
+        if (installer_phase++ == 0)
+            console_write("[INST] Installer target not selected: no installer modules");
         chimera_sched_block();
         return;
     }
