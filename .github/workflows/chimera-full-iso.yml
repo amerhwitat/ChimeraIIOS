@@ -59,6 +59,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools squashfs-tools jq rsync qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
+          python3 -m unittest discover -s tests/boot -p "test_full_iso_workflow_contract.py" -v
+
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
 
