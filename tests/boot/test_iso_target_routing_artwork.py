@@ -26,9 +26,10 @@ class IsoTargetRoutingTests(unittest.TestCase):
 
 
     def test_full_iso_builder_stages_all_target_init_elf_modules(self):
-        for target in ("live", "installer", "recovery"):
-            self.assertIn(f"target-init-{target}.elf", FULL_BUILDER)
-            self.assertIn(f"target={target}", GRUB if target == "live" else (INSTALL if target == "installer" else RECOVERY))
+        self.assertIn("for target in live installer recovery; do", FULL_BUILDER)
+        self.assertIn('target_elf="$TARGET_INIT_DIR/target-init-$target.elf"', FULL_BUILDER)
+        for target, config in (("live", GRUB), ("installer", INSTALL), ("recovery", RECOVERY)):
+            self.assertIn(f"target={target}", config)
         self.assertIn('TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"', FULL_BUILDER)
         self.assertIn('cp -f "$target_elf" "$STAGE/boot/targets/"', FULL_BUILDER)
         self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
@@ -38,9 +39,10 @@ class IsoTargetRoutingTests(unittest.TestCase):
     def test_live_iso_fallback_builds_and_stages_target_init_elfs(self):
         self.assertIn('TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"', LIVE_BUILDER)
         self.assertIn('bash "$ROOT/kernel/build-koronos.sh"', LIVE_BUILDER)
-        for target in ("live", "installer", "recovery"):
-            self.assertIn(f"target-init-{target}.elf", LIVE_BUILDER)
-            self.assertIn(f"target={target}", GRUB if target == "live" else (INSTALL if target == "installer" else RECOVERY))
+        self.assertIn("for target in live installer recovery; do", LIVE_BUILDER)
+        self.assertIn('target_elf="$TARGET_INIT_DIR/target-init-$target.elf"', LIVE_BUILDER)
+        for target, config in (("live", GRUB), ("installer", INSTALL), ("recovery", RECOVERY)):
+            self.assertIn(f"target={target}", config)
         self.assertIn('cp -f "$target_elf" "$STAGE/boot/targets/"', LIVE_BUILDER)
 
     def test_recovery_menu_routes_to_recovery_config(self):
