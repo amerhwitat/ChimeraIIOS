@@ -174,7 +174,11 @@ void install_style() {
   GdkDisplay* display = gdk_display_get_default();
   if (!display) return;
   GtkCssProvider* provider = gtk_css_provider_new();
+#if GTK_CHECK_VERSION(4, 12, 0)
+  gtk_css_provider_load_from_string(provider, css);
+#else
   gtk_css_provider_load_from_data(provider, css, -1);
+#endif
   gtk_style_context_add_provider_for_display(
       display, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   g_object_unref(provider);
