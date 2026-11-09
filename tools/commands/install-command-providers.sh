@@ -38,6 +38,7 @@ PACKAGES=(
   p7zip-full unrar-free cifs-utils nfs-common
   lvm2 mdadm smartmontools parted gdisk dosfstools exfatprogs
   squashfs-tools xorriso mtools shellcheck dosbox dosbox-x
+  ptyxis gnome-terminal terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal
 )
 
 INSTALLED=()
