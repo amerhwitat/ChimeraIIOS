@@ -235,8 +235,7 @@ test -s "$DIST/output.iso"
 printf '%s\\n' '[6b/7] Verify target init ELFs inside the finished ISO'
 for target in live installer recovery; do
   extracted="$WORK/tmp/iso-target-init-$target.elf"
-  xorriso -osirrox on -indev "$DIST/output.iso" \\
-    -extract "/boot/targets/target-init-$target.elf" "$extracted" >/dev/null
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "/boot/targets/target-init-$target.elf" "$extracted" >/dev/null
   test -s "$extracted" || { echo "ERROR: finished ISO is missing target init ELF: $target" >&2; exit 2; }
   cmp -s "$TARGETS_OUT/target-init-$target.elf" "$extracted" || {
     echo "ERROR: finished ISO target init ELF differs from staged build: $target" >&2; exit 2; }
@@ -245,11 +244,10 @@ for target in live installer recovery; do
   readelf -lW "$extracted" | grep -Eq 'LOAD.*R E' || {
     echo "ERROR: finished ISO target init has no executable PT_LOAD: $target" >&2; exit 2; }
 done
-for item in "grub.cfg:live" "grub.cfg:installer" "grub.cfg:recovery" \\
-            "jasper/live.cfg:live" "jasper/install.cfg:installer" "jasper/recovery.cfg:recovery"; do
+for item in "grub.cfg:live" "grub.cfg:installer" "grub.cfg:recovery" "jasper/live.cfg:live" "jasper/install.cfg:installer" "jasper/recovery.cfg:recovery"; do
   config="${item%%:*}"
   target="${item##*:}"
-  extracted="$WORK/tmp/iso-menu-${config//\\//-}"
+  extracted="$WORK/tmp/iso-menu-$target.cfg"
   source="/boot/$config"
   xorriso -osirrox on -indev "$DIST/output.iso" -extract "$source" "$extracted" >/dev/null
   grep -Fq "target-init-$target.elf chimera-user-init-elf target=$target" "$extracted" || {
