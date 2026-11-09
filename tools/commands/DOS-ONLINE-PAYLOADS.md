@@ -49,6 +49,16 @@ unclear redistribution rights is included automatically. A title is not called
 working until the exact staged binary has a recorded smoke test on a supported
 emulator profile. Catalog refresh and payload fetching are separate operations.
 
+## Current release gate (2026-11-09)
+
+The current manifest contains seven catalog-only discovery leads and zero entries
+that satisfy the download schema (exact package URL, reviewed redistribution
+license, pinned SHA-256, and completed emulator smoke test). Consequently, a
+normal build stages zero DOS applications, and `--full` deliberately fails
+until at least one genuinely reviewed and tested payload is added. This prevents
+the ISO from claiming DOS application coverage when it contains only the DOSBox
+compatibility runtime.
+
 Run tests with:
 ```sh
 python3 tools/commands/test-dos-payload-builder.py
