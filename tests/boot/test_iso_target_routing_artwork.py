@@ -44,7 +44,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         # The workflow extracts GRUB from the ISO under test and resolves each
         # target by its stable --id. This guards against stale positional offsets
         # when menu entries are inserted or firmware-specific entries change.
-        ids = re.findall(r"(?m)^\\s*menuentry\\b.*?--id\\s+[\"']?([A-Za-z0-9_-]+)", GRUB)
+        ids = re.findall(r"(?m)^\s*menuentry\b.*?--id\s+([A-Za-z0-9_-]+)", GRUB)
         for target, menu_id in (("live", "aurora-live"), ("installer", "install"), ("recovery", "recovery")):
             self.assertIn(menu_id, ids)
         self.assertIn('actual_grub="$base/actual-grub.cfg"', FULL_ISO_WORKFLOW)
