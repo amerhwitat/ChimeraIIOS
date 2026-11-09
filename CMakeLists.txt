@@ -49,6 +49,8 @@ install(PROGRAMS tools/inspect-binary-headers.py DESTINATION ${CMAKE_INSTALL_LIB
 install(PROGRAMS tools/binary/scan-binaries.py tools/binary/run-compat.py DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/chimera/tools/binary)
 install(PROGRAMS tools/ide/install-development-suite.sh DESTINATION bin)
 install(PROGRAMS tools/graphics/install-opengl-opencv.sh DESTINATION bin)
+install(PROGRAMS tools/runtime/chimera-terminal-backend.py DESTINATION bin)
+install(FILES man/chm-terminal-bridge.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install(PROGRAMS tools/ide/install-vscode.py tools/ide/install-vscodium.py DESTINATION bin)
 install(FILES man/chm-install-graphics.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install(FILES man/chm-retro-launch.1 man/chm-retro-media-build.1 man/chm-retro-emulator-build.1 man/chm-install-vscode.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
