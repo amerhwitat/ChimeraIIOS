@@ -252,14 +252,14 @@ static void task_modules(void *) {
 static bool module_has_target(const chimera_boot_module *module, const char *target) {
     if (!module || !target) return false;
     const char *text = module->cmdline;
-    const size_t target_len = __builtin_strlen(target);
-    for (size_t i = 0; text && text[i]; ++i) {
+    const uint32_t target_len = static_cast<uint32_t>(__builtin_strlen(target));
+    for (uint32_t i = 0; text && text[i]; ++i) {
         if (i && text[i - 1] != ' ') continue;
         const char key[] = "target=";
-        size_t k = 0;
+        uint32_t k = 0;
         while (key[k] && text[i + k] == key[k]) ++k;
         if (key[k]) continue;
-        size_t j = 0;
+        uint32_t j = 0;
         while (j < target_len && text[i + k + j] == target[j]) ++j;
         if (j == target_len && (text[i + k + j] == 0 || text[i + k + j] == ' '))
             return true;
