@@ -25,6 +25,14 @@ class RuntimeSelectionTests(unittest.TestCase):
         command,mode=MODULE.choose_command(report,Path("/tmp/app.exe"),("Linux","x86_64"),self.fake_which("wine"))
         self.assertEqual(mode,"wine-compat");self.assertEqual(command[0],"/usr/bin/wine")
 
+    def test_riscv32_and_little_endian_mips(self):
+        rv={"format":"ELF","architecture":"RISC-V","bits":32,"endianness":"little"}
+        cmd,mode=MODULE.choose_command(rv,Path("/tmp/app"),("Linux","x86_64"),self.fake_which("qemu-riscv32"))
+        self.assertEqual((cmd[0],mode),("/usr/bin/qemu-riscv32","qemu-user"))
+        mips={"format":"ELF","architecture":"MIPS","bits":32,"endianness":"little"}
+        cmd,mode=MODULE.choose_command(mips,Path("/tmp/app"),("Linux","x86_64"),self.fake_which("qemu-mipsel"))
+        self.assertEqual((cmd[0],mode),("/usr/bin/qemu-mipsel","qemu-user"))
+
     def test_macos_requires_macos_host(self):
         report={"format":"Mach-O","architecture":"AArch64"}
         with self.assertRaises(RuntimeError):
