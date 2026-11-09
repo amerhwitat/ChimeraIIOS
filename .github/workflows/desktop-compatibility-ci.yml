@@ -176,12 +176,39 @@ jobs:
           install -m 0755 /tmp/chimera-build/userland/aurora-settings "$out/bin/"
           install -m 0755 /tmp/chimera-aarch64-smoke "$out/bin/"
           install -m 0755 tools/ides/ide-manager.sh "$out/bin/chm-ide-manager"
+          mkdir -p "$out/lib" "$out/libexec"
+          for binary in "$out/bin/chm-opengl-smoke" "$out/bin/chm-image-inspect"; do
+            while read -r soname arrow resolved rest; do
+              [[ "$arrow" == "=>" && "$resolved" == /* && -f "$resolved" ]] || continue
+              case "$soname" in
+                libc.so*|libm.so*|libpthread.so*|librt.so*|libdl.so*|ld-linux*|linux-vdso*) continue ;;
+              esac
+              cp -L "$resolved" "$out/lib/$soname"
+            done < <(ldd "$binary")
+          done
+          mv "$out/bin/chm-opengl-smoke" "$out/libexec/chm-opengl-smoke.bin"
+          mv "$out/bin/chm-image-inspect" "$out/libexec/chm-image-inspect.bin"
+          cat > "$out/bin/chm-opengl-smoke" <<'SH'
+          #!/usr/bin/env bash
+          HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+          export LD_LIBRARY_PATH="$HERE/../lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          exec "$HERE/../libexec/chm-opengl-smoke.bin" "$@"
+          SH
+          cat > "$out/bin/chm-image-inspect" <<'SH'
+          #!/usr/bin/env bash
+          HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+          export LD_LIBRARY_PATH="$HERE/../lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          exec "$HERE/../libexec/chm-image-inspect.bin" "$@"
+          SH
+          chmod 0755 "$out/bin/chm-opengl-smoke" "$out/bin/chm-image-inspect"
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a "$out/bin/chm-opengl-smoke" --self-test
+          "$out/bin/chm-image-inspect" --self-test
           install -m 0644 tools/run-compatible-binary.py tools/inspect-binary-headers.py "$out/share/chimera/"
           install -m 0644 tools/binary/compatibility-runtimes.json compat/binary-format-registry.json "$out/share/chimera/"
           install -m 0644 man/chm-opengl-smoke.1 man/chm-image-inspect.1 man/chm-ide.1 man/chm-binary-headers.1 man/chm-binary-inspect.1 "$out/share/man/man1/"
-          (cd "$out" && find bin share -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+          (cd "$out" && find bin share lib libexec -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
           (cd "$out" && sha256sum -c SHA256SUMS)
-          (cd "$out" && find bin -type f -maxdepth 1 -print0 | sort -z | while IFS= read -r -d '' file; do ldd "$file" 2>&1 || true; done) > "$out/share/chimera/runtime-dependencies.txt"
+          (cd "$out" && find bin libexec -type f -maxdepth 1 -print0 | sort -z | while IFS= read -r -d '' file; do ldd "$file" 2>&1 || true; done) > "$out/share/chimera/runtime-dependencies.txt"
       - name: Test verified desktop artifact import and checksum enforcement
         run: |
           set -euo pipefail
