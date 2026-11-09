@@ -55,7 +55,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools squashfs-tools jq rsync qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -68,12 +68,20 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Build ISO with the canonical build-chimera-iso.sh pipeline
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          CHIMERA_SKIP_SS64_CRAWL: "1"
+          CHIMERA_ISA_RESEARCH: "0"
+          CHIMERA_BUILD_NATIVE_ISO_PIPELINE: "1"
         run: |
-          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
-          ./tools/build-full-iso.sh
+          set -euo pipefail
+          chmod +x build-chimera-iso.sh
+          ./build-chimera-iso.sh --clean-state --storage "$RUNNER_TEMP/chimera-ci" --no-storage-prompt
+          test -s boot/iso/dist/output.iso
+          mkdir -p build/iso
+          cp boot/iso/dist/output.iso build/iso/chimera-ii-os.iso
+          (cd build/iso && sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256)
 
       - name: Validate ISO artifacts
         run: |
@@ -265,6 +273,12 @@ jobs:
           path: /tmp/chimera-userspace-traces/
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Fail build when any production target lacks a real CPL3 userspace handoff
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        run: |
+          echo "::error::Live, Installer, and Recovery must each prove kernel-ready -> CPL3-origin init syscall -> matching nonzero PID readiness. See chimera-target-userspace-traces artifact."
+          exit 1
 
       - name: Compress ISO for GitHub release asset size limit
         run: |
