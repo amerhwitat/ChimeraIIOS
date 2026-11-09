@@ -19,10 +19,18 @@ case "$machine" in
       exec fs-uae "$cfg"
     fi
     core="${CHIMERA_PUAE_CORE:-}"
-    [[ -n "$core" && -f "$core" ]] || core="$(find "$HOME/.local/share/retroarch/cores" /usr/lib/libretro /usr/lib64/libretro -name puae_libretro.so -print -quit 2>/dev/null || true)"
-    if command -v retroarch >/dev/null 2>&1 && [[ -n "$core" && -f "$core" ]]; then exec retroarch -L "$core" "$disk"; fi
+    [[ -n "$core" && -f "$core" ]] || core="$ROOT/build/retro-emulators/puae_libretro.so"
+    [[ -f "$core" ]] || core="$(find "$HOME/.local/share/retroarch/cores" /usr/lib/libretro /usr/lib64/libretro -name puae_libretro.so -print -quit 2>/dev/null || true)"
+    if command -v retroarch >/dev/null 2>&1 && [[ -n "$core" && -f "$core" ]]; then
+      cfg="$(mktemp)"
+      trap 'rm -f "$cfg"' EXIT
+      printf 'system_directory = "%s"\npuae_model = "%s"\n' "$(dirname "$rom")" "$model" > "$cfg"
+      retroarch --appendconfig "$cfg" -L "$core" "$disk"
+      exit $?
+    fi
     echo "Install FS-UAE or RetroArch with PUAE." >&2; exit 127 ;;
   commodore-c64)
+    if [[ -x "$ROOT/build/retro-emulators/x64sc" ]]; then exec "$ROOT/build/retro-emulators/x64sc" -autostart "$disk"; fi
     if command -v x64sc >/dev/null 2>&1; then exec x64sc -autostart "$disk"; fi
     if command -v x64 >/dev/null 2>&1; then exec x64 -autostart "$disk"; fi
     if command -v mame >/dev/null 2>&1; then exec mame c64 -flop1 "$disk"; fi
