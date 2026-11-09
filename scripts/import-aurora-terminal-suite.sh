@@ -107,8 +107,9 @@ fi
 # The desktop registry is only complete when every entry resolves to a real
 # executable for this target architecture. Missing providers stop ISO staging.
 for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty \
-              alacritty wezterm ghostty contour; do
+              alacritty wezterm ghostty contour ptyxis terminator kgx tilix \
+              mate-terminal qterminal sakura terminology lxterminal blackbox; do
   install_existing "$binary" || { log "REQUIRED TERMINAL PROVIDER MISSING: $binary"; exit 2; }
 done
-log "All 10 registered terminal providers are present and target-architecture verified."
+log "All 20 Aurora terminal binaries are present and target-architecture verified."
 log "Terminal registry staged at $PREFIX/share/chimera/aurora/terminals/registry.json"
