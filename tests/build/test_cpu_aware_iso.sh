@@ -25,3 +25,19 @@ assert s.count(expected) >= 2, "build_iso and verify_iso must use architecture-s
 assert 'CHIMERA_MEDIA_FS_PROFILE' in s and 'iso9660+squashfs' in s
 print("CPU-aware ISO selection contract: PASS")
 PY
+
+# WSL2 drive-map contract: expose real DrvFs mounts as stable /mnt/drive/{c,C} aliases.
+map_script="tools/storage/chimera-wsl-drive-map.sh"
+test -s "$map_script"
+mkdir -p "$tmp/bin" "$tmp/mnt/c" "$tmp/mnt/d" "$tmp/mnt/drive"
+cat > "$tmp/bin/findmnt" <<'FINDMNT'
+#!/bin/sh
+printf "C: %s/c drvfs rw\nD: %s/d 9p rw,aname=drvfs\n" "$CHIMERA_WSL_MNT_ROOT" "$CHIMERA_WSL_MNT_ROOT"
+FINDMNT
+chmod +x "$tmp/bin/findmnt"
+PATH="$tmp/bin:$PATH" WSL_INTEROP=fixture CHIMERA_WSL_MNT_ROOT="$tmp/mnt" CHIMERA_WSL_DRIVE_ROOT="$tmp/mnt/drive" bash "$map_script"
+[[ "$(readlink "$tmp/mnt/drive/c")" == "$tmp/mnt/c" ]]
+[[ "$(readlink "$tmp/mnt/drive/C")" == "$tmp/mnt/c" ]]
+[[ "$(readlink "$tmp/mnt/drive/d")" == "$tmp/mnt/d" ]]
+[[ "$(readlink "$tmp/mnt/drive/D")" == "$tmp/mnt/d" ]]
+echo "WSL2 DrvFs /mnt/drive alias contract: PASS"
