@@ -12,7 +12,7 @@ Installing Xorg does not itself provide the kernel interfaces it needs. A produc
 
 ## Manual launcher
 
-Run `bash desktop/x11/start-session.sh aurora` or `bash desktop/x11/start-session.sh marine` only after the X11 runtime has been validated. The launcher intentionally refuses by default until the explicit opt-in variable is set:
+Run `bash desktop/x11/start-session.sh aurora` or `bash desktop/x11/start-session.sh marine or `bash desktop/x11/start-session.sh freexp`` only after the X11 runtime has been validated. The launcher intentionally refuses by default until the explicit opt-in variable is set:
 
 `CHIMERA_X11_FORCE_UNVERIFIED=1`
 
