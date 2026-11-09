@@ -54,6 +54,94 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm gcc g++ binutils grub-pc-bin grub-common xorriso librsvg2-bin python3-pytest
+      - name: Require five-minute input grace for Jasper, Gates and GRUB menus
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in boot/iso/grub.cfg boot/loader-menu.cfg boot/jasper/*.cfg boot/spitfire/*.cfg boot/installation/*.cfg; do
+            [[ -f "$file" ]] || continue
+            grep -Eq '^set timeout=300        run: |
+          bash -n build-chimera-iso.sh
+          bash tests/build/test_cpu_aware_iso.sh
+          bash -n tools/branding/stage-aurora-image.sh
+          bash -n tools/branding/chimera-set-desktop-background.sh
+          bash tests/boot/test-boot-artifact-regressions.sh
+          bash tools/tests/test-iso-resume-and-aurora.sh
+          python3 tools/boot/validate_boot_pipeline.py
+          python3 -m unittest discover -s tests/boot -p 'test_native_boot_pipeline.py' -v
+          bash -n boot/iso/build-iso.sh
+          bash -n boot/iso/prepare-layout.sh
+          bash -n boot/spitfire/build-spitfire.sh
+          bash -n kernel/build-koronos.sh
+      - name: Validate artwork XML and manifests
+        run: |
+          python3 - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          for p in Path("desktop/aurora/assets").glob("*.svg"):
+              ET.parse(p)
+          for p in [
+              Path("boot/splash/aurora_boot_splash.svg"),
+              Path("boot/splash/jasper_background.svg"),
+              Path("boot/splash/spitfire_background.svg"),
+          ]:
+              ET.parse(p)
+          for p in [
+              Path("boot/boot_protocol.json"),
+              Path("boot/boot-artwork-manifest.json"),
+              Path("installer/installation_phases.json"),
+          ]:
+              json.loads(p.read_text())
+          print("boot artwork and manifests are syntactically valid")
+          PY
+      - name: Validate installation media contract
+        run: bash tests/image/test_installation_media_contract.sh
+      - name: Validate catalogs, native QFS and hardware AI contracts
+        run: |
+          python3 tools/catalogs/refresh_online_catalogs.py --self-test
+          python3 -m unittest discover -s tests/catalogs -p 'test_*.py' -v
+          python3 -m pytest -q tests/filesystem/test_qfs.py tests/cognition/test_hardware_recommender.py
+      - name: Validate Aurora background contracts
+        run: |
+          grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          grep -q 'background_image' boot/installation/menu.cfg
+          grep -q 'background_image' boot/jasper/jasper.cfg
+          grep -q 'background_image' boot/jasper/diagnostics.cfg
+          grep -q 'background_image' boot/jasper/install.cfg
+          grep -q 'background_image' boot/jasper/live.cfg
+          grep -q 'background_image' boot/jasper/recovery.cfg
+          grep -q 'background_image' boot/spitfire/spitfire-menu.cfg
+          grep -q 'desktop-background.conf' desktop/aurora/gates_menu.json
+          test -s system/branding/aurora-default.png.base64
+      - name: Validate GRUB linkage contract
+        run: |
+          grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
+          grep -q 'background_image --mode stretch /boot/grub/aurora-wayland-glass.png' boot/iso/grub.cfg
+          test -f kernel/arch/x86_64/entry.asm
+          test -f kernel/arch/x86_64/koronos.ld
+          test -f boot/spitfire/sf0_mbr.asm
+          test -f boot/spitfire/sf1_longmode.asm
+          test -f boot/spitfire/sf2_loader.cpp
+      - name: Build Koronos and Spit Fire artifacts
+        run: |
+          bash kernel/build-koronos.sh
+          bash boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
+          nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start$'
+          test -s build/bootloaders/spitfire-stage2.bin
+ "$file" || { echo "::error::$file must wait 300 seconds before selecting the default"; exit 1; }
+          done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          gates = json.loads(Path("desktop/aurora/gates_menu.json").read_text())
+          contract = json.loads(Path("boot/boot-menu-contract.json").read_text())
+          assert gates["boot_contract"]["input_grace_seconds"] == 300
+          assert gates["boot_contract"]["auto_boot_default_after_seconds"] == 300
+          assert contract["menu_input_grace_seconds"] == 300
+          assert contract["auto_select_default_after_seconds"] == 300
+          print("Jasper/Gates/GRUB five-minute input grace: PASS")
+          PY
       - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
