@@ -76,10 +76,12 @@ class IsoTargetRoutingTests(unittest.TestCase):
             self.assertIn(menu_id, ids)
         self.assertIn('actual_grub="$base/actual-grub.cfg"', FULL_ISO_WORKFLOW)
         self.assertIn('entries.index(wanted[target])', FULL_ISO_WORKFLOW)
-        self.assertIn('for ((key=0; key<menu_index; key++))', FULL_ISO_WORKFLOW)
-        self.assertIn("'sendkey home 250'", FULL_ISO_WORKFLOW)
-        self.assertIn("'sendkey down 250'", FULL_ISO_WORKFLOW)
+        self.assertIn('-serial "unix:$serial_socket,server=on,wait=off"', FULL_ISO_WORKFLOW)
+        self.assertIn("socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)", FULL_ISO_WORKFLOW)
+        self.assertIn('sequence = [b"\\x1b[H"] + [b"\\x1b[B"] * index + [b"\\r"]', FULL_ISO_WORKFLOW)
+        self.assertIn('client.sendall(b"\\r")', FULL_ISO_WORKFLOW)
         self.assertIn('timeout --kill-after=5s 45s "${qemu[@]}"', FULL_ISO_WORKFLOW)
+        self.assertNotIn("sendkey home", FULL_ISO_WORKFLOW)
         self.assertNotIn("for _ in {1..5}", FULL_ISO_WORKFLOW)
 
     def test_boot_artwork_is_staged_offline_by_both_builders(self):
