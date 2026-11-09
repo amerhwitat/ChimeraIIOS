@@ -42,14 +42,16 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Preserve expensive release-candidate builds; a newer commit queues rather than
+  # terminating the active Docker/rootfs/ISO build mid-export.
+  cancel-in-progress: false
 
 env:
   CHIMERA_FETCH_SOURCES: "0"
 
 jobs:
   build:
-    timeout-minutes: 180
+    timeout-minutes: 360
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
