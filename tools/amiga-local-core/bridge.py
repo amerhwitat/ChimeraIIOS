@@ -4,7 +4,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'../..'))
 CORE=os.path.join(ROOT,'.local','amiga-core','cores','puae_libretro.so')
-HOST='127.0.0.1'; PORT=8765
+HOST='127.0.0.1'; PORT=int(os.environ.get('CHIMERA_AMIGA_BRIDGE_PORT','8766'))
 
 def send(h,code,payload):
     raw=json.dumps(payload).encode()
