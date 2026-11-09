@@ -13,7 +13,7 @@ chm-run-compatible-binary \- inspect a binary and optionally select a reviewed e
 .I FILE
 .RI [ -- " ARG..." ]
 .SH DESCRIPTION
-Inspects executable headers before choosing an execution route. ELF files use the native Linux loader when the host architecture matches, otherwise a matching QEMU user-mode runner is required. Windows PE files use Wine on Linux or the native Windows loader. Mach-O requires macOS or a full macOS environment. DOS MZ files use DOSBox or DOSBox-X. WebAssembly uses Wasmtime or Wasmer; JAR files use Java.
+Inspects executable headers before choosing an execution route. ELF files use the native Linux loader when the host architecture matches, otherwise a matching QEMU user-mode runner is required. Windows PE files use Wine on Linux or the native Windows loader. Mach-O runs natively on macOS; Linux may use the optional Darling compatibility layer when installed, or a full macOS environment. DOS MZ files use DOSBox or DOSBox-X. WebAssembly uses Wasmtime or Wasmer; JAR files use Java.
 .PP
 Inspection is the default and does not execute the file. The selected runtime is displayed explicitly. This tool does not download proprietary operating-system binaries, bypass code signing, or certify ABI compatibility.
 .SH OPTIONS
