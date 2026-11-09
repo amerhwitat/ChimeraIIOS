@@ -10,7 +10,6 @@ on:
       - 'include/**'
       - 'tests/**'
       - 'network/**'
-      - 'tools/wsl/**'
       - '.github/workflows/repository-validation.yml'
   pull_request:
     paths:
