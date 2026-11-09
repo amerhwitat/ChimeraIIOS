@@ -44,6 +44,9 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('"$LIVE_BOOT/boot/recovery/$required"', PREPARE_LAYOUT)
         self.assertIn('mkdir -p "$DIST/boot/live" "$DIST/boot/targets" "$DIST/boot/recovery"', PREPARE_LAYOUT)
 
+    def test_full_iso_injection_replaces_stale_base_grub_menu(self):
+        self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
+
     def test_mobile_target_fails_closed_on_x86_64_iso(self):
         start = GRUB.index('--id mobile {')
         end = GRUB.index('\n}', start)
