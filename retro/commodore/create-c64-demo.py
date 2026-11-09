@@ -9,7 +9,7 @@ def build_program(message="CHIMERA C64 RETRO KIT"):
     load=0x0801
     body=bytes([0x99])+b'"'+text+b'"'+b"\x00"
     line_size=2+2+len(body)
-    next_line=load+2+line_size
+    next_line=load+line_size
     line=next_line.to_bytes(2,"little")+(10).to_bytes(2,"little")+body
     return load.to_bytes(2,"little")+line+b"\x00\x00"
 
