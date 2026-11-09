@@ -21,8 +21,12 @@ case "$machine" in
       exec fs-uae "$cfg"
     fi
     core="${CHIMERA_PUAE_CORE:-}"
-    [[ -n "$core" && -f "$core" ]] || core="$ROOT/build/retro-emulators/puae_libretro.so"
-    [[ -f "$core" ]] || core="$(find "$HOME/.local/share/retroarch/cores" /usr/lib/libretro /usr/lib64/libretro -name puae_libretro.so -print -quit 2>/dev/null || true)"
+    if [[ -z "$core" ]]; then
+      for candidate in "$ROOT/build/retro-emulators/puae_libretro.so" /usr/lib/chimera/retro/emulators/puae_libretro.so /usr/lib/octavian/retro/emulators/puae_libretro.so /usr/lib/libretro/puae_libretro.so /usr/lib64/libretro/puae_libretro.so; do
+        [[ -f "$candidate" ]] && { core="$candidate"; break; }
+      done
+    fi
+    [[ -f "$core" ]] || core="$(find "$HOME/.local/share/retroarch/cores" -name puae_libretro.so -print -quit 2>/dev/null || true)"
     if command -v retroarch >/dev/null 2>&1 && [[ -n "$core" && -f "$core" ]]; then
       cfg="$(mktemp)"
       trap 'rm -f "$cfg"' EXIT
@@ -36,7 +40,9 @@ case "$machine" in
     fi
     echo "Install FS-UAE or RetroArch with PUAE (PUAE can use its built-in AROS replacement if no Kickstart ROM is supplied)." >&2; exit 127 ;;
   commodore-c64)
-    if [[ -x "$ROOT/build/retro-emulators/x64sc" ]]; then exec "$ROOT/build/retro-emulators/x64sc" -autostart "$disk"; fi
+    for candidate in "$ROOT/build/retro-emulators/x64sc" /usr/lib/chimera/retro/emulators/x64sc /usr/lib/octavian/retro/emulators/x64sc; do
+      [[ -x "$candidate" ]] && exec "$candidate" -autostart "$disk"
+    done
     if command -v x64sc >/dev/null 2>&1; then exec x64sc -autostart "$disk"; fi
     if command -v x64 >/dev/null 2>&1; then exec x64 -autostart "$disk"; fi
     if command -v mame >/dev/null 2>&1; then exec mame c64 -flop1 "$disk"; fi
