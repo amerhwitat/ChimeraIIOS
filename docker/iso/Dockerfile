@@ -16,7 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN test -f /etc/apt/sources.list.d/ubuntu.sources \
     && sed -i 's|http://archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://security.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources \
     && apt-get -o Acquire::Retries=3 -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false update \
-    && apt-get install -y --no-install-recommends ca-certificates \
+    && apt-get -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false install -y --no-install-recommends ca-certificates \
     && apt-get -o Acquire::Retries=3 update \
     && apt-get install -y --no-install-recommends \
     bash git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
