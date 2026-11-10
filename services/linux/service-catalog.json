@@ -24,7 +24,8 @@
       "docker",
       "containerd",
       "vsftpd",
-      "tftpd-hpa"
+      "tftpd-hpa",
+      "openssh-server"
     ],
     "package_manager": "apt"
   },
