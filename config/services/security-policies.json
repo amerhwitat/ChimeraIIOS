@@ -40,7 +40,7 @@
     },
     "enterprise.tftp": {
       "network": true,
-      "filesystem": "declared-shares"
+      "filesystem": "declared-readonly"
     },
     "enterprise.sftp": {
       "network": true,
