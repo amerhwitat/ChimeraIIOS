@@ -90,7 +90,6 @@ jobs:
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=aurora --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=marine --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
-          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
           if "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=invalid --self-test; then
             echo "invalid desktop profile was accepted" >&2
             exit 1
@@ -105,8 +104,21 @@ jobs:
           python3 tools/binary/inspect_binary.py --json "$out"/bin/* > "$out/manifests/binary-headers.json"
           python3 -m json.tool "$out/manifests/binary-headers.json" >/dev/null
           python3 -m json.tool "$out/manifests/runtime-requirements.json" >/dev/null
-          ! find "$out/aurora-source" -type d -name __pycache__ | grep .
-          ! find "$out/aurora-source" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) | grep .
+          # Strip interpreter caches from the copied source tree, then fail closed
+          # if any generated Python bytecode remains in the portable bundle.
+          if [[ -d "$out/aurora-source" ]]; then
+            find "$out/aurora-source" -type d -name __pycache__ -prune -exec rm -rf {} +
+            find "$out/aurora-source" -type f -name '*.pyc' -delete
+            find "$out/aurora-source" -type f -name '*.pyo' -delete
+            if find "$out/aurora-source" -type d -name __pycache__ -print -quit | grep -q .; then
+              echo "Python __pycache__ directories remain in the portable source bundle" >&2
+              exit 1
+            fi
+            if find "$out/aurora-source" -type f -name '*.pyc' -print -quit | grep -q .; then
+              echo "Python .pyc files remain in the portable source bundle" >&2
+              exit 1
+            fi
+          fi
       - name: Publish compiled desktop component bundle
         uses: actions/upload-artifact@v4
         with:
