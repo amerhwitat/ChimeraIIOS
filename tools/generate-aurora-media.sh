@@ -85,15 +85,16 @@ fi
 
 if [ ! -s "$OUT/Init.mp4" ] && [ -n "$BG" ] && [ -f "$BG" ] && command -v ffmpeg >/dev/null 2>&1; then
   echo "[INFO] Generating Aurora Init.mp4 from: $BG"
-  ffmpeg -y -loglevel error -loop 1 -i "$BG" -t 12 \
+  ffmpeg -nostdin -y -loglevel error -loop 1 -i "$BG" -t 12 \
     -vf "scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,format=yuv420p,drawtext=fontcolor=white:fontsize=42:text='CHIMERA II OS':x=(w-text_w)/2:y=270,drawtext=fontcolor=white:fontsize=22:text='AURORA INITIALIZING':x=(w-text_w)/2:y=325,drawbox=x=340:y=390:w=600:h=12:color=white@0.22:t=fill,drawbox=x=340:y=390:w='600*t/12':h=12:color=white@0.9:t=fill" \
-    -r 30 -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p -movflags +faststart "$OUT/Init.mp4"
+    -r 30 -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p -movflags +faststart "$OUT/Init.mp4" </dev/null
 fi
 
+# FFmpeg must not consume the here-document that feeds the sound-effect loop.
 if command -v ffmpeg >/dev/null 2>&1; then
   while IFS=: read -r n f1 f2; do
     [ -s "$OUT/sounds/$n.wav" ] && continue
-    ffmpeg -y -loglevel error -f lavfi -i "sine=frequency=$f1:duration=0.18" -f lavfi -i "sine=frequency=$f2:duration=0.18" -filter_complex '[0:a][1:a]amix=inputs=2:duration=longest,afade=t=out:st=0.12:d=0.06,volume=0.18' -c:a pcm_s16le "$OUT/sounds/$n.wav"
+    ffmpeg -nostdin -y -loglevel error -f lavfi -i "sine=frequency=$f1:duration=0.18" -f lavfi -i "sine=frequency=$f2:duration=0.18" -filter_complex '[0:a][1:a]amix=inputs=2:duration=longest,afade=t=out:st=0.12:d=0.06,volume=0.18' -c:a pcm_s16le "$OUT/sounds/$n.wav" </dev/null
   done <<'EOF'
 startup:440:660
 menu-open:520:780
