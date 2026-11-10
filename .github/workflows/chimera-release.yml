@@ -15,6 +15,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Refuse legacy bootstrap ISO publication without canonical six-case evidence
+        run: |
+          echo "::error::This tag workflow builds the legacy bootstrap ISO, not the canonical full native Koronos ISO."
+          echo "::error::The tag path has no six-case Live/Installer/Recovery x BIOS/UEFI evidence bound to one immutable ISO."
+          echo "::error::Rebuild through build-chimera-iso.sh --release only after the six-case verifier, VFS, real SMP, desktop, installer persistence and recovery gates pass."
+          echo "No release artifact will be published from this legacy path."
+          exit 1
+
       - name: Normalize release build line endings
         shell: bash
         run: |
