@@ -29,8 +29,15 @@ cp "$TMP/libretro-uae/COPYING" "$OUT/licenses/PUAE-COPYING" 2>/dev/null || true
 cp "$TMP/vice/vice/COPYING" "$OUT/licenses/VICE-COPYING" 2>/dev/null || true
 file "$OUT/puae_libretro.so" "$OUT/x64sc" "$OUT/c1541" > "$OUT/binary-types.txt"
 readelf -h "$OUT/puae_libretro.so" | grep -Eq 'Type:[[:space:]]+DYN'
-readelf -h "$OUT/x64sc" | grep -Eq 'Type:[[:space:]]+EXEC'
-readelf -h "$OUT/c1541" | grep -Eq 'Type:[[:space:]]+EXEC'
+for binary in x64sc c1541; do
+  header="$(readelf -h "$OUT/$binary")"
+  grep -Eq 'Class:[[:space:]]+ELF64' <<<"$header"
+  grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64' <<<"$header"
+  # Ubuntu's default toolchain emits PIE executables (ET_DYN), while some
+  # toolchains emit ET_EXEC. Both are valid runnable ELF executables.
+  grep -Eq 'Type:[[:space:]]+(DYN|EXEC)' <<<"$header"
+  file "$OUT/$binary" | grep -q 'ELF 64-bit LSB'
+done
 ldd "$OUT/x64sc" > "$OUT/x64sc-dependencies.txt"
 ldd "$OUT/c1541" > "$OUT/c1541-dependencies.txt"
 (cd "$OUT" && sha256sum puae_libretro.so x64sc c1541 > SHA256SUMS)
