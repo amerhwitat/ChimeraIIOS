@@ -19,7 +19,7 @@ This directory builds real emulator media rather than empty placeholder files.
 ## Build and verify
 
 ```bash
-sudo apt-get install python3 vice unzip
+sudo apt-get install python3 vice lhasa
 python3 retro/amiga-commodore/build_media.py --out build/retro-media
 python3 retro/amiga-commodore/verify_media.py build/retro-media
 c1541 -attach build/retro-media/CHIMERA-Commodore-64.d64 -list

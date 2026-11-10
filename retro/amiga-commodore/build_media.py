@@ -48,32 +48,37 @@ def build_c64_basic_prg(path: pathlib.Path) -> None:
 
 
 def download_aros_adf(date: str, out: pathlib.Path) -> dict:
-    archive_name = f"AROS-{date}-amiga-m68k-boot-floppy.zip"
+    archive_name = f"AROS-{date}-amiga-m68k-boot-floppy.lha"
     url = f"https://sourceforge.net/projects/aros/files/nightly2/{date}/Binaries/{archive_name}/download"
     request = urllib.request.Request(url, headers={"User-Agent": "ChimeraOS-media-builder/1.0"})
     with urllib.request.urlopen(request, timeout=120) as response:
         archive_bytes = response.read()
-    with tempfile.NamedTemporaryFile(suffix=".zip") as tmp:
-        tmp.write(archive_bytes)
-        tmp.flush()
-        with zipfile.ZipFile(tmp.name) as archive:
-            candidates = [
-                item for item in archive.infolist()
-                if not item.is_dir()
-                and pathlib.PurePosixPath(item.filename).name.lower().endswith((".adf", ".img", ".bin"))
-                and item.file_size == ADF_SIZE
-            ]
-            if not candidates:
-                raise RuntimeError(f"{archive_name} contains no 901120-byte Amiga floppy image")
-            candidate = candidates[0]
-            payload = archive.read(candidate)
+    with tempfile.TemporaryDirectory(prefix="chimera-aros-") as temp_dir:
+        archive_path = pathlib.Path(temp_dir) / archive_name
+        extract_dir = pathlib.Path(temp_dir) / "extract"
+        extract_dir.mkdir()
+        archive_path.write_bytes(archive_bytes)
+        if shutil.which("lha") is None:
+            raise RuntimeError("Lhasa 'lha' extractor is required; install the 'lhasa' package")
+        subprocess.run(["lha", "-t", str(archive_path)], check=True, capture_output=True, text=True)
+        subprocess.run(["lha", f"-xqw={extract_dir}", str(archive_path)], check=True, capture_output=True, text=True)
+        candidates = [
+            item for item in extract_dir.rglob("*")
+            if item.is_file() and item.stat().st_size == ADF_SIZE
+            and item.suffix.lower() in (".adf", ".img", ".bin")
+        ]
+        if not candidates:
+            raise RuntimeError(f"{archive_name} contains no 901120-byte Amiga floppy image")
+        candidate = candidates[0]
+        payload = candidate.read_bytes()
+        member_name = candidate.relative_to(extract_dir).as_posix()
     if payload[:3] != b"DOS":
         raise RuntimeError("AROS floppy does not contain an AmigaDOS/AROS boot signature")
     adf = out / "AROS-Amiga-500-2000-m68k-boot.adf"
     adf.write_bytes(payload)
     return {
         "source": url,
-        "archive_member": candidate.filename,
+        "archive_member": member_name,
         "size": len(payload),
         "sha256": sha256(adf),
     }

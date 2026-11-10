@@ -29,7 +29,7 @@ jobs:
       - name: Install VICE disk tools
         run: |
           sudo apt-get update
-          sudo apt-get install --yes python3 vice unzip
+          sudo apt-get install --yes python3 vice lhasa
       - name: Build official AROS Amiga ADF and native Commodore 64 D64
         env:
           AROS_NIGHTLY_DATE: ${{ inputs.aros_nightly_date || '20261109' }}
