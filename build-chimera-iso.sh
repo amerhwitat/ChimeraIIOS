@@ -1226,17 +1226,17 @@ preserve_native_build_artifacts(){
   if [[ -n "$efi_source" ]]; then install -m 0644 "$efi_source" "$out/efi/BOOTX64.EFI"; fi
   (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
   cat > "$out/ARTIFACT-MANIFEST.txt" <<'EOF_NATIVE_ARTIFACTS'
-Production payloads:
-  userspace/target-init-live.elf
-  userspace/target-init-installer.elf
-  userspace/target-init-recovery.elf
+Target-specific ring-3 init handoff ELFs (current behavior remains limited):
+  userspace/target-init-live.elf (text-console/yield smoke)
+  userspace/target-init-installer.elf (storage-plan dry run; writes no disks)
+  userspace/target-init-recovery.elf (diagnostics only; performs no repair)
 Kernel:
   kernel/koronos.elf
 EFI:
   efi/BOOTX64.EFI (present only when the canonical pipeline generated it)
 Boot artifacts:
   boot/** (ELF, EFI and raw binary files copied from the generated boot-artifact tree)
-Test-only user-init probes are deliberately not included as production payloads.
+Separate user-init smoke probes are deliberately not included in this target-init bundle. These ELFs are not complete Live desktop, disk installer, or recovery-repair environments.
 EOF_NATIVE_ARTIFACTS
   log_success "Preserved native ELF/EFI build artifacts: $out"
 }
