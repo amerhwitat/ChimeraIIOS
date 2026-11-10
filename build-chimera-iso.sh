@@ -1210,6 +1210,7 @@ preserve_native_build_artifacts(){
   local kernel_dir="$SCRIPT_DIR/build/koronos/x86_64"
   local boot_dir="$BUILD_DIR/boot-artifacts"
   local native_dist="$SCRIPT_DIR/boot/iso/dist"
+  local finished_iso="$native_dist/output.iso"
   local file rel
   mkdir -p "$out/kernel" "$out/userspace" "$out/efi" "$out/boot"
   if [[ -s "$kernel_dir/koronos.elf" ]]; then
@@ -1237,6 +1238,20 @@ preserve_native_build_artifacts(){
     if [[ -s "$file" ]]; then efi_source="$file"; break; fi
   done
   if [[ -n "$efi_source" ]]; then install -m 0644 "$efi_source" "$out/efi/BOOTX64.EFI"; fi
+  # Preserve the EFI executable from the finished ISO itself. grub-mkrescue may
+  # synthesize the EFI boot tree while assembling the hybrid image, so looking
+  # only at pre-ISO staging directories can silently omit the real EFI binary.
+  if [[ -s "$finished_iso" ]] && command -v xorriso >/dev/null 2>&1; then
+    xorriso -osirrox on -indev "$finished_iso" \
+      -extract /EFI/BOOT/BOOTX64.EFI "$out/efi/BOOTX64.EFI" >/dev/null 2>&1 || true
+  fi
+  if [[ -s "$out/efi/BOOTX64.EFI" ]]; then
+    file "$out/efi/BOOTX64.EFI" | grep -Eqi 'PE32\\+.*EFI|EFI application' || {
+      log_error "Preserved BOOTX64.EFI is not recognized as an EFI application"; return 1; }
+  else
+    log_error "Hybrid ISO is missing /EFI/BOOT/BOOTX64.EFI; refusing to publish an incomplete native artifact bundle"
+    return 1
+  fi
   (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
   cat > "$out/ARTIFACT-MANIFEST.txt" <<'EOF_NATIVE_ARTIFACTS'
 Target-specific ring-3 init handoff ELFs (current behavior remains limited):
