@@ -23,7 +23,7 @@ bash retro/commodore/build-emulator-providers.sh --out build/retro-emulators --j
 ```
 
 The build pins PUAE/libretro and VICE source revisions, compiles the Amiga core and
-VICE C64 tools, checks ELF headers and shared-library dependencies, and writes
+VICE C64 tools (`x64sc`), checks ELF headers and shared-library dependencies, and writes
 checksums. Run the launcher with `retro/commodore/launch-machine.sh`.
 
 No copyrighted Kickstart ROM, Workbench disk, commercial firmware or game content
