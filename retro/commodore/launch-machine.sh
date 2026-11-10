@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 usage(){ cat <<'EOF'
-Usage: launch-machine.sh amiga-a500|amiga-a2000 DISK.adf
+Usage: launch-machine.sh amiga-a500|amiga-a2000|amiga-a4000 DISK.adf
        launch-machine.sh commodore-c64 DISK.d64
 Set CHIMERA_KICKSTART_ROM to a legally obtained Amiga Kickstart ROM.
 EOF
@@ -11,10 +11,10 @@ if [[ "${1:-}" == -h || "${1:-}" == --help ]]; then usage; exit 0; fi
 [[ $# -ge 2 ]] || { usage >&2; exit 64; }
 machine="$1"; disk="$(realpath "$2")"; [[ -f "$disk" ]] || { echo "Disk not found: $disk" >&2; exit 66; }
 case "$machine" in
-  amiga-a500|amiga-a2000)
+  amiga-a500|amiga-a2000|amiga-a4000)
     rom="${CHIMERA_KICKSTART_ROM:-}"
     if [[ -n "$rom" && ! -f "$rom" ]]; then echo "CHIMERA_KICKSTART_ROM does not point to a file." >&2; exit 66; fi
-    model=A500; [[ "$machine" == amiga-a2000 ]] && model=A2000
+    model=A500; [[ "$machine" == amiga-a2000 ]] && model=A2000; [[ "$machine" == amiga-a4000 ]] && model=A4000
     if [[ -n "$rom" ]] && command -v fs-uae >/dev/null 2>&1; then
       cfg="$(mktemp --suffix=.fs-uae)"; trap 'rm -f "$cfg"' EXIT
       printf 'amiga_model = %s\nkickstart_file = %s\nfloppy_drive_0 = %s\n' "$model" "$rom" "$disk" > "$cfg"
