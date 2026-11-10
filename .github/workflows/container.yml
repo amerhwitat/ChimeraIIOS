@@ -2,6 +2,7 @@ name: Container — Build and Push Docker Hub
 
 on:
   push:
+    branches: [main, fix/canonical-iso-rebased-20261109]
     paths:
       - 'Dockerfile'
       - 'Dockerfile.comprehensive'
