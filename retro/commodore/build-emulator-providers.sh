@@ -20,18 +20,18 @@ cd "$TMP/vice/vice"
 ./autogen.sh
 ./configure --enable-sdl2ui --without-alsa --without-pulse
 make -j"$JOBS"
-for name in x64sc x64 c1541; do
+for name in x64sc c1541; do
  candidate="$TMP/vice/vice/src/$name"
  test -s "$candidate" || { echo "VICE build did not produce $name" >&2; exit 1; }
  install -m 0755 "$candidate" "$OUT/$name"
 done
 cp "$TMP/libretro-uae/COPYING" "$OUT/licenses/PUAE-COPYING" 2>/dev/null || true
 cp "$TMP/vice/vice/COPYING" "$OUT/licenses/VICE-COPYING" 2>/dev/null || true
-file "$OUT/puae_libretro.so" "$OUT/x64sc" "$OUT/x64" "$OUT/c1541" > "$OUT/binary-types.txt"
+file "$OUT/puae_libretro.so" "$OUT/x64sc" "$OUT/c1541" > "$OUT/binary-types.txt"
 readelf -h "$OUT/puae_libretro.so" | grep -Eq 'Type:[[:space:]]+DYN'
 readelf -h "$OUT/x64sc" | grep -Eq 'Type:[[:space:]]+EXEC'
 readelf -h "$OUT/c1541" | grep -Eq 'Type:[[:space:]]+EXEC'
 ldd "$OUT/x64sc" > "$OUT/x64sc-dependencies.txt"
 ldd "$OUT/c1541" > "$OUT/c1541-dependencies.txt"
-(cd "$OUT" && sha256sum puae_libretro.so x64sc x64 c1541 > SHA256SUMS)
+(cd "$OUT" && sha256sum puae_libretro.so x64sc c1541 > SHA256SUMS)
 echo "Built and inspected PUAE and VICE providers in $OUT"
