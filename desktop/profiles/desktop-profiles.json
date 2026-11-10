@@ -24,6 +24,24 @@
       "status": "native-shell-preview"
     },
     {
+      "id": "freewin11",
+      "family": "chimera",
+      "protocol": "x11",
+      "packages": [
+        "xserver-xorg",
+        "xinit",
+        "xauth",
+        "dosbox-x"
+      ],
+      "theme": "modern-fluent-centered-taskbar",
+      "launcher": "desktop/x11/start-session.sh",
+      "status": "native-shell-preview",
+      "inherits": [
+        "freexp",
+        "windows-11-inspired"
+      ]
+    },
+    {
       "id": "aurora",
       "family": "chimera",
       "protocol": "wayland",
