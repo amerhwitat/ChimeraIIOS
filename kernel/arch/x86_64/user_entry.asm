@@ -106,8 +106,15 @@ koronos_user_entry_init:
 ; Kernel continuation is preserved on the original kernel stack. User code may
 ; return to it only by issuing the native exit syscall.
 koronos_arch_enter_user:
+    ; CR3 must be a page-aligned physical PML4 root inside the supported 4-GiB window.
+    ; Reject PCID/reserved bits and roots outside the allocator's current physical range.
     cmp rdi, 0
     je .bad_user_entry
+    test rdi, 0xFFF
+    jnz .bad_user_entry
+    mov rax, 0x0000000100000000
+    cmp rdi, rax
+    jae .bad_user_entry
     mov rax, 0x0000000100000000
     cmp rsi, rax
     jb .bad_user_entry
@@ -139,7 +146,8 @@ koronos_arch_enter_user:
     mov [rel koronos_cpu_syscall_state + 40], rax
     cli
     mov [rel koronos_cpu_syscall_state + 16], rsp
-    lea rax, [rel koronos_bootstrap_pml4]
+    ; Preserve the actual active kernel CR3, not a link-time bootstrap symbol.
+    mov rax, cr3
     mov [rel koronos_cpu_syscall_state + 48], rax
     mov qword [rel koronos_user_exit_code], 0
     lea rax, [rel koronos_syscall_stack_top]
@@ -216,7 +224,9 @@ koronos_syscall_entry:
     iretq
 
 koronos_syscall_user_exit:
-    lea rax, [rel koronos_bootstrap_pml4]
+    mov rax, [rel koronos_cpu_syscall_state + 48]
+    test rax, 0xFFF
+    jnz koronos_fatal_cr3_restore
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
     pop r15
@@ -231,11 +241,18 @@ koronos_syscall_user_exit:
     swapgs
     ret
 
+koronos_fatal_cr3_restore:
+    cli
+    hlt
+    jmp koronos_fatal_cr3_restore
+
 ; Called only by the dedicated IRQ0 stub after the in-kernel deadline expires.
 ; Discard the interrupted user IRQ frame and resume the original C caller as a
 ; failed process, using the same saved kernel continuation as syscall exit.
 koronos_user_timeout_abort:
-    lea rax, [rel koronos_bootstrap_pml4]
+    mov rax, [rel koronos_cpu_syscall_state + 48]
+    test rax, 0xFFF
+    jnz koronos_fatal_cr3_restore
     mov cr3, rax
     mov rsp, [rel koronos_cpu_syscall_state + 16]
     pop r15
