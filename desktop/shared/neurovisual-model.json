@@ -95,6 +95,10 @@
     "--nv-density",
     "--nv-brightness",
     "--nv-parallax",
-    "--nv-glow"
+    "--nv-glow",
+    "--nv-interaction",
+    "--nv-parallax-x",
+    "--nv-parallax-y",
+    "--nv-depth"
   ]
 }
