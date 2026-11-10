@@ -15,6 +15,7 @@ Options:
   --full                      Clean build state, disable resume, and rebuild Docker without cache.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --prune-docker-cache        Prune Docker BuildKit cache older than CHIMERA_DOCKER_CACHE_MAX_AGE (default 24h).
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -127,6 +128,7 @@ FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
 FULL_BUILD=0
+PRUNE_DOCKER_CACHE=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
@@ -232,6 +234,7 @@ while [[ $# -gt 0 ]]; do
     --skip-apache) export APACHE_ECOSYSTEM=0; shift;;
     --apache-ecosystem) export APACHE_ECOSYSTEM=1; shift;;
     --push) export CHIMERA_PUSH=1; shift;;
+    --prune-docker-cache) PRUNE_DOCKER_CACHE=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
@@ -297,13 +300,22 @@ cleanup_generated_build_artifacts(){
   # Do not prune global Docker state: stopped containers may belong to other projects.
   # Build-owned export containers are removed by their explicit labels/lifecycle.
 }
+cleanup_docker_build_cache(){
+  [[ "$PRUNE_DOCKER_CACHE" == 1 ]] || return 0
+  command -v docker >/dev/null 2>&1 || return 0
+  local age="${CHIMERA_DOCKER_CACHE_MAX_AGE:-24h}"
+  [[ "$age" =~ ^[0-9]+[smhd]$ ]] || { log_error "Invalid CHIMERA_DOCKER_CACHE_MAX_AGE: $age"; return 2; }
+  log_info "Pruning Docker BuildKit cache older than $age (explicit --prune-docker-cache request)."
+  docker builder prune --all --force --filter "until=$age" || log_warning "Docker BuildKit cache pruning failed; build outputs are retained."
+}
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
   log_info "Cleaning unused generated ISO build intermediates..."
   cleanup_generated_build_artifacts
   # Resume/failure state is no longer useful after a complete verified build.
   rm -f -- "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true
-  log_success "Unused generated build artifacts removed; final ISO/checksum retained."
+  cleanup_docker_build_cache
+  log_success "Unused generated build artifacts removed; final ISO/checksum and preserved ELF/EFI artifacts retained."
 }
 docker_image_in_use(){
   local image="$1"
@@ -355,6 +367,7 @@ push_docker_image(){
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
   cleanup_generated_docker_image "$source" "$image_id"
+  cleanup_docker_build_cache
 }
 
 is_writable_dir(){
@@ -1166,6 +1179,55 @@ stage_package_managers(){
   log_info "Providers remain optional and are detected at runtime; the ISO build will not run remote package-manager installer scripts."
 }
 
+preserve_native_build_artifacts(){
+  # Keep exact native ELF/EFI outputs available after temporary ISO staging is
+  # cleaned. These are CI/build artifacts, not automatically promoted to Git.
+  local out="$BUILD_DIR/artifacts/native-iso"
+  local kernel_dir="$SCRIPT_DIR/build/koronos/x86_64"
+  local boot_dir="$BUILD_DIR/boot-artifacts"
+  local file rel
+  mkdir -p "$out/kernel" "$out/userspace" "$out/efi" "$out/boot"
+  if [[ -s "$kernel_dir/koronos.elf" ]]; then
+    install -m 0644 "$kernel_dir/koronos.elf" "$out/kernel/koronos.elf"
+  fi
+  for target in live installer recovery; do
+    file="$kernel_dir/target-init-$target.elf"
+    [[ -s "$file" ]] || { log_error "Production target init ELF missing; cannot preserve: $file"; return 1; }
+    install -m 0644 "$file" "$out/userspace/target-init-$target.elf"
+    readelf -h "$out/userspace/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || return 1
+    readelf -lW "$out/userspace/target-init-$target.elf" | grep -Eq 'LOAD.*R E' || return 1
+  done
+  if [[ -d "$boot_dir" ]]; then
+    while IFS= read -r -d '' file; do
+      rel="${file#"$boot_dir"/}"
+      mkdir -p "$out/boot/$(dirname "$rel")"
+      case "$file" in
+        *.elf|*.EFI|*.efi|*.bin) install -m 0644 "$file" "$out/boot/$rel" ;;
+      esac
+    done < <(find "$boot_dir" -type f \( -iname '*.elf' -o -iname '*.efi' -o -iname '*.bin' \) -print0)
+  fi
+  local efi_source=""
+  for file in "$boot_dir/uefi/BOOTX64.EFI" "$SCRIPT_DIR/boot/iso/dist/iso/EFI/BOOT/BOOTX64.EFI"; do
+    if [[ -s "$file" ]]; then efi_source="$file"; break; fi
+  done
+  if [[ -n "$efi_source" ]]; then install -m 0644 "$efi_source" "$out/efi/BOOTX64.EFI"; fi
+  (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+  cat > "$out/ARTIFACT-MANIFEST.txt" <<'EOF_NATIVE_ARTIFACTS'
+Production payloads:
+  userspace/target-init-live.elf
+  userspace/target-init-installer.elf
+  userspace/target-init-recovery.elf
+Kernel:
+  kernel/koronos.elf
+EFI:
+  efi/BOOTX64.EFI (present only when the canonical pipeline generated it)
+Boot artifacts:
+  boot/** (ELF, EFI and raw binary files copied from the generated boot-artifact tree)
+Test-only user-init probes are deliberately not included as production payloads.
+EOF_NATIVE_ARTIFACTS
+  log_success "Preserved native ELF/EFI build artifacts: $out"
+}
+
 build_native_iso_pipeline(){
   if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" == 0 ]]; then
     log_info "Native boot/iso/build-iso.sh pipeline skipped by CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0"
@@ -1188,6 +1250,7 @@ build_native_iso_pipeline(){
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
   log_success "Canonical native ISO and checksum verified: $native_iso"
+  preserve_native_build_artifacts
 }
 
 
