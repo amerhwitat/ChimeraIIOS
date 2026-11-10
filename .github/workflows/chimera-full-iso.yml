@@ -284,7 +284,15 @@ jobs:
             fi
             cp -f "$src" "$out/$name.elf"
           done
-          (cd "$out" && sha256sum *.elf > SHA256SUMS)
+          # Preserve the exact target ELFs from the finished ISO and prove
+          # they are byte-for-byte the binaries built by kernel/build-koronos.sh.
+          mkdir -p "$out/staged-iso/targets"
+          for target in live installer recovery; do
+            staged="$out/staged-iso/targets/target-init-$target.elf"
+            xorriso -osirrox on -indev build/iso/chimera-ii-os.iso -extract "/boot/targets/target-init-$target.elf" "$staged" >/dev/null
+            cmp "build/koronos/x86_64/target-init-$target.elf" "$staged"
+          done
+          (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
       - name: Upload native Koronos ELF binaries and header reports
         uses: actions/upload-artifact@v4
         with:
