@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import hashlib
 import json
 import pathlib
 import sys
@@ -8,11 +9,18 @@ manifest = json.loads((root / "media-manifest.json").read_text(encoding="utf-8")
 adf = root / "AROS-Amiga-500-2000-m68k-boot.adf"
 d64 = root / "CHIMERA-Commodore-64.d64"
 prg = root / "CHIMERA64.PRG"
+
+
+def sha256(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 assert adf.stat().st_size == 880 * 1024
 assert adf.read_bytes()[:3] == b"DOS"
 assert d64.stat().st_size == 174848
-assert prg.read_bytes()[:2] == b"\\x01\\x08"
+assert prg.read_bytes()[:2] == bytes([0x01, 0x08])
 assert manifest["amiga"]["format"] == "ADF"
 assert manifest["commodore"]["format"].startswith("D64")
-assert manifest["amiga"]["sha256"] and manifest["commodore"]["sha256"]
-print("Amiga ADF and Commodore 64 D64 structural checks: PASS")
+assert sha256(adf) == manifest["amiga"]["sha256"]
+assert sha256(d64) == manifest["commodore"]["sha256"]
+print("Amiga ADF and Commodore 64 D64 structural/SHA-256 checks: PASS")
