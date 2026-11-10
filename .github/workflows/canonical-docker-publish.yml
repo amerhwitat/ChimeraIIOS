@@ -1,0 +1,66 @@
+name: Canonical build-chimera-iso Docker publish
+
+on:
+  push:
+    branches: [fix/canonical-iso-rebased-20261109]
+    paths:
+      - 'build-chimera-iso.sh'
+      - 'Dockerfile.comprehensive'
+      - 'docker/iso/**'
+      - '.github/workflows/canonical-docker-publish.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: canonical-docker-publish-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME || secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKER_PASSWORD || secrets.DOCKERHUB_TOKEN }}
+      CHIMERA_DOCKERHUB_IMAGE: docker.io/amerhwitat/chimeraiios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check registry credentials
+        id: credentials
+        shell: bash
+        run: |
+          if [[ -n "$DOCKERHUB_USERNAME" && -n "$DOCKERHUB_TOKEN" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Docker Hub push skipped: configure DOCKER_USERNAME/DOCKER_PASSWORD or DOCKERHUB_USERNAME/DOCKERHUB_TOKEN."
+          fi
+
+      - name: Show available build storage
+        if: steps.credentials.outputs.available == 'true'
+        run: |
+          df -h
+          docker system df
+
+      - name: Build and push using canonical script
+        if: steps.credentials.outputs.available == 'true'
+        env:
+          CHIMERA_PUSH: '1'
+          CHIMERA_DOCKERHUB_TAG: ${{ github.sha }}
+        run: |
+          chmod +x ./build-chimera-iso.sh
+          ./build-chimera-iso.sh --docker-only --clean-state --push --tag "${GITHUB_SHA}"
+
+      - name: Verify published image
+        if: steps.credentials.outputs.available == 'true'
+        run: docker buildx imagetools inspect "${CHIMERA_DOCKERHUB_IMAGE}:${GITHUB_SHA}"
+
+      - name: Reclaim this ephemeral runner's Docker build cache
+        if: always() && steps.credentials.outputs.available == 'true'
+        run: |
+          docker builder prune --all --force --filter 'until=24h' || true
+          docker system df
+          df -h
