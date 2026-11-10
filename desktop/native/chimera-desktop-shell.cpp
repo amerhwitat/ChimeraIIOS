@@ -316,7 +316,7 @@ void activate(GtkApplication* app, gpointer) {
     const char* quick_class = freewin11 ? "freewin11-quick" : "freexp-quick";
     if (freewin11) {
       GtkWidget* search = gtk_search_entry_new();
-      gtk_entry_set_placeholder_text(GTK_ENTRY(search), "Search apps, files and settings");
+      gtk_search_entry_set_placeholder_text(GTK_SEARCH_ENTRY(search), "Search apps, files and settings");
       gtk_widget_set_size_request(search, 240, -1);
       gtk_box_append(GTK_BOX(taskbar), search);
     }
