@@ -19,7 +19,7 @@ git -C "$TMP/vice" checkout --detach "$VICE_SHA"
 cd "$TMP/vice/vice"
 ./autogen.sh
 ./configure --enable-sdl2ui --without-alsa --without-pulse
-make -j"$JOBS"
+make -C src -j"$JOBS"
 for name in x64sc c1541; do
  candidate="$TMP/vice/vice/src/$name"
  test -s "$candidate" || { echo "VICE build did not produce $name" >&2; exit 1; }
