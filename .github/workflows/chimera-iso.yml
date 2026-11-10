@@ -73,7 +73,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Preserve expensive ISO builds; newer commits queue instead of cancelling the active job.
+  cancel-in-progress: false
 
 permissions:
   contents: read
