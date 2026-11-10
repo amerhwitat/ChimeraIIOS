@@ -2,7 +2,7 @@ name: Chimera II OS Docker Hub publish (canonical builder)
 
 on:
   push:
-    branches: [fix/canonical-iso-rebased-20261109]
+    branches: [main, fix/canonical-iso-rebased-20261109]
     tags: ['v*']
     paths:
       - 'build-chimera-iso.sh'
