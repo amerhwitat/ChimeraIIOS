@@ -20,6 +20,8 @@ class FullIsoWorkflowContractTests(unittest.TestCase):
         self.assertIn("extract /EFI/BOOT/BOOTX64.EFI", workflow)
         self.assertIn("Hybrid ISO is missing /EFI/BOOT/BOOTX64.EFI", builder)
         self.assertIn("Preserve the EFI executable from the finished ISO itself", builder)
+        self.assertIn("PE32[+].*EFI|EFI application", workflow)
+        self.assertIn("PE32[+].*EFI|EFI application", builder)
 
     def test_release_fails_without_real_userspace_handoff(self):
         workflow = Path(".github/workflows/chimera-full-iso.yml").read_text(encoding="utf-8")
