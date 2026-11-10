@@ -73,7 +73,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Do not cancel active ISO/boot evidence jobs when a newer PR commit arrives.
+  cancel-in-progress: false
 
 permissions:
   contents: read
