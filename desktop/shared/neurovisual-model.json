@@ -1,0 +1,100 @@
+{
+  "schema": "chimera-neurovisual-state-v1",
+  "dimensions": [
+    [
+      "D1",
+      "x",
+      "normalized spatial coordinate"
+    ],
+    [
+      "D2",
+      "y",
+      "normalized spatial coordinate"
+    ],
+    [
+      "D3",
+      "z",
+      "normalized spatial coordinate"
+    ],
+    [
+      "D4",
+      "time",
+      "temporal context"
+    ],
+    [
+      "D5",
+      "perspective",
+      "observer/display frame"
+    ],
+    [
+      "D6",
+      "energy",
+      "brightness and light intensity"
+    ],
+    [
+      "D7",
+      "interaction",
+      "interaction activity"
+    ],
+    [
+      "D8",
+      "identity",
+      "desktop identity"
+    ],
+    [
+      "D9",
+      "material",
+      "glass/material response"
+    ],
+    [
+      "D10",
+      "information",
+      "information density"
+    ],
+    [
+      "D11",
+      "stochasticity",
+      "bounded visual variation, not quantum probability"
+    ],
+    [
+      "D12",
+      "agency",
+      "motion/animation intensity"
+    ],
+    [
+      "D13",
+      "semantic",
+      "semantic palette selection"
+    ],
+    [
+      "D14",
+      "integration",
+      "state coherence proxy, not consciousness"
+    ]
+  ],
+  "normalization": {
+    "min": 0,
+    "max": 1,
+    "nonFiniteDefault": 0.5
+  },
+  "temporal_model": {
+    "kind": "exponential-recurrent-smoother",
+    "default_alpha": 0.18
+  },
+  "inference": {
+    "cnn": "external adapter only; no CNN weights bundled",
+    "llm": "external adapter only; no LLM weights bundled",
+    "tensor_autograd": "not implemented in this module",
+    "lqg": "not implemented in this module"
+  },
+  "visual_outputs": [
+    "--nv-accent",
+    "--nv-glass-alpha",
+    "--nv-glass-blur",
+    "--nv-motion",
+    "--nv-density",
+    "--nv-brightness",
+    "--nv-parallax",
+    "--nv-glow"
+  ]
+}
