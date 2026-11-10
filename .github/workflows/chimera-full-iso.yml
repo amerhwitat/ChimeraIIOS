@@ -138,7 +138,7 @@ jobs:
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
           extract /EFI/BOOT/BOOTX64.EFI "$tmp/BOOTX64.EFI"
-          file "$tmp/BOOTX64.EFI" | grep -Eqi 'PE32\\+.*EFI|EFI application'
+          file "$tmp/BOOTX64.EFI" | grep -Eqi 'PE32[+].*EFI|EFI application'
           for target in live installer recovery; do
             extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf"
             readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
