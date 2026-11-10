@@ -18,7 +18,7 @@ on:
       - "docker/iso/**"
       - ".github/workflows/chimera-full-iso.yml"
   push:
-    branches: [main]
+    branches: [main, fix/canonical-iso-rebased-20261109]
     paths:
       - "kernel/**"
       - "src/**"
