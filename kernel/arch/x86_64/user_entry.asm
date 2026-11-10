@@ -146,7 +146,8 @@ koronos_arch_enter_user:
     mov [rel koronos_cpu_syscall_state + 40], rax
     cli
     mov [rel koronos_cpu_syscall_state + 16], rsp
-    ; Preserve the actual active kernel CR3, not a link-time bootstrap symbol.
+    ; Preserve the caller's actual page-table root. The bootstrap symbol is
+    ; not a substitute for the active CR3 (which may itself be a process root).
     mov rax, cr3
     mov [rel koronos_cpu_syscall_state + 48], rax
     mov qword [rel koronos_user_exit_code], 0
