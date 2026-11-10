@@ -33,6 +33,11 @@ struct ThemeProjection {
   float brightness;
   float parallax_px;
   float glow_strength;
+  float spatial_x_px;
+  float spatial_y_px;
+  float depth_offset_px;
+  float interaction_glow;
+  float temporal_accent_alpha;
 };
 inline float bounded(float v) { return std::clamp(std::isfinite(v) ? v : 0.5f, 0.0f, 1.0f); }
 
@@ -64,7 +69,12 @@ inline ThemeProjection project_theme(const State14 &s, float base_hue = 184.0f) 
     0.82f + v(Axis::information) * 0.34f,
     0.82f + v(Axis::energy) * 0.36f,
     1.0f + v(Axis::perspective) * 5.0f,
-    0.08f + v(Axis::integration) * 0.22f
+    0.08f + v(Axis::integration) * 0.22f,
+    (v(Axis::x) - 0.5f) * 8.0f,
+    (v(Axis::y) - 0.5f) * 8.0f,
+    (v(Axis::z) - 0.5f) * 12.0f,
+    v(Axis::interaction) * 0.22f,
+    0.12f + v(Axis::time) * 0.16f
   };
 }
 inline std::shared_ptr<DimensionNode> make_dimension_tree(const State14 &s) {
