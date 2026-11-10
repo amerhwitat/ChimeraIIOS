@@ -2,8 +2,9 @@
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="$ROOT/tools/service-manager.sh"
-CATALOG="$ROOT/services/linux/service-catalog.json"
 PROVIDERS="$ROOT/tools/commands/install-command-providers.sh"
+CATALOG="$ROOT/services/linux/service-catalog.json"
+if [[ ! -f "$CATALOG" ]]; then CATALOG="$ROOT/config/services/linux-service-catalog.json"; fi
 bash -n "$SCRIPT"
 bash -n "$PROVIDERS"
 python3 -m json.tool "$CATALOG" >/dev/null
@@ -19,10 +20,13 @@ for profile, services in data["profiles"].items():
 by_id={s["id"]:s for s in data["services"]}
 required={"openssh-server","nginx","apache2","vsftpd","tftpd-hpa"}
 assert required <= ids, f"missing daemon service definitions: {sorted(required-ids)}"
+for service_id in required:
+    assert service_id in data["policy"]["never_enable_without_admin"], f"{service_id} must require explicit admin enablement"
 for service_id in ("vsftpd","tftpd-hpa"):
     assert by_id[service_id].get("default_enabled") is False, f"{service_id} must remain disabled by default"
-    assert service_id in data["policy"]["never_enable_without_admin"], f"{service_id} must require explicit admin enablement"
-for package in ("openssh-server","nginx","apache2","vsftpd","tftpd-hpa"):
+for profile in ("network","server"):
+    assert {"vsftpd","tftpd-hpa"} <= set(data["profiles"][profile]), f"{profile} profile missing FTP/TFTP"
+for package in required:
     assert package in provider, f"provider package not staged: {package}"
 for service in data["services"]:
     assert service.get("package") and service.get("unit"), service["id"]
