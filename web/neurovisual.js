@@ -25,7 +25,8 @@
     calm: { hue: 166, saturation: 54 },
     explore: { hue: 194, saturation: 84 }
   };
-  const hasPalette = key => Object.prototype.hasOwnProperty.call(palettes, key);\n  let identity = document.documentElement.dataset.neurovisual || "aurora";
+  const hasPalette = key => Object.prototype.hasOwnProperty.call(palettes, key);
+  let identity = document.documentElement.dataset.neurovisual || "aurora";
   function normalize(input) {
     const next = { ...state };
     if (Array.isArray(input)) AXES.forEach((k, i) => { if (i < input.length) next[k] = clamp(input[i]); });
@@ -46,10 +47,15 @@
     const root = document.documentElement;
     const vars = {
       "--nv-accent": `hsl(${Math.round(semanticHue)} ${Math.round(p.saturation)}% 66%)`,
-      "--nv-accent-soft": `hsl(${Math.round(semanticHue)} ${Math.round(p.saturation)}% 66% / .18)`,
+      "--nv-accent-soft": `hsl(${Math.round(semanticHue)} ${Math.round(p.saturation)}% 66% / ${(0.12 + s.time * 0.16).toFixed(3)})`,
       "--nv-glass-alpha": opacity.toFixed(3),
       "--nv-glass-blur": blur.toFixed(1) + "px",
-      "--nv-motion": motion.toFixed(3),\n      "--nv-transition-ms": Math.round(180 * motion) + "ms",
+      "--nv-motion": motion.toFixed(3),
+      "--nv-transition-ms": Math.round(180 * motion) + "ms",
+      "--nv-interaction": s.interaction.toFixed(3),
+      "--nv-parallax-x": ((s.x - 0.5) * 8).toFixed(2) + "px",
+      "--nv-parallax-y": ((s.y - 0.5) * 8).toFixed(2) + "px",
+      "--nv-depth": ((s.z - 0.5) * 12).toFixed(2) + "px",
       "--nv-density": density.toFixed(3),
       "--nv-brightness": brightness.toFixed(3),
       "--nv-parallax": parallax.toFixed(2) + "px",
@@ -73,19 +79,21 @@
   }
   const style = document.createElement("style");
   style.textContent = `
-    :root { --nv-accent: hsl(184 76% 66%); --nv-glass-alpha: .68; --nv-glass-blur: 22px; --nv-motion: .55; --nv-transition-ms: 99ms; --nv-density: 1; --nv-brightness: 1; --nv-parallax: 3px; --nv-glow: .18; }
+    :root { --nv-accent: hsl(184 76% 66%); --nv-glass-alpha: .68; --nv-glass-blur: 22px; --nv-motion: .55; --nv-transition-ms: 99ms; --nv-interaction: .5; --nv-parallax-x: 0px; --nv-parallax-y: 0px; --nv-depth: 0px; --nv-density: 1; --nv-brightness: 1; --nv-parallax: 3px; --nv-glow: .18; }
     body { filter: brightness(var(--nv-brightness)); }
     button:focus-visible, a:focus-visible { outline: 2px solid var(--nv-accent) !important; outline-offset: 3px; }
     .dock, .taskbar, .topbar, .menu-bar, .menubar, .panel, .window, .start-menu, .launcher, .control-center, .widget {
-      background-color: rgb(10 20 38 / var(--nv-glass-alpha)) !important;\n      backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
+      background-color: rgb(10 20 38 / var(--nv-glass-alpha)) !important;
+      backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       -webkit-backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       border-color: color-mix(in srgb, var(--nv-accent) 28%, transparent) !important;
     }
-    .dock, .taskbar, .topbar, .menu-bar, .menubar { box-shadow: 0 8px 32px color-mix(in srgb, var(--nv-accent) calc(var(--nv-glow) * 100%), transparent); }
+    .dock, .taskbar, .topbar, .menu-bar, .menubar { box-shadow: 0 8px 32px color-mix(in srgb, var(--nv-accent) calc(var(--nv-glow) * 100%), transparent), 0 0 12px color-mix(in srgb, var(--nv-accent) calc(var(--nv-interaction) * 22%), transparent);
+      transform: translateZ(var(--nv-depth)); }
     button:hover, [role="button"]:hover, .app:hover { border-color: var(--nv-accent) !important; }
     .active, [aria-current="page"], [aria-pressed="true"] { accent-color: var(--nv-accent); }
     .dock, .taskbar, .panel, .window, .start-menu, .launcher, .widget { transition-duration: var(--nv-transition-ms); }
-    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--nv-noise); background-image: radial-gradient(var(--nv-accent) .5px, transparent .5px); background-size: 5px 5px; mix-blend-mode: screen; transform: translate3d(var(--nv-parallax), calc(var(--nv-parallax) * -1), 0); }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--nv-noise); background-image: radial-gradient(var(--nv-accent) .5px, transparent .5px); background-size: 5px 5px; mix-blend-mode: screen; transform: translate3d(var(--nv-parallax-x), var(--nv-parallax-y), 0); }
   `;
   (document.head || document.documentElement).appendChild(style);
   window.ChimeraNeurovisual = Object.freeze({
