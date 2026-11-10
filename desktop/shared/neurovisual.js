@@ -25,7 +25,7 @@
     calm: { hue: 166, saturation: 54 },
     explore: { hue: 194, saturation: 84 }
   };
-  let identity = document.documentElement.dataset.neurovisual || "aurora";
+  const hasPalette = key => Object.prototype.hasOwnProperty.call(palettes, key);\n  let identity = document.documentElement.dataset.neurovisual || "aurora";
   function normalize(input) {
     const next = { ...state };
     if (Array.isArray(input)) AXES.forEach((k, i) => { if (i < input.length) next[k] = clamp(input[i]); });
@@ -34,7 +34,7 @@
   }
   function project() {
     const s = smoothed;
-    const p = palettes[identity] || palettes.aurora;
+    const p = hasPalette(identity) ? palettes[identity] : palettes.aurora;
     const semanticHue = p.hue + (s.semantic - 0.5) * 54 + (s.perspective - 0.5) * 20;
     const opacity = 0.48 + s.material * 0.34;
     const blur = 10 + s.material * 22;
@@ -49,7 +49,7 @@
       "--nv-accent-soft": `hsl(${Math.round(semanticHue)} ${Math.round(p.saturation)}% 66% / .18)`,
       "--nv-glass-alpha": opacity.toFixed(3),
       "--nv-glass-blur": blur.toFixed(1) + "px",
-      "--nv-motion": motion.toFixed(3),
+      "--nv-motion": motion.toFixed(3),\n      "--nv-transition-ms": Math.round(180 * motion) + "ms",
       "--nv-density": density.toFixed(3),
       "--nv-brightness": brightness.toFixed(3),
       "--nv-parallax": parallax.toFixed(2) + "px",
@@ -64,28 +64,28 @@
     state = normalize(input);
     const alpha = clamp(options.alpha ?? 0.18, 0.02, 0.8);
     AXES.forEach(k => { smoothed[k] += (state[k] - smoothed[k]) * alpha; });
-    if (typeof options.identity === "string" && options.identity in palettes) identity = options.identity;
+    if (typeof options.identity === "string" && hasPalette(options.identity)) identity = options.identity;
     project();
     window.dispatchEvent(new CustomEvent("chimera-neurovisual-updated", { detail: { state: { ...smoothed }, identity } }));
   }
   function setIdentity(value) {
-    if (value in palettes) { identity = value; update({}); }
+    if (hasPalette(value)) { identity = value; update({}); }
   }
   const style = document.createElement("style");
   style.textContent = `
-    :root { --nv-accent: hsl(184 76% 66%); --nv-glass-alpha: .68; --nv-glass-blur: 22px; --nv-motion: .55; --nv-density: 1; --nv-brightness: 1; --nv-parallax: 3px; --nv-glow: .18; }
+    :root { --nv-accent: hsl(184 76% 66%); --nv-glass-alpha: .68; --nv-glass-blur: 22px; --nv-motion: .55; --nv-transition-ms: 99ms; --nv-density: 1; --nv-brightness: 1; --nv-parallax: 3px; --nv-glow: .18; }
     body { filter: brightness(var(--nv-brightness)); }
     button:focus-visible, a:focus-visible { outline: 2px solid var(--nv-accent) !important; outline-offset: 3px; }
     .dock, .taskbar, .topbar, .menu-bar, .menubar, .panel, .window, .start-menu, .launcher, .control-center, .widget {
-      backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
+      background-color: rgb(10 20 38 / var(--nv-glass-alpha)) !important;\n      backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       -webkit-backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       border-color: color-mix(in srgb, var(--nv-accent) 28%, transparent) !important;
     }
     .dock, .taskbar, .topbar, .menu-bar, .menubar { box-shadow: 0 8px 32px color-mix(in srgb, var(--nv-accent) calc(var(--nv-glow) * 100%), transparent); }
     button:hover, [role="button"]:hover, .app:hover { border-color: var(--nv-accent) !important; }
     .active, [aria-current="page"], [aria-pressed="true"] { accent-color: var(--nv-accent); }
-    .dock, .taskbar, .panel, .window, .start-menu, .launcher, .widget { transition-duration: calc(180ms * var(--nv-motion)); }
-    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--nv-noise); background-image: radial-gradient(var(--nv-accent) .5px, transparent .5px); background-size: 5px 5px; mix-blend-mode: screen; }
+    .dock, .taskbar, .panel, .window, .start-menu, .launcher, .widget { transition-duration: var(--nv-transition-ms); }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--nv-noise); background-image: radial-gradient(var(--nv-accent) .5px, transparent .5px); background-size: 5px 5px; mix-blend-mode: screen; transform: translate3d(var(--nv-parallax), calc(var(--nv-parallax) * -1), 0); }
   `;
   (document.head || document.documentElement).appendChild(style);
   window.ChimeraNeurovisual = Object.freeze({
