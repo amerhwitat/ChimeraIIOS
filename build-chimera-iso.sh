@@ -136,6 +136,9 @@ BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+# Set only after this invocation successfully builds the image. --iso-only must
+# never delete a caller-supplied image.
+DOCKER_IMAGE_BUILT=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -335,10 +338,15 @@ cleanup_generated_docker_image(){
     return 0
   fi
   # Remove every local tag that points at the image created by this build.
-  while read -r tagged; do
-    [[ -n "$tagged" ]] || continue
-    docker image rm -f "$tagged" >/dev/null 2>&1 || true
-  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
+  # Remove only the two tags this build command creates. Do not remove other
+  # user/project tags that happen to point at the same image ID.
+  local candidate candidate_id
+  for candidate in "$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest"; do
+    candidate_id="$(docker image inspect -f '{{.Id}}' "$candidate" 2>/dev/null || true)"
+    if [[ "$candidate_id" == "$image_id" ]]; then
+      docker image rm "$candidate" >/dev/null 2>&1 || true
+    fi
+  done
   if docker image inspect "$image_id" >/dev/null 2>&1; then
     log_warning "Docker image layers remain because another local reference uses $image_id."
   else
@@ -347,11 +355,9 @@ cleanup_generated_docker_image(){
 }
 push_docker_image(){
   if [[ "${CHIMERA_PUSH:-0}" != 1 ]]; then
-    local unused_source="$DOCKER_IMAGE:$DOCKER_TAG"
-    local unused_id
-    unused_id="$(docker image inspect -f '{{.Id}}' "$unused_source" 2>/dev/null || true)"
-    cleanup_generated_docker_image "$unused_source" "$unused_id"
-    cleanup_docker_build_cache
+    # The image is still required by the following rootfs-export stage. It is
+    # deleted only after that stage has produced and validated the rootfs.
+    log_info "Docker publish disabled; retaining the freshly built image until rootfs export completes."
     return 0
   fi
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
@@ -541,6 +547,8 @@ build_docker(){
   [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  DOCKER_IMAGE_BUILT=1
+  log_info "Docker image built for this invocation: $(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG")"
 }
 
 export_rootfs(){
@@ -625,6 +633,17 @@ export_rootfs(){
     log_error 'Rootfs export is incomplete'
     exit 1
   }
+
+  # From this point onward the ISO pipeline consumes the extracted rootfs, not
+  # the Docker image. Remove only this run's generated image tags, and only
+  # after successful rootfs validation. Preserve caller-supplied --iso-only
+  # images and any image still referenced by a container.
+  if [[ "$DOCKER_IMAGE_BUILT" == 1 ]]; then
+    local exported_image_id
+    exported_image_id="$(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG" 2>/dev/null || true)"
+    cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$exported_image_id"
+    DOCKER_IMAGE_BUILT=0
+  fi
 }
 
 create_boot_menu(){
