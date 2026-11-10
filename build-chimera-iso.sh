@@ -1238,6 +1238,7 @@ Boot artifacts:
   boot/** (ELF, EFI and raw binary files copied from the generated boot-artifact tree)
 Separate user-init smoke probes are deliberately not included in this target-init bundle. These ELFs are not complete Live desktop, disk installer, or recovery-repair environments.
 EOF_NATIVE_ARTIFACTS
+  (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
   log_success "Preserved native ELF/EFI build artifacts: $out"
 }
 
