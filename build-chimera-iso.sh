@@ -1196,6 +1196,7 @@ preserve_native_build_artifacts(){
   local out="$BUILD_DIR/artifacts/native-iso"
   local kernel_dir="$SCRIPT_DIR/build/koronos/x86_64"
   local boot_dir="$BUILD_DIR/boot-artifacts"
+  local native_dist="$SCRIPT_DIR/boot/iso/dist"
   local file rel
   mkdir -p "$out/kernel" "$out/userspace" "$out/efi" "$out/boot"
   if [[ -s "$kernel_dir/koronos.elf" ]]; then
@@ -1208,17 +1209,18 @@ preserve_native_build_artifacts(){
     readelf -h "$out/userspace/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || return 1
     readelf -lW "$out/userspace/target-init-$target.elf" | grep -Eq 'LOAD.*R E' || return 1
   done
-  if [[ -d "$boot_dir" ]]; then
+  for source_dir in "$boot_dir" "$native_dist/bootloaders" "$native_dist/iso/boot"; do
+    [[ -d "$source_dir" ]] || continue
     while IFS= read -r -d '' file; do
-      rel="${file#"$boot_dir"/}"
+      rel="${file#"$source_dir"/}"
       mkdir -p "$out/boot/$(dirname "$rel")"
       case "$file" in
         *.elf|*.EFI|*.efi|*.bin) install -m 0644 "$file" "$out/boot/$rel" ;;
       esac
-    done < <(find "$boot_dir" -type f \( -iname '*.elf' -o -iname '*.efi' -o -iname '*.bin' \) -print0)
-  fi
+    done < <(find "$source_dir" -type f \( -iname '*.elf' -o -iname '*.efi' -o -iname '*.bin' \) -print0)
+  done
   local efi_source=""
-  for file in "$boot_dir/uefi/BOOTX64.EFI" "$SCRIPT_DIR/boot/iso/dist/iso/EFI/BOOT/BOOTX64.EFI"; do
+  for file in "$boot_dir/uefi/BOOTX64.EFI" "$native_dist/iso/EFI/BOOT/BOOTX64.EFI"; do
     if [[ -s "$file" ]]; then efi_source="$file"; break; fi
   done
   if [[ -n "$efi_source" ]]; then install -m 0644 "$efi_source" "$out/efi/BOOTX64.EFI"; fi
