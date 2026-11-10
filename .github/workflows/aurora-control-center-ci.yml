@@ -72,4 +72,8 @@ jobs:
           test -s web/chimera-hub.css
           test ! -e web/amiga-core
           test ! -e web/local-core
-          ! grep -R -E 'puae_libretro|\.so|\.dll|\.dylib' web --include='*.html' --include='*.js' --include='*.css'
+          ! grep -R -F 'puae_libretro' web --include='*.html' --include='*.js' --include='*.css'
+          if find web -type f \\( -name '*.so' -o -name '*.dll' -o -name '*.dylib' \\) -print -quit | grep -q .; then
+            echo "Native emulator libraries must remain outside the static Pages tree."
+            exit 1
+          fi
