@@ -24,7 +24,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Preserve QEMU boot evidence jobs; let newer commits queue behind active tests.
+  cancel-in-progress: false
 
 jobs:
   x86_64-boot:
