@@ -1,0 +1,51 @@
+name: Build Amiga and Commodore floppy media
+
+on:
+  workflow_dispatch:
+    inputs:
+      aros_nightly_date:
+        description: Official AROS nightly date (YYYYMMDD)
+        required: true
+        default: "20261109"
+  push:
+    branches: [main]
+    paths:
+      - "retro/amiga-commodore/**"
+      - ".github/workflows/amiga-commodore-media.yml"
+  pull_request:
+    paths:
+      - "retro/amiga-commodore/**"
+      - ".github/workflows/amiga-commodore-media.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-media:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install VICE disk tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3 vice unzip
+      - name: Build official AROS Amiga ADF and native Commodore 64 D64
+        env:
+          AROS_NIGHTLY_DATE: ${{ inputs.aros_nightly_date || '20261109' }}
+        run: |
+          set -euo pipefail
+          python3 retro/amiga-commodore/build_media.py --out build/retro-media
+          python3 retro/amiga-commodore/verify_media.py build/retro-media
+          c1541 -attach build/retro-media/CHIMERA-Commodore-64.d64 -list
+      - name: Upload verified floppy images
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-amiga-commodore-floppy-media
+          path: |
+            build/retro-media/AROS-Amiga-500-2000-m68k-boot.adf
+            build/retro-media/CHIMERA-Commodore-64.d64
+            build/retro-media/CHIMERA64.PRG
+            build/retro-media/media-manifest.json
+          if-no-files-found: error
+          retention-days: 90
