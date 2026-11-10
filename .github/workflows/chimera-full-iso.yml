@@ -14,6 +14,8 @@ on:
       - "tools/build-full-iso.*"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "build-chimera-iso.sh"
+      - "docker/iso/**"
       - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
@@ -33,6 +35,8 @@ on:
       - "sdk/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "build-chimera-iso.sh"
+      - "docker/iso/**"
       - ".github/workflows/chimera-full-iso.yml"
 
 permissions:
@@ -85,6 +89,15 @@ jobs:
           mkdir -p build/iso
           cp boot/iso/dist/output.iso build/iso/chimera-ii-os.iso
           (cd build/iso && sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256)
+
+      - name: Upload preserved native ELF and EFI build artifacts
+        if: always() && steps.iso_build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-native-elf-efi-${{ github.sha }}
+          path: ${{ runner.temp }}/chimera-ci/chimera-build/artifacts/native-iso/
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Validate ISO artifacts
         run: |
