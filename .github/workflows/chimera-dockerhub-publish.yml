@@ -2,14 +2,7 @@ name: Chimera II OS Docker Hub publish (canonical builder)
 
 on:
   push:
-    branches: [main, fix/canonical-iso-rebased-20261109]
     tags: ['v*']
-    paths:
-      - 'build-chimera-iso.sh'
-      - 'Dockerfile.comprehensive'
-      - 'docker/iso/**'
-      - '.dockerignore'
-      - '.github/workflows/chimera-dockerhub-publish.yml'
   workflow_dispatch:
 
 concurrency:
@@ -24,7 +17,7 @@ env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME || secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKER_PASSWORD || secrets.DOCKERHUB_TOKEN }}
   CHIMERA_DOCKERHUB_IMAGE: docker.io/amerhwitat/chimeraiios
-  CHIMERA_DOCKERHUB_TAG: ${{ github.sha }}
+  CHIMERA_DOCKERHUB_TAG: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
   CHIMERA_DOCKER_CACHE_MAX_AGE: 0s
 
 jobs:
@@ -63,11 +56,11 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x ./build-chimera-iso.sh
-          ./build-chimera-iso.sh --docker-only --clean-state --push --prune-docker-cache --tag "${GITHUB_SHA}"
+          ./build-chimera-iso.sh --docker-only --clean-state --push --prune-docker-cache --tag "${CHIMERA_DOCKERHUB_TAG}"
 
       - name: Verify published Docker Hub image
         if: steps.credentials.outputs.available == 'true'
-        run: docker buildx imagetools inspect "${IMAGE_REPOSITORY}:${GITHUB_SHA}"
+        run: docker buildx imagetools inspect "${IMAGE_REPOSITORY}:${CHIMERA_DOCKERHUB_TAG}"
 
       - name: Reclaim ephemeral runner BuildKit cache and report storage
         if: always() && steps.credentials.outputs.available == 'true'
