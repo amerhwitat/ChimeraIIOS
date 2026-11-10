@@ -1246,7 +1246,7 @@ preserve_native_build_artifacts(){
       -extract /EFI/BOOT/BOOTX64.EFI "$out/efi/BOOTX64.EFI" >/dev/null 2>&1 || true
   fi
   if [[ -s "$out/efi/BOOTX64.EFI" ]]; then
-    file "$out/efi/BOOTX64.EFI" | grep -Eqi 'PE32\\+.*EFI|EFI application' || {
+    file "$out/efi/BOOTX64.EFI" | grep -Eqi 'PE32[+].*EFI|EFI application' || {
       log_error "Preserved BOOTX64.EFI is not recognized as an EFI application"; return 1; }
   else
     log_error "Hybrid ISO is missing /EFI/BOOT/BOOTX64.EFI; refusing to publish an incomplete native artifact bundle"
