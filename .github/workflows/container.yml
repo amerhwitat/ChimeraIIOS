@@ -38,6 +38,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN || secrets.DOCKER_PASSWORD }}
       CHIMERA_DOCKERHUB_IMAGE: docker.io/amerhwitat/chimeraiios
       CHIMERA_DOCKERHUB_TAG: ${{ github.sha }}
+      CHIMERA_DOCKERHUB_PUSH_LATEST: ${{ github.ref_name == 'main' && '1' || '0' }}
       CHIMERA_DOCKER_CACHE_MAX_AGE: 0s
     steps:
       - uses: actions/checkout@v4
