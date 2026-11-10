@@ -1610,6 +1610,12 @@ stage_terminal_shell_suite(){
 }
 
 main(){
+  # Clean stale project-owned intermediates before starting an expensive build.
+  # The final ISO/checksum and preserved native ELF/EFI artifact bundle are kept.
+  if [[ "$CLEAN_STATE" == 1 ]]; then
+    state_reset
+    cleanup_generated_build_artifacts
+  fi
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
   if [[ "$BUILD_ISO" == 0 ]]; then
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
@@ -1643,7 +1649,6 @@ main(){
     python3 "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" || { log_error "Online catalog merge failed"; return 1; }
   fi
   scan_isa_and_commands_before_network_crawl
-  [[ "$CLEAN_STATE" == 1 ]] && state_reset
   CURRENT_STAGE="preflight"
   preflight
   check_deps
