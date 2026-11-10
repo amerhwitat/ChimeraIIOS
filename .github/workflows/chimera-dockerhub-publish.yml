@@ -25,6 +25,7 @@ env:
   DOCKERHUB_TOKEN: ${{ secrets.DOCKER_PASSWORD || secrets.DOCKERHUB_TOKEN }}
   CHIMERA_DOCKERHUB_IMAGE: docker.io/amerhwitat/chimeraiios
   CHIMERA_DOCKERHUB_TAG: ${{ github.sha }}
+  CHIMERA_DOCKER_CACHE_MAX_AGE: 0s
 
 jobs:
   publish:
