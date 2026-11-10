@@ -96,6 +96,10 @@ jobs:
           mkdir -p build/iso
           cp boot/iso/dist/output.iso build/iso/chimera-ii-os.iso
           (cd build/iso && sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256)
+          artifacts="$RUNNER_TEMP/chimera-ci/chimera-build/artifacts/native-iso"
+          test -s "$artifacts/ARTIFACT-MANIFEST.txt"
+          test -s "$artifacts/SHA256SUMS"
+          (cd "$artifacts" && sha256sum -c SHA256SUMS)
 
       - name: Upload preserved native ELF and EFI build artifacts
         if: always() && steps.iso_build.outcome == 'success'
