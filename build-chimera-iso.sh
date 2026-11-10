@@ -675,6 +675,17 @@ create_boot_menu(){
 
 prepare_branding(){
   header 'STEP 4: BRANDING / AURORA'
+
+  # Install the shared 14D neurovisual presentation contract into the offline
+  # desktop runtime and ISO payload. This is a deterministic theme adapter;
+  # model inference remains an optional external provider.
+  if [[ -d "$SCRIPT_DIR/desktop/shared" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/neurovisual" "$ISO_DIR/desktop/shared"
+    cp -a "$SCRIPT_DIR/desktop/shared/." "$ROOTFS_DIR/usr/share/chimera/desktop/neurovisual/"
+    cp -a "$SCRIPT_DIR/desktop/shared/." "$ISO_DIR/desktop/shared/"
+    [[ -s "$SCRIPT_DIR/desktop/shared/neurovisual.js" ]] || { log_error "Neurovisual browser adapter missing"; return 1; }
+    [[ -s "$SCRIPT_DIR/desktop/shared/neurovisual_state.hpp" ]] || { log_error "Neurovisual C++ state contract missing"; return 1; }
+  fi
   mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora" \
            "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library" \
            "$ROOTFS_DIR/usr/share/backgrounds/chimera" \
