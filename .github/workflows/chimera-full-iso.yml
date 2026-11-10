@@ -99,7 +99,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x build-chimera-iso.sh
-          ./build-chimera-iso.sh --clean-state --storage "$RUNNER_TEMP/chimera-ci" --no-storage-prompt
+          ./build-chimera-iso.sh --clean-state --storage-auto --no-storage-prompt
           test -s boot/iso/dist/output.iso
           mkdir -p build/iso
           cp boot/iso/dist/output.iso build/iso/chimera-ii-os.iso
