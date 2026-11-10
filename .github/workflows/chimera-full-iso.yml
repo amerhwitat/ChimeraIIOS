@@ -266,6 +266,33 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Validate and preserve native Koronos target ELF binaries
+        run: |
+          set -euo pipefail
+          out=build/native-target-elfs
+          mkdir -p "$out"
+          for name in koronos target-init-live target-init-installer target-init-recovery; do
+            src="build/koronos/x86_64/$name.elf"
+            test -s "$src" || { echo "::error::Missing native ELF: $src"; exit 1; }
+            readelf -h "$src" > "$out/$name.elf.header.txt"
+            readelf -lW "$src" > "$out/$name.elf.program-headers.txt"
+            grep -Eq 'Class:[[:space:]]+ELF64' "$out/$name.elf.header.txt"
+            grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64' "$out/$name.elf.header.txt"
+            if [[ "$name" != koronos ]]; then
+              grep -Eq 'Type:[[:space:]]+EXEC' "$out/$name.elf.header.txt"
+              grep -Eq 'LOAD.*R E' "$out/$name.elf.program-headers.txt"
+            fi
+            cp -f "$src" "$out/$name.elf"
+          done
+          (cd "$out" && sha256sum *.elf > SHA256SUMS)
+      - name: Upload native Koronos ELF binaries and header reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-native-koronos-elfs-x86_64
+          path: build/native-target-elfs/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Compress ISO for GitHub release asset size limit
         run: |
           set -euo pipefail
