@@ -12,6 +12,15 @@ class FullIsoWorkflowContractTests(unittest.TestCase):
         workflow = Path(".github/workflows/chimera-full-iso.yml").read_text(encoding="utf-8")
         self.assertIn("squashfs-tools jq rsync", workflow)
 
+    def test_build_scripts_are_syntax_checked_and_final_efi_is_required(self):
+        workflow = Path(".github/workflows/chimera-full-iso.yml").read_text(encoding="utf-8")
+        builder = Path("build-chimera-iso.sh").read_text(encoding="utf-8")
+        self.assertIn("bash -n build-chimera-iso.sh", workflow)
+        self.assertIn("bash -n kernel/build-koronos.sh", workflow)
+        self.assertIn("extract /EFI/BOOT/BOOTX64.EFI", workflow)
+        self.assertIn("Hybrid ISO is missing /EFI/BOOT/BOOTX64.EFI", builder)
+        self.assertIn("Preserve the EFI executable from the finished ISO itself", builder)
+
     def test_release_fails_without_real_userspace_handoff(self):
         workflow = Path(".github/workflows/chimera-full-iso.yml").read_text(encoding="utf-8")
         self.assertIn("Fail build when any production target lacks a real CPL3 userspace handoff", workflow)
