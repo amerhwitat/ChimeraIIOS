@@ -3,6 +3,7 @@
 ## Supported machine profiles
 - Amiga 500 (Motorola 68000; ADF floppy media)
 - Amiga 2000 (Motorola 68000; ADF floppy media)
+- Amiga 4000 (68020/030/040 variants; ADF floppy media)
 - Commodore 64 (MOS 6510; D64 floppy media)
 
 ## Build original disk images
@@ -14,7 +15,7 @@ bash retro/commodore/create-retro-media.sh --out build/retro-media
 ```
 
 The ADFs are Amiga Fast File System disks containing original documentation and the
-machine profile. The D64 contains an original BASIC V2 demo. CI verifies the ADF
+machine profile, including an A4000/040 profile. The D64 contains an original BASIC V2 demo. CI verifies the ADF
 filesystem listings, D64 directory, image sizes and SHA-256 checksums.
 
 ## Build emulator providers
