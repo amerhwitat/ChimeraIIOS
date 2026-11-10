@@ -7,6 +7,7 @@ class FullIsoWorkflowContractTests(unittest.TestCase):
         workflow = Path(".github/workflows/chimera-full-iso.yml").read_text(encoding="utf-8")
         self.assertIn('CHIMERA_BUILD_NATIVE_ISO_PIPELINE: "1"', workflow)
         self.assertIn("./build-chimera-iso.sh --clean-state", workflow)
+        self.assertIn("./build-chimera-iso.sh --clean-state --storage-auto --no-storage-prompt", workflow)
 
     def test_native_iso_dependencies_are_installed(self):
         workflow = Path(".github/workflows/chimera-full-iso.yml").read_text(encoding="utf-8")
