@@ -62,6 +62,14 @@ jobs:
           sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools squashfs-tools jq rsync qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl nodejs busybox-static cpio zstd
           python3 -m unittest discover -s tests/boot -p "test_full_iso_workflow_contract.py" -v
 
+      - name: Validate build script syntax
+        run: |
+          bash -n build-chimera-iso.sh
+          bash -n kernel/build-koronos.sh
+          bash -n boot/iso/build-iso.sh
+          bash -n tools/build-live-boot-binaries.sh
+          bash -n tools/chimera-stage-installer-media.sh
+
       - name: Validate 14D neurovisual desktop model
         run: |
           node --check desktop/shared/neurovisual.js
@@ -129,6 +137,8 @@ jobs:
             test -s "$output" || { echo "::error::ISO payload missing or empty: $source"; exit 1; }
           }
           extract /boot/koronos/koronos.elf "$tmp/koronos.elf"
+          extract /EFI/BOOT/BOOTX64.EFI "$tmp/BOOTX64.EFI"
+          file "$tmp/BOOTX64.EFI" | grep -Eqi 'PE32\\+.*EFI|EFI application'
           for target in live installer recovery; do
             extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf"
             readelf -h "$tmp/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC'
