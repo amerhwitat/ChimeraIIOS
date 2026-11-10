@@ -21,6 +21,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+bash "$ROOT/tests/kernel/check-user-cr3-restore.sh"
 bash "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 bash "$ROOT/tests/kernel/run-cpu-profile-host-tests.sh"
 bash "$ROOT/tests/kernel/run-registry-host-tests.sh"
