@@ -8,11 +8,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_ARCH=${CHIMERA_ARCH} \
     CHIMERA_FIRMWARE=${CHIMERA_FIRMWARE}
 
-# The minimal Ubuntu base may not contain a CA bundle. Bootstrap only the
-# signed Ubuntu package indexes with TLS peer verification disabled; APT still
-# verifies the repository Release signatures. Install the trust store, then
-# refresh all indexes again with normal TLS verification before installing the
-# build toolchain. Never install packages from the unverified bootstrap pass.
+# The minimal Ubuntu base may not contain a CA bundle. For the one-time CA
+# bootstrap only, disable HTTPS peer/host checks while APT still verifies the
+# signed Ubuntu Release metadata and package hashes. Install ca-certificates,
+# then refresh indexes and install the build toolchain with normal TLS checks.
 RUN test -f /etc/apt/sources.list.d/ubuntu.sources \
     && sed -i 's|http://archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://security.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources \
     && apt-get -o Acquire::Retries=3 -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false update \
