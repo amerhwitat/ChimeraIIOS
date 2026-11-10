@@ -52,7 +52,7 @@ jobs:
           CHIMERA_DOCKERHUB_TAG: ${{ github.sha }}
         run: |
           chmod +x ./build-chimera-iso.sh
-          ./build-chimera-iso.sh --docker-only --clean-state --push --tag "${GITHUB_SHA}"
+          ./build-chimera-iso.sh --docker-only --clean-state --push --prune-docker-cache --tag "${GITHUB_SHA}"
 
       - name: Verify published image
         if: steps.credentials.outputs.available == 'true'
