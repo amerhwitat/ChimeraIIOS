@@ -346,7 +346,14 @@ cleanup_generated_docker_image(){
   fi
 }
 push_docker_image(){
-  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || { cleanup_docker_build_cache; return 0; }
+  if [[ "${CHIMERA_PUSH:-0}" != 1 ]]; then
+    local unused_source="$DOCKER_IMAGE:$DOCKER_TAG"
+    local unused_id
+    unused_id="$(docker image inspect -f '{{.Id}}' "$unused_source" 2>/dev/null || true)"
+    cleanup_generated_docker_image "$unused_source" "$unused_id"
+    cleanup_docker_build_cache
+    return 0
+  fi
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
   local target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
   local target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
