@@ -291,6 +291,12 @@ cleanup_generated_build_artifacts(){
     "$BUILD_DIR/boot-artifacts" \
     "$BUILD_DIR/live-boot" \
     "$BUILD_DIR/emulators" \
+    "$BUILD_DIR/aurora-artwork-library" \
+    "$BUILD_DIR/aurora-media" \
+    "$BUILD_DIR/aurora-selected-artwork.png" \
+    "$BUILD_DIR/architecture-discovery" \
+    "$BUILD_DIR/dos-online-discovery.json" \
+    "$SCRIPT_DIR/boot/iso/work" \
     "$ISO_TMP_DIR" 2>/dev/null || true
   find "$BUILD_DIR" -maxdepth 3 -type f \
     \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
