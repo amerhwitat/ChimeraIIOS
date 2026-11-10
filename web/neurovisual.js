@@ -51,7 +51,11 @@
       "--nv-glass-alpha": opacity.toFixed(3),
       "--nv-glass-blur": blur.toFixed(1) + "px",
       "--nv-motion": motion.toFixed(3),
-      "--nv-transition-ms": Math.round(180 * motion) + "ms",\n      "--nv-interaction": s.interaction.toFixed(3),\n      "--nv-parallax-x": ((s.x - 0.5) * 8).toFixed(2) + "px",\n      "--nv-parallax-y": ((s.y - 0.5) * 8).toFixed(2) + "px",\n      "--nv-depth": ((s.z - 0.5) * 12).toFixed(2) + "px",
+      "--nv-transition-ms": Math.round(180 * motion) + "ms",
+      "--nv-interaction": s.interaction.toFixed(3),
+      "--nv-parallax-x": ((s.x - 0.5) * 8).toFixed(2) + "px",
+      "--nv-parallax-y": ((s.y - 0.5) * 8).toFixed(2) + "px",
+      "--nv-depth": ((s.z - 0.5) * 12).toFixed(2) + "px",
       "--nv-density": density.toFixed(3),
       "--nv-brightness": brightness.toFixed(3),
       "--nv-parallax": parallax.toFixed(2) + "px",
@@ -84,7 +88,8 @@
       -webkit-backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       border-color: color-mix(in srgb, var(--nv-accent) 28%, transparent) !important;
     }
-    .dock, .taskbar, .topbar, .menu-bar, .menubar { box-shadow: 0 8px 32px color-mix(in srgb, var(--nv-accent) calc(var(--nv-glow) * 100%), transparent), 0 0 12px color-mix(in srgb, var(--nv-accent) calc(var(--nv-interaction) * 22%), transparent);\n      transform: translateZ(var(--nv-depth)); }
+    .dock, .taskbar, .topbar, .menu-bar, .menubar { box-shadow: 0 8px 32px color-mix(in srgb, var(--nv-accent) calc(var(--nv-glow) * 100%), transparent), 0 0 12px color-mix(in srgb, var(--nv-accent) calc(var(--nv-interaction) * 22%), transparent);
+      transform: translateZ(var(--nv-depth)); }
     button:hover, [role="button"]:hover, .app:hover { border-color: var(--nv-accent) !important; }
     .active, [aria-current="page"], [aria-pressed="true"] { accent-color: var(--nv-accent); }
     .dock, .taskbar, .panel, .window, .start-menu, .launcher, .widget { transition-duration: var(--nv-transition-ms); }
