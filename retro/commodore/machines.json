@@ -35,6 +35,20 @@
       "firmware_policy": "PUAE built-in AROS replacement available; genuine Kickstart ROM optional and user-provided only"
     },
     {
+      "id": "amiga-a4000",
+      "name": "Commodore Amiga 4000",
+      "family": "Amiga",
+      "cpu": "Motorola 68EC020 / 68030 / 68040 (model dependent)",
+      "disk": "ADF",
+      "preferred_backend": [
+        "fs-uae",
+        "retroarch-puae"
+      ],
+      "firmware_required": false,
+      "profile": "retro/commodore/profiles/amiga-a4000.fs-uae",
+      "firmware_policy": "PUAE built-in AROS replacement available; genuine Kickstart ROM optional and user-provided only"
+    },
+    {
       "id": "commodore-c64",
       "name": "Commodore 64",
       "family": "Commodore",
