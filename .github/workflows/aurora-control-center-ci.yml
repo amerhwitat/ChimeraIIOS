@@ -5,6 +5,7 @@ on:
     paths:
       - 'web/index.html'
       - 'web/chimera-hub.js'
+      - 'web/neurovisual.js'
       - 'web/chimera-hub.css'
       - 'tools/amiga-local-core/**'
       - 'tools/thamudic-nlp/**'
