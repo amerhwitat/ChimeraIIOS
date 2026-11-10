@@ -69,8 +69,9 @@ jobs:
         if: steps.credentials.outputs.available == 'true'
         run: docker buildx imagetools inspect "${IMAGE_REPOSITORY}:${GITHUB_SHA}"
 
-      - name: Show reclaimed runner storage
-        if: always()
+      - name: Reclaim ephemeral runner BuildKit cache and report storage
+        if: always() && steps.credentials.outputs.available == 'true'
         run: |
+          docker builder prune --all --force --filter 'until=0s' || true
           docker system df || true
           df -h
