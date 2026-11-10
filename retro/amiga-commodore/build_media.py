@@ -91,10 +91,10 @@ def build_d64(out: pathlib.Path) -> dict:
     d64 = out / "CHIMERA-Commodore-64.d64"
     build_c64_basic_prg(prg)
     command = [
-        "c1541", "-format", "CHIMERA,01", str(d64),
+        "c1541", "-format", "CHIMERA,01", "d64", str(d64),
         "-write", str(prg), "CHIMERA", "-list",
     ]
-    result = subprocess.run(command, check=True, text=True, capture_output=True)
+    result = subprocess.run(command, check=True, text=True, encoding="utf-8", errors="replace", capture_output=True)
     listing = result.stdout + result.stderr
     if d64.stat().st_size != D64_SIZE:
         raise RuntimeError(f"Unexpected 35-track D64 size: {d64.stat().st_size}")
