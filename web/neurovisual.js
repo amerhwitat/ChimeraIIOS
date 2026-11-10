@@ -25,7 +25,8 @@
     calm: { hue: 166, saturation: 54 },
     explore: { hue: 194, saturation: 84 }
   };
-  const hasPalette = key => Object.prototype.hasOwnProperty.call(palettes, key);\n  let identity = document.documentElement.dataset.neurovisual || "aurora";
+  const hasPalette = key => Object.prototype.hasOwnProperty.call(palettes, key);
+  let identity = document.documentElement.dataset.neurovisual || "aurora";
   function normalize(input) {
     const next = { ...state };
     if (Array.isArray(input)) AXES.forEach((k, i) => { if (i < input.length) next[k] = clamp(input[i]); });
@@ -49,7 +50,8 @@
       "--nv-accent-soft": `hsl(${Math.round(semanticHue)} ${Math.round(p.saturation)}% 66% / .18)`,
       "--nv-glass-alpha": opacity.toFixed(3),
       "--nv-glass-blur": blur.toFixed(1) + "px",
-      "--nv-motion": motion.toFixed(3),\n      "--nv-transition-ms": Math.round(180 * motion) + "ms",
+      "--nv-motion": motion.toFixed(3),
+      "--nv-transition-ms": Math.round(180 * motion) + "ms",
       "--nv-density": density.toFixed(3),
       "--nv-brightness": brightness.toFixed(3),
       "--nv-parallax": parallax.toFixed(2) + "px",
@@ -77,7 +79,8 @@
     body { filter: brightness(var(--nv-brightness)); }
     button:focus-visible, a:focus-visible { outline: 2px solid var(--nv-accent) !important; outline-offset: 3px; }
     .dock, .taskbar, .topbar, .menu-bar, .menubar, .panel, .window, .start-menu, .launcher, .control-center, .widget {
-      background-color: rgb(10 20 38 / var(--nv-glass-alpha)) !important;\n      backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
+      background-color: rgb(10 20 38 / var(--nv-glass-alpha)) !important;
+      backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       -webkit-backdrop-filter: blur(var(--nv-glass-blur)) saturate(1.25);
       border-color: color-mix(in srgb, var(--nv-accent) 28%, transparent) !important;
     }
