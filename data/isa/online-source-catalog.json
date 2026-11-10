@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "generated_by": "tools/catalogs/refresh_online_catalogs.py",
-  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage. Recursive discovery is configured to a maximum link depth of 10; online identifiers remain candidates until verified against the relevant architecture specification.",
+  "policy": "Store source metadata, hashes, discovered instruction-definition identifiers, command names, and URLs only. Do not mirror vendor manuals or source-file prose. Architecture-family coverage was expanded on 2026-10-09; catalog-only families do not imply decoded or executed instruction coverage. Recursive discovery is configured to a maximum link depth of 10; online identifiers remain candidates until verified against the relevant architecture specification. Added official OpenBSD, NetBSD, illumos/Solaris-family, GNU Coreutils and GNU Findutils documentation sources on 2026-11-10. Documentation indexes are syntax/semantics evidence only; source code and binary provenance are tracked separately.",
   "isa_sources": [
     {
       "id": "intel-sdm",
@@ -354,6 +354,41 @@
       "url": "https://man.freebsd.org/cgi/man.cgi",
       "authority": "FreeBSD Project",
       "policy": "Manual index metadata"
+    },
+    {
+      "id": "openbsd-manpages",
+      "platform": "OpenBSD",
+      "url": "https://man.openbsd.org/",
+      "authority": "OpenBSD Project",
+      "policy": "Official manual page index; retrieve each matching page and record section, synopsis, options and operands"
+    },
+    {
+      "id": "netbsd-manpages",
+      "platform": "NetBSD",
+      "url": "https://man.netbsd.org/",
+      "authority": "NetBSD Project",
+      "policy": "Official manual page index; retrieve each matching page and record section, synopsis, options and operands"
+    },
+    {
+      "id": "illumos-manpages",
+      "platform": "illumos / Solaris-family Unix",
+      "url": "https://smartos.org/man/1/man",
+      "authority": "illumos / SmartOS documentation",
+      "policy": "Manual reference and option syntax; cross-check command behavior against the selected illumos release"
+    },
+    {
+      "id": "gnu-coreutils-manual",
+      "platform": "GNU/Linux",
+      "url": "https://www.gnu.org/software/coreutils/manual/html_node/index.html",
+      "authority": "GNU Project",
+      "policy": "Upstream command syntax, options and semantics; source code acquired separately from official source releases"
+    },
+    {
+      "id": "gnu-findutils-manual",
+      "platform": "GNU/Linux",
+      "url": "https://www.gnu.org/software/findutils/manual/html_mono/find.html",
+      "authority": "GNU Project",
+      "policy": "Upstream command syntax, options and semantics; source code acquired separately from official source releases"
     }
   ]
 }
