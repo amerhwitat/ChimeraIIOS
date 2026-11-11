@@ -21,6 +21,18 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
+
+# Host-only scheduler API contract test. This verifies cooperative state
+# transitions and that the parallel API stays fail-closed; it is not SMP evidence.
+HOST_CXX="${HOST_CXX:-g++}"
+SCHEDULER_TEST_OUT="$BUILD/scheduler-runtime-test"
+"$HOST_CXX" -std=c++20 -Wall -Wextra -Wpedantic -Werror \
+  -I"$ROOT/kernel/include" \
+  "$ROOT/tests/kernel/scheduler_runtime_test.cpp" \
+  "$ROOT/kernel/core/scheduler.cpp" \
+  -o "$SCHEDULER_TEST_OUT"
+"$SCHEDULER_TEST_OUT"
+rm -f "$SCHEDULER_TEST_OUT"
 bash "$ROOT/tests/kernel/check-user-cr3-restore.sh"
 bash "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 bash "$ROOT/tests/kernel/run-cpu-profile-host-tests.sh"
