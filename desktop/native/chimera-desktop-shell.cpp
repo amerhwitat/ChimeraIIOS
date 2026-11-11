@@ -1,4 +1,4 @@
-// Native GTK4 shell for Aurora, Marine and FreeXP desktop personalities.
+// Native GTK4 shell for Aurora, Marine, FreeXP and FreeWin11 desktop personalities.
 // This is a Linux/GTK user-space shell client, not a compositor or a Koronos
 // syscall port. Koronos GUI readiness remains gated on real process execution,
 // graphics/input services, and an OS-native compositor/session implementation.
@@ -15,6 +15,7 @@ GtkLabel* status_label = nullptr;
 const char* desktop_name() {
   if (std::strcmp(desktop_id, "marine") == 0) return "Marine Blue Desktop";
   if (std::strcmp(desktop_id, "freexp") == 0) return "FreeXP Classic Desktop";
+  if (std::strcmp(desktop_id, "freewin11") == 0) return "FreeWin11 Modern Desktop";
   return "Aurora Wayland Glass Desktop";
 }
 
@@ -170,6 +171,28 @@ void install_style() {
     window.freexp .freexp-start-menu { background: #e8f1ff; border: 1px solid #285d9c; padding: 12px; }
     window.freexp .freexp-menu-title { color: #153e72; font-weight: 800; padding: 4px; }
     window.freexp .freexp-menu-item { background: #f7fbff; color: #173f70; border: 1px solid #a9c4e6; border-radius: 5px; padding: 7px 12px; }
+    window.freewin11 { background: #eaf0f8; color: #18263a; }
+    window.freewin11 headerbar { background: rgba(248,250,255,0.96); color: #18263a; border-bottom: 1px solid #cbd7e7; min-height: 54px; }
+    window.freewin11 .sidebar { background: #f5f8fd; border-right: 1px solid #d8e1ed; }
+    window.freewin11 .brand { color: #2458a6; }
+    window.freewin11 .nav-button { background: transparent; color: #243a59; border: 1px solid transparent; border-radius: 10px; }
+    window.freewin11 .nav-button:hover { background: #e2ebf8; border-color: #c3d4eb; }
+    window.freewin11 .hero { color: #162b49; }
+    window.freewin11 .muted { color: #536982; }
+    window.freewin11 .app-card { background: rgba(255,255,255,0.92); border: 1px solid #d3deec; border-radius: 18px; padding: 18px; }
+    window.freewin11 .app-glyph { color: #2864bd; }
+    window.freewin11 .app-name { color: #1b3558; }
+    window.freewin11 .app-detail { color: #536982; }
+    window.freewin11 button.accent { background: #2864bd; color: white; border: 1px solid #1f55a6; border-radius: 11px; }
+    window.freewin11 button.accent:hover { background: #1e55a8; }
+    window.freewin11 .footer { background: rgba(248,250,255,0.96); color: #253d5d; border-top: 1px solid #d0dceb; }
+    window.freewin11 .freewin11-taskbar { background: rgba(245,248,253,0.97); border: 1px solid #d3deec; border-radius: 16px; padding: 8px 14px; margin: 8px 24px 10px; }
+    window.freewin11 .freewin11-start { background: #e3edfb; color: #1c4f98; border: 1px solid #bfd1e9; border-radius: 12px; padding: 7px 18px; font-weight: 800; }
+    window.freewin11 .freewin11-quick { background: transparent; color: #263e5e; border: 1px solid transparent; border-radius: 10px; padding: 7px 12px; }
+    window.freewin11 .freewin11-quick:hover { background: #e3edfb; border-color: #c7d8ee; }
+    window.freewin11 .freewin11-start-menu { background: #f8faff; border: 1px solid #cbd8e9; border-radius: 16px; padding: 14px; }
+    window.freewin11 .freewin11-menu-title { color: #1b3d6c; font-weight: 800; padding: 5px; }
+    window.freewin11 .freewin11-menu-item { background: #edf3fc; color: #1c3b65; border: 1px solid #cfdbeb; border-radius: 9px; padding: 8px 14px; }
   )CSS";
   GdkDisplay* display = gdk_display_get_default();
   if (!display) return;
@@ -191,7 +214,8 @@ void activate(GtkApplication* app, gpointer) {
   gtk_window_set_default_size(GTK_WINDOW(window), 1280, 800);
   const bool marine = std::strcmp(desktop_id, "marine") == 0;
   const bool freexp = std::strcmp(desktop_id, "freexp") == 0;
-  gtk_widget_add_css_class(window, marine ? "marine" : (freexp ? "freexp" : "aurora"));
+  const bool freewin11 = std::strcmp(desktop_id, "freewin11") == 0;
+  gtk_widget_add_css_class(window, marine ? "marine" : (freexp ? "freexp" : (freewin11 ? "freewin11" : "aurora")));
 
   GtkWidget* root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   gtk_window_set_child(GTK_WINDOW(window), root);
@@ -210,7 +234,8 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_set_size_request(sidebar, 220, -1);
   gtk_box_append(GTK_BOX(body), sidebar);
   GtkWidget* brand = gtk_label_new(marine ? "MARINE  •  WORKSPACE" :
-      (freexp ? "FREEXP  •  CLASSIC WORKSPACE" : "AURORA  •  WORKSPACE"));
+      (freexp ? "FREEXP  •  CLASSIC WORKSPACE" :
+       (freewin11 ? "FREEWIN11  •  MODERN WORKSPACE" : "AURORA  •  WORKSPACE")));
   gtk_widget_add_css_class(brand, "brand");
   gtk_box_append(GTK_BOX(sidebar), brand);
   for (const char* item : {"Overview", "Applications", "Files", "Settings",
@@ -234,13 +259,16 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_set_margin_end(content, 30);
   gtk_box_append(GTK_BOX(body), content);
   GtkWidget* heading = gtk_label_new(marine ? "Your workspace, at a glance" :
-      (freexp ? "Welcome back to your desktop" : "A calmer place to work"));
+      (freexp ? "Welcome back to your desktop" :
+       (freewin11 ? "Everything you need, one calm workspace" : "A calmer place to work")));
   gtk_widget_set_halign(heading, GTK_ALIGN_START);
   gtk_widget_add_css_class(heading, "hero");
   gtk_box_append(GTK_BOX(content), heading);
   GtkWidget* subtitle = gtk_label_new(freexp
       ? "FreeXP classic shell • Start menu, taskbar and DOS application shortcut"
-      : "Native GTK4 shell • launches delegate to installed host services");
+      : (freewin11
+         ? "Windows 11/12-inspired shell • Start, search, widgets and DOS compatibility"
+         : "Native GTK4 shell • launches delegate to installed host services"));
   gtk_widget_set_halign(subtitle, GTK_ALIGN_START);
   gtk_widget_add_css_class(subtitle, "muted");
   gtk_box_append(GTK_BOX(content), subtitle);
@@ -258,40 +286,48 @@ void activate(GtkApplication* app, gpointer) {
       "Open a URL using the configured browser handler.", "browser", "chromium"), 2, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(grid), app_card("⚙", "Settings",
       "Open host settings when the provider is installed.", "settings", "settings"), 0, 1, 1, 1);
-  if (freexp) {
+  if (freexp || freewin11) {
     gtk_grid_attach(GTK_GRID(grid), app_card("▣", "DOS Applications",
         "Launch DOSBox or DOSBox-X when an emulator provider is installed.",
         "dos", "terminal"), 1, 1, 1, 1);
   }
 
-  if (freexp) {
+  if (freexp || freewin11) {
     GtkWidget* taskbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-    gtk_widget_add_css_class(taskbar, "freexp-taskbar");
+    gtk_widget_add_css_class(taskbar, freewin11 ? "freewin11-taskbar" : "freexp-taskbar");
     GtkWidget* start_button = gtk_menu_button_new();
     gtk_menu_button_set_label(GTK_MENU_BUTTON(start_button), "Start");
-    gtk_widget_add_css_class(start_button, "freexp-start");
+    gtk_widget_add_css_class(start_button, freewin11 ? "freewin11-start" : "freexp-start");
     GtkWidget* popover = gtk_popover_new();
     GtkWidget* start_menu = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
-    gtk_widget_add_css_class(start_menu, "freexp-start-menu");
+    gtk_widget_add_css_class(start_menu, freewin11 ? "freewin11-start-menu" : "freexp-start-menu");
     GtkWidget* menu_title = gtk_label_new("All Programs");
-    gtk_widget_add_css_class(menu_title, "freexp-menu-title");
+    gtk_widget_add_css_class(menu_title, freewin11 ? "freewin11-menu-title" : "freexp-menu-title");
     gtk_box_append(GTK_BOX(start_menu), menu_title);
-    gtk_box_append(GTK_BOX(start_menu), action_button("Terminal", "terminal", "freexp-menu-item"));
-    gtk_box_append(GTK_BOX(start_menu), action_button("File Explorer", "files", "freexp-menu-item"));
-    gtk_box_append(GTK_BOX(start_menu), action_button("Internet", "browser", "freexp-menu-item"));
-    gtk_box_append(GTK_BOX(start_menu), action_button("Control Panel", "settings", "freexp-menu-item"));
-    gtk_box_append(GTK_BOX(start_menu), action_button("DOS Applications", "dos", "freexp-menu-item"));
+    const char* menu_class = freewin11 ? "freewin11-menu-item" : "freexp-menu-item";
+    gtk_box_append(GTK_BOX(start_menu), action_button("Terminal", "terminal", menu_class));
+    gtk_box_append(GTK_BOX(start_menu), action_button("File Explorer", "files", menu_class));
+    gtk_box_append(GTK_BOX(start_menu), action_button("Internet", "browser", menu_class));
+    gtk_box_append(GTK_BOX(start_menu), action_button(freewin11 ? "Settings" : "Control Panel", "settings", menu_class));
+    gtk_box_append(GTK_BOX(start_menu), action_button("DOS Applications", "dos", menu_class));
     gtk_popover_set_child(GTK_POPOVER(popover), start_menu);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(start_button), popover);
     gtk_box_append(GTK_BOX(taskbar), start_button);
-    gtk_box_append(GTK_BOX(taskbar), action_button("Files", "files", "freexp-quick"));
-    gtk_box_append(GTK_BOX(taskbar), action_button("Terminal", "terminal", "freexp-quick"));
-    gtk_box_append(GTK_BOX(taskbar), action_button("Web", "browser", "freexp-quick"));
+    const char* quick_class = freewin11 ? "freewin11-quick" : "freexp-quick";
+    if (freewin11) {
+      GtkWidget* search = gtk_search_entry_new();
+      gtk_search_entry_set_placeholder_text(GTK_SEARCH_ENTRY(search), "Search apps, files and settings");
+      gtk_widget_set_size_request(search, 240, -1);
+      gtk_box_append(GTK_BOX(taskbar), search);
+    }
+    gtk_box_append(GTK_BOX(taskbar), action_button("Files", "files", quick_class));
+    gtk_box_append(GTK_BOX(taskbar), action_button("Terminal", "terminal", quick_class));
+    gtk_box_append(GTK_BOX(taskbar), action_button("Web", "browser", quick_class));
     GtkWidget* taskbar_spacer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_hexpand(taskbar_spacer, TRUE);
     gtk_box_append(GTK_BOX(taskbar), taskbar_spacer);
     GtkWidget* taskbar_status = gtk_label_new("Chimera II  •  FreeXP");
-    gtk_widget_add_css_class(taskbar_status, "freexp-menu-title");
+    gtk_widget_add_css_class(taskbar_status, freewin11 ? "freewin11-menu-title" : "freexp-menu-title");
     gtk_box_append(GTK_BOX(taskbar), taskbar_status);
     gtk_box_append(GTK_BOX(root), taskbar);
   }
@@ -317,16 +353,16 @@ int main(int argc, char** argv) {
     if (std::strncmp(argv[i], "--desktop=", 10) == 0) {
       const char* value = argv[i] + 10;
       if (std::strcmp(value, "aurora") == 0 || std::strcmp(value, "marine") == 0 ||
-          std::strcmp(value, "freexp") == 0)
+          std::strcmp(value, "freexp") == 0 || std::strcmp(value, "freewin11") == 0)
         desktop_id = value;
       else {
-        g_printerr("Unknown desktop '%s'; use aurora, marine or freexp.\n", value);
+        g_printerr("Unknown desktop '%s'; use aurora, marine, freexp or freewin11.\n", value);
         return 2;
       }
     } else if (std::strcmp(argv[i], "--self-test") == 0) {
       self_test = true;
     } else {
-      g_printerr("Usage: %s [--desktop=aurora|marine|freexp] [--self-test]\n", argv[0]);
+      g_printerr("Usage: %s [--desktop=aurora|marine|freexp|freewin11] [--self-test]\n", argv[0]);
       return 2;
     }
   }

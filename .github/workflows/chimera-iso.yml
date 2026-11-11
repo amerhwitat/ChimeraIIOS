@@ -73,7 +73,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Do not cancel active ISO/boot evidence jobs when a newer PR commit arrives.
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -220,6 +221,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # prepare-layout.sh installs the canonical menu at boot/grub/grub.cfg.
+          # Validate that exact staged path, not the obsolete boot/grub.cfg location.
+          grub_cfg="boot/iso/dist/iso/boot/grub/grub.cfg"
+          test -s "$grub_cfg"
           for target in live installer recovery; do
             built="build/koronos/x86_64/target-init-${target}.elf"
             staged="boot/iso/dist/iso/boot/targets/target-init-${target}.elf"
@@ -227,7 +232,7 @@ jobs:
             test -s "$staged"
             readelf -h "$staged" | grep -Eq 'Type:[[:space:]]+EXEC'
             cmp -s "$built" "$staged"
-            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" boot/iso/dist/iso/boot/grub.cfg
+            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" "$grub_cfg"
           done
           grep -Fq "target-init-live.elf chimera-user-init-elf target=live" boot/iso/dist/iso/boot/loader-menu.cfg
           grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" boot/iso/dist/iso/boot/loader-menu.cfg
