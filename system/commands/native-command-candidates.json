@@ -57096,6 +57096,26 @@
       "status": "candidate-only"
     },
     {
+      "arabic_label": "أمان تحديث (October OS security update)",
+      "dispatch": "defer-to-runtime-learning",
+      "execution_allowed": false,
+      "learning": {
+        "policy": "RNN may rank documented providers and request tests; it must not execute unknown commands or invent implementation claims.",
+        "queue": "runtime-rnn-command-candidates",
+        "state": "unresolved"
+      },
+      "name": "October OS security update",
+      "normalized_name": "october os security update",
+      "platforms": [
+        "arabic-command-catalog",
+        "windows"
+      ],
+      "source_urls": [
+        "https://learn.microsoft.com/azure/azure-local/security-update/security-update"
+      ],
+      "status": "candidate-only"
+    },
+    {
       "arabic_label": "أمر نظام — od",
       "dispatch": "defer-to-runtime-learning",
       "execution_allowed": false,
@@ -84583,9 +84603,9 @@
     "whoami"
   ],
   "counts": {
-    "candidate_only": 4068,
+    "candidate_only": 4069,
     "native_implemented": 15,
-    "total": 4083
+    "total": 4084
   },
   "generated_by": "tools/commands/import_command_candidates.py",
   "native_allowlist": [
