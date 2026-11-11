@@ -89,9 +89,24 @@ install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/
 source_build(){
   require_native_build_arch || return 1;
   local id="$1" url="$2"; local src="$CACHE/src-$id"
-  if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
+  if [[ ! -d "$src/.git" ]]; then
+    rm -rf "$src"
+    if [[ "$id" == "alacritty" ]]; then
+      # Pin a release whose Rust and system-library requirements are known for
+      # Ubuntu 24.04; do not build an unbounded upstream default branch.
+      log "Cloning Alacritty v0.13.2 from $url"
+      git clone --depth 1 --branch v0.13.2 "$url" "$src"
+    else
+      log "Cloning $id from $url"
+      git clone --depth 1 "$url" "$src"
+    fi
+  fi
   case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
+    alacritty)
+      have cargo || { log "Cargo is required for the pinned Alacritty source build"; return 1; }
+      (cd "$src" && cargo build --release --locked)
+      install -m 0755 "$src/target/release/alacritty" "$PREFIX/bin/alacritty"
+      ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
