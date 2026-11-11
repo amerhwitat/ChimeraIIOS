@@ -122,6 +122,8 @@ ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
+# Compiler/linker scratch files belong on WSL's Linux filesystem, not /mnt/<drive> (DrvFs).
+HOST_TMP_DIR="${CHIMERA_HOST_TMPDIR:-/var/tmp/chimera-host-tmp-${UID:-$(id -u)}}"
 LOG_DIR="$BUILD_DIR/logs"
 LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-${TMPDIR:-/tmp}/chimera-build-logs-${UID:-$(id -u)}}"
 WATCHDOG_PID=""
@@ -165,7 +167,9 @@ if [[ "$TARGET_ARCH" != "x86_64" ]]; then
 fi
 export CHIMERA_TARGET_ARCH="$TARGET_ARCH" CHIMERA_HOST_ARCH="$HOST_ARCH" CHIMERA_MEDIA_FS_PROFILE="$MEDIA_FS_PROFILE"
 
-mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
+mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" "$HOST_TMP_DIR" 2>/dev/null || true
+host_tmp_fstype="$(findmnt -T "$HOST_TMP_DIR" -n -o FSTYPE 2>/dev/null || stat -f -c %T "$HOST_TMP_DIR" 2>/dev/null || true)"
+case "$host_tmp_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) log_error "Compiler temporary directory is on a Windows-mounted filesystem ($host_tmp_fstype): $HOST_TMP_DIR"; exit 2;; esac
 
 # WSL/DrvFs can expose a drive as read-only even when it reports ample free space.
 # Never let logging/state writes turn the real Docker error into a secondary failure.
@@ -177,7 +181,7 @@ ensure_log_dir(){
   fi
 }
 ensure_log_dir
-export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
+export TMPDIR="$HOST_TMP_DIR" CHIMERA_HOST_TMPDIR="$HOST_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
 log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
 log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
@@ -260,7 +264,7 @@ if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
   mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
   LOG_DIR="$BUILD_DIR/logs"; ensure_log_dir || true
-  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
 fi
 
 free_bytes(){
@@ -396,7 +400,7 @@ choose_storage(){
   mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" || return 1
   LOG_DIR="$BUILD_DIR/logs"
   ensure_log_dir || return 1
-  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
   log_success "Build storage switched to $best"
 }
 preflight(){
@@ -415,7 +419,7 @@ preflight(){
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
-      export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+      export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
   fi
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
