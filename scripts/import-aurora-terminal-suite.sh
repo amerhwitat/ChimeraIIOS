@@ -27,9 +27,9 @@ mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/a
 # Rust/CMake compilation must not put high-churn build artifacts on WSL DrvFs (/mnt/c, /mnt/e).
 # Keep an explicit override for CI, but reject known Windows-mounted filesystems.
 cache_fstype="$(findmnt -T "$CACHE" -n -o FSTYPE 2>/dev/null || stat -f -c %T "$CACHE" 2>/dev/null || true)"
-case "$cache_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) log "Terminal cache is on a Windows-mounted filesystem ($cache_fstype): $CACHE"; exit 2;; esac
+case "$cache_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) printf '[AURORA-TERMINAL] Terminal cache is on a Windows-mounted filesystem (%s): %s\n' "$cache_fstype" "$CACHE" >&2; exit 2;; esac
 CARGO_BUILD_JOBS="${CHIMERA_CARGO_BUILD_JOBS:-2}"
-[[ "$CARGO_BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { log "CHIMERA_CARGO_BUILD_JOBS must be a positive integer"; exit 2; }
+[[ "$CARGO_BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { printf '[AURORA-TERMINAL] CHIMERA_CARGO_BUILD_JOBS must be a positive integer\n' >&2; exit 2; }
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
