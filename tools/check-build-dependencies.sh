@@ -54,7 +54,10 @@ declare -a BUILD_PACKAGES=(
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
-  openssl libssl-dev libsystemd-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
+  openssl libssl-dev libsystemd-dev libcairo2-dev libwayland-dev libx11-dev libx11-xcb-dev \
+  libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev \
+  libfreetype6-dev libfontconfig1-dev libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev \
+  libharfbuzz-dev libicu-dev libdbus-1-dev libpulse-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
   libncurses-dev libboost-dev gawk sed grep coreutils findutils util-linux
 )
 
