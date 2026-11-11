@@ -167,6 +167,8 @@ export CHIMERA_TARGET_ARCH="$TARGET_ARCH" CHIMERA_HOST_ARCH="$HOST_ARCH" CHIMERA
 mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" "$HOST_TMP_DIR" 2>/dev/null || true
 host_tmp_fstype="$(findmnt -T "$HOST_TMP_DIR" -n -o FSTYPE 2>/dev/null || stat -f -c %T "$HOST_TMP_DIR" 2>/dev/null || true)"
 case "$host_tmp_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) log_error "Compiler temporary directory is on a Windows-mounted filesystem ($host_tmp_fstype): $HOST_TMP_DIR"; exit 2;; esac
+host_tmp_probe="$(mktemp "$HOST_TMP_DIR/.chimera-write-test.XXXXXX")" || { log_error "Compiler temporary directory is not writable: $HOST_TMP_DIR"; exit 2; }
+rm -f -- "$host_tmp_probe"
 
 # WSL/DrvFs can expose a drive as read-only even when it reports ample free space.
 # Never let logging/state writes turn the real Docker error into a secondary failure.
