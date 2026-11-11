@@ -50,6 +50,7 @@ declare -A COMMAND_PACKAGE=(
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ make cmake ninja-build pkg-config
+  libcairo2-dev libpango1.0-dev
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
