@@ -120,7 +120,7 @@ ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 LOG_DIR="$BUILD_DIR/logs"
-LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-${TMPDIR:-/tmp}/chimera-build-logs-${UID:-$(id -u)}}"
+LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-/tmp/chimera-build-logs-${UID:-$(id -u)}}"
 WATCHDOG_PID=""
 STATE_FILE="${CHIMERA_BUILD_STATE_FILE:-$BUILD_DIR/.chimera-build-state}"
 FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
@@ -167,11 +167,17 @@ mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROO
 # WSL/DrvFs can expose a drive as read-only even when it reports ample free space.
 # Never let logging/state writes turn the real Docker error into a secondary failure.
 ensure_log_dir(){
-  if ! mkdir -p "$LOG_DIR" 2>/dev/null || ! test -w "$LOG_DIR"; then
-    LOG_DIR="$LOG_FALLBACK_DIR"
-    mkdir -p "$LOG_DIR" 2>/dev/null || { echo "[ERROR] No writable build log directory; check WSL storage mounts." >&2; return 1; }
-    echo "[CHIMERA] Build logs redirected to $LOG_DIR because the selected storage is not writable." >&2
+  local probe=""
+  if mkdir -p "$LOG_DIR" 2>/dev/null; then
+    probe="$(mktemp "$LOG_DIR/.chimera-write-test.XXXXXX" 2>/dev/null || true)"
+    if [[ -n "$probe" ]]; then rm -f "$probe" 2>/dev/null || true; return 0; fi
   fi
+  LOG_DIR="$LOG_FALLBACK_DIR"
+  mkdir -p "$LOG_DIR" 2>/dev/null || { echo "[ERROR] No writable Linux-native build log directory; check WSL storage and /tmp." >&2; return 1; }
+  probe="$(mktemp "$LOG_DIR/.chimera-write-test.XXXXXX" 2>/dev/null || true)"
+  [[ -n "$probe" ]] || { echo "[ERROR] Fallback log directory is not writable: $LOG_DIR" >&2; return 1; }
+  rm -f "$probe" 2>/dev/null || true
+  echo "[CHIMERA] Build logs redirected to $LOG_DIR because selected storage is not writable." >&2
 }
 ensure_log_dir
 export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
@@ -513,8 +519,26 @@ build_docker(){
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
   [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
-  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
-  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  # Keep Docker/BuildKit logs on WSL's Linux filesystem, not /mnt/* DrvFs.
+  # A Windows drive can become read-only during large builds; logging or the
+  # EXIT marker there then masks the original Docker failure.
+  mkdir -p "$LOG_FALLBACK_DIR" || { log_error "Cannot create Linux-native log directory: $LOG_FALLBACK_DIR"; return 1; }
+  local docker_log="$LOG_FALLBACK_DIR/docker-build.log"
+  BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$docker_log"
+  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog
+  if ((rc!=0)); then
+    log_error "Docker build failed (exit $rc); Linux-native log: $docker_log"
+    if command -v findmnt >/dev/null 2>&1; then
+      local mount_options
+      mount_options="$(findmnt -no OPTIONS -T "$BUILD_DIR" 2>/dev/null || true)"
+      if [[ ",$mount_options," == *,ro,* ]]; then
+        log_error "Build storage $BUILD_DIR is mounted read-only (mount options: $mount_options)."
+        log_error "This is a WSL/DrvFs storage failure, not a package-resolution error. Do not retry against this mount."
+      fi
+    fi
+    exit "$rc"
+  fi
+  if is_writable_dir "$LOG_DIR"; then cp -f "$docker_log" "$LOG_DIR/docker-build.log" 2>/dev/null || true; fi
 }
 
 export_rootfs(){
@@ -1611,5 +1635,5 @@ stage_sdks(){
   fi
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; if is_writable_dir "$(dirname "$FAILED_FILE")"; then printf "%s\\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || printf "%s\\n" "${CURRENT_STAGE:-unknown}" > "$LOG_FALLBACK_DIR/.chimera-failed-stage" 2>/dev/null || true; else printf "%s\\n" "${CURRENT_STAGE:-unknown}" > "$LOG_FALLBACK_DIR/.chimera-failed-stage" 2>/dev/null || true; log_warning "Build storage is not writable; failure marker saved under $LOG_FALLBACK_DIR"; fi; fi; exit "$rc"' EXIT
 main "$@"
