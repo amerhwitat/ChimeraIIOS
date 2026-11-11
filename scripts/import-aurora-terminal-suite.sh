@@ -95,7 +95,11 @@ source_build(){
       have cargo || { log "Alacritty source build requires cargo; install the Rust toolchain or stage a verified target-rootfs package"; return 1; }
       have rustc || { log "Alacritty source build requires rustc; install the Rust toolchain or stage a verified target-rootfs package"; return 1; }
       log "Building Alacritty with $(rustc --version) / $(cargo --version)"
-      (cd "$src" && cargo build --release)
+      # Build with the desktop/X11 and Wayland integrations needed by Aurora.
+      # Keep Cargo diagnostics visible and do not substitute a host executable
+      # unless its ELF machine matches the selected target architecture.
+      (cd "$src" && cargo build --release --locked)
+      [[ -s "$src/target/release/alacritty" ]] || { log "Alacritty build completed without producing target/release/alacritty"; return 1; }
       install -m 0755 "$src/target/release/alacritty" "$PREFIX/bin/alacritty"
       ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
