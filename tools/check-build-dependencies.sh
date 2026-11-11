@@ -28,7 +28,7 @@ say(){ printf '\n[%s] %s\n' "$1" "$2"; }
 die(){ echo "[ERROR] $*" >&2; exit 2; }
 
 declare -a REQUIRED_COMMANDS=(
-  bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
+  bash python3 cmake gcc g++ rustc cargo ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
   unsquashfs mksquashfs rsvg-convert nasm
@@ -49,7 +49,7 @@ declare -A COMMAND_PACKAGE=(
 
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
-  build-essential binutils gcc g++ make cmake ninja-build pkg-config
+  build-essential binutils gcc g++ rustc cargo make cmake ninja-build pkg-config
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
