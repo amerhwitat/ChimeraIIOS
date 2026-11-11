@@ -2,9 +2,9 @@
   "schema": "CHM-COMMAND-RUNTIME-CAPABILITIES-1",
   "policy": "Catalog presence does not mean a binary or implementation exists. Native entries are backed by src/chimera-command-compat/chimera-cmd.c; all other external commands require the named runtime/provider.",
   "native_binary": "rootfs/usr/bin/chimera-cmd",
-  "command_count": 4141,
+  "command_count": 4143,
   "mode_counts": {
-    "compatibility-provider-required": 3902,
+    "compatibility-provider-required": 3904,
     "native": 15,
     "native-provider-required": 171,
     "shell-builtin": 53
@@ -36666,6 +36666,18 @@
       ]
     },
     {
+      "name": "Ports.jpg",
+      "platforms": [
+        "tools"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "platform-runtime-not-selected",
+      "arabic_label": "أمر نظام — Ports.jpg",
+      "source_urls": [
+        "https://ss64.com/tools/ports.jpg"
+      ]
+    },
+    {
       "name": "português",
       "platforms": [
         "gnu_linux"
@@ -51358,6 +51370,18 @@
       "arabic_label": "أمر نظام — Xorriso",
       "source_urls": [
         "https://www.gnu.org/software/xorriso/man_1_xorriso.html"
+      ]
+    },
+    {
+      "name": "xprotect",
+      "platforms": [
+        "macos"
+      ],
+      "mode": "compatibility-provider-required",
+      "provider": "darwin-or-posix-provider",
+      "arabic_label": "أمر نظام — xprotect",
+      "source_urls": [
+        "https://ss64.com/mac/xprotect.html"
       ]
     },
     {
