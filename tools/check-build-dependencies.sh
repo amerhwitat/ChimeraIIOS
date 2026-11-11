@@ -47,6 +47,17 @@ declare -A COMMAND_PACKAGE=(
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
 )
 
+# Development packages needed by source-built Aurora terminals. Verify these
+# independently of command presence: pkg-config/cmake can exist while cairo's
+# headers and cairo.pc are absent, which otherwise fails Contour's text_shaper.
+declare -a REQUIRED_PACKAGES=(
+  libcairo2-dev libwayland-dev libx11-dev libx11-xcb-dev libxcb1-dev
+  libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev
+  libfreetype6-dev libfontconfig1-dev libegl1-mesa-dev libgles2-mesa-dev
+  libgl1-mesa-dev libharfbuzz-dev libicu-dev libdbus-1-dev libpulse-dev
+  libssl-dev libsystemd-dev zlib1g-dev
+)
+
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ rustc cargo make cmake ninja-build pkg-config
@@ -75,15 +86,438 @@ for c in "${REQUIRED_COMMANDS[@]}"; do
   command -v "$c" >/dev/null 2>&1 || missing+=("$c")
 done
 
+missing_packages=()
+if command -v dpkg-query >/dev/null 2>&1; then
+  for p in "${REQUIRED_PACKAGES[@]}"; do
+    dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q '^install ok installed
+
+  apt_prefix=()
+  if [[ "$(id -u)" -ne 0 ]]; then
+    command -v sudo >/dev/null 2>&1 || die "sudo is required for automatic dependency installation."
+    apt_prefix=(sudo)
+  fi
+
+  say DEPS "Refreshing APT indexes and installing the complete build dependency set."
+  for attempt in $(seq 1 "$APT_RETRY"); do
+    if "${apt_prefix[@]}" apt-get update; then break; fi
+    [[ "$attempt" -lt "$APT_RETRY" ]] || die "apt-get update failed after $APT_RETRY attempts."
+    sleep 2
+  done
+  "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${BUILD_PACKAGES[@]}"
+
+  missing=()
+  for c in "${REQUIRED_COMMANDS[@]}"; do
+    command -v "$c" >/dev/null 2>&1 || missing+=("$c")
+  done
+  missing_packages=()
+  for p in "${REQUIRED_PACKAGES[@]}"; do
+    dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q '^install ok installed
+
+install_optional_toolchains() {
+  [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]] || return 0
+
+  say DEPS "Installing optional application toolchains and compatibility runtimes."
+  if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
+    say DEPS "Non-Debian host detected; optional toolchain auto-install is skipped."
+    return 0
+  fi
+
+  local apt_prefix=()
+  [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+  "${apt_prefix[@]}" apt-get update -qq || {
+    echo "[WARN] Optional toolchain APT refresh failed; continuing." >&2
+    return 0
+  }
+
+  apt_install_candidates() {
+    local command_name="$1"; shift
+    command -v "$command_name" >/dev/null 2>&1 && return 0
+    local candidates=("$@") available=() p
+    for p in "${candidates[@]}"; do
+      apt-cache show "$p" >/dev/null 2>&1 && available+=("$p")
+    done
+    if (( ${#available[@]} == 0 )); then
+      echo "[WARN] No APT package candidate available for $command_name: ${candidates[*]}" >&2
+      return 0
+    fi
+    echo "[DEPS] Installing $command_name from: ${available[*]}"
+    "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${available[@]}" ||
+      echo "[WARN] Could not install optional $command_name; continuing." >&2
+  }
+
+  apt_install_candidates javac openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates java openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates rustc rustc
+  apt_install_candidates cargo cargo
+  apt_install_candidates node nodejs
+  apt_install_candidates npm npm
+  apt_install_candidates dotnet dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
+
+  local optional_missing=() c
+  for c in javac java rustc cargo node npm dotnet; do
+    command -v "$c" >/dev/null 2>&1 || optional_missing+=("$c")
+  done
+  if (( ${#optional_missing[@]} > 0 )); then
+    echo "[INFO] Optional toolchains still unavailable after installation: ${optional_missing[*]}"
+    echo "[INFO] The ISO build remains allowed to continue; affected applications will be marked unavailable."
+  else
+    say DEPS "All optional application toolchains are installed and discoverable."
+  fi
+}
+say DEPS "Mandatory dependency verification passed."
+if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
+  if command -v apt-get >/dev/null 2>&1 && [[ -f /etc/debian_version ]]; then
+    apt_prefix=()
+    [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+    optional_available=()
+    for p in "${OPTIONAL_PACKAGES[@]}"; do
+      if apt-cache show "$p" >/dev/null 2>&1; then
+        optional_available+=("$p")
+      else
+        echo "[INFO] Optional package unavailable in configured repositories: $p"
+      fi
+    done
+    if (( ${#optional_available[@]} > 0 )); then
+      # Avoid one large optional transaction: Ubuntu HWE and non-HWE QEMU
+      # providers can conflict. Install optional packages independently.
+      for p in "${optional_available[@]}"; do
+        case "$p" in
+          qemu-user-static|qemu-user-binfmt|qemu-user-binfmt-hwe)
+            echo "[INFO] Skipping conflicting QEMU user-mode provider: $p"
+            continue ;;
+        esac
+        if "${apt_prefix[@]}" apt-get install -y --no-install-recommends "$p"; then
+          echo "[DEPS] installed optional: $p"
+        else
+          echo "[WARN] Optional package failed and was skipped: $p" >&2
+        fi
+      done
+    fi
+  fi
+fi
+
+install_optional_toolchains
+
+# Validate the repository scripts that are part of the ISO pipeline.
+declare -a PIPELINE_SCRIPTS=(
+  tools/build-network-toolkit.sh tools/build-toolchain-bundle.sh
+  tools/fetch-driver-payloads.sh tools/build-koronos-targets.sh
+  tools/fetch-foreign-runtimes.sh tools/build-compatibility-binaries.sh
+  tools/build-mobile-edition.sh tools/build-desktop-binaries.sh
+  tools/build-live-boot-binaries.sh boot/iso/build-iso.sh
+)
+for f in "${PIPELINE_SCRIPTS[@]}"; do
+  [[ -f "$ROOT/$f" ]] || die "Required pipeline script is missing: $f"
+  [[ -x "$ROOT/$f" ]] || chmod +x "$ROOT/$f"
+done
+
+# Verify the Python tooling used by the build without downloading arbitrary packages.
+python3 - <<'PY'
+import importlib.util
+mods = ["json", "pathlib", "subprocess", "hashlib"]
+missing = [m for m in mods if importlib.util.find_spec(m) is None]
+if missing:
+    raise SystemExit("Missing Python stdlib modules: " + ", ".join(missing))
+print("[DEPS] Python build runtime verified.")
+PY
+
+say DEPS "Dependency preflight complete."
+ || missing_packages+=("$p")
+  done
+else
+  missing_packages=("${REQUIRED_PACKAGES[@]}")
+fi
+if ! pkg-config --exists cairo 2>/dev/null; then
+  missing_packages+=(cairo-pkg-config-metadata)
+fi
+
 if (( ${#missing[@]} == 0 )); then
   say DEPS "All mandatory ISO build commands are installed."
 else
   say DEPS "Missing mandatory commands: ${missing[*]}"
 fi
+if (( ${#missing_packages[@]} == 0 )); then
+  say DEPS "Aurora terminal development packages (including cairo.pc) are installed."
+else
+  say DEPS "Missing terminal development packages: ${missing_packages[*]}"
+fi
 
-if (( ${#missing[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
+if (( ${#missing[@]} > 0 || ${#missing_packages[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
   if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
-    die "Automatic installation currently supports Debian/Ubuntu hosts. Missing: ${missing[*]}"
+    die "Automatic dependency installation supports Debian/Ubuntu hosts. Missing commands: ${missing[*]:-none}; missing packages: ${missing_packages[*]:-none}"
+  fi
+
+  apt_prefix=()
+  if [[ "$(id -u)" -ne 0 ]]; then
+    command -v sudo >/dev/null 2>&1 || die "sudo is required for automatic dependency installation."
+    apt_prefix=(sudo)
+  fi
+
+  say DEPS "Refreshing APT indexes and installing the complete build dependency set."
+  for attempt in $(seq 1 "$APT_RETRY"); do
+    if "${apt_prefix[@]}" apt-get update; then break; fi
+    [[ "$attempt" -lt "$APT_RETRY" ]] || die "apt-get update failed after $APT_RETRY attempts."
+    sleep 2
+  done
+  "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${BUILD_PACKAGES[@]}"
+
+  missing=()
+  for c in "${REQUIRED_COMMANDS[@]}"; do
+    command -v "$c" >/dev/null 2>&1 || missing+=("$c")
+  done
+fi
+
+(( ${#missing[@]} == 0 )) || die "Mandatory dependencies remain missing: ${missing[*]}"
+
+install_optional_toolchains() {
+  [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]] || return 0
+
+  say DEPS "Installing optional application toolchains and compatibility runtimes."
+  if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
+    say DEPS "Non-Debian host detected; optional toolchain auto-install is skipped."
+    return 0
+  fi
+
+  local apt_prefix=()
+  [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+  "${apt_prefix[@]}" apt-get update -qq || {
+    echo "[WARN] Optional toolchain APT refresh failed; continuing." >&2
+    return 0
+  }
+
+  apt_install_candidates() {
+    local command_name="$1"; shift
+    command -v "$command_name" >/dev/null 2>&1 && return 0
+    local candidates=("$@") available=() p
+    for p in "${candidates[@]}"; do
+      apt-cache show "$p" >/dev/null 2>&1 && available+=("$p")
+    done
+    if (( ${#available[@]} == 0 )); then
+      echo "[WARN] No APT package candidate available for $command_name: ${candidates[*]}" >&2
+      return 0
+    fi
+    echo "[DEPS] Installing $command_name from: ${available[*]}"
+    "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${available[@]}" ||
+      echo "[WARN] Could not install optional $command_name; continuing." >&2
+  }
+
+  apt_install_candidates javac openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates java openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates rustc rustc
+  apt_install_candidates cargo cargo
+  apt_install_candidates node nodejs
+  apt_install_candidates npm npm
+  apt_install_candidates dotnet dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
+
+  local optional_missing=() c
+  for c in javac java rustc cargo node npm dotnet; do
+    command -v "$c" >/dev/null 2>&1 || optional_missing+=("$c")
+  done
+  if (( ${#optional_missing[@]} > 0 )); then
+    echo "[INFO] Optional toolchains still unavailable after installation: ${optional_missing[*]}"
+    echo "[INFO] The ISO build remains allowed to continue; affected applications will be marked unavailable."
+  else
+    say DEPS "All optional application toolchains are installed and discoverable."
+  fi
+}
+say DEPS "Mandatory dependency verification passed."
+if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
+  if command -v apt-get >/dev/null 2>&1 && [[ -f /etc/debian_version ]]; then
+    apt_prefix=()
+    [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+    optional_available=()
+    for p in "${OPTIONAL_PACKAGES[@]}"; do
+      if apt-cache show "$p" >/dev/null 2>&1; then
+        optional_available+=("$p")
+      else
+        echo "[INFO] Optional package unavailable in configured repositories: $p"
+      fi
+    done
+    if (( ${#optional_available[@]} > 0 )); then
+      # Avoid one large optional transaction: Ubuntu HWE and non-HWE QEMU
+      # providers can conflict. Install optional packages independently.
+      for p in "${optional_available[@]}"; do
+        case "$p" in
+          qemu-user-static|qemu-user-binfmt|qemu-user-binfmt-hwe)
+            echo "[INFO] Skipping conflicting QEMU user-mode provider: $p"
+            continue ;;
+        esac
+        if "${apt_prefix[@]}" apt-get install -y --no-install-recommends "$p"; then
+          echo "[DEPS] installed optional: $p"
+        else
+          echo "[WARN] Optional package failed and was skipped: $p" >&2
+        fi
+      done
+    fi
+  fi
+fi
+
+install_optional_toolchains
+
+# Validate the repository scripts that are part of the ISO pipeline.
+declare -a PIPELINE_SCRIPTS=(
+  tools/build-network-toolkit.sh tools/build-toolchain-bundle.sh
+  tools/fetch-driver-payloads.sh tools/build-koronos-targets.sh
+  tools/fetch-foreign-runtimes.sh tools/build-compatibility-binaries.sh
+  tools/build-mobile-edition.sh tools/build-desktop-binaries.sh
+  tools/build-live-boot-binaries.sh boot/iso/build-iso.sh
+)
+for f in "${PIPELINE_SCRIPTS[@]}"; do
+  [[ -f "$ROOT/$f" ]] || die "Required pipeline script is missing: $f"
+  [[ -x "$ROOT/$f" ]] || chmod +x "$ROOT/$f"
+done
+
+# Verify the Python tooling used by the build without downloading arbitrary packages.
+python3 - <<'PY'
+import importlib.util
+mods = ["json", "pathlib", "subprocess", "hashlib"]
+missing = [m for m in mods if importlib.util.find_spec(m) is None]
+if missing:
+    raise SystemExit("Missing Python stdlib modules: " + ", ".join(missing))
+print("[DEPS] Python build runtime verified.")
+PY
+
+say DEPS "Dependency preflight complete."
+ || missing_packages+=("$p")
+  done
+  pkg-config --exists cairo 2>/dev/null || missing_packages+=(cairo-pkg-config-metadata)
+fi
+
+(( ${#missing[@]} == 0 )) || die "Mandatory commands remain missing: ${missing[*]}"
+(( ${#missing_packages[@]} == 0 )) || die "Terminal development packages remain missing (Contour needs cairo.pc): ${missing_packages[*]}"
+
+install_optional_toolchains() {
+  [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]] || return 0
+
+  say DEPS "Installing optional application toolchains and compatibility runtimes."
+  if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
+    say DEPS "Non-Debian host detected; optional toolchain auto-install is skipped."
+    return 0
+  fi
+
+  local apt_prefix=()
+  [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+  "${apt_prefix[@]}" apt-get update -qq || {
+    echo "[WARN] Optional toolchain APT refresh failed; continuing." >&2
+    return 0
+  }
+
+  apt_install_candidates() {
+    local command_name="$1"; shift
+    command -v "$command_name" >/dev/null 2>&1 && return 0
+    local candidates=("$@") available=() p
+    for p in "${candidates[@]}"; do
+      apt-cache show "$p" >/dev/null 2>&1 && available+=("$p")
+    done
+    if (( ${#available[@]} == 0 )); then
+      echo "[WARN] No APT package candidate available for $command_name: ${candidates[*]}" >&2
+      return 0
+    fi
+    echo "[DEPS] Installing $command_name from: ${available[*]}"
+    "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${available[@]}" ||
+      echo "[WARN] Could not install optional $command_name; continuing." >&2
+  }
+
+  apt_install_candidates javac openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates java openjdk-21-jdk default-jdk openjdk-17-jdk
+  apt_install_candidates rustc rustc
+  apt_install_candidates cargo cargo
+  apt_install_candidates node nodejs
+  apt_install_candidates npm npm
+  apt_install_candidates dotnet dotnet-sdk-10.0 dotnet-sdk-9.0 dotnet-sdk-8.0
+
+  local optional_missing=() c
+  for c in javac java rustc cargo node npm dotnet; do
+    command -v "$c" >/dev/null 2>&1 || optional_missing+=("$c")
+  done
+  if (( ${#optional_missing[@]} > 0 )); then
+    echo "[INFO] Optional toolchains still unavailable after installation: ${optional_missing[*]}"
+    echo "[INFO] The ISO build remains allowed to continue; affected applications will be marked unavailable."
+  else
+    say DEPS "All optional application toolchains are installed and discoverable."
+  fi
+}
+say DEPS "Mandatory dependency verification passed."
+if [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]]; then
+  if command -v apt-get >/dev/null 2>&1 && [[ -f /etc/debian_version ]]; then
+    apt_prefix=()
+    [[ "$(id -u)" -eq 0 ]] || apt_prefix=(sudo)
+    optional_available=()
+    for p in "${OPTIONAL_PACKAGES[@]}"; do
+      if apt-cache show "$p" >/dev/null 2>&1; then
+        optional_available+=("$p")
+      else
+        echo "[INFO] Optional package unavailable in configured repositories: $p"
+      fi
+    done
+    if (( ${#optional_available[@]} > 0 )); then
+      # Avoid one large optional transaction: Ubuntu HWE and non-HWE QEMU
+      # providers can conflict. Install optional packages independently.
+      for p in "${optional_available[@]}"; do
+        case "$p" in
+          qemu-user-static|qemu-user-binfmt|qemu-user-binfmt-hwe)
+            echo "[INFO] Skipping conflicting QEMU user-mode provider: $p"
+            continue ;;
+        esac
+        if "${apt_prefix[@]}" apt-get install -y --no-install-recommends "$p"; then
+          echo "[DEPS] installed optional: $p"
+        else
+          echo "[WARN] Optional package failed and was skipped: $p" >&2
+        fi
+      done
+    fi
+  fi
+fi
+
+install_optional_toolchains
+
+# Validate the repository scripts that are part of the ISO pipeline.
+declare -a PIPELINE_SCRIPTS=(
+  tools/build-network-toolkit.sh tools/build-toolchain-bundle.sh
+  tools/fetch-driver-payloads.sh tools/build-koronos-targets.sh
+  tools/fetch-foreign-runtimes.sh tools/build-compatibility-binaries.sh
+  tools/build-mobile-edition.sh tools/build-desktop-binaries.sh
+  tools/build-live-boot-binaries.sh boot/iso/build-iso.sh
+)
+for f in "${PIPELINE_SCRIPTS[@]}"; do
+  [[ -f "$ROOT/$f" ]] || die "Required pipeline script is missing: $f"
+  [[ -x "$ROOT/$f" ]] || chmod +x "$ROOT/$f"
+done
+
+# Verify the Python tooling used by the build without downloading arbitrary packages.
+python3 - <<'PY'
+import importlib.util
+mods = ["json", "pathlib", "subprocess", "hashlib"]
+missing = [m for m in mods if importlib.util.find_spec(m) is None]
+if missing:
+    raise SystemExit("Missing Python stdlib modules: " + ", ".join(missing))
+print("[DEPS] Python build runtime verified.")
+PY
+
+say DEPS "Dependency preflight complete."
+ || missing_packages+=("$p")
+  done
+else
+  missing_packages=("${REQUIRED_PACKAGES[@]}")
+fi
+if ! pkg-config --exists cairo 2>/dev/null; then
+  missing_packages+=(cairo-pkg-config-metadata)
+fi
+
+if (( ${#missing[@]} == 0 )); then
+  say DEPS "All mandatory ISO build commands are installed."
+else
+  say DEPS "Missing mandatory commands: ${missing[*]}"
+fi
+if (( ${#missing_packages[@]} == 0 )); then
+  say DEPS "Aurora terminal development packages (including cairo.pc) are installed."
+else
+  say DEPS "Missing terminal development packages: ${missing_packages[*]}"
+fi
+
+if (( ${#missing[@]} > 0 || ${#missing_packages[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
+  if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
+    die "Automatic dependency installation supports Debian/Ubuntu hosts. Missing commands: ${missing[*]:-none}; missing packages: ${missing_packages[*]:-none}"
   fi
 
   apt_prefix=()
