@@ -156,15 +156,55 @@ jobs:
 
       - name: QEMU headless Koronos boot smoke test
         run: |
+          monitor=/tmp/chimera-qemu-monitor.sock
+          rm -f "$monitor" /tmp/chimera-qemu-debugcon.log /tmp/chimera-qemu.log
           set +e
           timeout 20s qemu-system-x86_64 \
             -machine pc -m 1024 -smp 1 -accel tcg \
-            -display none -serial none -monitor none \
+            -display none -serial none -monitor "unix:$monitor,server=on,wait=off" \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
-            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1
+            -global isa-debugcon.iobase=0xe9 >/tmp/chimera-qemu.log 2>&1 &
+          qemu_pid=$!
+          set -e
+          trap 'kill "$qemu_pid" 2>/dev/null || true' EXIT
+          python3 - "$monitor" /tmp/chimera-qemu-debugcon.log <<'PY'
+          import socket, sys, time
+          monitor, trace = sys.argv[1:3]
+          deadline = time.monotonic() + 8.0
+          while True:
+              connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+              try:
+                  connection.connect(monitor)
+                  break
+              except OSError:
+                  connection.close()
+                  if time.monotonic() >= deadline:
+                      raise SystemExit("QEMU monitor socket did not become ready")
+                  time.sleep(0.05)
+          connection.settimeout(1.0)
+          try:
+              connection.recv(4096)
+          except OSError:
+              pass
+          time.sleep(3.0)
+          try:
+              with open(trace, "r", encoding="latin1") as stream:
+                  before_selection = stream.read()
+          except FileNotFoundError:
+              before_selection = ""
+          if "ELBC" in before_selection:
+              raise SystemExit("Koronos booted before explicit GRUB menu selection")
+          connection.sendall(b"sendkey ret\\n")
+          time.sleep(0.1)
+          connection.close()
+          print("Sent explicit Enter selection to the visible GRUB menu")
+          PY
+          set +e
+          wait "$qemu_pid"
           qemu_rc=$?
           set -e
+          trap - EXIT
           cat /tmp/chimera-qemu.log
           if [ -f /tmp/chimera-qemu-debugcon.log ]; then
             python3 - <<'PY'
