@@ -98,7 +98,7 @@ for target in live installer recovery; do
   cp -f "$target_elf" "$TARGETS_OUT/"
 done
 for target in live installer recovery; do
-  grep -q "target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_ROOT/grub.cfg" || {
+  grep -q "target-init-$target.elf chimera-user-init-elf target=$target firmware=\$grub_platform" "$ISO_ROOT/grub.cfg" || {
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
 
