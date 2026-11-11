@@ -99,6 +99,12 @@
         "id": "winui-modern",
         "display": "Windows App SDK / WinUI",
         "model": "modern-fluent"
+      },
+      {
+        "id": "windows-12-inspired",
+        "display": "Windows 12-inspired",
+        "model": "fluent-centered-start-widgets-snap",
+        "status": "design-reference-only"
       }
     ],
     "macos": [
@@ -137,6 +143,29 @@
           "taskbar",
           "DOSBox launch action",
           "shared semantic SVG icons"
+        ]
+      },
+      {
+        "id": "freewin11",
+        "display": "FreeWin11 Modern",
+        "inherits": [
+          "windows-11",
+          "windows-12-inspired",
+          "freexp"
+        ],
+        "protocols": [
+          "X11"
+        ],
+        "model": "modern-centered-taskbar-widgets-snap",
+        "status": "native-shell-preview",
+        "features": [
+          "Centered taskbar and Start menu",
+          "Search entry",
+          "Widgets surface",
+          "Quick settings panel",
+          "File Explorer-style window",
+          "DOS compatibility launcher",
+          "Shared semantic SVG icons"
         ]
       },
       {
