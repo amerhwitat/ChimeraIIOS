@@ -91,14 +91,24 @@ source_build(){
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
+    alacritty)
+      have cargo || { log "Alacritty source build requires cargo; install the Rust toolchain or stage a verified target-rootfs package"; return 1; }
+      have rustc || { log "Alacritty source build requires rustc; install the Rust toolchain or stage a verified target-rootfs package"; return 1; }
+      log "Building Alacritty with $(rustc --version) / $(cargo --version)"
+      (cd "$src" && cargo build --release)
+      install -m 0755 "$src/target/release/alacritty" "$PREFIX/bin/alacritty"
+      ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
-    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
+    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
-      have python3 || return 1
+      have python3 || { log "Python 3 is required for Ghostty's pinned Zig toolchain"; return 1; }
       local zigver venv
+      if [[ ! -s "$src/.zig-version" ]]; then
+        log "Ghostty checkout has no non-empty .zig-version; skipping source build and requiring a verified target package"
+        return 1
+      fi
       zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
-      [[ -n "$zigver" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
+      [[ -n "$zigver" ]] || { log "Ghostty .zig-version is empty; skipping source build"; return 1; }
       venv="$CACHE/zig-venv"
       python3 -m venv "$venv"
       "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
