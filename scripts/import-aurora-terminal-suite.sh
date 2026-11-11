@@ -21,9 +21,15 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="${CHIMERA_ROOTFS_DIR:-${ROOT}/build/iso/rootfs}"
 PREFIX="${DEST}/usr"
-CACHE="${CHIMERA_TERMINAL_CACHE:-${ROOT}/build/terminal-cache}"
+CACHE="${CHIMERA_TERMINAL_CACHE:-/var/tmp/chimera-terminal-cache-${UID:-$(id -u)}}"
 MODE="${CHIMERA_TERMINAL_MODE:-source-first}"
 mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/applications" "$CACHE"
+# Rust/CMake compilation must not put high-churn build artifacts on WSL DrvFs (/mnt/c, /mnt/e).
+# Keep an explicit override for CI, but reject known Windows-mounted filesystems.
+cache_fstype="$(findmnt -T "$CACHE" -n -o FSTYPE 2>/dev/null || stat -f -c %T "$CACHE" 2>/dev/null || true)"
+case "$cache_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) log "Terminal cache is on a Windows-mounted filesystem ($cache_fstype): $CACHE"; exit 2;; esac
+CARGO_BUILD_JOBS="${CHIMERA_CARGO_BUILD_JOBS:-2}"
+[[ "$CARGO_BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { log "CHIMERA_CARGO_BUILD_JOBS must be a positive integer"; exit 2; }
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
@@ -88,7 +94,7 @@ require_native_build_arch() {
 install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
 source_build(){
   require_native_build_arch || return 1;
-  local id="$1" url="$2"; local src="$CACHE/src-$id"
+  local id="$1" url="$2"; local src="$CACHE/src-$id"; local cargo_target="$CACHE/cargo-target-$id"
   if [[ ! -d "$src/.git" ]]; then
     rm -rf "$src"
     if [[ "$id" == "alacritty" ]]; then
@@ -104,11 +110,11 @@ source_build(){
   case "$id" in
     alacritty)
       have cargo || { log "Cargo is required for the pinned Alacritty source build"; return 1; }
-      (cd "$src" && cargo build --release --locked)
-      install -m 0755 "$src/target/release/alacritty" "$PREFIX/bin/alacritty"
+      (cd "$src" && CARGO_TARGET_DIR="$cargo_target" CARGO_BUILD_JOBS="$CARGO_BUILD_JOBS" cargo build --release --locked)
+      install -m 0755 "$cargo_target/release/alacritty" "$PREFIX/bin/alacritty"
       ;;
-    wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
-    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
+    wezterm) (cd "$src" && CARGO_TARGET_DIR="$cargo_target" CARGO_BUILD_JOBS="$CARGO_BUILD_JOBS" cargo build --release --bin wezterm-gui); install -m 0755 "$cargo_target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
+    contour) rm -rf "$src/build"; (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build --parallel "$CARGO_BUILD_JOBS"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
       have python3 || return 1
       local zigver venv
@@ -127,7 +133,7 @@ source_build(){
     dash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/src/dash" "$PREFIX/bin/" ;;
     mksh) (cd "$src" && sh Build.sh -r -j"$(nproc)"); find "$src" -type f -name mksh -perm -111 -exec cp {} "$PREFIX/bin/mksh" \; -quit ;;
     elvish) (cd "$src" && go build -o "$PREFIX/bin/elvish" ./cmd/elvish);;
-    nushell) (cd "$src" && cargo build --release --bin nu); cp "$src/target/release/nu" "$PREFIX/bin/" ;;
+    nushell) (cd "$src" && CARGO_TARGET_DIR="$cargo_target" CARGO_BUILD_JOBS="$CARGO_BUILD_JOBS" cargo build --release --bin nu); cp "$cargo_target/release/nu" "$PREFIX/bin/" ;;
     *) return 1;;
   esac
   local built
