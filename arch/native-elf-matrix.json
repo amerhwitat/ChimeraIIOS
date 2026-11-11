@@ -1,0 +1,216 @@
+{
+  "schema": "chimera-native-elf-matrix-v1",
+  "policy": {
+    "release_mode": "fail-closed",
+    "boot_selection": "firmware-mode-and-CPU-architecture-are-independent",
+    "rule": "select only an image whose ELF e_machine, class, byte order, ABI and required CPU features match the detected execution environment; never execute a mismatched ELF or silently fall back to emulation",
+    "firmware_architecture_source": "The BIOS/UEFI mode selects the firmware entry path; it does not by itself identify the CPU ISA. The bootloader must use its compiled target and a validated CPUID/device-tree/firmware architecture source.",
+    "unsupported_architecture": "halt-with-diagnostic"
+  },
+  "architecture_targets": [
+    {
+      "id": "x86_64",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 62,
+      "isa_family": "CISC",
+      "status": "current-repository-build-target",
+      "execution_claim": "buildable-target-only; production userspace acceptance separately required",
+      "firmware": [
+        "bios",
+        "uefi"
+      ]
+    },
+    {
+      "id": "i386",
+      "elf_class": 32,
+      "endianness": "little",
+      "elf_machine": 3,
+      "isa_family": "CISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "bios",
+        "uefi-ia32-only"
+      ]
+    },
+    {
+      "id": "aarch64",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 183,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "uefi-aa64"
+      ]
+    },
+    {
+      "id": "armv7",
+      "elf_class": 32,
+      "endianness": "little",
+      "elf_machine": 40,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "uefi-arm32-where-supported"
+      ]
+    },
+    {
+      "id": "riscv64",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 243,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "uefi-riscv64-where-supported"
+      ]
+    },
+    {
+      "id": "riscv32",
+      "elf_class": 32,
+      "endianness": "little",
+      "elf_machine": 243,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "ppc64le",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 21,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "openpower-platform-specific"
+      ]
+    },
+    {
+      "id": "ppc64",
+      "elf_class": 64,
+      "endianness": "big",
+      "elf_machine": 21,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "openpower-platform-specific"
+      ]
+    },
+    {
+      "id": "s390x",
+      "elf_class": 64,
+      "endianness": "big",
+      "elf_machine": 22,
+      "isa_family": "CISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "s390-platform-specific"
+      ]
+    },
+    {
+      "id": "mips32",
+      "elf_class": 32,
+      "endianness": "little",
+      "elf_machine": 8,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "mips64",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 8,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "sparc64",
+      "elf_class": 64,
+      "endianness": "big",
+      "elf_machine": 43,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "m68k",
+      "elf_class": 32,
+      "endianness": "big",
+      "elf_machine": 4,
+      "isa_family": "CISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "loongarch64",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 258,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "uefi-loongarch64-where-supported"
+      ]
+    },
+    {
+      "id": "sh4",
+      "elf_class": 32,
+      "endianness": "little",
+      "elf_machine": 42,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "alpha",
+      "elf_class": 64,
+      "endianness": "little",
+      "elf_machine": 36902,
+      "isa_family": "RISC",
+      "status": "port-required",
+      "execution_claim": "not-implemented-or-accepted",
+      "firmware": [
+        "platform-specific"
+      ]
+    },
+    {
+      "id": "wasm32",
+      "elf_class": 32,
+      "endianness": "little",
+      "elf_machine": 0,
+      "isa_family": "virtual-ISA-not-CPU",
+      "status": "not-a-native-CPU-target",
+      "execution_claim": "requires-WASM-runtime-not-native-kernel-entry",
+      "firmware": []
+    }
+  ]
+}

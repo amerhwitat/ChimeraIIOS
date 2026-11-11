@@ -6,6 +6,10 @@ on:
     paths:
       - 'boot/**'
       - 'kernel/**'
+      - 'arch/**'
+      - 'scripts/arch/**'
+      - 'tests/arch/**'
+      - 'docs/native-elf-multiarch.md'
       - 'installer/**'
       - 'desktop/aurora/assets/**'
       - 'tools/branding/**'
@@ -25,6 +29,10 @@ on:
     paths:
       - 'boot/**'
       - 'kernel/**'
+      - 'arch/**'
+      - 'scripts/arch/**'
+      - 'tests/arch/**'
+      - 'docs/native-elf-multiarch.md'
       - 'installer/**'
       - 'desktop/aurora/assets/**'
       - 'tools/branding/**'
@@ -50,6 +58,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate native ELF architecture matrix and fail-closed selection
+        run: |
+          python3 scripts/arch/verify_elf_matrix.py
+          python3 -m unittest discover -s tests/arch -p 'test_*.py' -v
       - name: Test fail-closed production service-lifecycle DAPS contract
         run: python3 scripts/daps/test_production_acceptance_gate.py
       - name: Install boot validation tools
