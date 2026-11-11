@@ -118,13 +118,20 @@ source_build(){
     ghostty)
       have python3 || return 1
       local zigver venv
-      [[ -f "$src/.zig-version" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
-      zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
-      [[ -n "$zigver" ]] || { log "Ghostty source has an empty .zig-version"; return 1; }
+      if [[ -f "$src/.zig-version" ]]; then
+        zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+      elif [[ -f "$src/build.zig.zon" ]]; then
+        # Current upstream exposes its required Zig release in build.zig.zon.
+        zigver="$(sed -nE 's/.*minimum_zig_version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "$src/build.zig.zon" | head -n 1)"
+      else
+        log "Ghostty source has neither .zig-version nor build.zig.zon"
+        return 1
+      fi
+      [[ -n "$zigver" ]] || { log "Could not determine Ghostty's required Zig version"; return 1; }
       venv="$CACHE/zig-venv"
       python3 -m venv "$venv"
       "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
-      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
+      (cd "$src" && ZIG_GLOBAL_CACHE_DIR="$CACHE/zig-global-cache" ZIG_LOCAL_CACHE_DIR="$CACHE/zig-local-cache-ghostty" "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast -Dcpu=baseline)
       cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
 
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
