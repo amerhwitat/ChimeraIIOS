@@ -195,7 +195,7 @@ jobs:
               before_selection = ""
           if "ELBC" in before_selection:
               raise SystemExit("Koronos booted before explicit GRUB menu selection")
-          connection.sendall(b"sendkey ret\\n")
+          connection.sendall(b"sendkey ret\n")
           time.sleep(0.1)
           connection.close()
           print("Sent explicit Enter selection to the visible GRUB menu")
