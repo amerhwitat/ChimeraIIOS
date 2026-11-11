@@ -14,6 +14,33 @@
     <keybind key="W-i">
       <action name="Execute" command="sh -lc 'command -v aurora-settings >/dev/null 2>&1 && aurora-settings || foot -e sh -lc \"echo Aurora Settings; exec bash\"'" />
     </keybind>
+    <keybind key="W-1">
+      <action name="GoToDesktop"><to>0</to></action>
+    </keybind>
+    <keybind key="W-S-1">
+      <action name="SendToDesktop"><to>0</to></action>
+    </keybind>
+    <keybind key="W-2">
+      <action name="GoToDesktop"><to>1</to></action>
+    </keybind>
+    <keybind key="W-S-2">
+      <action name="SendToDesktop"><to>1</to></action>
+    </keybind>
+    <keybind key="W-3">
+      <action name="GoToDesktop"><to>2</to></action>
+    </keybind>
+    <keybind key="W-S-3">
+      <action name="SendToDesktop"><to>2</to></action>
+    </keybind>
+    <keybind key="W-4">
+      <action name="GoToDesktop"><to>3</to></action>
+    </keybind>
+    <keybind key="W-S-4">
+      <action name="SendToDesktop"><to>3</to></action>
+    </keybind>
+    <keybind key="W-Tab">
+      <action name="GoToDesktop"><to>next</to></action>
+    </keybind>
     <keybind key="W-l">
       <action name="Execute" command="loginctl lock-session" />
     </keybind>
