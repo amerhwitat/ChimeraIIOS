@@ -37,8 +37,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dosfstools \
     mtools \
     \
-    # Build tools
+    # Build tools: the Aurora terminal stage compiles Contour with CMake
+    # (requires zlib headers) and Alacritty with the Rust toolchain.
     build-essential \
+    cmake \
+    ninja-build \
+    pkg-config \
+    rustc \
+    cargo \
+    zlib1g-dev \
+    libssl-dev \
+    libfontconfig1-dev \
+    libxcb-xfixes0-dev \
+    libxkbcommon-dev \
+    libfreetype6-dev \
     git \
     curl \
     wget \
