@@ -54,7 +54,7 @@ declare -a BUILD_PACKAGES=(
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
-  openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
+  openssl libssl-dev libsystemd-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
   libncurses-dev libboost-dev gawk sed grep coreutils findutils util-linux
 )
 
