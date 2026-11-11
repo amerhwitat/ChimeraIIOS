@@ -93,12 +93,13 @@ source_build(){
   case "$id" in
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
-    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
+    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
       have python3 || return 1
       local zigver venv
+      [[ -f "$src/.zig-version" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
       zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
-      [[ -n "$zigver" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
+      [[ -n "$zigver" ]] || { log "Ghostty source has an empty .zig-version"; return 1; }
       venv="$CACHE/zig-venv"
       python3 -m venv "$venv"
       "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
