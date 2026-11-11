@@ -54,3 +54,15 @@ def test_install_plan_is_explicitly_non_executing():
     assert plan["execute"] is False
     assert plan["requires_authorization"] is True
     assert plan["availability"] == "catalog-only"
+
+def test_runtime_support_manifest_matches_catalog_and_stays_fail_closed():
+    catalog = json.loads((ROOT / "catalog/apps.json").read_text(encoding="utf-8"))
+    manifest = json.loads((ROOT / "runtime-support-manifest.json").read_text(encoding="utf-8"))
+    assert [item["id"] for item in manifest["apps"]] == [item["id"] for item in catalog["apps"]]
+    assert all(item["native_package"]["available"] is False for item in manifest["apps"])
+    assert all(item["tests"]["native_launch"] == "not-run" for item in manifest["apps"])
+    assert all(item["lifecycle"]["install"] == "not-implemented" for item in manifest["apps"])
+    status = run_cli("runtime-status")
+    assert status.returncode == 0
+    assert "browser-prototype" in status.stdout
+    assert "not-run" in status.stdout
