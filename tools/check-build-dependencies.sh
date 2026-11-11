@@ -82,14 +82,35 @@ declare -a OPTIONAL_PACKAGES=(
 )
 
 missing=()
-for c in "${REQUIRED_COMMANDS[@]}"; do
+for c in "\${REQUIRED_COMMANDS[@]}"; do
   command -v "$c" >/dev/null 2>&1 || missing+=("$c")
 done
 
 missing_packages=()
 if command -v dpkg-query >/dev/null 2>&1; then
-  for p in "${REQUIRED_PACKAGES[@]}"; do
-    dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q '^install ok installed
+  for p in "\${REQUIRED_PACKAGES[@]}"; do
+    dpkg-query -s "$p" 2>/dev/null | grep -q "Status: install ok installed" || missing_packages+=("$p")
+  done
+else
+  missing_packages=("\${REQUIRED_PACKAGES[@]}")
+fi
+pkg-config --exists cairo 2>/dev/null || missing_packages+=(cairo-pkg-config-metadata)
+
+if (( \${#missing[@]} == 0 )); then
+  say DEPS "All mandatory ISO build commands are installed."
+else
+  say DEPS "Missing mandatory commands: \${missing[*]}"
+fi
+if (( \${#missing_packages[@]} == 0 )); then
+  say DEPS "Aurora terminal development packages (including cairo.pc) are installed."
+else
+  say DEPS "Missing terminal development packages: \${missing_packages[*]}"
+fi
+
+if (( \${#missing[@]} > 0 || \${#missing_packages[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
+  if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
+    die "Automatic dependency installation supports Debian/Ubuntu hosts. Missing commands: \${missing[*]:-none}; missing packages: \${missing_packages[*]:-none}"
+  fi
 
   apt_prefix=()
   if [[ "$(id -u)" -ne 0 ]]; then
@@ -99,19 +120,25 @@ if command -v dpkg-query >/dev/null 2>&1; then
 
   say DEPS "Refreshing APT indexes and installing the complete build dependency set."
   for attempt in $(seq 1 "$APT_RETRY"); do
-    if "${apt_prefix[@]}" apt-get update; then break; fi
+    if "\${apt_prefix[@]}" apt-get update; then break; fi
     [[ "$attempt" -lt "$APT_RETRY" ]] || die "apt-get update failed after $APT_RETRY attempts."
     sleep 2
   done
-  "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${BUILD_PACKAGES[@]}"
+  "\${apt_prefix[@]}" apt-get install -y --no-install-recommends "\${BUILD_PACKAGES[@]}"
 
   missing=()
-  for c in "${REQUIRED_COMMANDS[@]}"; do
+  for c in "\${REQUIRED_COMMANDS[@]}"; do
     command -v "$c" >/dev/null 2>&1 || missing+=("$c")
   done
   missing_packages=()
-  for p in "${REQUIRED_PACKAGES[@]}"; do
-    dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q '^install ok installed
+  for p in "\${REQUIRED_PACKAGES[@]}"; do
+    dpkg-query -s "$p" 2>/dev/null | grep -q "Status: install ok installed" || missing_packages+=("$p")
+  done
+  pkg-config --exists cairo 2>/dev/null || missing_packages+=(cairo-pkg-config-metadata)
+fi
+
+(( \${#missing[@]} == 0 )) || die "Mandatory commands remain missing: \${missing[*]}"
+(( \${#missing_packages[@]} == 0 )) || die "Terminal development packages remain missing (Contour needs cairo.pc): \${missing_packages[*]}"
 
 install_optional_toolchains() {
   [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]] || return 0
