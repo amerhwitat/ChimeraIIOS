@@ -12,6 +12,8 @@ on:
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
+      - "tools/check-build-dependencies.sh"
+      - "scripts/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
       - "build-chimera-iso.sh"
@@ -32,6 +34,8 @@ on:
       - "userland/**"
       - "iso/**"
       - "tools/build-full-iso.*"
+      - "tools/check-build-dependencies.sh"
+      - "scripts/**"
       - "sdk/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
@@ -69,6 +73,17 @@ jobs:
           bash -n boot/iso/build-iso.sh
           bash -n tools/build-live-boot-binaries.sh
           bash -n tools/chimera-stage-installer-media.sh
+          bash -n tools/check-build-dependencies.sh
+          bash -n scripts/import-aurora-terminal-suite.sh
+          python3 - <<'PY'
+          from pathlib import Path
+          terminal = Path("scripts/import-aurora-terminal-suite.sh").read_text()
+          deps = Path("tools/check-build-dependencies.sh").read_text()
+          assert "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" in terminal
+          assert 'if [[ ! -s "$src/.zig-version" ]]' in terminal
+          assert "rustc cargo" in deps
+          print("Aurora terminal build prerequisites and CMake policy compatibility verified.")
+          PY
 
       - name: Validate 14D neurovisual desktop model
         run: |
