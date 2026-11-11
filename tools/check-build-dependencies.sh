@@ -28,7 +28,7 @@ say(){ printf '\n[%s] %s\n' "$1" "$2"; }
 die(){ echo "[ERROR] $*" >&2; exit 2; }
 
 declare -a REQUIRED_COMMANDS=(
-  bash python3 cmake gcc g++ ld as make pkg-config git curl wget file rsync
+  bash python3 cmake gcc g++ rustc cargo ld as make pkg-config git curl wget file rsync
   cpio gzip xz tar busybox awk sed grep sha256sum numfmt stat find sort
   xorriso grub-mkrescue grub-file mcopy mformat grub-mkimage
   unsquashfs mksquashfs rsvg-convert nasm
@@ -47,14 +47,25 @@ declare -A COMMAND_PACKAGE=(
   [rsvg-convert]=librsvg2-bin [nasm]=nasm
 )
 
+# Development packages needed by source-built Aurora terminals. Verify these
+# independently of command presence: pkg-config/cmake can exist while cairo's
+# headers and cairo.pc are absent, which otherwise fails Contour's text_shaper.
+declare -a REQUIRED_PACKAGES=(
+  libcairo2-dev libwayland-dev libx11-dev libx11-xcb-dev libxcb1-dev
+  libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev
+  libfreetype6-dev libfontconfig1-dev libegl1-mesa-dev libgles2-mesa-dev
+  libgl1-mesa-dev libharfbuzz-dev libicu-dev libdbus-1-dev libpulse-dev
+  libssl-dev libsystemd-dev zlib1g-dev
+)
+
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
-  build-essential binutils gcc g++ make cmake ninja-build pkg-config
+  build-essential binutils gcc g++ rustc cargo make cmake ninja-build pkg-config
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
   squashfs-tools librsvg2-bin nasm
-  openssl libssl-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
+  openssl libssl-dev libsystemd-dev zlib1g-dev libffi-dev libreadline-dev libsqlite3-dev
   libncurses-dev libboost-dev gawk sed grep coreutils findutils util-linux
 )
 
@@ -72,15 +83,30 @@ for c in "${REQUIRED_COMMANDS[@]}"; do
   command -v "$c" >/dev/null 2>&1 || missing+=("$c")
 done
 
+missing_packages=()
+if command -v dpkg-query >/dev/null 2>&1; then
+  for p in "${REQUIRED_PACKAGES[@]}"; do
+    dpkg-query -s "$p" 2>/dev/null | grep -q 'Status: install ok installed' || missing_packages+=("$p")
+  done
+else
+  missing_packages=("${REQUIRED_PACKAGES[@]}")
+fi
+pkg-config --exists cairo 2>/dev/null || missing_packages+=(cairo-pkg-config-metadata)
+
 if (( ${#missing[@]} == 0 )); then
   say DEPS "All mandatory ISO build commands are installed."
 else
   say DEPS "Missing mandatory commands: ${missing[*]}"
 fi
+if (( ${#missing_packages[@]} == 0 )); then
+  say DEPS "Aurora terminal development packages (including cairo.pc) are installed."
+else
+  say DEPS "Missing terminal development packages: ${missing_packages[*]}"
+fi
 
-if (( ${#missing[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
+if (( ${#missing[@]} > 0 || ${#missing_packages[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
   if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
-    die "Automatic installation currently supports Debian/Ubuntu hosts. Missing: ${missing[*]}"
+    die "Automatic dependency installation supports Debian/Ubuntu hosts. Missing commands: ${missing[*]:-none}; missing packages: ${missing_packages[*]:-none}"
   fi
 
   apt_prefix=()
@@ -101,9 +127,15 @@ if (( ${#missing[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
   for c in "${REQUIRED_COMMANDS[@]}"; do
     command -v "$c" >/dev/null 2>&1 || missing+=("$c")
   done
+  missing_packages=()
+  for p in "${REQUIRED_PACKAGES[@]}"; do
+    dpkg-query -s "$p" 2>/dev/null | grep -q 'Status: install ok installed' || missing_packages+=("$p")
+  done
+  pkg-config --exists cairo 2>/dev/null || missing_packages+=(cairo-pkg-config-metadata)
 fi
 
-(( ${#missing[@]} == 0 )) || die "Mandatory dependencies remain missing: ${missing[*]}"
+(( ${#missing[@]} == 0 )) || die "Mandatory commands remain missing: ${missing[*]}"
+(( ${#missing_packages[@]} == 0 )) || die "Terminal development packages remain missing (Contour needs cairo.pc): ${missing_packages[*]}"
 
 install_optional_toolchains() {
   [[ "${CHIMERA_INSTALL_OPTIONAL_DEPS:-0}" == "1" ]] || return 0

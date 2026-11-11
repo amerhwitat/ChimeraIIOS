@@ -12,6 +12,8 @@ on:
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
+      - "tools/check-build-dependencies.sh"
+      - "scripts/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
       - "build-chimera-iso.sh"
@@ -32,6 +34,8 @@ on:
       - "userland/**"
       - "iso/**"
       - "tools/build-full-iso.*"
+      - "tools/check-build-dependencies.sh"
+      - "scripts/**"
       - "sdk/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
@@ -59,7 +63,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools squashfs-tools jq rsync qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl nodejs busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools squashfs-tools jq rsync qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl nodejs busybox-static cpio zstd rustc cargo zlib1g-dev libssl-dev libsystemd-dev libcairo2-dev libwayland-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libfreetype6-dev libfontconfig1-dev libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libharfbuzz-dev libicu-dev libdbus-1-dev libpulse-dev pkg-config
           python3 -m unittest discover -s tests/boot -p "test_full_iso_workflow_contract.py" -v
 
       - name: Validate build script syntax
@@ -69,6 +73,20 @@ jobs:
           bash -n boot/iso/build-iso.sh
           bash -n tools/build-live-boot-binaries.sh
           bash -n tools/chimera-stage-installer-media.sh
+          bash -n tools/check-build-dependencies.sh
+          bash -n scripts/import-aurora-terminal-suite.sh
+          python3 - <<'PY'
+          from pathlib import Path
+          terminal = Path("scripts/import-aurora-terminal-suite.sh").read_text()
+          deps = Path("tools/check-build-dependencies.sh").read_text()
+          iso_builder = Path("Dockerfile.iso-builder").read_text()
+          assert "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" in terminal
+          assert 'if [[ ! -s "$src/.zig-version" ]]' in terminal
+          assert "rustc cargo" in deps
+          for package in ("zlib1g-dev", "libsystemd-dev", "libcairo2-dev", "libwayland-dev", "rustc", "cargo", "libfontconfig1-dev", "libxkbcommon-dev"):
+              assert package in iso_builder, f"ISO builder is missing terminal build dependency: {package}"
+          print("Aurora terminal build prerequisites, zlib headers and CMake policy compatibility verified.")
+          PY
 
       - name: Validate 14D neurovisual desktop model
         run: |
