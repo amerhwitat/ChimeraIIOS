@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-11-11T07:26:00Z",
+  "generated_at_utc": "2026-11-11T10:16:54Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_posix_shells": {
@@ -55692,6 +55692,22 @@
           ]
         },
         {
+          "name": "October OS security update",
+          "platform": "windows",
+          "source": "https://learn.microsoft.com/azure/azure-local/security-update/security-update",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمان تحديث (October OS security update)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "أمان تحديث (October OS security update)",
+            "October OS security update",
+            "أمر October OS security update"
+          ]
+        },
+        {
           "name": "offline",
           "platform": "windows",
           "source": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/offline",
@@ -60684,7 +60700,7 @@
           ]
         }
       ],
-      "command_count": 902
+      "command_count": 903
     },
     "freebsd_unix": {
       "platform": "FreeBSD / Unix",
@@ -65687,7 +65703,7 @@
     "vbscript": {
       "index": "https://ss64.com/vb/",
       "pages_crawled": 80,
-      "fetch_failures": 0,
+      "fetch_failures": 1,
       "command_count": 221,
       "commands": [
         {

@@ -384,7 +384,7 @@
   "audio-drivers": "تعريفات_الصوت",
   "catalog_refresh": {
     "policy": "Only curated semantic aliases are executable. Untranslated online commands remain canonical and are labeled untranslated.",
-    "updated_utc": "2026-10-17T08:19:38.948234+00:00"
+    "updated_utc": "2026-11-11T10:15:40.830433+00:00"
   },
   "chimera-display": "إعداد_الشاشة",
   "chimera-driver-panel.py": "لوحة_التعريفات",

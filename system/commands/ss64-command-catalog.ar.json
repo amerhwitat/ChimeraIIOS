@@ -21872,6 +21872,14 @@
         "gnu_linux"
       ]
     },
+    "october os security update": {
+      "name": "October OS security update",
+      "label": "أمان تحديث (October OS security update)",
+      "translation_status": "token-translated",
+      "platforms": [
+        "windows"
+      ]
+    },
     "od": {
       "name": "od",
       "label": "أمر نظام — od",
