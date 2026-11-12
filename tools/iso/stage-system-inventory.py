@@ -103,7 +103,7 @@ def copy_tree(src: Path, dst: Path, root: Path, kind: str, records: list[dict]) 
                 target.symlink_to(link)
                 records.append({"kind": kind, "source": source.relative_to(root).as_posix(),
                                 "iso_path": "/" + target.relative_to(ISO_ROOT).as_posix(),
-                                "symlink": link})
+                                "bytes": 0, "sha256": None, "symlink": link})
             elif source.is_file():
                 copy_file(source, target, root, kind, records)
 
@@ -188,7 +188,7 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
     sums = iso / "boot/chimera/manifests/ISO-COMPONENT-SHA256SUMS"
-    sums.write_text("".join(f'{item["sha256"]}  {item["iso_path"].lstrip("/") }\n' for item in records), encoding="utf-8")
+    sums.write_text("".join(f'{item["sha256"]}  {item["iso_path"].lstrip("/") }\n' for item in records if item.get("sha256")), encoding="utf-8")
     print(f"[ISO-INVENTORY] {len(records)} files, {inventory['bytes']} bytes, kinds={inventory['kinds']}")
     print(f"[ISO-INVENTORY] missing generated directories (not fabricated): {', '.join(missing_generated)}")
     return 0
