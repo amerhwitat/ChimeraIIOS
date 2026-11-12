@@ -167,19 +167,24 @@ def build(t,p,pf):
     progress(100,"ready","Mobile ROM + ISO ready","ROM وISO المحمول جاهزان")
     return r
 
-a=argparse.ArgumentParser()
-a.add_argument("--detect",action="store_true"); a.add_argument("--usb-scan",action="store_true")
-a.add_argument("--ports",action="store_true"); a.add_argument("--build",action="store_true")
-a.add_argument("--discover-roms",action="store_true"); a.add_argument("--power-on",action="store_true")
-x=a.parse_args()
-if x.usb_scan or x.ports:
-    print(json.dumps(port_scan(),indent=2,ensure_ascii=False)); raise SystemExit(0)
-if x.detect:
-    print(json.dumps(detect(power_on=x.power_on),indent=2,ensure_ascii=False)); raise SystemExit(0)
-t=detect_android(power_on=x.power_on); p,pf=load(t)
-if x.discover_roms:
-    print(json.dumps({"target":t,"profile":p,"profile_file":str(pf),"rom_discovery":discover_roms(t,download=True)},indent=2,ensure_ascii=False))
-elif x.build:
-    print(json.dumps(build(t,p,pf),indent=2,ensure_ascii=False))
-else:
-    print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)},indent=2,ensure_ascii=False))
+def main():
+    a=argparse.ArgumentParser()
+    a.add_argument("--detect",action="store_true"); a.add_argument("--usb-scan",action="store_true")
+    a.add_argument("--ports",action="store_true"); a.add_argument("--build",action="store_true")
+    a.add_argument("--discover-roms",action="store_true"); a.add_argument("--power-on",action="store_true")
+    x=a.parse_args()
+    if x.usb_scan or x.ports:
+        print(json.dumps(port_scan(),indent=2,ensure_ascii=False)); raise SystemExit(0)
+    if x.detect:
+        print(json.dumps(detect(power_on=x.power_on),indent=2,ensure_ascii=False)); raise SystemExit(0)
+    t=detect_android(power_on=x.power_on); p,pf=load(t)
+    if x.discover_roms:
+        print(json.dumps({"target":t,"profile":p,"profile_file":str(pf),"rom_discovery":discover_roms(t,download=True)},indent=2,ensure_ascii=False))
+    elif x.build:
+        print(json.dumps(build(t,p,pf),indent=2,ensure_ascii=False))
+    else:
+        print(json.dumps({"target":t,"profile":p,"profile_file":str(pf)},indent=2,ensure_ascii=False))
+    
+
+if __name__ == "__main__":
+    main()
