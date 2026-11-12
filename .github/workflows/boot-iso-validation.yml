@@ -31,6 +31,7 @@ on:
       - 'tests/boot/**'
       - 'build-chimera-iso.sh'
       - 'tests/build/**'
+      - 'tools/boot/**'
       - 'tools/catalogs/**'
       - 'data/isa/online-source-catalog.json'
       - 'isa/isa_database.json'
@@ -140,6 +141,25 @@ jobs:
       - name: Build Koronos and Spit Fire artifacts
         run: |
           bash kernel/build-koronos.sh
+          mkdir -p build/target-manifests
+          for target in live installer recovery; do
+            elf="build/koronos/x86_64/target-init-$target.elf"
+            manifest="build/target-manifests/target-init-$target.manifest.json"
+            python3 tools/boot/generate-target-init-manifest.py --target "$target" --elf "$elf" --output "$manifest"
+            python3 - "$target" "$elf" "$manifest" <<'PY'
+          import hashlib, json, pathlib, sys
+          target, elf_path, manifest_path = sys.argv[1:]
+          elf = pathlib.Path(elf_path)
+          doc = json.loads(pathlib.Path(manifest_path).read_text())
+          assert doc["schema"] == "CHM-NATIVE-TARGET-INIT-1"
+          assert doc["target"] == target
+          assert doc["sha256"] == hashlib.sha256(elf.read_bytes()).hexdigest()
+          assert doc["payload_kind"] == "ring3-readiness-probe"
+          assert doc["production_ready"] is False
+          assert doc["limitations"], target
+          print(f"{target} target-init manifest: hash and probe-only scope PASS")
+          PY
+          done
           bash boot/spitfire/build-spitfire.sh build/bootloaders build/koronos/x86_64/koronos.elf
           nm -g build/bootloaders/spitfire-sf1-longmode.o | grep -Eq '[[:space:]]T[[:space:]]start$'
           test -s build/bootloaders/spitfire-stage2.bin
