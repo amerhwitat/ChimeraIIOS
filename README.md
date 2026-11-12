@@ -230,3 +230,26 @@ The platform contract for Linux, FreeBSD, Windows and macOS is documented in [do
 ## Cisco and Juniper routing CLI
 
 A bounded, safe Cisco IOS/Junos command adapter is documented in [docs/CISCO_JUNIPER_ROUTING_CLI.md](docs/CISCO_JUNIPER_ROUTING_CLI.md). Mutating commands are plan-only unless explicitly confirmed with administrator privileges. Dynamic routing backends remain optional.
+
+
+## Desktop profiles and application catalogue
+
+The selectable desktop profiles are **Aurora Glass**, **Marine Blue**, **FreeXP**, and **FreeWin11**. Aurora remains the initial fallback; the hosted X11 launcher can store a user default with:
+
+```sh
+bash tools/desktop/set-default-desktop.sh freewin11
+bash desktop/x11/start-session.sh
+```
+
+Supported choices are `aurora`, `marine`, `freexp`, and `freewin11`. The native GTK shell accepts all four identities, and the native desktop CI includes headless smoke-test invocations for each. The FreeXP and FreeWin11 browser previews are also linked from the public desktop gallery.
+
+- [Desktop profile registry](desktop/profiles/desktop-profiles.json)
+- [Desktop visual and compatibility profiles](desktop/desktop_profiles.json)
+- [Upstream desktop catalogue](desktop/upstream_desktop_catalog.json)
+- [Open-source desktop application catalogue](desktop/applications/desktop-app-catalog.json)
+- [Session manifests](desktop/sessions/)
+- [FreeXP browser preview](https://amerhwitat.github.io/desktops/freexp.html)
+- [FreeWin11 browser preview](https://amerhwitat.github.io/desktops/freewin11.html)
+- [Public desktop gallery](https://amerhwitat.github.io/apps/desktop-showcase/)
+
+**Runtime boundary:** the native GTK shell and browser previews are desktop personalities running through the host's X11/GTK stack. Native Koronos Wayland compositor startup, real service-backed widgets, and boot-time desktop handoff remain separate acceptance gates. A profile being selectable does not mean its native compositor session has passed boot/runtime verification. Optional application catalogue entries identify open-source package providers; they are not claims that every application is installed in the ISO.
