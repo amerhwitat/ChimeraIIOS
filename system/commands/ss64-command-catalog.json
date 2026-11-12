@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-10-17T09:33:46Z",
+  "generated_at_utc": "2026-11-11T10:16:54Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_posix_shells": {
@@ -5648,7 +5648,7 @@
       "index": "https://ss64.com/mac/",
       "pages_crawled": 80,
       "fetch_failures": 0,
-      "command_count": 430,
+      "command_count": 431,
       "commands": [
         {
           "name": "$SHELL",
@@ -10756,6 +10756,18 @@
             "أمر نظام — xcrun",
             "xcrun",
             "أمر xcrun"
+          ]
+        },
+        {
+          "name": "xprotect",
+          "platform": "macos",
+          "source": "https://ss64.com/mac/xprotect.html",
+          "arabic_label": "أمر نظام — xprotect",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — xprotect",
+            "xprotect",
+            "أمر xprotect"
           ]
         },
         {
@@ -55680,6 +55692,22 @@
           ]
         },
         {
+          "name": "October OS security update",
+          "platform": "windows",
+          "source": "https://learn.microsoft.com/azure/azure-local/security-update/security-update",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمان تحديث (October OS security update)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "أمان تحديث (October OS security update)",
+            "October OS security update",
+            "أمر October OS security update"
+          ]
+        },
+        {
           "name": "offline",
           "platform": "windows",
           "source": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/offline",
@@ -60672,7 +60700,7 @@
           ]
         }
       ],
-      "command_count": 902
+      "command_count": 903
     },
     "freebsd_unix": {
       "platform": "FreeBSD / Unix",
@@ -65675,7 +65703,7 @@
     "vbscript": {
       "index": "https://ss64.com/vb/",
       "pages_crawled": 80,
-      "fetch_failures": 0,
+      "fetch_failures": 1,
       "command_count": 221,
       "commands": [
         {
@@ -73966,9 +73994,9 @@
     },
     "tools": {
       "index": "https://ss64.com/tools/",
-      "pages_crawled": 21,
+      "pages_crawled": 22,
       "fetch_failures": 0,
-      "command_count": 28,
+      "command_count": 29,
       "commands": [
         {
           "name": "Colour Mixer",
@@ -74160,6 +74188,18 @@
             "أمر نظام — Phonetic alphabet",
             "Phonetic alphabet",
             "أمر Phonetic alphabet"
+          ]
+        },
+        {
+          "name": "Ports.jpg",
+          "platform": "tools",
+          "source": "https://ss64.com/tools/ports.jpg",
+          "arabic_label": "أمر نظام — Ports.jpg",
+          "arabic_status": "identifier-preserved",
+          "arabic_search": [
+            "أمر نظام — Ports.jpg",
+            "Ports.jpg",
+            "أمر Ports.jpg"
           ]
         },
         {

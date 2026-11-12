@@ -66,15 +66,15 @@
     "unknown": "غير_مترجم",
     "vector": "متجه"
   },
-  "candidate_definition_count": 7344,
-  "generated_utc": "2026-10-17T08:10:48.370824+00:00",
+  "candidate_definition_count": 7382,
+  "generated_utc": "2026-11-11T10:05:21.004686+00:00",
   "schema_version": "1.0",
   "source_policy": "Source metadata and hashes plus TableGen definition identifiers only. Not an exhaustive instruction list and not a conformance claim.",
   "sources": [
     {
       "authority": "Intel",
       "bytes_read": 151352,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -426,11 +426,6 @@
         },
         {
           "depth": 2,
-          "name": "AI Partner Solutions",
-          "url": "https://www.intel.com/content/www/us/en/partner-alliance/membership/benefits/partners-ai.html"
-        },
-        {
-          "depth": 2,
           "name": "AI PCs Powered by Intel",
           "url": "https://www.intel.com/content/www/us/en/ai-pc/overview.html"
         },
@@ -466,32 +461,27 @@
         },
         {
           "depth": 2,
-          "name": "Artificial Intelligence (AI) 2025 Holiday Buyers Guide November 26,2025",
-          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/2025-holiday-buyers-guide.html"
-        },
-        {
-          "depth": 2,
-          "name": "Artificial Intelligence (AI) Intel at AI Infra Summit 2026 August 26,2026",
+          "name": "Artificial Intelligence (AI) Intel at AI Infra Summit 2026 August 26, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ai-infra-summit-2026.html"
         },
         {
           "depth": 2,
-          "name": "Artificial Intelligence (AI) Intel at OCP 2026 October 12,2026",
+          "name": "Artificial Intelligence (AI) Intel at OCP 2026 October 12, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-ocp-2026.html"
         },
         {
           "depth": 2,
-          "name": "Artificial Intelligence (AI) Intel at Web Summit 2026 October 15,2026",
+          "name": "Artificial Intelligence (AI) Intel at Web Summit 2026 October 15, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-at-web-summit-2026.html"
         },
         {
           "depth": 2,
-          "name": "Artificial Intelligence (AI) Press Kit: Intel at CES 2026 January 05,2026",
-          "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/artificial-intelligence/press-kit-intel-at-ces-2026.html"
+          "name": "Artificial Intelligence (AI) Postcard from MassRobotics October 16, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/postcard-massrobotics-physical-ai-startup-speed.html"
         },
         {
           "depth": 2,
-          "name": "Artificial Intelligence (AI) Press Kit: Intel at Computex 2026 June 01,2026",
+          "name": "Artificial Intelligence (AI) Press Kit: Intel at Computex 2026 June 01, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/artificial-intelligence/press-kit-intel-at-computex-2026.html"
         },
         {
@@ -576,17 +566,32 @@
         },
         {
           "depth": 2,
-          "name": "Client Computing Introducing Panther Lake: By the Numbers October 14,2025",
+          "name": "Client Computing Googlebook with Intel Core Ultra Series 3 September 21, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/googlebook-launches-with-intel-core-ultra-series-3-processors.html"
+        },
+        {
+          "depth": 2,
+          "name": "Client Computing Intel Agentic PCs Give ASU Football an Edge September 04, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/intel-agentic-pcs-give-asu-football-on-field-edge.html"
+        },
+        {
+          "depth": 2,
+          "name": "Client Computing Intel-Powered Robots Help Make Mining Safer October 12, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/deep-underground-intel-powered-robots-make-mining-safer.html"
+        },
+        {
+          "depth": 2,
+          "name": "Client Computing Introducing Panther Lake: By the Numbers October 14, 2025",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/client-computing/introducing-panther-lake-by-the-numbers.html"
         },
         {
           "depth": 2,
-          "name": "Client Computing Press Kit: Intel Pro Day 2026 March 26,2026",
+          "name": "Client Computing Press Kit: Intel Pro Day 2026 March 26, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/client-computing/press-kit-intel-pro-day-2026.html"
         },
         {
           "depth": 2,
-          "name": "Client Computing Press Kit: Intel Technology Tour 2025 October 09,2025",
+          "name": "Client Computing Press Kit: Intel Technology Tour 2025 October 09, 2025",
           "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/client-computing/press-kit-intel-technology-tour-2025.html"
         },
         {
@@ -636,11 +641,6 @@
         },
         {
           "depth": 2,
-          "name": "Corporate Information My commitment to you and our company August 07,2025",
-          "url": "https://www.intel.com/content/www/us/en/newsroom/news/corporate/my-commitment-to-you-and-our-company.html"
-        },
-        {
-          "depth": 2,
           "name": "Corporate Responsibility Priority Assessment Process",
           "url": "https://www.intel.com/content/dam/www/central-libraries/us/en/documents/2026-08/2027-corporate-responsibility-priority-assessment.pdf"
         },
@@ -656,7 +656,47 @@
         },
         {
           "depth": 2,
-          "name": "Data Centers Scaling Sandboxed Agentic AI on Xeon CPUs October 08,2026",
+          "name": "Data Center AMD & Intel Simplify x86 AI Dev via PyTorch October 20, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/amd-intel-simplify-x86-ai-development-with-pytorch.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Beyond Prefill and Decode September 15, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/beyond-prefill-and-decode-disaggregation-moves-from-tokens-to-frames.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Boosting Agentic AI with Intel® Xeon® CPUs October 06, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/boosting-agentic-ai-throughput-with-intel-xeon-cpus.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Confidential Computing: Momentum & Focus October 09, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/opinion/confidential-computing-growing-momentum-sharpened-focus.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Connecting Software & Systems for Production AI October 06, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/software-connects-open-blueprint-for-production-ai.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Enterprise infrastructure must move fast for agent October 27, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/agentic-ai-moving-fast-enterprise-infrastructure-needs-move-with-it.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Intel Software Optimizations Boost AI Inference September 16, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-software-optimizations-boost-ai-inference-in-mlperf-v6-1.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Intel® Agent Toolkit & Openshell September 28, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/intel-agent-toolkit-adds-nvidia-openshell-for-policy-enforced-sandboxes.html"
+        },
+        {
+          "depth": 2,
+          "name": "Data Center Scaling Sandboxed Agentic AI on Xeon CPUs October 08, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/data-center/scaling-sandboxed-agentic-ai-xeon-6.html"
         },
         {
@@ -801,11 +841,6 @@
         },
         {
           "depth": 2,
-          "name": "Experience the Googlebook",
-          "url": "https://www.intel.com/content/www/us/en/products/systems-devices/googlebook.html"
-        },
-        {
-          "depth": 2,
           "name": "Explore accessibility at Intel",
           "url": "https://www.intel.com/content/www/us/en/inclusion/accessibility.html"
         },
@@ -842,11 +877,6 @@
         {
           "depth": 2,
           "name": "Get Help",
-          "url": "https://www.intel.com/content/www/us/en/partner-alliance/help/overview.html"
-        },
-        {
-          "depth": 2,
-          "name": "Get Help",
           "url": "https://www.intel.com/content/www/us/en/support/contact-us.html"
         },
         {
@@ -868,11 +898,6 @@
           "depth": 2,
           "name": "Government",
           "url": "https://www.intel.com/content/www/us/en/government/home.html"
-        },
-        {
-          "depth": 2,
-          "name": "Government",
-          "url": "https://www.intel.com/content/www/us/en/government/public-sector-solutions-overview.html"
         },
         {
           "depth": 2,
@@ -936,6 +961,11 @@
         },
         {
           "depth": 2,
+          "name": "Intel & Oracle boost enterprise AI on OCI. Read More",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-oracle-collaborate-on-enterprise-and-agentic-ai.html"
+        },
+        {
+          "depth": 2,
           "name": "Intel Atom® Processors",
           "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-atom-processors/"
         },
@@ -986,12 +1016,27 @@
         },
         {
           "depth": 2,
-          "name": "Intel Foundry Meet the Intel Pioneer Behind EMIB Chip Packaging May 28,2026",
+          "name": "Intel Foundry Building America's Capacity to Innovate October 21, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/opinion/building-america-capacity-to-innovate.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Foundry Intel Advancing High-NA EUV Photoresist September 17, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/how-intel-researchers-are-advancing-chemistry-behind-high-na-euv-tools.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Foundry Intel Foundry and ASML Accelerate High-NA EUV September 07, 2026",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry/intel-foundry-asml-accelerate-industry-readiness-for-high-na-euv.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Foundry Meet the Intel Pioneer Behind EMIB Chip Packaging May 28, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/corporate/meet-the-inventor-of-emib.html"
         },
         {
           "depth": 2,
-          "name": "Intel Foundry Press Kit: Intel Foundry Direct Connect 2025 April 29,2025",
+          "name": "Intel Foundry Press Kit: Intel Foundry Direct Connect 2025 April 29, 2025",
           "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/corporate/intel-foundry-direct-connect-2025.html"
         },
         {
@@ -1003,6 +1048,11 @@
           "depth": 2,
           "name": "Intel Political Accountability Guidelines",
           "url": "https://www.intel.com/content/www/us/en/policy/policy-political-accountability.html"
+        },
+        {
+          "depth": 2,
+          "name": "Intel Reports Third-Quarter 2026 Financial Results Read More",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-third-quarter-2026-financial-results.html"
         },
         {
           "depth": 2,
@@ -1018,6 +1068,11 @@
           "depth": 2,
           "name": "Intel Technology Tour (ITT) 2025",
           "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-technology-tour-itt-2025/"
+        },
+        {
+          "depth": 2,
+          "name": "Intel to Report Third-Quarter 2026 Financial Resul Read More",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-reports-third-quarter-2026-financial-results.html"
         },
         {
           "depth": 2,
@@ -1287,7 +1342,7 @@
         {
           "depth": 2,
           "name": "Intel® Intelligent Fabric Processors",
-          "url": "https://www.intel.com/content/www/us/en/products/details/network-io/intelligent-fabric-processors.html"
+          "url": "https://www.intel.com/content/www/us/en/products/details/network-io"
         },
         {
           "depth": 2,
@@ -1401,11 +1456,6 @@
         },
         {
           "depth": 2,
-          "name": "Intel® Xeon® Processors",
-          "url": "https://www.intel.com/content/www/us/en/products/details/processors/xeon/all.html"
-        },
-        {
-          "depth": 2,
           "name": "Intel® Xeon® W Processors",
           "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/intel-xeon-processors_1/"
         },
@@ -1491,12 +1541,12 @@
         },
         {
           "depth": 2,
-          "name": "Manufacturing at Intel How Silicon Die Become Chip Packages February 19,2025",
+          "name": "Manufacturing at Intel How Silicon Die Become Chip Packages February 19, 2025",
           "url": "https://www.intel.com/content/www/us/en/newsroom/tech101/manufacturing/how-silicon-die-become-chip-packages.html"
         },
         {
           "depth": 2,
-          "name": "Manufacturing at Intel Understanding Moore's Law April 09,2025",
+          "name": "Manufacturing at Intel Understanding Moore's Law April 09, 2025",
           "url": "https://www.intel.com/content/www/us/en/newsroom/tech101/manufacturing/understanding-moores-law.html"
         },
         {
@@ -1666,6 +1716,16 @@
         },
         {
           "depth": 2,
+          "name": "Read more",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/corporate/intel-classiq-accelerate-scalable-quantum-computing.html"
+        },
+        {
+          "depth": 2,
+          "name": "Related News",
+          "url": "https://www.intel.com/content/www/us/en/search.html"
+        },
+        {
+          "depth": 2,
           "name": "Resources & Documentation",
           "url": "https://www.intel.com/content/www/us/en/resources-documentation/developer.html"
         },
@@ -1702,7 +1762,12 @@
         {
           "depth": 2,
           "name": "See the details",
-          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/intel-accelerates-open-infrastructure-agentic-ai-era.html"
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/altera-sensor-integration-edge-physical-ai.html"
+        },
+        {
+          "depth": 2,
+          "name": "See the innovations",
+          "url": "https://www.intel.com/content/www/us/en/customer-spotlight/stories/49ers-partnership.html"
         },
         {
           "depth": 2,
@@ -1716,8 +1781,8 @@
         },
         {
           "depth": 2,
-          "name": "Server Products",
-          "url": "https://www.intel.com/content/www/us/en/products/details/servers.html"
+          "name": "Server products",
+          "url": "https://www.intel.com/content/www/us/en/products/details/servers"
         },
         {
           "depth": 2,
@@ -1951,12 +2016,12 @@
         },
         {
           "depth": 2,
-          "name": "Wireless Postcard from MWC 2025: Intel Xeon 6 SoC in Barcelona March 03,2025",
+          "name": "Wireless Postcard from MWC 2025: Intel Xeon 6 SoC in Barcelona March 03, 2025",
           "url": "https://www.intel.com/content/www/us/en/newsroom/news/wireless/postcard-mwc-2025-intel-xeon-6-soc-barcelona.html"
         },
         {
           "depth": 2,
-          "name": "Wireless Press Kit: Intel at MWC Barcelona 2026 February 27,2026",
+          "name": "Wireless Press Kit: Intel at MWC Barcelona 2026 February 27, 2026",
           "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub/press-kit/wireless/press-kit-intel-at-mwc-barcelona-2026.html"
         },
         {
@@ -1968,16 +2033,6 @@
           "depth": 2,
           "name": "WWAN",
           "url": "http://www.intel.com/content/www/us/en/products/performance/benchmarks/wwan/"
-        },
-        {
-          "depth": 3,
-          "name": "13th Gen Intel® Core™ Mobile Processors for Edge",
-          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core/13thgenmobile.html"
-        },
-        {
-          "depth": 3,
-          "name": "13th Gen Intel® Core™ Processors for Edge",
-          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core/13thgen.html"
         },
         {
           "depth": 3,
@@ -2038,6 +2093,11 @@
           "depth": 3,
           "name": "Explore Intel esports",
           "url": "https://www.intel.com/content/www/us/en/gaming/esports.html"
+        },
+        {
+          "depth": 3,
+          "name": "Explore Intel IPU Adapter E2100",
+          "url": "https://www.intel.com/content/www/us/en/products/details/network-io/ipu/adapter-e2100"
         },
         {
           "depth": 3,
@@ -2276,16 +2336,6 @@
         },
         {
           "depth": 3,
-          "name": "Intel® Core™ processors",
-          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core/14thgen.html"
-        },
-        {
-          "depth": 3,
-          "name": "Intel® Core™ Processors",
-          "url": "https://www.intel.com/content/www/us/en/products/details/processors/core/edge.html"
-        },
-        {
-          "depth": 3,
           "name": "Intel® Core™ Ultra 5 Processor 322 (12M Cache, up to 4.40 GHz)",
           "url": "https://www.intel.com/content/www/us/en/products/sku/245716/intel-core-ultra-5-processor-322-12m-cache-up-to-4-40-ghz/specifications.html"
         },
@@ -2306,8 +2356,18 @@
         },
         {
           "depth": 3,
+          "name": "Intel® Core™ Ultra 5 processor 335RE (12M Cache, up to 4.60 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/246182/intel-core-ultra-5-processor-335re-12m-cache-up-to-4-60-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
           "name": "Intel® Core™ Ultra 5 Processor 336H (18M Cache, up to 4.60 GHz)",
           "url": "https://www.intel.com/content/www/us/en/products/sku/245533/intel-core-ultra-5-processor-336h-18m-cache-up-to-4-60-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Core™ Ultra 5 processor 336HRE (18M Cache, up to 4.60 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/246181/intel-core-ultra-5-processor-336hre-18m-cache-up-to-4-60-ghz/specifications.html"
         },
         {
           "depth": 3,
@@ -2331,8 +2391,23 @@
         },
         {
           "depth": 3,
+          "name": "Intel® Core™ Ultra 7 processor 365GRE (12M Cache, up to 4.80 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/246183/intel-core-ultra-7-processor-365gre-12m-cache-up-to-4-80-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Core™ Ultra 7 processor 365RE (12M Cache, up to 4.80 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/246180/intel-core-ultra-7-processor-365re-12m-cache-up-to-4-80-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
           "name": "Intel® Core™ Ultra 7 Processor 366H (18M Cache, up to 4.80 GHz)",
           "url": "https://www.intel.com/content/www/us/en/products/sku/245530/intel-core-ultra-7-processor-366h-18m-cache-up-to-4-80-ghz/specifications.html"
+        },
+        {
+          "depth": 3,
+          "name": "Intel® Core™ Ultra 7 processor 366HRE (18M Cache, up to 4.80 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/246184/intel-core-ultra-7-processor-366hre-18m-cache-up-to-4-80-ghz/specifications.html"
         },
         {
           "depth": 3,
@@ -2341,13 +2416,13 @@
         },
         {
           "depth": 3,
-          "name": "Intel® Core™ Ultra Processors (Series 1) for Edge Applications",
-          "url": "https://www.intel.com/content/www/us/en/products/details/embedded-processors/core-ultra.html"
+          "name": "Intel® Core™ Ultra X7 Processor 358H (18M Cache, up to 4.80 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/245527/intel-core-ultra-x7-processor-358h-18m-cache-up-to-4-80-ghz/specifications.html"
         },
         {
           "depth": 3,
-          "name": "Intel® Core™ Ultra X7 Processor 358H (18M Cache, up to 4.80 GHz)",
-          "url": "https://www.intel.com/content/www/us/en/products/sku/245527/intel-core-ultra-x7-processor-358h-18m-cache-up-to-4-80-ghz/specifications.html"
+          "name": "Intel® Core™ Ultra X7 processor 358HR (18M Cache, up to 4.80 GHz)",
+          "url": "https://www.intel.com/content/www/us/en/products/sku/245998/intel-core-ultra-x7-processor-358hr-18m-cache-up-to-4-80-ghz/specifications.html"
         },
         {
           "depth": 3,
@@ -2378,11 +2453,6 @@
           "depth": 3,
           "name": "Intel® Data Center GPU Flex 170V",
           "url": "https://www.intel.com/content/www/us/en/products/sku/240233/intel-data-center-gpu-flex-170v/specifications.html"
-        },
-        {
-          "depth": 3,
-          "name": "Intel® Edge Software Hub",
-          "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/edge-5g/edge-solutions/overview.html"
         },
         {
           "depth": 3,
@@ -2478,11 +2548,6 @@
           "depth": 3,
           "name": "Learn more",
           "url": "https://www.intel.com/content/www/us/en/ai-pc/business.html"
-        },
-        {
-          "depth": 3,
-          "name": "Learn more",
-          "url": "https://www.intel.com/content/www/us/en/products/details/network-io/ipu/adapter-e2100.html"
         },
         {
           "depth": 3,
@@ -2591,8 +2656,8 @@
         },
         {
           "depth": 3,
-          "name": "Vision Product Portfolio",
-          "url": "https://www.intel.com/content/www/us/en/internet-of-things/computer-vision/vision-products.html"
+          "name": "View processors",
+          "url": "https://www.intel.com/content/www/us/en/products/details/processors/xeon/all.html"
         },
         {
           "depth": 3,
@@ -2647,7 +2712,7 @@
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",
@@ -2658,8 +2723,8 @@
     },
     {
       "authority": "Arm",
-      "bytes_read": 10268,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 8434,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -2670,14 +2735,14 @@
       "id": "arm-architecture-reference",
       "kind": "official-document-index",
       "link_depth_limit": 10,
-      "sha256": "8cee92dffdb3a5499ca8a3a56b2399d5bb54866a09aad813342b3b73eee1e06d",
+      "sha256": "89b98c1a7f15377ac42bff86c0912004ecfe15c8d6e495da555166e0e695ef95",
       "status": "ok",
       "url": "https://developer.arm.com/documentation/ddi0487/latest"
     },
     {
       "authority": "RISC-V International",
       "bytes_read": 374,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -3321,7 +3386,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 2858,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -3336,10 +3401,10 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 653479,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 660754,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 1145,
+      "definition_identifier_count": 1154,
       "definition_identifiers": [
         "AArch64AssertZExtBool",
         "AArch64CB",
@@ -3700,6 +3765,7 @@
         "DisallowMisalignedMemAccesses",
         "EMITBKEY",
         "EMITMTETAGGED",
+        "EMITNONHINTED",
         "EOR3",
         "ERET",
         "ERETAA",
@@ -3776,6 +3842,7 @@
         "HasFP8FMA",
         "HasFPARMv8",
         "HasFPRCVT",
+        "HasFPv2",
         "HasFRInt3264",
         "HasFastIncVL",
         "HasFlagM",
@@ -3812,6 +3879,7 @@
         "HasNoCSSC",
         "HasNoFullFP16",
         "HasNoLSE",
+        "HasNonStreamingMatMulFP64_or_SVE_PERM256",
         "HasNonStreamingSVE2_or_SME2",
         "HasNonStreamingSVE2p2_or_SME2p2",
         "HasNonStreamingSVE_or_SME2",
@@ -3844,6 +3912,7 @@
         "HasSMEB16B16",
         "HasSMEF16F16",
         "HasSMEF16F16_or_SMEF8F16",
+        "HasSMEF16F8F16",
         "HasSMEF64F64",
         "HasSMEF8F16",
         "HasSMEF8F32",
@@ -3880,6 +3949,7 @@
         "HasSVESM4",
         "HasSVE_B16MM",
         "HasSVE_F16F32MM",
+        "HasSVE_LRCPC",
         "HasSVE_or_SME",
         "HasTEV",
         "HasTHE",
@@ -4098,6 +4168,7 @@
         "PACNBIASPPC",
         "PACNBIBSPPC",
         "PAUTH_EPILOGUE",
+        "PAUTH_EPILOGUE_ENTRY_SP",
         "PAUTH_PROLOGUE",
         "PRFMl",
         "PRFMui",
@@ -4170,6 +4241,7 @@
         "SD_AArch64rshrnb",
         "SEH_AddFP",
         "SEH_AllocZ",
+        "SEH_EndC",
         "SEH_EpilogEnd",
         "SEH_EpilogStart",
         "SEH_Nop",
@@ -4177,8 +4249,10 @@
         "SEH_PrologEnd",
         "SEH_SaveAnyRegI",
         "SEH_SaveAnyRegIP",
+        "SEH_SaveAnyRegQ",
         "SEH_SaveAnyRegQP",
         "SEH_SaveAnyRegQPX",
+        "SEH_SaveAnyRegQX",
         "SEH_SaveFPLR",
         "SEH_SaveFPLR_X",
         "SEH_SaveFReg",
@@ -4492,14 +4566,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-aarch64-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "1b08f8f2ab098d5825dd90ce4719a4002c5429b14b3968917f5439940e0f5177",
+      "sha256": "9e6b9106721f1b45388e02b4d7dc07dd7adda506cd2b2f7670e9e6617c55ea0f",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/AArch64/AArch64InstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 264258,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 766,
       "definition_identifiers": [
@@ -5281,8 +5355,8 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 104343,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 104495,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 337,
       "definition_identifiers": [
@@ -5629,16 +5703,16 @@
       "http_content_type": "text/plain",
       "id": "llvm-riscv-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "d828d525db81b8b46a5d9a290ab5336c0abdba3de3ea9ad9e0322d6aab29bec3",
+      "sha256": "ef0f680be032bb89f132c9f1921c0379d174c95f258cfc5821206e656349da92",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/RISCV/RISCVInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 140718,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 142674,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 569,
+      "definition_identifier_count": 571,
       "definition_identifiers": [
         "ABSMacro",
         "ADD",
@@ -5721,6 +5795,7 @@
         "ATOMIC_SWAP_I32_POSTRA",
         "ATOMIC_SWAP_I8",
         "ATOMIC_SWAP_I8_POSTRA",
+        "AnyOffsetAsmOperand",
         "B",
         "BAL_BR",
         "BEQ",
@@ -5930,6 +6005,7 @@
         "MULOUMacro",
         "MULT",
         "MULTu",
+        "MemBase",
         "MipsCIns",
         "MipsDivRem",
         "MipsDivRem16",
@@ -5959,7 +6035,6 @@
         "MipsMSubu",
         "MipsMTLOHI",
         "MipsMemAsmOperand",
-        "MipsMemSimmPtrAsmOperand",
         "MipsMult",
         "MipsMultu",
         "MipsRet",
@@ -6008,6 +6083,7 @@
         "PseudoSDIV",
         "PseudoUDIV",
         "PtrRC",
+        "PtrRegAsmOperand",
         "RDHWR",
         "ROL",
         "ROLImm",
@@ -6057,6 +6133,7 @@
         "SImm16RelaxedAsmOperandClass",
         "SImm32AsmOperandClass",
         "SImm32RelaxedAsmOperandClass",
+        "SImmPtrAsmOperand",
         "SLE",
         "SLEImm",
         "SLEU",
@@ -6165,12 +6242,11 @@
         "immZExt5To31",
         "immZExt7",
         "immZExtRange2To64",
+        "imm_offset",
         "immz",
         "jmptarget",
         "li16_imm",
         "mem",
-        "mem_ea",
-        "mem_msa",
         "mem_simm",
         "mem_simm10_lsl",
         "mem_simm9_exp",
@@ -6215,16 +6291,16 @@
       "http_content_type": "text/plain",
       "id": "llvm-mips-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "7ed878da493d8775f207c8901f943b7ec6ad1adec1ac3c48f2e396c9d0d1c44f",
+      "sha256": "8da5870e3160294af84747d1045556dbc857092b7a4a5b46a3875a8cbc4bed54",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Mips/MipsInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 259381,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 258624,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 747,
+      "definition_identifier_count": 745,
       "definition_identifiers": [
         "ADD4TLS",
         "ADDEX",
@@ -6623,8 +6699,6 @@
         "PPCany_fctidz",
         "PPCany_fctiwuz",
         "PPCany_fctiwz",
-        "PPCatomicCmpSwap_16",
-        "PPCatomicCmpSwap_8",
         "PPCbcds",
         "PPCbcdsr",
         "PPCbcdtrunc",
@@ -6979,23 +7053,22 @@
       "http_content_type": "text/plain",
       "id": "llvm-powerpc-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "e36f46f9b110b6fe5ee1d389031a06794d71216f6ab809dd21ea7009f3f7de9f",
+      "sha256": "95f7e07ce048485c46774f1cba5d72585ac548793718045a6e31d0711b6719ec",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/PowerPC/PPCInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 129144,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 130107,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 718,
+      "definition_identifier_count": 717,
       "definition_identifiers": [
         "ADA_ENTRY",
         "ADA_ENTRY_VALUE",
         "ADJCALLSTACKDOWN",
         "ADJCALLSTACKUP",
         "ADJDYNALLOC",
-        "AEXT128",
         "AFI",
         "AFIMux",
         "AGF",
@@ -7586,7 +7659,6 @@
         "OILL64",
         "OILMux",
         "PACK",
-        "PAIR128",
         "PCC",
         "PFCR",
         "PFD",
@@ -7706,24 +7778,25 @@
         "XILF64",
         "XPLINK_STACKALLOC",
         "ZAP",
-        "ZEXT128",
-        "adasym"
+        "adasym",
+        "aext128",
+        "zext128"
       ],
       "family": "IBM Z / SystemZ",
       "family_arabic": "آي بي إم زد",
       "http_content_type": "text/plain",
       "id": "llvm-systemz-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "e00b3a86b06da0e144e72e4259eee6c2f6326a8898095afe3d306c19921b6b93",
+      "sha256": "2b1fbcd8e03a4c3243a9117589cb34ede929a8ca5185a6399d2c4fab395adbdc",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/SystemZ/SystemZInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 86632,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 91892,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 361,
+      "definition_identifier_count": 382,
       "definition_identifiers": [
         "ADDRri",
         "ADDRrr",
@@ -7738,6 +7811,7 @@
         "BINDri",
         "BINDrr",
         "CALL",
+        "CALL_LONGJUMP",
         "CALLi",
         "CALLri",
         "CALLrii",
@@ -7793,6 +7867,12 @@
         "FCC_ULE",
         "FCMPD",
         "FCMPD_V9",
+        "FCMPED",
+        "FCMPED_V9",
+        "FCMPEQ",
+        "FCMPEQ_V9",
+        "FCMPES",
+        "FCMPES_V9",
         "FCMPQ",
         "FCMPQ_V9",
         "FCMPS",
@@ -7969,6 +8049,12 @@
         "SMACri",
         "SMACrr",
         "SPARC64",
+        "SPany_cmpfcc",
+        "SPany_cmpfccv9",
+        "SPany_ftoi",
+        "SPany_ftox",
+        "SPany_itof",
+        "SPany_xtof",
         "SPbpicc",
         "SPbpxcc",
         "SPbrfcc",
@@ -7991,6 +8077,14 @@
         "SPselectxcc",
         "SPstorebig",
         "SPstorelittle",
+        "SPstrict_cmpfcc",
+        "SPstrict_cmpfcc_v9",
+        "SPstrict_cmpfccs",
+        "SPstrict_cmpfccs_v9",
+        "SPstrict_ftoi",
+        "SPstrict_ftox",
+        "SPstrict_itof",
+        "SPstrict_xtof",
         "SPxtof",
         "STBAR",
         "STCSRri",
@@ -8092,14 +8186,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-sparc-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "852de4f6ca3ca7f7c407e43bc30e8a68622e409ce8e2ca2ae65d71d3792358be",
+      "sha256": "f8be00130edd4bf5e9b9892f739da2c2307f0f7f924bb0aafeb10f7e6a717f4e",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Sparc/SparcInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 69552,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 294,
       "definition_identifiers": [
@@ -8409,10 +8503,10 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 109719,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 120055,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 491,
+      "definition_identifier_count": 493,
       "definition_identifiers": [
         "ADDI_D",
         "ADDI_W",
@@ -8855,6 +8949,8 @@
         "loongarch_tail_large",
         "loongarch_tail_medium",
         "mul_const_oneuse",
+        "seteq_zero_selcond",
+        "setne_zero_selcond",
         "sexti32",
         "shiftMask32",
         "shiftMaskGRLen",
@@ -8911,13 +9007,13 @@
       "http_content_type": "text/plain",
       "id": "llvm-loongarch-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "c0a65323bf13ae3c7b881447785c47adc5d250a8f104753ab7c9f08a7c031907",
+      "sha256": "644971d60af434d69ce869804d20700db0ba7e689e50ecc2da9496fe3a12f7d9",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/LoongArch/LoongArchInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Hexagon",
       "family_arabic": "هيكساغون",
@@ -8929,7 +9025,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 43033,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 224,
       "definition_identifiers": [
@@ -9169,10 +9265,10 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 149281,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 149980,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 627,
+      "definition_identifier_count": 629,
       "definition_identifiers": [
         "A16",
         "ABID",
@@ -9420,6 +9516,8 @@
         "VOP3PModsNeg",
         "VOP3PModsNegAbs",
         "VOP3PModsNegs",
+        "VOP3PModsPkAddMulOpSel0",
+        "VOP3PModsPkFmaOpSel0",
         "VOP3PNoModsDOT",
         "VOP3PNoModsF32",
         "VOPDComponentTable",
@@ -9807,21 +9905,22 @@
       "http_content_type": "text/plain",
       "id": "llvm-amdgpu-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "f71f5f63455b6143ec66a704771db0df86254f5f98ae443651374d7878432f55",
+      "sha256": "110e53c9f12901e7f26805b6cfe15fe53f495efd1b21d6b095cffd426875c4fc",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/AMDGPU/SIInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 113668,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 113833,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 371,
+      "definition_identifier_count": 372,
       "definition_identifiers": [
         "ABS_S",
         "ADD16x2",
         "ADDR",
         "ADDR_base",
+        "ALLOCA_U",
         "AddrSpaceConst",
         "AddrSpaceGeneric",
         "AddrSpaceGlobal",
@@ -9924,10 +10023,8 @@
         "DIV_FULL_F32",
         "DIV_RN_F32",
         "DIV_RN_F64",
-        "DOT2_",
-        "DOT4_",
-        "DYNAMIC_STACKALLOC",
         "EvictionAndPrefetchHint",
+        "F16FTZFlag",
         "F16RT",
         "F16X2RT",
         "F32RT",
@@ -9957,6 +10054,7 @@
         "I64toI32L_Sink",
         "I64toV2I32",
         "I64toV4I16",
+        "LD_i128",
         "LD_i16",
         "LD_i32",
         "LD_i64",
@@ -10013,6 +10111,7 @@
         "SDTDeclareArrayParam",
         "SDTDeclareScalarParam",
         "SDTDynAllocaOp",
+        "SDTIntBitCount64",
         "SDTMoveParamProfile",
         "SDTMulWide",
         "SDTPRMT",
@@ -10026,6 +10125,7 @@
         "SMIN16x2",
         "STACKRESTORE_",
         "STACKSAVE_",
+        "ST_i128",
         "ST_i16",
         "ST_i32",
         "ST_i64",
@@ -10076,6 +10176,7 @@
         "call",
         "callseq_end",
         "callseq_start",
+        "clz_b64",
         "cond2cc",
         "cond_signed",
         "debugtrapinst",
@@ -10085,6 +10186,8 @@
         "doMADWideOpt",
         "doNoF32FTZ",
         "doRsqrtOpt",
+        "dp2a",
+        "dp4a",
         "dyn_alloca",
         "f16",
         "f16imm",
@@ -10111,7 +10214,6 @@
         "fpround_oneuse",
         "fshl_clamp",
         "fshr_clamp",
-        "getFTZFlag",
         "hasAtomAddF64",
         "hasAtomMinMaxAndOrXor",
         "hasAtomScope",
@@ -10159,9 +10261,7 @@
         "hasTcgen05ShiftSupport",
         "hasTensormapReplaceSupport",
         "hasTensormapReplaceSwizzleAtomicitySupport",
-        "ii",
         "inst_name",
-        "ir",
         "noHWROT32",
         "noPTXASUnreachableBug",
         "nvptx_build_vector",
@@ -10169,11 +10269,10 @@
         "nvptx_fmaxnum3",
         "nvptx_fminimum3",
         "nvptx_fminnum3",
+        "popc_b64",
         "prmt",
         "proxy_reg",
         "retglue",
-        "ri",
-        "rr",
         "shl_clamp",
         "smul_wide",
         "srl_clamp",
@@ -10195,17 +10294,18 @@
       "http_content_type": "text/plain",
       "id": "llvm-nvptx-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "da0d0afec3aa34ec4d9a4931e01962788fcf48a72c6fb9f5cc2d18fe96aa66cb",
+      "sha256": "c6c8fab2a5c807ba35c028b49ce41b827038eba3d42aa65aae9efbacf2cbe0f6",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/NVPTX/NVPTXInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 19844,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 19896,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 71,
       "definition_identifiers": [
+        "HasAcquireReleaseAtomics",
         "HasAddr32",
         "HasAddr64",
         "HasAtomics",
@@ -10221,7 +10321,6 @@
         "HasMutableGlobals",
         "HasNontrappingFPToInt",
         "HasReferenceTypes",
-        "HasRelaxedAtomics",
         "HasRelaxedSIMD",
         "HasSIMD128",
         "HasSignExt",
@@ -10283,16 +10382,16 @@
       "http_content_type": "text/plain",
       "id": "llvm-wasm-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "cfbbe83205b4986f8633a58cef287bbe8c9f5366cffb9ec4d2a37541592327c7",
+      "sha256": "464b6c3916e105f0fc9ccf01183f31b390768654f9fd01212bbec2e005190d8b",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/WebAssembly/WebAssemblyInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 54746,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 54865,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 182,
+      "definition_identifier_count": 186,
       "definition_identifiers": [
         "ADDR_SPACE_CAST",
         "ADDRri",
@@ -10304,6 +10403,7 @@
         "BPFHasALU32",
         "BPFHasBswap",
         "BPFHasGotox",
+        "BPFHasHmul",
         "BPFHasLdsx",
         "BPFHasLoadAcqStoreRel",
         "BPFHasMovsx",
@@ -10443,6 +10543,9 @@
         "Select_Ri_32_64",
         "Select_Ri_64_32",
         "SrcAddrSpace",
+        "UNWIND_EXIT",
+        "UNWIND_EXIT_PSEUDO",
+        "UNWIND_GOTO",
         "XADDD",
         "XADDW",
         "XADDW32",
@@ -10482,14 +10585,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-bpf-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "9bae1626f1016974c5a05ef8d48d451d53e147c5a9ef9607ab342bb3039870af",
+      "sha256": "04b55b0a7d5dc8eb44247e4d27d87082a3f1d4ef28d6d6feca61b9698bb6c8ce",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/BPF/BPFInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 52685,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 241,
       "definition_identifiers": [
@@ -10747,7 +10850,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 89459,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 200,
       "definition_identifiers": [
@@ -10963,7 +11066,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "OpenRISC",
       "family_arabic": "أوبن ريسك",
@@ -10975,7 +11078,7 @@
     {
       "authority": "Loongson",
       "bytes_read": 1714242,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -10999,7 +11102,7 @@
     {
       "authority": "WebAssembly Community Group",
       "bytes_read": 10128,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11251,13 +11354,13 @@
       "id": "official-webassembly-core",
       "kind": "official-virtual-isa-specification",
       "link_depth_limit": 10,
-      "sha256": "483f3b02f04d41c0ca67aefddad7763859fb0eb88863945893c1ee991183dedc",
+      "sha256": "9ef9af39d46c0a4720dd8a0b00661bdfb6b235f8607ee126a1092e97c3507c14",
       "status": "ok",
       "url": "https://webassembly.github.io/spec/core/"
     },
     {
       "authority": "Linux kernel documentation",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "eBPF",
       "family_arabic": "إي بي بي إف",
@@ -11268,8 +11371,8 @@
     },
     {
       "authority": "NVIDIA",
-      "bytes_read": 3928317,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 3966038,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11278,14 +11381,14 @@
       "http_content_type": "text/html",
       "id": "nvidia-ptx-isa",
       "kind": "official-virtual-isa-reference",
-      "sha256": "f1e14ad07468e26bf3724e41be86f3a68ab7914bcf0fc9824a6ad31a1eb2ec26",
+      "sha256": "7fceae233fd16a73f49dad1fdabbd0f1cd8a610c95602656221b0e4f5a5a4657",
       "status": "ok",
       "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/"
     },
     {
       "authority": "OpenRISC",
       "bytes_read": 15637,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11808,8 +11911,8 @@
     },
     {
       "authority": "AMD",
-      "bytes_read": 2575,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 2613,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11820,14 +11923,14 @@
       "id": "amd-microblaze-reference",
       "kind": "official-architecture-reference",
       "link_depth_limit": 10,
-      "sha256": "22650617e7a005d5a7146da36ee39dcf5da510b6545fa9c1a46977e78a5cd40b",
+      "sha256": "9ec3391bf0de1a4045ab4beecf35b0dda3a1f2c6b1424a86e24b1d345b705d0b",
       "status": "ok",
       "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref"
     },
     {
       "authority": "OpenPOWER Foundation",
       "bytes_read": 16572,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -12875,7 +12978,7 @@
     },
     {
       "authority": "IBM",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "IBM z/Architecture",
       "family_arabic": "آي بي إم زد",
@@ -12887,7 +12990,7 @@
     {
       "authority": "Oracle",
       "bytes_read": 36288,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -16880,8 +16983,8 @@
     },
     {
       "authority": "MIPS",
-      "bytes_read": 197657,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 197062,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -16913,13 +17016,13 @@
       "id": "mips-architecture-docs",
       "kind": "architecture-documentation-index",
       "link_depth_limit": 10,
-      "sha256": "b57d274d84f72313195b7b9919e35531fd20730a8f2be2c92c5681bc07c1d363",
+      "sha256": "895ed2a7adc65d64595295c184d046d7a5d14a87473ad4dfe0287d6e9ccbfc8f",
       "status": "ok",
       "url": "https://www.mips.com/products/architectures/"
     },
     {
       "authority": "Microchip",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "AVR",
       "family_arabic": "معمارية إيه في آر",
@@ -16930,7 +17033,7 @@
     },
     {
       "authority": "Texas Instruments",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "MSP430",
       "family_arabic": "إم إس بي 430",
@@ -16941,24 +17044,19 @@
     },
     {
       "authority": "Zilog",
-      "bytes_read": 1587333,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
-      "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 0,
-      "definition_identifiers": [],
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
+      "error": "HTTP Error 403: Forbidden",
       "family": "Z80",
       "family_arabic": "غير مترجم",
-      "http_content_type": "application/pdf",
       "id": "zilog-z80-reference",
       "kind": "architecture-reference",
-      "sha256": "e3c83da5a5d8e372364c20fa53665e6fbb165ec6ac38c8c1eebc359603447b5e",
-      "status": "ok",
+      "status": "unavailable",
       "url": "https://www.zilog.com/docs/z80/um0080.pdf"
     },
     {
       "authority": "Arm Keil",
-      "bytes_read": 10268,
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "bytes_read": 8434,
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -16967,13 +17065,13 @@
       "http_content_type": "text/html",
       "id": "keil-8051-instruction-set",
       "kind": "instruction-set-reference",
-      "sha256": "8cee92dffdb3a5499ca8a3a56b2399d5bb54866a09aad813342b3b73eee1e06d",
+      "sha256": "89b98c1a7f15377ac42bff86c0912004ecfe15c8d6e495da555166e0e695ef95",
       "status": "ok",
       "url": "https://www.keil.com/support/man/docs/is51/is51_instructions.htm"
     },
     {
       "authority": "NXP",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "Motorola 68000",
       "family_arabic": "موتورولا 68000",
@@ -16984,7 +17082,7 @@
     },
     {
       "authority": "Bitsavers archive",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "VAX",
       "family_arabic": "غير مترجم",
@@ -16995,7 +17093,7 @@
     },
     {
       "authority": "Renesas",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Renesas RX",
       "family_arabic": "رينيساس آر إكس",
@@ -17006,7 +17104,7 @@
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-10-17T08:10:48.370824+00:00",
+      "checked_utc": "2026-11-11T10:05:21.004686+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",
@@ -17016,6 +17114,6 @@
       "url": "https://www.amd.com/en/search/documentation/hub.html"
     }
   ],
-  "successful_source_count": 30,
-  "unavailable_source_count": 11
+  "successful_source_count": 29,
+  "unavailable_source_count": 12
 }
