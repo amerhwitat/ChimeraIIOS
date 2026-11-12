@@ -112,6 +112,17 @@
       "container": "couchdb:3.4.3",
       "ci": "container-acquire",
       "status": "provider-image-acquisition"
+    },
+    {
+      "id": "mysql-community",
+      "license": "GPL-2.0",
+      "upstream": "https://github.com/mysql/mysql-server",
+      "source": "https://dev.mysql.com/downloads/",
+      "integration": "client/service",
+      "build_profile": "official-container",
+      "container": "mysql:8.4",
+      "ci": "container-acquire",
+      "status": "provider-image-acquisition"
     }
   ],
   "excluded_or_separately_classified": [
