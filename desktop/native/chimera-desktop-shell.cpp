@@ -1,4 +1,4 @@
-// Native GTK4 shell for Aurora, Marine and FreeXP desktop personalities.
+// Native GTK4 shell for Aurora, Marine, FreeXP and FreeWin11 desktop personalities.
 // This is a Linux/GTK user-space shell client, not a compositor or a Koronos
 // syscall port. Koronos GUI readiness remains gated on real process execution,
 // graphics/input services, and an OS-native compositor/session implementation.
