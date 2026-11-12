@@ -158,14 +158,32 @@ def main() -> int:
         # Walk explicitly so an ISO output nested below boot/ is pruned.
         for current, dirs, files in os.walk(service_root, followlinks=False):
             current_path = Path(current).resolve()
-            dirs[:] = sorted(
-                d for d in dirs
-                if d not in {".git", "__pycache__", "node_modules", ".cache"}
-                and not (current_path / d).resolve().is_relative_to(iso)
-            )
-            if current_path.is_relative_to(iso):
+            # Never scan the ISO staging tree as source. In particular, the
+            # structured builder places boot/iso/dist/iso beneath the boot
+            # source tree, so pruning only descendants of the ISO root is not
+            # sufficient if a walk reaches that nested output through a link.
+            try:
+                current_path.relative_to(iso)
+                inside_iso = True
+            except ValueError:
+                inside_iso = False
+            if inside_iso:
                 dirs[:] = []
                 continue
+            kept = []
+            for d in dirs:
+                if d in {".git", "__pycache__", "node_modules", ".cache"}:
+                    continue
+                candidate = (current_path / d).resolve()
+                if candidate == iso or iso in candidate.parents:
+                    continue
+                # The structured ISO root is nested below boot/iso. Do not
+                # descend into the build-output subtree at all during the
+                # boot service-unit scan.
+                if service_root == root / "boot" and candidate == (root / "boot/iso").resolve():
+                    continue
+                kept.append(d)
+            dirs[:] = sorted(kept)
             for name in sorted(files):
                 src = current_path / name
                 if (src.is_file() and not src.is_symlink()
