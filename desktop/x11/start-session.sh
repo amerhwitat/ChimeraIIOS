@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-desktop="${1:-aurora}"
+config_file="${XDG_CONFIG_HOME:-${HOME:-/tmp}/.config}/chimera/desktop.conf"
+configured="aurora"
+if [[ -r "$config_file" ]]; then
+  while IFS='=' read -r key value; do
+    if [[ "$key" == "default_desktop" ]]; then configured="$value"; fi
+  done < "$config_file"
+fi
+desktop="${1:-${CHIMERA_DEFAULT_DESKTOP:-$configured}}"
 case "$desktop" in
   aurora|marine|freexp|freewin11) ;;
   *)
