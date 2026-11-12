@@ -137,7 +137,8 @@
           "taskbar",
           "DOSBox launch action",
           "shared semantic SVG icons"
-        ]
+        ],
+        "default_eligible": true
       },
       {
         "id": "chimera-classic",
@@ -164,6 +165,24 @@
         ],
         "locale": "ar",
         "direction": "rtl"
+      },
+      {
+        "id": "freewin11",
+        "display": "FreeWin11",
+        "protocols": [
+          "X11"
+        ],
+        "model": "original-windows-11-inspired-shell",
+        "status": "native-shell-preview",
+        "default_eligible": true,
+        "features": [
+          "Fluent-inspired taskbar",
+          "Start menu",
+          "window snapping layout",
+          "desktop widgets",
+          "shared semantic SVG icons"
+        ],
+        "note": "Original open-source-inspired UI; not Microsoft Windows and does not redistribute Microsoft binaries."
       }
     ]
   }
