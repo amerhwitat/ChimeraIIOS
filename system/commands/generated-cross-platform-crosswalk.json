@@ -555,7 +555,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "arp",
+        "id": "arp--macos",
         "name": "arp",
         "catalogue_namespaces": [
           "macos"
@@ -1499,7 +1499,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "cd",
+        "id": "cd--linux_bash--macos",
         "name": "cd",
         "catalogue_namespaces": [
           "linux_bash",
@@ -3877,7 +3877,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "date",
+        "id": "date--vbscript",
         "name": "Date",
         "catalogue_namespaces": [
           "vbscript"
@@ -3888,7 +3888,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "date",
+        "id": "date--linux_bash--macos",
         "name": "date",
         "catalogue_namespaces": [
           "linux_bash",
@@ -4091,7 +4091,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "declare",
+        "id": "declare--linux_bash",
         "name": "declare",
         "catalogue_namespaces": [
           "linux_bash"
@@ -4391,7 +4391,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "dir",
+        "id": "dir--vbscript",
         "name": "Dir",
         "catalogue_namespaces": [
           "vbscript"
@@ -4421,7 +4421,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "dir",
+        "id": "dir--linux_bash",
         "name": "dir",
         "catalogue_namespaces": [
           "linux_bash"
@@ -5322,7 +5322,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "eval",
+        "id": "eval--linux_bash",
         "name": "eval",
         "catalogue_namespaces": [
           "linux_bash"
@@ -5351,7 +5351,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "exec",
+        "id": "exec--linux_bash--macos",
         "name": "exec",
         "catalogue_namespaces": [
           "linux_bash",
@@ -5387,7 +5387,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "execute",
+        "id": "execute--vbscript",
         "name": "Execute",
         "catalogue_namespaces": [
           "vbscript"
@@ -5692,7 +5692,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "find",
+        "id": "find--linux_bash--macos",
         "name": "find",
         "catalogue_namespaces": [
           "linux_bash",
@@ -5824,7 +5824,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "for",
+        "id": "for--linux_bash",
         "name": "for",
         "catalogue_namespaces": [
           "linux_bash"
@@ -5896,7 +5896,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "format",
+        "id": "format--linux_bash",
         "name": "format",
         "catalogue_namespaces": [
           "linux_bash"
@@ -7252,7 +7252,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "help",
+        "id": "help--linux_bash",
         "name": "help",
         "catalogue_namespaces": [
           "linux_bash"
@@ -7353,7 +7353,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "hostname",
+        "id": "hostname--linux_bash--macos",
         "name": "hostname",
         "catalogue_namespaces": [
           "linux_bash",
@@ -7500,7 +7500,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "if",
+        "id": "if--linux_bash",
         "name": "if",
         "catalogue_namespaces": [
           "linux_bash"
@@ -8004,7 +8004,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "join",
+        "id": "join--linux_bash",
         "name": "join",
         "catalogue_namespaces": [
           "linux_bash"
@@ -8113,7 +8113,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "klist",
+        "id": "klist--linux_bash",
         "name": "klist",
         "catalogue_namespaces": [
           "linux_bash"
@@ -9039,7 +9039,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "mkdir",
+        "id": "mkdir--linux_bash--macos",
         "name": "mkdir",
         "catalogue_namespaces": [
           "linux_bash",
@@ -9274,7 +9274,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "more",
+        "id": "more--linux_bash",
         "name": "more",
         "catalogue_namespaces": [
           "linux_bash"
@@ -9705,7 +9705,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "netstat",
+        "id": "netstat--linux_bash",
         "name": "netstat",
         "catalogue_namespaces": [
           "linux_bash"
@@ -10074,7 +10074,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "nslookup",
+        "id": "nslookup--linux_bash",
         "name": "nslookup",
         "catalogue_namespaces": [
           "linux_bash"
@@ -10533,7 +10533,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "ping",
+        "id": "ping--linux_bash--macos",
         "name": "ping",
         "catalogue_namespaces": [
           "linux_bash",
@@ -10648,7 +10648,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "popd",
+        "id": "popd--linux_bash",
         "name": "popd",
         "catalogue_namespaces": [
           "linux_bash"
@@ -10811,7 +10811,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "pushd",
+        "id": "pushd--linux_bash",
         "name": "pushd",
         "catalogue_namespaces": [
           "linux_bash"
@@ -11435,7 +11435,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "rename",
+        "id": "rename--linux_bash",
         "name": "rename",
         "catalogue_namespaces": [
           "linux_bash"
@@ -11841,7 +11841,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "route",
+        "id": "route--macos",
         "name": "route",
         "catalogue_namespaces": [
           "macos"
@@ -12090,7 +12090,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "select",
+        "id": "select--linux_bash",
         "name": "select",
         "catalogue_namespaces": [
           "linux_bash"
@@ -12163,7 +12163,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "set",
+        "id": "set--vbscript",
         "name": "Set",
         "catalogue_namespaces": [
           "vbscript"
@@ -12174,7 +12174,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "set",
+        "id": "set--linux_bash--macos",
         "name": "set",
         "catalogue_namespaces": [
           "linux_bash",
@@ -12570,7 +12570,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "shutdown",
+        "id": "shutdown--linux_bash--macos",
         "name": "shutdown",
         "catalogue_namespaces": [
           "linux_bash",
@@ -12692,7 +12692,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "sort",
+        "id": "sort--linux_bash--macos",
         "name": "sort",
         "catalogue_namespaces": [
           "linux_bash",
@@ -12786,7 +12786,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "split",
+        "id": "split--linux_bash",
         "name": "split",
         "catalogue_namespaces": [
           "linux_bash"
@@ -13628,7 +13628,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "time",
+        "id": "time--vbscript",
         "name": "Time",
         "catalogue_namespaces": [
           "vbscript"
@@ -13639,7 +13639,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "time",
+        "id": "time--linux_bash",
         "name": "time",
         "catalogue_namespaces": [
           "linux_bash"
@@ -13675,7 +13675,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "timeout",
+        "id": "timeout--linux_bash",
         "name": "timeout",
         "catalogue_namespaces": [
           "linux_bash"
@@ -14064,7 +14064,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "type",
+        "id": "type--linux_bash",
         "name": "type",
         "catalogue_namespaces": [
           "linux_bash"
@@ -14887,7 +14887,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "while",
+        "id": "while--linux_bash",
         "name": "while",
         "catalogue_namespaces": [
           "linux_bash"
@@ -14948,7 +14948,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "whoami",
+        "id": "whoami--linux_bash--macos",
         "name": "whoami",
         "catalogue_namespaces": [
           "linux_bash",
