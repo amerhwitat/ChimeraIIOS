@@ -305,7 +305,7 @@ void activate(GtkApplication* app, gpointer) {
     gtk_box_append(GTK_BOX(start_menu), action_button("Internet", "browser", freewin11 ? "freewin11-menu-item" : "freexp-menu-item"));
     gtk_box_append(GTK_BOX(start_menu), action_button("Control Panel", "settings", freewin11 ? "freewin11-menu-item" : "freexp-menu-item"));
     if (freexp) gtk_box_append(GTK_BOX(start_menu), action_button("DOS Applications", "dos", "freexp-menu-item"));
-    else gtk_box_append(GTK_BOX(start_menu), action_button("System Monitor", "settings", "freewin11-quick"));
+    else gtk_box_append(GTK_BOX(start_menu), action_button("Quick Settings", "settings", "freewin11-quick"));
     gtk_popover_set_child(GTK_POPOVER(popover), start_menu);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(start_button), popover);
     gtk_box_append(GTK_BOX(taskbar), start_button);
