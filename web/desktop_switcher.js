@@ -22,7 +22,8 @@
         <h2>${profile.title}</h2>
         <p>${profile.description}</p>
         <p><small>${profile.family} · ${profile.mode}</small></p>
-        <button data-profile="${profile.id}">${profile.id === current ? 'Current desktop' : 'Switch to this desktop'}</button>
+        ${profile.default_candidate ? '<p><small>Selectable startup default</small></p>' : ''}
+        <button data-profile="${profile.id}" aria-pressed="${profile.id === current}">${profile.id === current ? 'Current desktop' : (profile.default_candidate ? 'Set as default desktop' : 'Switch desktop')}</button>
       </article>
     `).join('');
     const selected = catalog.profiles.find(profile => profile.id === current);
