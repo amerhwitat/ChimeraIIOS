@@ -101,6 +101,24 @@ jobs:
           extract /install/installer/installation.img "$tmp/installation.img"
           extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
           extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          for target in live installer recovery; do
+            extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf"
+            extract "/boot/targets/target-init-$target.manifest.json" "$tmp/target-init-$target.manifest.json"
+          done
+          python3 - "$tmp" <<'PY'
+          import hashlib, json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          for target in ("live", "installer", "recovery"):
+              elf = root / f"target-init-{target}.elf"
+              manifest = json.loads((root / f"target-init-{target}.manifest.json").read_text())
+              assert manifest["schema"] == "CHM-NATIVE-TARGET-INIT-1"
+              assert manifest["target"] == target
+              assert manifest["sha256"] == hashlib.sha256(elf.read_bytes()).hexdigest()
+              assert manifest["payload_kind"] == "ring3-readiness-probe"
+              assert manifest["production_ready"] is False
+              assert manifest["limitations"]
+              print(f"{target}: ISO target ELF hash and probe-only manifest verified")
+          PY
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"
