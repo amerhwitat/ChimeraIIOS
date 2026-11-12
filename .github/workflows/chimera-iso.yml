@@ -248,3 +248,5 @@ jobs:
             build/aurora-media/**
           if-no-files-found: error
           retention-days: 90
+
+# Re-run target-ELF verification against the corrected generated GRUB path.
