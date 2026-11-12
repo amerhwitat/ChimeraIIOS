@@ -211,6 +211,13 @@
       "family": "Chimera",
       "mode": "web-profile-or-vm",
       "description": "FreeWin11 Fluent-inspired shell profile; web preview only, with a native session requiring the installed X11 runtime."
+    },
+    {
+      "id": "marine-blue",
+      "title": "Marine Blue Desktop",
+      "family": "Chimera",
+      "mode": "web-profile-or-vm",
+      "description": "Marine Blue Windows-inspired desktop profile with taskbar, launcher and desktop-gadget preview; native session requires the installed display runtime."
     }
   ]
 }
