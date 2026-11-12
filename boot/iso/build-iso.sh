@@ -97,7 +97,7 @@ for target in live installer recovery; do
   readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target_elf is not ET_EXEC" >&2; exit 2; }
   cp -f "$target_elf" "$TARGETS_OUT/"
   python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \\
-    --target "$target" --elf "$target_elf" \\
+    --target "$target" --elf "$TARGETS_OUT/target-init-$target.elf" \\
     --output "$TARGETS_OUT/target-init-$target.manifest.json"
   test -s "$TARGETS_OUT/target-init-$target.manifest.json"
 done
