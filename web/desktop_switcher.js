@@ -14,7 +14,9 @@
   }
 
   function render() {
-    const current = localStorage.getItem(STORAGE_KEY) || catalog.default;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const validIds = new Set(catalog.profiles.map(profile => profile.id));
+    const current = stored && validIds.has(stored) ? stored : catalog.default;
     profiles.innerHTML = catalog.profiles.map(profile => `
       <article class="card" style="padding:20px">
         <h2>${profile.title}</h2>
