@@ -21,7 +21,24 @@
       ],
       "theme": "classic-xp-blue",
       "launcher": "desktop/x11/start-session.sh",
-      "status": "native-shell-preview"
+      "status": "native-shell-preview",
+      "default_eligible": true,
+      "description": "Original Windows-XP-inspired Chimera desktop shell; preview status; eligible to be selected as the default profile."
+    },
+    {
+      "id": "freewin11",
+      "family": "chimera",
+      "protocol": "x11",
+      "packages": [
+        "xserver-xorg",
+        "xinit",
+        "gtk4"
+      ],
+      "theme": "fluent-blue-original",
+      "launcher": "desktop/x11/start-session.sh",
+      "status": "native-shell-preview",
+      "default_eligible": true,
+      "description": "Original open-source Windows-11-inspired desktop shell; not Microsoft Windows and contains no Microsoft binaries."
     },
     {
       "id": "aurora",
