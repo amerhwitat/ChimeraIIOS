@@ -59,11 +59,11 @@ manifest = {
     "flashable": False,
     "reason": "No hardware-validated device boot bundle, vendor modules, AVB-signed images, or tested adapter is supplied."
 }
-Path(sys.argv[2]).write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+Path(sys.argv[2]).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 PY
 rm -rf -- "$OUT"
 mv -- "$STAGE" "$OUT"
 trap - EXIT
-printf 'Chimera Mobile research layout prepared at %s\\n' "$OUT"
-printf '%s\\n' 'NOT FLASHABLE: no device-specific signed boot bundle is present.'
-printf '%s\\n' 'Production images require exact device kernel/vendor modules, AVB signing, rollback metadata and hardware boot tests.'
+printf 'Chimera Mobile research layout prepared at %s\n' "$OUT"
+printf '%s\n' 'NOT FLASHABLE: no device-specific signed boot bundle is present.'
+printf '%s\n' 'Production images require exact device kernel/vendor modules, AVB signing, rollback metadata and hardware boot tests.'
