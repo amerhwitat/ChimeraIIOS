@@ -123,6 +123,10 @@ printf '%s\n' '[3d/7] Stage media, apps, docs and workflow payload'
 python3 "$ROOT/tools/iso/stage_payload.py" --root "$ROOT" --iso "$DIST/iso" --limit-mb "${CHIMERA_PAYLOAD_LIMIT_MB:-200}"
 test -s "$DIST/iso/payload/MANIFEST.json" || { echo "ERROR: payload manifest missing" >&2; exit 2; }
 test -s "$DIST/iso/payload/SHA256SUMS" || { echo "ERROR: payload checksums missing" >&2; exit 2; }
+# Include all generated app binaries plus desktop, service, target and runlevel definitions.
+python3 "$ROOT/tools/iso/stage-system-inventory.py" --root "$ROOT" --iso "$DIST/iso"
+test -s "$DIST/iso/boot/chimera/manifests/ISO-COMPONENT-INVENTORY.json" || { echo "ERROR: component inventory missing" >&2; exit 2; }
+test -s "$DIST/iso/boot/chimera/manifests/ISO-COMPONENT-SHA256SUMS" || { echo "ERROR: component checksums missing" >&2; exit 2; }
 
 printf '%s\n' '[4/7] Stage complete Aurora artwork, Init.mp4 and professional progress UI'
 VISUAL_OUT="$DIST/iso/boot/visual"
