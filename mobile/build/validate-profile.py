@@ -30,9 +30,9 @@ def validate(path):
         raise SystemExit("AVB profile must declare OEM unlock/signing policy")
     if data["support_status"] == "hardware-validated":
         match = data.get("match", {})
-        exact_keys = ("manufacturer", "model", "device", "product", "board")
-        if not isinstance(match, dict) or not any(match.get(k) for k in exact_keys):
-            raise SystemExit("hardware-validated profile requires exact hardware identifiers")
+        exact_keys = ("manufacturer", "model", "device", "board")
+        if not isinstance(match, dict) or not all(match.get(k) for k in exact_keys):
+            raise SystemExit("hardware-validated profile requires exact manufacturer, model, device codename and board identifiers")
         if not data.get("codename") or not data.get("policy", {}).get("signed_images_required"):
             raise SystemExit("hardware-validated profile requires codename and signed-image policy")
         flash = data.get("flash", {})
