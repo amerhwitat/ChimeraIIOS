@@ -7,6 +7,10 @@ on:
       - 'kernel/**'
       - 'arch/**'
       - 'tools/mobile/**'
+      - 'tests/mobile/**'
+      - 'mobile/build/**'
+      - 'mobile/device-profiles/**'
+      - 'mobile/flash/**'
       - 'CMakeLists.txt'
       - '.github/workflows/chimera-mobile-build.yml'
   pull_request:
@@ -37,6 +41,22 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build gcc g++ python3
+      - name: Validate mobile profile, flash CLI and image staging safety
+        run: |
+          set -euo pipefail
+          bash -n mobile/build/build-mobile-image.sh tools/mobile/chimera-mobile-flash.sh
+          python3 -m py_compile mobile/build/validate-profile.py tools/mobile/chimera-mobile-build.py tools/mobile/chimera-mobile-flash-gui.py
+          for profile in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$profile"; done
+          python3 -m unittest discover -s tests/mobile -p 'test_*.py' -v
+          ./mobile/build/build-mobile-image.sh
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("mobile/images/dist/mobile-image-manifest.json").read_text())
+          assert d["flashable"] is False
+          assert d["support_status"] == "reference-only"
+          print("Research layout explicitly marked non-flashable.")
+          PY
       - name: Configure
         run: |
           cmake -S . -B build/mobile/${{ matrix.arch }} \
