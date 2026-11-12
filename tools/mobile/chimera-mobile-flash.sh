@@ -75,23 +75,18 @@ case "$COMMAND" in
 Chimera II OS Mobile Edition Flash Tool
   (no argument)       Aurora GUI
   ports               Scan USB, udev/sysfs, ADB, Fastboot, Apple usbmux, MTP, serial and Thunderbolt/USB4
-  detect              Full host scan + Android hardware/software inspection
-  inspect             Alias for detect
-  power-on            Reboot a detected Fastboot phone into Android, then inspect it
-  rom-discover        Discover exact-device public ROM/firmware/security metadata
-  build               Build only for an exact matched Chimera device profile
-  flash               Profiled, exact-device flashing with hash verification
-  generic-flash       Advanced generic Fastboot partition flashing from an explicit manifest
-  --dry-run            Build/verify without writing a phone
+  detect              Inspect connected Android device and host capabilities
+  power-on            Request a supported reboot to Fastboot
+  rom-discover        Discover public ROM/firmware metadata
+  build               Build only for an exact matched device profile
+  flash               Profiled flashing with device, signature and hash checks
+  generic-flash       Disabled; unprofiled partition writes are refused
+  --dry-run           Build and verify without writing a phone
 
-GENERIC FLASH SAFETY CONTRACT:
-  GENERIC_SERIAL=<exact-fastboot-serial>
-  GENERIC_MANIFEST=/path/to/manifest.json
-  CHIMERA_GENERIC_FLASH_ACK=I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS
-
-Manifest schema:
-  {"schema":"CHM-GENERIC-FLASH-1",
-   "partitions":[{"name":"boot","image":"/path/boot.img","sha256":"..."}]}
+A flashable image requires an exact hardware-validated device profile, signed
+vendor boot components, a supported device-specific adapter, matching serial
+and product identity, verified image hashes, and explicit confirmation.
+Generic profiles are reference-only and cannot authorize partition writes.
 EOF
     ;;
   *) die "unknown command: $COMMAND";;
