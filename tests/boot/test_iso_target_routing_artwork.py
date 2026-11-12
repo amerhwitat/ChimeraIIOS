@@ -9,6 +9,7 @@ INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
+CANONICAL_BUILDER = (ROOT / "build-chimera-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
@@ -35,6 +36,22 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
         self.assertIn('cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"', FULL_BUILDER)
 
+
+    def test_canonical_clean_iso_builder_stages_and_verifies_target_init_elfs(self):
+        start = CANONICAL_BUILDER.index("create_boot_menu(){")
+        end = CANONICAL_BUILDER.index("\\nprepare_branding(){", start)
+        boot_stage = CANONICAL_BUILDER[start:end]
+        self.assertIn('target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"', boot_stage)
+        self.assertIn('target_stage="$ISO_DIR/boot/targets"', boot_stage)
+        self.assertIn('target-init-$target.elf', boot_stage)
+        self.assertIn('generate-target-init-manifest.py', boot_stage)
+        verify_start = CANONICAL_BUILDER.index("verify_iso(){")
+        verify_end = CANONICAL_BUILDER.index("\\nreport_build(){", verify_start)
+        verify_stage = CANONICAL_BUILDER[verify_start:verify_end]
+        for target in ("live", "installer", "recovery"):
+            self.assertIn(f"/boot/targets/target-init-{target}.elf", verify_stage)
+            self.assertIn(f"/boot/targets/target-init-{target}.manifest.json", verify_stage)
+        self.assertIn("target-init checksum/status mismatch", verify_stage)
 
     def test_live_iso_fallback_builds_and_stages_target_init_elfs(self):
         self.assertIn('TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"', LIVE_BUILDER)
