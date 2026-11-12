@@ -238,6 +238,9 @@ if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
     -map "$STAGE/network-tools" /network-tools \
     -map "$STAGE/compat" /compat \
     -map "$STAGE/build-artifacts" /build-artifacts \
+    -map "$STAGE/usr" /usr \
+    -map "$STAGE/opt" /opt \
+    -map "$STAGE/etc" /etc \
     -commit -end
 else
   CHIMERA_KERNEL="$KERNEL" CHIMERA_OUTPUT_ISO="$FINAL" "$ROOT/iso/chimera-live-iso.sh"
