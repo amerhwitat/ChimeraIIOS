@@ -139,7 +139,7 @@ manifest = {
     "targets": targets,
 }
 (root / "target-runtime-status.json").write_text(
-    json.dumps(manifest, indent=2) + "\\n", encoding="utf-8"
+    json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
 )
 PY
 
