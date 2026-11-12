@@ -50,5 +50,18 @@ class MobileProfileTests(unittest.TestCase):
         self.assertNotEqual(q.returncode, 0)
         self.assertIn("generic-flash is disabled", q.stdout)
 
+    def test_fastboot_helper_rejects_reference_profile_before_device_access(self):
+        helper = ROOT / "tools/mobile/chimera-mobile-fastboot.py"
+        with tempfile.TemporaryDirectory() as tmp:
+            report = Path(tmp) / "build.json"
+            report.write_text(json.dumps({
+                "target": {"serial": "not-a-real-device", "properties": {}},
+                "profile": {"support_status": "reference-only"}
+            }), encoding="utf-8")
+            q = subprocess.run(["python3", str(helper), str(report)], text=True,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.assertNotEqual(q.returncode, 0)
+            self.assertIn("not hardware-validated", q.stdout)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
