@@ -5,6 +5,9 @@ on:
     paths:
       - 'desktop/**'
       - 'desktop/native/**'
+      - 'desktop/sessions/**'
+      - 'tools/desktop/**'
+      - 'tests/desktop/**'
       - 'tools/build-desktop-binaries.sh'
       - 'tools/binary/inspect_binary.py'
       - 'tools/ide/install-vscodium.py'
