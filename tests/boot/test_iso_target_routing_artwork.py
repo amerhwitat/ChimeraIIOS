@@ -39,14 +39,14 @@ class IsoTargetRoutingTests(unittest.TestCase):
 
     def test_canonical_clean_iso_builder_stages_and_verifies_target_init_elfs(self):
         start = CANONICAL_BUILDER.index("create_boot_menu(){")
-        end = CANONICAL_BUILDER.index("\\nprepare_branding(){", start)
+        end = CANONICAL_BUILDER.index("\nprepare_branding(){", start)
         boot_stage = CANONICAL_BUILDER[start:end]
         self.assertIn('target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"', boot_stage)
         self.assertIn('target_stage="$ISO_DIR/boot/targets"', boot_stage)
         self.assertIn('target-init-$target.elf', boot_stage)
         self.assertIn('generate-target-init-manifest.py', boot_stage)
         verify_start = CANONICAL_BUILDER.index("verify_iso(){")
-        verify_end = CANONICAL_BUILDER.index("\\nreport_build(){", verify_start)
+        verify_end = CANONICAL_BUILDER.index("\nreport_build(){", verify_start)
         verify_stage = CANONICAL_BUILDER[verify_start:verify_end]
         for target in ("live", "installer", "recovery"):
             self.assertIn(f"/boot/targets/target-init-{target}.elf", verify_stage)
