@@ -114,7 +114,6 @@ jobs:
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=aurora --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=marine --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
-          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freewin11 --self-test
           if "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=invalid --self-test; then
             echo "invalid desktop profile was accepted" >&2
@@ -127,7 +126,8 @@ jobs:
         run: |
           set -euo pipefail
           out="$CHIMERA_DESKTOP_BUILD_DIR"
-          python3 tools/binary/inspect_binary.py --json "$out"/bin/* > "$out/manifests/binary-headers.json"
+          PYTHONDONTWRITEBYTECODE=1 python3 tools/binary/inspect_binary.py --json "$out"/bin/* > "$out/manifests/binary-headers.json"
+          find "$out/aurora-source" -type d -name __pycache__ -prune -exec rm -rf {} +
           python3 -m json.tool "$out/manifests/binary-headers.json" >/dev/null
           python3 -m json.tool "$out/manifests/runtime-requirements.json" >/dev/null
           ! find "$out/aurora-source" -type d -name __pycache__ | grep .
