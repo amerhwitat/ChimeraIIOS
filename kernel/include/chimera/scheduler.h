@@ -11,6 +11,8 @@ typedef struct {
 } chimera_task_info;
 void chimera_sched_init(uint32_t cpu_count);
 uint32_t chimera_sched_cpu_count(void);
+/* Physical/logical CPUs currently executing scheduler workers. AP startup is pending. */
+uint32_t chimera_sched_online_cpu_count(void);
 int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priority);
 int chimera_sched_set_affinity(uint32_t task_id,uint64_t affinity_mask);
 uint32_t chimera_sched_run_once(uint32_t cpu);
