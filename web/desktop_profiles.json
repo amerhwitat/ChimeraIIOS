@@ -197,6 +197,20 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS ColecoVision core."
+    },
+    {
+      "id": "freexp",
+      "title": "FreeXP Classic Desktop",
+      "family": "Chimera",
+      "mode": "web-profile-or-vm",
+      "description": "FreeXP classic Windows-inspired shell profile; web preview only, with a native session requiring the installed X11 runtime."
+    },
+    {
+      "id": "freewin11",
+      "title": "FreeWin11 Desktop",
+      "family": "Chimera",
+      "mode": "web-profile-or-vm",
+      "description": "FreeWin11 Fluent-inspired shell profile; web preview only, with a native session requiring the installed X11 runtime."
     }
   ]
 }
