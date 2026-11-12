@@ -10,7 +10,7 @@ Usage:
 
 Options:
   -h, --help    Show this help and exit successfully.
-  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
+  --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA and OS-command indexes online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
   --clean-state              Remove build-owned intermediate state before rebuilding.
   --storage-auto              Automatically select a writable build-storage location when needed.
@@ -1549,8 +1549,6 @@ main(){
     export CHIMERA_DOS_FETCH_ON_BUILD=1
   fi
   if [[ "$REFRESH_ONLINE_CATALOGS" == 1 ]]; then
-    log_info "Discovering legacy DOS applications and games from the official FreeDOS catalog"
-    python3 "$SCRIPT_DIR/tools/commands/dos-payload-builder.py" discover --output "$BUILD_DIR/dos-online-discovery.json" || { log_error "DOS online discovery failed"; return 1; }
     log_info "Refreshing official ISA and OS-command indexes from the internet"
     python3 "$SCRIPT_DIR/tools/catalogs/refresh_online_catalogs.py" --refresh || { log_error "Online catalog refresh failed"; return 1; }
     log_info "Discovering official and machine-readable ISA source entry points"
