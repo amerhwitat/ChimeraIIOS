@@ -54,7 +54,8 @@ GENERATED_MAP = {
     "build/live-boot": "opt/chimera/generated/live-boot",
 }
 UNIT_DIRS = (
-    ("systemd", "usr/lib/systemd/system"),
+    ("systemd", "etc/systemd/system"),
+    ("usr-lib-systemd", "usr/lib/systemd/system"),
     ("init.d", "etc/init.d"),
     ("rc0.d", "etc/rc0.d"), ("rc1.d", "etc/rc1.d"),
     ("rc2.d", "etc/rc2.d"), ("rc3.d", "etc/rc3.d"),
@@ -89,9 +90,19 @@ def copy_tree(src: Path, dst: Path, root: Path, kind: str, records: list[dict]) 
         target_dir.mkdir(parents=True, exist_ok=True)
         for name in sorted(files):
             source = current_path / name
-            if source.is_symlink() or not source.is_file():
-                continue
-            copy_file(source, target_dir / name, root, kind, records)
+            target = target_dir / name
+            if source.is_symlink():
+                link = os.readlink(source)
+                if os.path.isabs(link):
+                    continue
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if target.exists() or target.is_symlink():
+                    target.unlink()
+                target.symlink_to(link)
+                records.append({"kind": kind, "source": source.relative_to(root).as_posix(),
+                                "iso_path": "/" + target.as_posix(), "symlink": link})
+            elif source.is_file():
+                copy_file(source, target, root, kind, records)
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -128,7 +139,8 @@ def main() -> int:
             continue
         for src in service_root.rglob("*"):
             if src.is_file() and not src.is_symlink() and src.suffix in unit_suffixes:
-                copy_file(src, iso / "usr/lib/systemd/system" / src.name,
+                relative = src.relative_to(service_root)
+                copy_file(src, iso / "usr/share/chimera/service-unit-definitions" / service_root.name / relative,
                           root, "service-unit-definition", records)
     # Expose explicit target/runlevel registries when present.
     for rel, target in (
@@ -143,13 +155,11 @@ def main() -> int:
     # rootfs as well as repository source, preserving the level directories.
     rootfs = root / "build/rootfs"
     for rel, target in UNIT_DIRS:
-        src = rootfs / ("etc/" + rel if rel not in ("services", "systemd") else
-                        ("etc/systemd/system" if rel == "systemd" else "usr/lib/systemd/system"))
-        if rel == "services":
-            src = root / "services"
-            copy_tree(src, iso / target, root, "service-source", records)
+        if rel == "usr-lib-systemd":
+            src = rootfs / "usr/lib/systemd/system"
         else:
-            copy_tree(src, iso / target, root, "generated-service-or-runlevel", records)
+            src = rootfs / ("etc/" + rel)
+        copy_tree(src, iso / target, root, "generated-service-or-runlevel", records)
     records.sort(key=lambda item: (item["kind"], item["iso_path"]))
     inventory = {
         "schema": "CHM-ISO-COMPONENT-INVENTORY-1",
