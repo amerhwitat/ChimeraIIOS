@@ -67,14 +67,14 @@
     "vector": "متجه"
   },
   "candidate_definition_count": 7382,
-  "generated_utc": "2026-11-12T16:32:10.762182+00:00",
+  "generated_utc": "2026-11-12T16:56:58.919707+00:00",
   "schema_version": "1.0",
   "source_policy": "Source metadata and hashes plus TableGen definition identifiers only. Not an exhaustive instruction list and not a conformance claim.",
   "sources": [
     {
       "authority": "Intel",
       "bytes_read": 151350,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -2712,7 +2712,7 @@
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",
@@ -2724,7 +2724,7 @@
     {
       "authority": "Arm",
       "bytes_read": 8434,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -2742,7 +2742,7 @@
     {
       "authority": "RISC-V International",
       "bytes_read": 374,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -3386,7 +3386,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 2858,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -3402,7 +3402,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 660754,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 1154,
       "definition_identifiers": [
@@ -4573,7 +4573,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 264258,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 766,
       "definition_identifiers": [
@@ -5356,7 +5356,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 104495,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 337,
       "definition_identifiers": [
@@ -5710,7 +5710,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 142674,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 571,
       "definition_identifiers": [
@@ -6298,7 +6298,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 258624,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 745,
       "definition_identifiers": [
@@ -7060,7 +7060,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 130107,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 717,
       "definition_identifiers": [
@@ -7794,7 +7794,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 91892,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 382,
       "definition_identifiers": [
@@ -8193,7 +8193,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 69552,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 294,
       "definition_identifiers": [
@@ -8504,7 +8504,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 120055,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 493,
       "definition_identifiers": [
@@ -9013,7 +9013,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Hexagon",
       "family_arabic": "هيكساغون",
@@ -9025,7 +9025,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 43033,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 224,
       "definition_identifiers": [
@@ -9266,7 +9266,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 149980,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 629,
       "definition_identifiers": [
@@ -9912,7 +9912,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 113833,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 372,
       "definition_identifiers": [
@@ -10301,7 +10301,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 19896,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 71,
       "definition_identifiers": [
@@ -10389,7 +10389,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 54865,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 186,
       "definition_identifiers": [
@@ -10592,7 +10592,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 52685,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 241,
       "definition_identifiers": [
@@ -10850,7 +10850,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 89459,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 200,
       "definition_identifiers": [
@@ -11066,7 +11066,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "OpenRISC",
       "family_arabic": "أوبن ريسك",
@@ -11078,7 +11078,7 @@
     {
       "authority": "Loongson",
       "bytes_read": 1714242,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11102,7 +11102,7 @@
     {
       "authority": "WebAssembly Community Group",
       "bytes_read": 10128,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11360,7 +11360,7 @@
     },
     {
       "authority": "Linux kernel documentation",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "eBPF",
       "family_arabic": "إي بي بي إف",
@@ -11372,7 +11372,7 @@
     {
       "authority": "NVIDIA",
       "bytes_read": 3966049,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11381,14 +11381,14 @@
       "http_content_type": "text/html",
       "id": "nvidia-ptx-isa",
       "kind": "official-virtual-isa-reference",
-      "sha256": "edb467014f0dc84cc7234d5d4685b13a04da2e0deffd78a3f36eb183d3f958a2",
+      "sha256": "fe9769ca67d2c82e854b282ced98d0938435951b58fc59f7c987bca8af70d273",
       "status": "ok",
       "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/"
     },
     {
       "authority": "OpenRISC",
       "bytes_read": 15637,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11912,7 +11912,7 @@
     {
       "authority": "AMD",
       "bytes_read": 2575,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11923,14 +11923,14 @@
       "id": "amd-microblaze-reference",
       "kind": "official-architecture-reference",
       "link_depth_limit": 10,
-      "sha256": "b5b93b7ec5ebe18c4b1c4bc288c335197918957a69a31163e374152033a428c5",
+      "sha256": "cb70714b68b648556f5a43ac7b82477f1e0ddb589f65ed2acf80c1b0dfa7f2ca",
       "status": "ok",
       "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref"
     },
     {
       "authority": "OpenPOWER Foundation",
       "bytes_read": 16572,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -12978,7 +12978,7 @@
     },
     {
       "authority": "IBM",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "IBM z/Architecture",
       "family_arabic": "آي بي إم زد",
@@ -12990,7 +12990,7 @@
     {
       "authority": "Oracle",
       "bytes_read": 36288,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -16984,7 +16984,7 @@
     {
       "authority": "MIPS",
       "bytes_read": 197062,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -17016,13 +17016,13 @@
       "id": "mips-architecture-docs",
       "kind": "architecture-documentation-index",
       "link_depth_limit": 10,
-      "sha256": "41300b019a1b876851e39a7653bf62356a34b342b0866e157276d1542eb8205a",
+      "sha256": "692c7b4e3bc7230c366dd0000ab58c321bd69678fca96a7d04ae4e3c06082dcc",
       "status": "ok",
       "url": "https://www.mips.com/products/architectures/"
     },
     {
       "authority": "Microchip",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "AVR",
       "family_arabic": "معمارية إيه في آر",
@@ -17033,7 +17033,7 @@
     },
     {
       "authority": "Texas Instruments",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "MSP430",
       "family_arabic": "إم إس بي 430",
@@ -17044,7 +17044,7 @@
     },
     {
       "authority": "Zilog",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "Z80",
       "family_arabic": "غير مترجم",
@@ -17056,7 +17056,7 @@
     {
       "authority": "Arm Keil",
       "bytes_read": 8434,
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -17071,7 +17071,7 @@
     },
     {
       "authority": "NXP",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "Motorola 68000",
       "family_arabic": "موتورولا 68000",
@@ -17082,7 +17082,7 @@
     },
     {
       "authority": "Bitsavers archive",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "VAX",
       "family_arabic": "غير مترجم",
@@ -17093,7 +17093,7 @@
     },
     {
       "authority": "Renesas",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Renesas RX",
       "family_arabic": "رينيساس آر إكس",
@@ -17104,7 +17104,7 @@
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-11-12T16:32:10.762182+00:00",
+      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",

@@ -3,7 +3,7 @@
   "product": "Chimera II OS",
   "source": "SS64",
   "source_index": "https://ss64.com/",
-  "generated_at_utc": "2026-11-12T12:22:42Z",
+  "generated_at_utc": "2026-11-12T17:07:43Z",
   "policy": "Command names, classifications and source URLs only; SS64 prose is not redistributed and SS64 is not treated as a binary distributor.",
   "platforms": {
     "linux_posix_shells": {
@@ -5646,8 +5646,8 @@
     },
     "macos": {
       "index": "https://ss64.com/mac/",
-      "pages_crawled": 80,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 431,
       "commands": [
         {
@@ -10918,8 +10918,8 @@
     },
     "windows_cmd": {
       "index": "https://ss64.com/nt/",
-      "pages_crawled": 80,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 613,
       "commands": [
         {
@@ -18646,8 +18646,8 @@
     },
     "powershell": {
       "index": "https://ss64.com/ps/",
-      "pages_crawled": 80,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 930,
       "commands": [
         {
@@ -55692,6 +55692,22 @@
           ]
         },
         {
+          "name": "October OS security update",
+          "platform": "windows",
+          "source": "https://learn.microsoft.com/azure/azure-local/security-update/security-update",
+          "source_kind": "online-reference-discovery",
+          "arabic_alias": null,
+          "translation_status": "untranslated",
+          "provider_status": "unverified",
+          "arabic_label": "أمان تحديث (October OS security update)",
+          "arabic_status": "token-translated",
+          "arabic_search": [
+            "أمان تحديث (October OS security update)",
+            "October OS security update",
+            "أمر October OS security update"
+          ]
+        },
+        {
           "name": "offline",
           "platform": "windows",
           "source": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/offline",
@@ -60684,7 +60700,7 @@
           ]
         }
       ],
-      "command_count": 902
+      "command_count": 903
     },
     "freebsd_unix": {
       "platform": "FreeBSD / Unix",
@@ -61575,7 +61591,7 @@
     "linux_bash": {
       "index": "https://ss64.com/bash/",
       "pages_crawled": 80,
-      "fetch_failures": 0,
+      "fetch_failures": 2,
       "command_count": 342,
       "commands": [
         {
@@ -65686,8 +65702,8 @@
     },
     "vbscript": {
       "index": "https://ss64.com/vb/",
-      "pages_crawled": 80,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 221,
       "commands": [
         {
@@ -68346,8 +68362,8 @@
     },
     "sql_server": {
       "index": "https://ss64.com/sql/",
-      "pages_crawled": 80,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 214,
       "commands": [
         {
@@ -70922,8 +70938,8 @@
     },
     "access": {
       "index": "https://ss64.com/access/",
-      "pages_crawled": 80,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 254,
       "commands": [
         {
@@ -73978,8 +73994,8 @@
     },
     "tools": {
       "index": "https://ss64.com/tools/",
-      "pages_crawled": 22,
-      "fetch_failures": 0,
+      "pages_crawled": 1,
+      "fetch_failures": 1,
       "command_count": 29,
       "commands": [
         {
@@ -74332,6 +74348,5 @@
         }
       ]
     }
-  },
-  "online_source_count": 9
+  }
 }
