@@ -61,7 +61,8 @@ case "$COMMAND" in
     python3 "$BUILDER" --build
     REPORT="$ROOT/build/mobile/last-build.json"
     [[ -s "$REPORT" ]] || die "mobile build report was not generated"
-    python3 "$SCRIPT_DIR/chimera-mobile-fastboot.py" "$REPORT"    ;;
+    python3 "$SCRIPT_DIR/chimera-mobile-fastboot.py" "$REPORT"
+    ;;
   generic-flash)
     generic_flash
     ;;
