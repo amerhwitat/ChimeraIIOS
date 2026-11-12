@@ -12,7 +12,10 @@ Options:
   -h, --help    Show this help and exit successfully.
   --refresh-online-catalogs, --refresh-isa-catalog  Refresh ISA/OS indexes and discover legacy DOS applications/games online.
   --sync-dos-payloads         Download only license-reviewed, hash-pinned, smoke-tested DOS packages for ISO staging.
-  --full                      Clean build state, disable resume, and rebuild Docker without cache.
+  --clean-state              Remove build-owned intermediate state before rebuilding.
+  --storage-auto              Automatically select a writable build-storage location when needed.
+  --storage PATH              Place build intermediates and ISO output under PATH.
+  --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
 
