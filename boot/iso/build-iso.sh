@@ -83,11 +83,13 @@ cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/rec
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
 cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 
-# Stage the production Live/Installer/Recovery ring-3 payloads. Koronos only
-# enters user mode when the selected GRUB entry passes exactly one
-# CHIMERA_MODULE_USER_INIT_ELF module with a matching target= cmdline; staging
-# the ELFs here keeps the ISO and the menu contract in sync.
-printf '%s\n' '[3b/7] Stage ring-3 target inits (live, installer, recovery)'
+# Stage ring-3 target handoff probes. The current target_init.c programs are
+# deliberately limited console/dry-run/diagnostic probes, not production
+# Live/Installer/Recovery userspaces. Their readiness marker proves the CPL3
+# syscall path only; it does not certify filesystems, services, display,
+# installer disk writes, or recovery repairs. Keep this classification in
+# the ISO so downstream publication cannot mistake a smoke image for release.
+printf '%s\n' '[3b/7] Stage ring-3 target handoff probes (NOT production userspaces)'
 TARGETS_OUT="$DIST/iso/boot/targets"
 mkdir -p "$TARGETS_OUT"
 for target in live installer recovery; do
@@ -101,6 +103,45 @@ for target in live installer recovery; do
   grep -q "target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_ROOT/grub.cfg" || {
     echo "ERROR: GRUB menu does not reference the $target user-init module" >&2; exit 2; }
 done
+# Record the precise scope and hashes of the target payloads. This is a
+# deliberate non-production classification until each target has its real
+# userspace, static recovery path, and runtime acceptance trace.
+python3 - "$TARGETS_OUT" <<'PY'
+import hashlib, json, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+targets = {}
+for name, scope in (
+    ("live", "ring3-console-smoke-probe"),
+    ("installer", "storage-plan-dry-run-probe"),
+    ("recovery", "ring3-diagnostics-only-probe"),
+):
+    path = root / f"target-init-{name}.elf"
+    if not path.is_file() or path.stat().st_size == 0:
+        raise SystemExit(f"missing target handoff probe: {path}")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    targets[name] = {
+        "elf": path.name,
+        "sha256": digest,
+        "bytes": path.stat().st_size,
+        "scope": scope,
+        "production_ready": False,
+    }
+manifest = {
+    "schema": "koronos-target-runtime-status/v1",
+    "classification": "structured-boot-and-ring3-handoff-smoke-only",
+    "production_ready": False,
+    "reason": (
+        "Target payloads prove only the ring-3 syscall/readiness handshake. "
+        "They do not implement full Live services/filesystems/desktop, installer "
+        "disk writes, or recovery repair."
+    ),
+    "targets": targets,
+}
+(root / "target-runtime-status.json").write_text(
+    json.dumps(manifest, indent=2) + "\\n", encoding="utf-8"
+)
+PY
 
 # Stage the AI knowledge database. The kernel classifies it as
 # CHIMERA_MODULE_AI_KNOWLEDGE_DB and reports its entry count on the boot trace.
