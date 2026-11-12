@@ -21,7 +21,9 @@
       ],
       "theme": "classic-xp-blue",
       "launcher": "desktop/x11/start-session.sh",
-      "status": "native-shell-preview"
+      "status": "native-shell-preview",
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "aurora",
@@ -33,7 +35,9 @@
         "waybar",
         "wofi",
         "mako"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "gnome",
@@ -42,7 +46,9 @@
       "packages": [
         "gnome-shell",
         "gdm3"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "kde-plasma",
@@ -51,7 +57,9 @@
       "packages": [
         "plasma-desktop",
         "sddm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "xfce",
@@ -60,7 +68,9 @@
       "packages": [
         "xfce4",
         "lightdm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "cinnamon",
@@ -69,7 +79,9 @@
       "packages": [
         "cinnamon-desktop-environment",
         "lightdm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "mate",
@@ -78,7 +90,9 @@
       "packages": [
         "mate-desktop-environment",
         "lightdm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "lxqt",
@@ -87,7 +101,9 @@
       "packages": [
         "lxqt",
         "sddm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "lxde",
@@ -96,7 +112,9 @@
       "packages": [
         "lxde",
         "lightdm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "budgie",
@@ -105,7 +123,9 @@
       "packages": [
         "budgie-desktop",
         "lightdm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "cosmic",
@@ -113,7 +133,9 @@
       "protocol": "wayland",
       "packages": [
         "cosmic-desktop"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "deepin",
@@ -121,7 +143,9 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "dde"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "pantheon",
@@ -129,7 +153,9 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "pantheon"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "enlightenment",
@@ -137,7 +163,9 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "enlightenment"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "ukui",
@@ -145,7 +173,9 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "ukui-desktop-environment"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "trinity",
@@ -153,7 +183,9 @@
       "protocol": "x11",
       "packages": [
         "tdebase"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "lumina",
@@ -161,7 +193,9 @@
       "protocol": "x11",
       "packages": [
         "lumina-desktop"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "moksha",
@@ -169,7 +203,9 @@
       "protocol": "x11",
       "packages": [
         "moksha-desktop"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "sway",
@@ -178,7 +214,9 @@
       "packages": [
         "sway",
         "waybar"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "i3",
@@ -187,7 +225,9 @@
       "packages": [
         "i3-wm",
         "i3status"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "hyprland",
@@ -195,7 +235,9 @@
       "protocol": "wayland",
       "packages": [
         "hyprland"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "openbox",
@@ -203,7 +245,9 @@
       "protocol": "x11",
       "packages": [
         "openbox"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "icewm",
@@ -211,7 +255,9 @@
       "protocol": "x11",
       "packages": [
         "icewm"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "fluxbox",
@@ -219,7 +265,9 @@
       "protocol": "x11",
       "packages": [
         "fluxbox"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "windows-classic",
@@ -228,7 +276,9 @@
       "packages": [
         "wine",
         "winetricks"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "windows-modern",
@@ -237,19 +287,68 @@
       "packages": [
         "wine",
         "winetricks"
-      ]
+      ],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "macos-inspired",
       "family": "macos-personality",
       "protocol": "chimera",
-      "packages": []
+      "packages": [],
+      "user_selectable": true,
+      "default_candidate": true
     },
     {
       "id": "posix-generic",
       "family": "unix",
       "protocol": "wayland-or-x11",
-      "packages": []
+      "packages": [],
+      "user_selectable": true,
+      "default_candidate": true
+    },
+    {
+      "id": "marine",
+      "family": "chimera",
+      "protocol": "wayland",
+      "packages": [
+        "labwc",
+        "waybar",
+        "wofi",
+        "mako"
+      ],
+      "theme": "marine-blue",
+      "launcher": "desktop/x11/start-session.sh",
+      "status": "native-shell-preview",
+      "user_selectable": true,
+      "default_candidate": true
+    },
+    {
+      "id": "freewin11",
+      "family": "chimera",
+      "protocol": "wayland",
+      "packages": [
+        "labwc",
+        "waybar",
+        "wofi",
+        "mako"
+      ],
+      "theme": "fluent-blue",
+      "launcher": "desktop/x11/start-session.sh",
+      "status": "native-shell-preview",
+      "user_selectable": true,
+      "default_candidate": true
     }
-  ]
+  ],
+  "default_selection": {
+    "mode": "user-selectable",
+    "default": "aurora",
+    "default_candidates": [
+      "aurora",
+      "marine",
+      "freexp",
+      "freewin11"
+    ],
+    "persisted_preference": "CHIMERA_DEFAULT_DESKTOP"
+  }
 }
