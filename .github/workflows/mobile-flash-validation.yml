@@ -28,6 +28,8 @@ jobs:
         run: python3 mobile/tools/validate-mobile-manifest.py
       - name: Validate flash tool shell syntax
         run: bash -n tools/flash/chimera-flash mobile/android/build-mobile.sh mobile/ios/build-mobile.sh
+      - name: Test signed mobile flash manifest and fail-closed dry run
+        run: python3 mobile/flash/test-mobile-flash-tool.py
       - name: Validate Android project metadata
         run: |
           test -f mobile/android/settings.gradle
