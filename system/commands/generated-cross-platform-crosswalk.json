@@ -2,20 +2,18 @@
   "schema": "CHM-CROSS-PLATFORM-REFERENCE-1",
   "generated_from": {
     "command_catalogue": {
-      "path": "system/commands/chimera-command-list.json",
-      "blob_sha": "d248cad54175e4857bb3fd5939e6a998929c0555"
+      "path": "system/commands/chimera-command-list.json"
     },
     "isa_database": {
-      "path": "isa/isa_database.json",
-      "blob_sha": "f464986e9da84a0dbbfde398ba42eb7edaa2de0b"
+      "path": "isa/isa_database.json"
     },
     "architecture_backends": {
-      "path": "tools/isa/architecture-backends.json",
-      "blob_sha": "10cfee5a7c7ca66e9000094d3350a3152dc734f6"
+      "path": "tools/isa/architecture-backends.json"
     }
   },
   "commands": {
     "schema": "CHM-CROSS-PLATFORM-COMMAND-CROSSWALK-1",
+    "source": "system/commands/chimera-command-list.json",
     "namespace_counts": {
       "linux_bash": 301,
       "macos": 117,
@@ -26,7 +24,7 @@
       "native_chimera": 90
     },
     "unique_command_names": 892,
-    "policy": "Exact namespace matches and curated semantic equivalents are separate. Names do not imply option coverage, executable availability, or behavioral conformance.",
+    "policy": "Exact name matches and curated semantic equivalents are separate; no option or binary support is inferred.",
     "commands": [
       {
         "id": "symbol-21-21",
@@ -47,24 +45,6 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "symbol-2e",
-        "name": ".",
-        "catalogue_namespaces": [
-          "linux_bash"
-        ],
-        "platform_equivalents": {
-          "linux_bash": [
-            {
-              "name": ".",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
         "id": "symbol-26",
         "name": "&",
         "catalogue_namespaces": [
@@ -74,6 +54,24 @@
           "linux_bash": [
             {
               "name": "&",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "symbol-2e",
+        "name": ".",
+        "catalogue_namespaces": [
+          "linux_bash"
+        ],
+        "platform_equivalents": {
+          "linux_bash": [
+            {
+              "name": ".",
               "match": "exact-catalogue-name"
             }
           ]
@@ -540,14 +538,14 @@
       },
       {
         "id": "arp",
-        "name": "arp",
+        "name": "ARP",
         "catalogue_namespaces": [
-          "macos"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "macos": [
+          "windows_cmd": [
             {
-              "name": "arp",
+              "name": "ARP",
               "match": "exact-catalogue-name"
             }
           ]
@@ -558,14 +556,14 @@
       },
       {
         "id": "arp",
-        "name": "ARP",
+        "name": "arp",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "macos"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "macos": [
             {
-              "name": "ARP",
+              "name": "arp",
               "match": "exact-catalogue-name"
             }
           ]
@@ -1470,25 +1468,16 @@
       },
       {
         "id": "cd",
-        "name": "cd",
+        "name": "CD",
         "catalogue_namespaces": [
-          "linux_bash",
-          "macos"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
-            {
-              "name": "cd",
-              "match": "exact-catalogue-name"
-            }
-          ],
-          "macos": [
-            {
-              "name": "cd",
-              "match": "exact-catalogue-name"
-            }
-          ],
           "windows_cmd": [
+            {
+              "name": "CD",
+              "match": "exact-catalogue-name"
+            },
             {
               "name": "cd",
               "match": "curated-semantic-equivalent"
@@ -1511,16 +1500,25 @@
       },
       {
         "id": "cd",
-        "name": "CD",
+        "name": "cd",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash",
+          "macos"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "CD",
+              "name": "cd",
               "match": "exact-catalogue-name"
-            },
+            }
+          ],
+          "macos": [
+            {
+              "name": "cd",
+              "match": "exact-catalogue-name"
+            }
+          ],
+          "windows_cmd": [
             {
               "name": "cd",
               "match": "curated-semantic-equivalent"
@@ -2928,24 +2926,6 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "clear-console",
-        "name": "clear_console",
-        "catalogue_namespaces": [
-          "linux_bash"
-        ],
-        "platform_equivalents": {
-          "linux_bash": [
-            {
-              "name": "clear_console",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
         "id": "clear-content",
         "name": "Clear-Content",
         "catalogue_namespaces": [
@@ -2973,6 +2953,24 @@
           "powershell": [
             {
               "name": "Clear-Host",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "clear-console",
+        "name": "clear_console",
+        "catalogue_namespaces": [
+          "linux_bash"
+        ],
+        "platform_equivalents": {
+          "linux_bash": [
+            {
+              "name": "clear_console",
               "match": "exact-catalogue-name"
             }
           ]
@@ -3862,21 +3860,14 @@
       },
       {
         "id": "date",
-        "name": "date",
+        "name": "DATE",
         "catalogue_namespaces": [
-          "linux_bash",
-          "macos"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "date",
-              "match": "exact-catalogue-name"
-            }
-          ],
-          "macos": [
-            {
-              "name": "date",
+              "name": "DATE",
               "match": "exact-catalogue-name"
             }
           ]
@@ -3898,14 +3889,21 @@
       },
       {
         "id": "date",
-        "name": "DATE",
+        "name": "date",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash",
+          "macos"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "DATE",
+              "name": "date",
+              "match": "exact-catalogue-name"
+            }
+          ],
+          "macos": [
+            {
+              "name": "date",
               "match": "exact-catalogue-name"
             }
           ]
@@ -4083,6 +4081,17 @@
       },
       {
         "id": "declare",
+        "name": "DECLARE",
+        "catalogue_namespaces": [
+          "sql_server"
+        ],
+        "platform_equivalents": {},
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "declare",
         "name": "declare",
         "catalogue_namespaces": [
           "linux_bash"
@@ -4095,17 +4104,6 @@
             }
           ]
         },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "declare",
-        "name": "DECLARE",
-        "catalogue_namespaces": [
-          "sql_server"
-        ],
-        "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
         "provider_status": "not-asserted-by-name-catalogue",
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
@@ -4358,16 +4356,12 @@
       },
       {
         "id": "dir",
-        "name": "dir",
+        "name": "DIR",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
           "linux_bash": [
-            {
-              "name": "dir",
-              "match": "exact-catalogue-name"
-            },
             {
               "name": "ls",
               "match": "curated-semantic-equivalent"
@@ -4377,6 +4371,12 @@
             {
               "name": "ls",
               "match": "curated-semantic-equivalent"
+            }
+          ],
+          "windows_cmd": [
+            {
+              "name": "DIR",
+              "match": "exact-catalogue-name"
             }
           ],
           "powershell": [
@@ -4422,12 +4422,16 @@
       },
       {
         "id": "dir",
-        "name": "DIR",
+        "name": "dir",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
           "linux_bash": [
+            {
+              "name": "dir",
+              "match": "exact-catalogue-name"
+            },
             {
               "name": "ls",
               "match": "curated-semantic-equivalent"
@@ -4437,12 +4441,6 @@
             {
               "name": "ls",
               "match": "curated-semantic-equivalent"
-            }
-          ],
-          "windows_cmd": [
-            {
-              "name": "DIR",
-              "match": "exact-catalogue-name"
             }
           ],
           "powershell": [
@@ -5314,6 +5312,17 @@
       },
       {
         "id": "eval",
+        "name": "Eval",
+        "catalogue_namespaces": [
+          "vbscript"
+        ],
+        "platform_equivalents": {},
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "eval",
         "name": "eval",
         "catalogue_namespaces": [
           "linux_bash"
@@ -5331,10 +5340,10 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "eval",
-        "name": "Eval",
+        "id": "exec",
+        "name": "EXEC",
         "catalogue_namespaces": [
-          "vbscript"
+          "sql_server"
         ],
         "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
@@ -5367,8 +5376,8 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "exec",
-        "name": "EXEC",
+        "id": "execute",
+        "name": "EXECUTE",
         "catalogue_namespaces": [
           "sql_server"
         ],
@@ -5382,17 +5391,6 @@
         "name": "Execute",
         "catalogue_namespaces": [
           "vbscript"
-        ],
-        "platform_equivalents": {},
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "execute",
-        "name": "EXECUTE",
-        "catalogue_namespaces": [
-          "sql_server"
         ],
         "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
@@ -5671,6 +5669,30 @@
       },
       {
         "id": "find",
+        "name": "FIND",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "FIND",
+              "match": "exact-catalogue-name"
+            }
+          ],
+          "powershell": [
+            {
+              "name": "Get-ChildItem -Recurse",
+              "match": "curated-semantic-equivalent"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "find",
         "name": "find",
         "catalogue_namespaces": [
           "linux_bash",
@@ -5688,23 +5710,11 @@
               "name": "find",
               "match": "exact-catalogue-name"
             }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "find",
-        "name": "FIND",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
+          ],
+          "powershell": [
             {
-              "name": "FIND",
-              "match": "exact-catalogue-name"
+              "name": "Get-ChildItem -Recurse",
+              "match": "curated-semantic-equivalent"
             }
           ]
         },
@@ -5797,14 +5807,14 @@
       },
       {
         "id": "for",
-        "name": "for",
+        "name": "FOR",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "for",
+              "name": "FOR",
               "match": "exact-catalogue-name"
             }
           ]
@@ -5815,14 +5825,14 @@
       },
       {
         "id": "for",
-        "name": "FOR",
+        "name": "for",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "FOR",
+              "name": "for",
               "match": "exact-catalogue-name"
             }
           ]
@@ -5869,14 +5879,14 @@
       },
       {
         "id": "format",
-        "name": "format",
+        "name": "FORMAT",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "format",
+              "name": "FORMAT",
               "match": "exact-catalogue-name"
             }
           ]
@@ -5887,14 +5897,14 @@
       },
       {
         "id": "format",
-        "name": "FORMAT",
+        "name": "format",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "FORMAT",
+              "name": "format",
               "match": "exact-catalogue-name"
             }
           ]
@@ -7225,14 +7235,14 @@
       },
       {
         "id": "help",
-        "name": "help",
+        "name": "HELP",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "help",
+              "name": "HELP",
               "match": "exact-catalogue-name"
             }
           ]
@@ -7243,14 +7253,14 @@
       },
       {
         "id": "help",
-        "name": "HELP",
+        "name": "help",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "HELP",
+              "name": "help",
               "match": "exact-catalogue-name"
             }
           ]
@@ -7326,6 +7336,24 @@
       },
       {
         "id": "hostname",
+        "name": "HOSTNAME",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "HOSTNAME",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "hostname",
         "name": "hostname",
         "catalogue_namespaces": [
           "linux_bash",
@@ -7341,24 +7369,6 @@
           "macos": [
             {
               "name": "hostname",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "hostname",
-        "name": "HOSTNAME",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
-            {
-              "name": "HOSTNAME",
               "match": "exact-catalogue-name"
             }
           ]
@@ -7472,14 +7482,15 @@
       },
       {
         "id": "if",
-        "name": "if",
+        "name": "IF",
         "catalogue_namespaces": [
-          "linux_bash"
+          "sql_server",
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "if",
+              "name": "IF",
               "match": "exact-catalogue-name"
             }
           ]
@@ -7490,15 +7501,14 @@
       },
       {
         "id": "if",
-        "name": "IF",
+        "name": "if",
         "catalogue_namespaces": [
-          "sql_server",
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "IF",
+              "name": "if",
               "match": "exact-catalogue-name"
             }
           ]
@@ -7984,6 +7994,17 @@
       },
       {
         "id": "join",
+        "name": "Join",
+        "catalogue_namespaces": [
+          "vbscript"
+        ],
+        "platform_equivalents": {},
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "join",
         "name": "join",
         "catalogue_namespaces": [
           "linux_bash"
@@ -7996,17 +8017,6 @@
             }
           ]
         },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "join",
-        "name": "Join",
-        "catalogue_namespaces": [
-          "vbscript"
-        ],
-        "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
         "provider_status": "not-asserted-by-name-catalogue",
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
@@ -8086,14 +8096,14 @@
       },
       {
         "id": "klist",
-        "name": "klist",
+        "name": "KLIST",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "klist",
+              "name": "KLIST",
               "match": "exact-catalogue-name"
             }
           ]
@@ -8104,14 +8114,14 @@
       },
       {
         "id": "klist",
-        "name": "KLIST",
+        "name": "klist",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "KLIST",
+              "name": "klist",
               "match": "exact-catalogue-name"
             }
           ]
@@ -8884,10 +8894,28 @@
           "windows_cmd"
         ],
         "platform_equivalents": {
+          "linux_bash": [
+            {
+              "name": "mkdir",
+              "match": "curated-semantic-equivalent"
+            }
+          ],
+          "macos": [
+            {
+              "name": "mkdir",
+              "match": "curated-semantic-equivalent"
+            }
+          ],
           "windows_cmd": [
             {
               "name": "MD",
               "match": "exact-catalogue-name"
+            }
+          ],
+          "powershell": [
+            {
+              "name": "New-Item -ItemType Directory",
+              "match": "curated-semantic-equivalent"
             }
           ]
         },
@@ -8984,6 +9012,34 @@
       },
       {
         "id": "mkdir",
+        "name": "MKDIR",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "MKDIR",
+              "match": "exact-catalogue-name"
+            },
+            {
+              "name": "md",
+              "match": "curated-semantic-equivalent"
+            }
+          ],
+          "powershell": [
+            {
+              "name": "New-Item -ItemType Directory",
+              "match": "curated-semantic-equivalent"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "mkdir",
         "name": "mkdir",
         "catalogue_namespaces": [
           "linux_bash",
@@ -9001,23 +9057,17 @@
               "name": "mkdir",
               "match": "exact-catalogue-name"
             }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "mkdir",
-        "name": "MKDIR",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
+          ],
           "windows_cmd": [
             {
-              "name": "MKDIR",
-              "match": "exact-catalogue-name"
+              "name": "md",
+              "match": "curated-semantic-equivalent"
+            }
+          ],
+          "powershell": [
+            {
+              "name": "New-Item -ItemType Directory",
+              "match": "curated-semantic-equivalent"
             }
           ]
         },
@@ -9207,14 +9257,14 @@
       },
       {
         "id": "more",
-        "name": "more",
+        "name": "MORE",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "more",
+              "name": "MORE",
               "match": "exact-catalogue-name"
             }
           ]
@@ -9225,14 +9275,14 @@
       },
       {
         "id": "more",
-        "name": "MORE",
+        "name": "more",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "MORE",
+              "name": "more",
               "match": "exact-catalogue-name"
             }
           ]
@@ -9620,40 +9670,6 @@
       },
       {
         "id": "netstat",
-        "name": "netstat",
-        "catalogue_namespaces": [
-          "linux_bash"
-        ],
-        "platform_equivalents": {
-          "linux_bash": [
-            {
-              "name": "netstat",
-              "match": "exact-catalogue-name"
-            },
-            {
-              "name": "ss",
-              "match": "curated-semantic-equivalent"
-            }
-          ],
-          "macos": [
-            {
-              "name": "netstat",
-              "match": "curated-semantic-equivalent"
-            }
-          ],
-          "powershell": [
-            {
-              "name": "Get-NetTCPConnection",
-              "match": "curated-semantic-equivalent"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "netstat",
         "name": "NETSTAT",
         "catalogue_namespaces": [
           "windows_cmd"
@@ -9675,6 +9691,40 @@
             {
               "name": "NETSTAT",
               "match": "exact-catalogue-name"
+            }
+          ],
+          "powershell": [
+            {
+              "name": "Get-NetTCPConnection",
+              "match": "curated-semantic-equivalent"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "netstat",
+        "name": "netstat",
+        "catalogue_namespaces": [
+          "linux_bash"
+        ],
+        "platform_equivalents": {
+          "linux_bash": [
+            {
+              "name": "netstat",
+              "match": "exact-catalogue-name"
+            },
+            {
+              "name": "ss",
+              "match": "curated-semantic-equivalent"
+            }
+          ],
+          "macos": [
+            {
+              "name": "netstat",
+              "match": "curated-semantic-equivalent"
             }
           ],
           "powershell": [
@@ -10007,14 +10057,14 @@
       },
       {
         "id": "nslookup",
-        "name": "nslookup",
+        "name": "NSLOOKUP",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "nslookup",
+              "name": "NSLOOKUP",
               "match": "exact-catalogue-name"
             }
           ]
@@ -10025,14 +10075,14 @@
       },
       {
         "id": "nslookup",
-        "name": "NSLOOKUP",
+        "name": "nslookup",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "NSLOOKUP",
+              "name": "nslookup",
               "match": "exact-catalogue-name"
             }
           ]
@@ -10466,6 +10516,24 @@
       },
       {
         "id": "ping",
+        "name": "PING",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "PING",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "ping",
         "name": "ping",
         "catalogue_namespaces": [
           "linux_bash",
@@ -10481,24 +10549,6 @@
           "macos": [
             {
               "name": "ping",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "ping",
-        "name": "PING",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
-            {
-              "name": "PING",
               "match": "exact-catalogue-name"
             }
           ]
@@ -10581,14 +10631,14 @@
       },
       {
         "id": "popd",
-        "name": "popd",
+        "name": "POPD",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "popd",
+              "name": "POPD",
               "match": "exact-catalogue-name"
             }
           ]
@@ -10599,14 +10649,14 @@
       },
       {
         "id": "popd",
-        "name": "POPD",
+        "name": "popd",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "POPD",
+              "name": "popd",
               "match": "exact-catalogue-name"
             }
           ]
@@ -10744,14 +10794,14 @@
       },
       {
         "id": "pushd",
-        "name": "pushd",
+        "name": "PUSHD",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "pushd",
+              "name": "PUSHD",
               "match": "exact-catalogue-name"
             }
           ]
@@ -10762,14 +10812,14 @@
       },
       {
         "id": "pushd",
-        "name": "PUSHD",
+        "name": "pushd",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "PUSHD",
+              "name": "pushd",
               "match": "exact-catalogue-name"
             }
           ]
@@ -11368,14 +11418,14 @@
       },
       {
         "id": "rename",
-        "name": "rename",
+        "name": "RENAME",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "rename",
+              "name": "RENAME",
               "match": "exact-catalogue-name"
             }
           ]
@@ -11386,14 +11436,14 @@
       },
       {
         "id": "rename",
-        "name": "RENAME",
+        "name": "rename",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "linux_bash"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "RENAME",
+              "name": "rename",
               "match": "exact-catalogue-name"
             }
           ]
@@ -11774,14 +11824,14 @@
       },
       {
         "id": "route",
-        "name": "route",
+        "name": "ROUTE",
         "catalogue_namespaces": [
-          "macos"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "macos": [
+          "windows_cmd": [
             {
-              "name": "route",
+              "name": "ROUTE",
               "match": "exact-catalogue-name"
             }
           ]
@@ -11792,14 +11842,14 @@
       },
       {
         "id": "route",
-        "name": "ROUTE",
+        "name": "route",
         "catalogue_namespaces": [
-          "windows_cmd"
+          "macos"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "macos": [
             {
-              "name": "ROUTE",
+              "name": "route",
               "match": "exact-catalogue-name"
             }
           ]
@@ -12030,6 +12080,17 @@
       },
       {
         "id": "select",
+        "name": "SELECT",
+        "catalogue_namespaces": [
+          "sql_server"
+        ],
+        "platform_equivalents": {},
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "select",
         "name": "select",
         "catalogue_namespaces": [
           "linux_bash"
@@ -12042,17 +12103,6 @@
             }
           ]
         },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "select",
-        "name": "SELECT",
-        "catalogue_namespaces": [
-          "sql_server"
-        ],
-        "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
         "provider_status": "not-asserted-by-name-catalogue",
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
@@ -12095,21 +12145,15 @@
       },
       {
         "id": "set",
-        "name": "set",
+        "name": "SET",
         "catalogue_namespaces": [
-          "linux_bash",
-          "macos"
+          "sql_server",
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "set",
-              "match": "exact-catalogue-name"
-            }
-          ],
-          "macos": [
-            {
-              "name": "set",
+              "name": "SET",
               "match": "exact-catalogue-name"
             }
           ]
@@ -12131,15 +12175,21 @@
       },
       {
         "id": "set",
-        "name": "SET",
+        "name": "set",
         "catalogue_namespaces": [
-          "sql_server",
-          "windows_cmd"
+          "linux_bash",
+          "macos"
         ],
         "platform_equivalents": {
-          "windows_cmd": [
+          "linux_bash": [
             {
-              "name": "SET",
+              "name": "set",
+              "match": "exact-catalogue-name"
+            }
+          ],
+          "macos": [
+            {
+              "name": "set",
               "match": "exact-catalogue-name"
             }
           ]
@@ -12503,6 +12553,24 @@
       },
       {
         "id": "shutdown",
+        "name": "SHUTDOWN",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "SHUTDOWN",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "shutdown",
         "name": "shutdown",
         "catalogue_namespaces": [
           "linux_bash",
@@ -12518,24 +12586,6 @@
           "macos": [
             {
               "name": "shutdown",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "shutdown",
-        "name": "SHUTDOWN",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
-            {
-              "name": "SHUTDOWN",
               "match": "exact-catalogue-name"
             }
           ]
@@ -12625,6 +12675,24 @@
       },
       {
         "id": "sort",
+        "name": "SORT",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "SORT",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "sort",
         "name": "sort",
         "catalogue_namespaces": [
           "linux_bash",
@@ -12640,24 +12708,6 @@
           "macos": [
             {
               "name": "sort",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "sort",
-        "name": "SORT",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
-            {
-              "name": "SORT",
               "match": "exact-catalogue-name"
             }
           ]
@@ -12726,6 +12776,17 @@
       },
       {
         "id": "split",
+        "name": "Split",
+        "catalogue_namespaces": [
+          "vbscript"
+        ],
+        "platform_equivalents": {},
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "split",
         "name": "split",
         "catalogue_namespaces": [
           "linux_bash"
@@ -12738,17 +12799,6 @@
             }
           ]
         },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "split",
-        "name": "Split",
-        "catalogue_namespaces": [
-          "vbscript"
-        ],
-        "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
         "provider_status": "not-asserted-by-name-catalogue",
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
@@ -13561,14 +13611,14 @@
       },
       {
         "id": "time",
-        "name": "time",
+        "name": "TIME",
         "catalogue_namespaces": [
-          "linux_bash"
+          "windows_cmd"
         ],
         "platform_equivalents": {
-          "linux_bash": [
+          "windows_cmd": [
             {
-              "name": "time",
+              "name": "TIME",
               "match": "exact-catalogue-name"
             }
           ]
@@ -13590,32 +13640,14 @@
       },
       {
         "id": "time",
-        "name": "TIME",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
-            {
-              "name": "TIME",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "timeout",
-        "name": "timeout",
+        "name": "time",
         "catalogue_namespaces": [
           "linux_bash"
         ],
         "platform_equivalents": {
           "linux_bash": [
             {
-              "name": "timeout",
+              "name": "time",
               "match": "exact-catalogue-name"
             }
           ]
@@ -13634,6 +13666,24 @@
           "windows_cmd": [
             {
               "name": "TIMEOUT",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "timeout",
+        "name": "timeout",
+        "catalogue_namespaces": [
+          "linux_bash"
+        ],
+        "platform_equivalents": {
+          "linux_bash": [
+            {
+              "name": "timeout",
               "match": "exact-catalogue-name"
             }
           ]
@@ -13979,40 +14029,6 @@
       },
       {
         "id": "type",
-        "name": "type",
-        "catalogue_namespaces": [
-          "linux_bash"
-        ],
-        "platform_equivalents": {
-          "linux_bash": [
-            {
-              "name": "type",
-              "match": "exact-catalogue-name"
-            },
-            {
-              "name": "cat",
-              "match": "curated-semantic-equivalent"
-            }
-          ],
-          "macos": [
-            {
-              "name": "cat",
-              "match": "curated-semantic-equivalent"
-            }
-          ],
-          "powershell": [
-            {
-              "name": "Get-Content",
-              "match": "curated-semantic-equivalent"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "type",
         "name": "TYPE",
         "catalogue_namespaces": [
           "windows_cmd"
@@ -14034,6 +14050,40 @@
             {
               "name": "TYPE",
               "match": "exact-catalogue-name"
+            }
+          ],
+          "powershell": [
+            {
+              "name": "Get-Content",
+              "match": "curated-semantic-equivalent"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "type",
+        "name": "type",
+        "catalogue_namespaces": [
+          "linux_bash"
+        ],
+        "platform_equivalents": {
+          "linux_bash": [
+            {
+              "name": "type",
+              "match": "exact-catalogue-name"
+            },
+            {
+              "name": "cat",
+              "match": "curated-semantic-equivalent"
+            }
+          ],
+          "macos": [
+            {
+              "name": "cat",
+              "match": "curated-semantic-equivalent"
             }
           ],
           "powershell": [
@@ -14827,6 +14877,17 @@
       },
       {
         "id": "while",
+        "name": "WHILE",
+        "catalogue_namespaces": [
+          "sql_server"
+        ],
+        "platform_equivalents": {},
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "while",
         "name": "while",
         "catalogue_namespaces": [
           "linux_bash"
@@ -14839,17 +14900,6 @@
             }
           ]
         },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "while",
-        "name": "WHILE",
-        "catalogue_namespaces": [
-          "sql_server"
-        ],
-        "platform_equivalents": {},
         "options_coverage": "not-present-in-source-catalogue",
         "provider_status": "not-asserted-by-name-catalogue",
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
@@ -14881,6 +14931,24 @@
       },
       {
         "id": "whoami",
+        "name": "WHOAMI",
+        "catalogue_namespaces": [
+          "windows_cmd"
+        ],
+        "platform_equivalents": {
+          "windows_cmd": [
+            {
+              "name": "WHOAMI",
+              "match": "exact-catalogue-name"
+            }
+          ]
+        },
+        "options_coverage": "not-present-in-source-catalogue",
+        "provider_status": "not-asserted-by-name-catalogue",
+        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
+      },
+      {
+        "id": "whoami",
         "name": "whoami",
         "catalogue_namespaces": [
           "linux_bash",
@@ -14896,24 +14964,6 @@
           "macos": [
             {
               "name": "whoami",
-              "match": "exact-catalogue-name"
-            }
-          ]
-        },
-        "options_coverage": "not-present-in-source-catalogue",
-        "provider_status": "not-asserted-by-name-catalogue",
-        "native_implementation": "must-be-established-by-provider-ledger-and-tests"
-      },
-      {
-        "id": "whoami",
-        "name": "WHOAMI",
-        "catalogue_namespaces": [
-          "windows_cmd"
-        ],
-        "platform_equivalents": {
-          "windows_cmd": [
-            {
-              "name": "WHOAMI",
               "match": "exact-catalogue-name"
             }
           ]
@@ -15455,9 +15505,13 @@
   },
   "isa": {
     "schema": "CHM-ISA-CROSS-PLATFORM-CROSSWALK-1",
+    "sources": [
+      "isa/isa_database.json",
+      "tools/isa/architecture-backends.json"
+    ],
     "architecture_records": 104,
     "instruction_form_records": 154,
-    "policy": "Compiler target availability, binary-format recognition, emulation, ISA conformance, and native hardware execution are separate evidence states.",
+    "policy": "Compiler target availability, binary-format recognition, emulation and native conformance are distinct states.",
     "architectures": [
       {
         "architecture_id": "chimera-c8192",
