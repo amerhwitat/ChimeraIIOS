@@ -83,7 +83,7 @@ cp -f "$RECOVERY_BOOT/chimera-recovery-initramfs.img.sha256" "$DIST/iso/boot/rec
 cp -f "$RECOVERY_BOOT/recovery-manifest.json" "$DIST/iso/boot/recovery/"
 cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/iso/boot/jasper/recovery.cfg"
 
-# Stage the production Live/Installer/Recovery ring-3 payloads. Koronos only
+# Stage the Live/Installer/Recovery ring-3 handshake probes and explicit ELF manifests. Koronos only
 # enters user mode when the selected GRUB entry passes exactly one
 # CHIMERA_MODULE_USER_INIT_ELF module with a matching target= cmdline; staging
 # the ELFs here keeps the ISO and the menu contract in sync.
@@ -92,10 +92,14 @@ TARGETS_OUT="$DIST/iso/boot/targets"
 mkdir -p "$TARGETS_OUT"
 for target in live installer recovery; do
   target_elf="$ROOT/build/koronos/x86_64/target-init-$target.elf"
-  test -s "$target_elf" || { echo "ERROR: production target init missing: $target_elf (run kernel/build-koronos.sh)" >&2; exit 2; }
+  test -s "$target_elf" || { echo "ERROR: target-init handshake payload missing: $target_elf (run kernel/build-koronos.sh)" >&2; exit 2; }
   grub-file --is-x86-multiboot2 "$target_elf" >/dev/null 2>&1 && true
   readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target_elf is not ET_EXEC" >&2; exit 2; }
   cp -f "$target_elf" "$TARGETS_OUT/"
+  python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \\
+    --target "$target" --elf "$target_elf" \\
+    --output "$TARGETS_OUT/target-init-$target.manifest.json"
+  test -s "$TARGETS_OUT/target-init-$target.manifest.json"
 done
 for target in live installer recovery; do
   grep -q "target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_ROOT/grub.cfg" || {
