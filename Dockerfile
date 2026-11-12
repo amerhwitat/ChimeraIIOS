@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-venv nodejs npm openjdk-21-jdk-headless \
     rustc cargo perl pciutils usbutils dmidecode iproute2 procps \
     systemd systemd-sysv dos2unix \
+    mariadb-server mariadb-client libmariadb-dev \
+    postgresql postgresql-client libpq-dev \
+    sqlite3 libsqlite3-dev \
+    redis-server redis-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Ubuntu 24.04 uses PEP 668. Keep Python application dependencies in an
