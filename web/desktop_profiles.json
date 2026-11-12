@@ -197,6 +197,22 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS ColecoVision core."
+    },
+    {
+      "id": "freexp",
+      "title": "FreeXP",
+      "family": "Chimera",
+      "mode": "native-shell-preview",
+      "default_eligible": true,
+      "description": "Original Windows-XP-inspired Chimera desktop shell; preview status."
+    },
+    {
+      "id": "freewin11",
+      "title": "FreeWin11",
+      "family": "Chimera",
+      "mode": "native-shell-preview",
+      "default_eligible": true,
+      "description": "Original Windows-11-inspired Chimera desktop shell; preview status, not Microsoft Windows."
     }
   ]
 }
