@@ -49,7 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          for image in mariadb:11.4 postgres:17 firebirdsql/firebird:5.0.2 valkey/valkey:8.1.2 cassandra:5.0 couchdb:3.4.3; do
+          for image in mariadb:11.4 mysql:8.4 postgres:17 firebirdsql/firebird:5.0.2 valkey/valkey:8.1.2 cassandra:5.0 couchdb:3.4.3; do
             docker pull "$image"
             safe="$(printf '%s' "$image" | tr '/:' '__')"
             docker image inspect "$image" --format '{{json .RepoDigests}}' > "artifacts/$safe.digests.json"
