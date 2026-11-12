@@ -197,13 +197,15 @@ process_snapshot(){
     echo "-- process tree --"
     pstree -ap $$ 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
-    docker ps -a --no-trunc 2>/dev/null || true
+    # Docker metadata endpoints can block while BuildKit is exporting a large
+    # image. Bound diagnostics so the watchdog keeps emitting CI heartbeats.
+    timeout 3s docker ps -a --no-trunc 2>/dev/null || true
     echo "-- docker disk usage --"
-    docker system df 2>/dev/null || true
+    timeout 3s docker system df 2>/dev/null || true
     echo "-- storage --"
     df -h "$BUILD_DIR" "$ISO_OUTPUT_DIR" 2>/dev/null || true
     echo "-- build directories --"
-    du -sh "$BUILD_DIR"/* "$ISO_DIR"/* 2>/dev/null | sort -h | tail -n 20 || true
+    timeout 3s du -sh "$BUILD_DIR"/* "$ISO_DIR"/* 2>/dev/null | sort -h | tail -n 20 || true
   } >> "$LOG_DIR/process-snapshots.log" 2>&1
 }
 start_watchdog(){
