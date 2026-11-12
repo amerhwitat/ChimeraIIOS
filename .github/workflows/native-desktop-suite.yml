@@ -57,6 +57,12 @@ jobs:
           test -s "$out/icons/settings.svg"
           "$out/bin/aurora-utf-selftest"
           python3 -m json.tool "$out/manifests/desktop-build-manifest.json" >/dev/null
+      - name: Validate all desktop session manifests
+        run: |
+          set -euo pipefail
+          for profile in aurora marine freexp freewin11; do
+            python3 -m json.tool "desktop/sessions/$profile.json" >/dev/null
+          done
       - name: Compile shell and desktop application targets
         run: |
           set -euo pipefail
