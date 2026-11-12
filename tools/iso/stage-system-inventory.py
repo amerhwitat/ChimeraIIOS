@@ -30,6 +30,7 @@ SOURCE_MAP = {
     "boot/iso/iso-layout.json": "usr/share/chimera/catalogues/boot/iso-layout.json",
 }
 TREE_MAP = {
+    "desktop": "usr/share/chimera/desktops/source",
     "desktop/aurora": "usr/share/chimera/desktops/aurora",
     "desktop/aurora-shell": "usr/share/chimera/desktops/aurora-shell",
     "desktop/x11": "usr/share/chimera/desktops/x11",
@@ -45,6 +46,7 @@ GENERATED_MAP = {
     "build/apps": "opt/chimera/generated/apps",
     "build/services": "opt/chimera/generated/services",
     "build/targets": "opt/chimera/generated/targets",
+    "build/koronos/x86_64": "opt/chimera/generated/targets/x86_64",
     "build/koronos/ports": "opt/chimera/generated/architecture-ports",
     "build/mobile": "opt/chimera/generated/mobile",
     "build/compatibility": "opt/chimera/generated/compatibility",
@@ -53,7 +55,6 @@ GENERATED_MAP = {
     "build/live-boot": "opt/chimera/generated/live-boot",
 }
 UNIT_DIRS = (
-    ("services", "usr/lib/systemd/system/chimera"),
     ("systemd", "usr/lib/systemd/system"),
     ("init.d", "etc/init.d"),
     ("rc0.d", "etc/rc0.d"), ("rc1.d", "etc/rc1.d"),
@@ -120,6 +121,25 @@ def main() -> int:
             src = target_dir / f"target-init-{target}.{suffix}"
             if src.is_file():
                 copy_file(src, iso / f"boot/targets/{src.name}", root, "target-init-payload-or-manifest", records)
+    # Collect declared unit/target files from repository trees into a discoverable
+    # directory; only actual unit files are copied here (not arbitrary source).
+    unit_suffixes = {".service", ".target", ".timer", ".socket", ".path", ".mount", ".automount"}
+    for service_root in (root / "services", root / "boot", root / "system"):
+        if not service_root.is_dir():
+            continue
+        for src in service_root.rglob("*"):
+            if src.is_file() and not src.is_symlink() and src.suffix in unit_suffixes:
+                copy_file(src, iso / "usr/lib/systemd/system/chimera" / src.name,
+                          root, "service-unit-definition", records)
+    # Expose explicit target/runlevel registries when present.
+    for rel, target in (
+        ("system/targets", "usr/share/chimera/targets"),
+        ("system/runlevels", "usr/share/chimera/runlevels"),
+        ("config/targets", "usr/share/chimera/targets/config"),
+        ("config/runlevels", "usr/share/chimera/runlevels/config"),
+        ("services/targets", "usr/share/chimera/targets/services"),
+    ):
+        copy_tree(root / rel, iso / target, root, "target-or-runlevel-definition", records)
     # Stage service-manager definitions and SysV runlevel links from generated
     # rootfs as well as repository source, preserving the level directories.
     rootfs = root / "build/rootfs"
