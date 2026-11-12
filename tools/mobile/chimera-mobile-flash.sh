@@ -61,29 +61,7 @@ case "$COMMAND" in
     python3 "$BUILDER" --build
     REPORT="$ROOT/build/mobile/last-build.json"
     [[ -s "$REPORT" ]] || die "mobile build report was not generated"
-    python3 - "$REPORT" <<'PY'
-import hashlib,json,subprocess,sys
-from pathlib import Path
-r=json.load(open(sys.argv[1],encoding="utf-8")); target=r.get("target",{}); serial=target.get("serial")
-if not serial: raise SystemExit("No exact Android serial in build report.")
-q=subprocess.run(["adb","devices"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-live=[x.split()[0] for x in q.stdout.splitlines()[1:] if len(x.split())>=2 and x.split()[1]=="device"]
-if live != [serial]: raise SystemExit(f"Live device set changed; expected only {serial}, found {live}. Refusing to flash.")
-p=r.get("profile",{}); flash=p.get("flash",{})
-if flash.get("method")!="fastboot-profiled": raise SystemExit("No verified flash adapter exists for this exact device profile.")
-parts=flash.get("partitions",[])
-if not parts: raise SystemExit("Exact device profile declares no flash partitions; refusing to write.")
-print("Verified exact device:",serial,p.get("id"),"architecture=",target.get("architecture"))
-print("Partitions:",", ".join(x["name"] for x in parts))
-if input('Type FLASH CHIMERA to continue: ')!="FLASH CHIMERA": raise SystemExit("Cancelled.")
-for item in parts:
-    image=Path(item["image"])
-    if not image.is_file(): raise SystemExit("Missing mapped image: "+str(image))
-    if hashlib.sha256(image.read_bytes()).hexdigest().lower()!=item["sha256"].lower(): raise SystemExit("SHA-256 mismatch: "+str(image))
-    subprocess.run(["fastboot","-s",serial,"flash",item["name"],str(image)],check=True)
-print("CHIMERA FLASH COMPLETE")
-PY
-    ;;
+    python3 "$SCRIPT_DIR/chimera-mobile-fastboot.py" "$REPORT"    ;;
   generic-flash)
     generic_flash
     ;;
