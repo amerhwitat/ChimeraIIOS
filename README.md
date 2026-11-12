@@ -241,7 +241,7 @@ bash tools/desktop/set-default-desktop.sh freewin11
 bash desktop/x11/start-session.sh
 ```
 
-Supported choices are `aurora`, `marine`, `freexp`, and `freewin11`. The native GTK shell accepts all four identities, and the native desktop CI includes headless smoke-test invocations for each. The FreeXP and FreeWin11 browser previews are also linked from the public desktop gallery.
+Supported choices are `aurora`, `marine`, `freexp`, and `freewin11`. The native GTK shell accepts all four identities, and the native desktop CI includes headless smoke-test invocations for each. The FreeXP and FreeWin11 browser previews are also linked from the public desktop gallery. The X11 session launcher still fails closed unless its runtime is verified; `CHIMERA_X11_FORCE_UNVERIFIED=1` is only for controlled development testing and is not a production acceptance bypass.
 
 - [Desktop profile registry](desktop/profiles/desktop-profiles.json)
 - [Desktop visual and compatibility profiles](desktop/desktop_profiles.json)
