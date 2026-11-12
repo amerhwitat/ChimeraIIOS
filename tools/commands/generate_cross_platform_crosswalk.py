@@ -82,6 +82,13 @@ ARCH_ALIASES = {
 def norm(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")
 
+def command_id(value: str) -> str:
+    normalized = norm(value)
+    if normalized:
+        return normalized
+    # Shell operators and punctuation-only builtins still need stable IDs.
+    return "symbol-" + "-".join(f"{ord(ch):x}" for ch in value)
+
 def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -106,7 +113,7 @@ def command_crosswalk():
             if values:
                 equivalents[platform] = values
         rows.append({
-            "id": norm(name),
+            "id": command_id(name),
             "name": name,
             "catalogue_namespaces": exact,
             "platform_equivalents": equivalents,
