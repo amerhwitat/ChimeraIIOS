@@ -1,9 +1,9 @@
 name: Open Source Integration CI
 on:
   push:
-    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
+    paths: ['opensource/**','services/**','applications/**','database/**','data/registry/databases.json','tools/validate_open_source_matrix.py','tools/validate_provenance.py','tools/validate_database_build_matrix.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**','tests/database/**']
   pull_request:
-    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
+    paths: ['opensource/**','services/**','applications/**','database/**','data/registry/databases.json','tools/validate_open_source_matrix.py','tools/validate_provenance.py','tools/validate_database_build_matrix.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**','tests/database/**']
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,6 +19,8 @@ jobs:
       - run: python -m pytest tests/opensource/test_integration_contracts.py tests/services/test_service_registry.py tests/applications/test_catalog.py -q
       - run: python tools/validate_provenance.py
       - run: python tools/validate_open_source_matrix.py
+      - run: python tools/validate_database_build_matrix.py
+      - run: python -m pytest tests/database/test_database_catalog.py tests/database/test_database_build_matrix.py -q
   native:
     runs-on: ubuntu-latest
     steps:
@@ -30,3 +32,30 @@ jobs:
       - run: cc -std=c11 -Wall -Wextra -Werror -c applications/linux/chimera_linux_apps.c -o /tmp/chm_apps_linux.o
       - run: cc -std=c11 -Wall -Wextra -Werror -c applications/windows/chimera_windows_apps.c -o /tmp/chm_apps_windows.o
       - run: cc -std=c11 -Wall -Wextra -Werror -c applications/macos/chimera_macos_apps.c -o /tmp/chm_apps_macos.o
+      - name: Build and test Koronos database service adapter
+        run: |
+          cmake -S database -B /tmp/chimera-database-build -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/chimera-database-build --parallel 2
+          ctest --test-dir /tmp/chimera-database-build --output-on-failure
+
+  upstream-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acquire upstream server images and record immutable digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          for image in mariadb:11.4 mysql:8.4 postgres:17 firebirdsql/firebird:5.0.2 valkey/valkey:8.1.2 cassandra:5.0 couchdb:3.4.3; do
+            docker pull "$image"
+            safe="$(printf '%s' "$image" | tr '/:' '__')"
+            docker image inspect "$image" --format '{{json .RepoDigests}}' > "artifacts/$safe.digests.json"
+            docker image inspect "$image" --format '{{.Id}}' > "artifacts/$safe.image-id.txt"
+            printf '%s\n' "$image" > "artifacts/$safe.reference.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: database-upstream-image-provenance
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30

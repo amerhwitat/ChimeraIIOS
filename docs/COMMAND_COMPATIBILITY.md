@@ -9,7 +9,7 @@ Chimera II now exposes a unified command namespace for common POSIX/Linux/Unix, 
 3. If a platform-specific executable is absent, Chimera reports it as unavailable rather than fabricating behavior.
 4. Privileged operations remain subject to Koronos/Aegis authorization.
 5. English names remain valid when Arabic command aliases are enabled.
-6. The catalog is data-driven in system/commands/command_compatibility.json.
+6. The compatibility policy is data-driven in `system/commands/compatibility-binary-policy.json`; runtime evidence is recorded in `system/commands/command-runtime-capabilities.json`, with command/source catalogues in `system/commands/online-command-catalog.json` and `system/commands/ss64-command-catalog.json`. See `docs/PLATFORM_COMMAND_AND_ISA_MATRIX.md` for the Linux, Windows, macOS, BSD and Solaris provider/architecture matrix.
 
 PowerShell is a cross-platform shell and automation language for Windows, Linux, and macOS. Windows CMD remains a separate command interpreter. Microsoft also publishes a Windows Coreutils package containing common Unix-style utilities. citeturn0search10turn0search1turn0search4
 
