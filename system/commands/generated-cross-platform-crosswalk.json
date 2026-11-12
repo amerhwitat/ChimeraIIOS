@@ -29,7 +29,7 @@
     "policy": "Exact namespace matches and curated semantic equivalents are separate. Names do not imply option coverage, executable availability, or behavioral conformance.",
     "commands": [
       {
-        "id": "",
+        "id": "symbol-21-21",
         "name": "!!",
         "catalogue_namespaces": [
           "linux_bash"
@@ -47,7 +47,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "",
+        "id": "symbol-2e",
         "name": ".",
         "catalogue_namespaces": [
           "linux_bash"
@@ -65,7 +65,7 @@
         "native_implementation": "must-be-established-by-provider-ledger-and-tests"
       },
       {
-        "id": "",
+        "id": "symbol-26",
         "name": "&",
         "catalogue_namespaces": [
           "linux_bash"
