@@ -628,6 +628,24 @@ create_boot_menu(){
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  # Stage the exact freestanding ring-3 init ELF for every selectable target.
+  # Without these modules, GRUB loads the kernel but Koronos correctly refuses
+  # Live/Installer/Recovery handoff. Keep manifests explicit and probe-only.
+  local target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"
+  local target_stage="$ISO_DIR/boot/targets"
+  mkdir -p "$target_stage"
+  for target in live installer recovery; do
+    local target_elf="$target_init_dir/target-init-$target.elf"
+    local staged_elf="$target_stage/target-init-$target.elf"
+    [[ -s "$target_elf" ]] || { log_error "Missing native $target init ELF: $target_elf"; exit 1; }
+    readelf -h "$target_elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { log_error "$target_elf is not ELF64"; exit 1; }
+    readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { log_error "$target_elf is not ET_EXEC"; exit 1; }
+    readelf -lW "$target_elf" | grep -Eq 'LOAD.*R E' || { log_error "$target_elf has no readable/executable PT_LOAD"; exit 1; }
+    chimera_copy_if_distinct "$target_elf" "$staged_elf"
+    python3 "$SCRIPT_DIR/tools/boot/generate-target-init-manifest.py" \\
+      --target "$target" --elf "$staged_elf" \\
+      --output "$target_stage/target-init-$target.manifest.json"
+  done
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
@@ -1395,6 +1413,12 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/targets/target-init-live.elf
+    /boot/targets/target-init-live.manifest.json
+    /boot/targets/target-init-installer.elf
+    /boot/targets/target-init-installer.manifest.json
+    /boot/targets/target-init-recovery.elf
+    /boot/targets/target-init-recovery.manifest.json
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt
@@ -1423,6 +1447,23 @@ verify_iso(){
     fi
   done
   xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
+  # Verify the on-media ELF bytes against their target-specific manifests.
+  python3 - "$ISO_DIR/boot/targets" <<'PYTARGET'
+import hashlib, json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+for target in ("live", "installer", "recovery"):
+    elf = root / f"target-init-{target}.elf"
+    manifest = root / f"target-init-{target}.manifest.json"
+    doc = json.loads(manifest.read_text(encoding="utf-8"))
+    if doc.get("schema") != "CHM-NATIVE-TARGET-INIT-1" or doc.get("target") != target:
+        raise SystemExit(f"invalid target-init manifest: {manifest}")
+    digest = hashlib.sha256(elf.read_bytes()).hexdigest()
+    if doc.get("sha256") != digest or doc.get("production_ready") is not False:
+        raise SystemExit(f"target-init checksum/status mismatch: {target}")
+    if doc.get("payload_kind") != "ring3-readiness-probe" or not doc.get("limitations"):
+        raise SystemExit(f"target-init maturity declaration missing: {target}")
+    print(f"[TARGET] {target}: ELF/manifest checksum verified; probe-only status retained")
+PYTARGET
   log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
     log_info 'Launching a non-asserting QEMU firmware smoke probe; timeout is not proof of boot success.'
