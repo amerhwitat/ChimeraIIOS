@@ -1,0 +1,53 @@
+name: Cross-platform command and ISA crosswalk
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "system/commands/chimera-command-list.json"
+      - "system/commands/generated-cross-platform-crosswalk.json"
+      - "isa/isa_database.json"
+      - "tools/isa/architecture-backends.json"
+      - "tools/commands/generate_cross_platform_crosswalk.py"
+      - ".github/workflows/cross-platform-crosswalk.yml"
+  pull_request:
+    paths:
+      - "system/commands/chimera-command-list.json"
+      - "system/commands/generated-cross-platform-crosswalk.json"
+      - "isa/isa_database.json"
+      - "tools/isa/architecture-backends.json"
+      - "tools/commands/generate_cross_platform_crosswalk.py"
+      - ".github/workflows/cross-platform-crosswalk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Regenerate deterministic crosswalk
+        run: |
+          python3 tools/commands/generate_cross_platform_crosswalk.py
+          git diff --exit-code -- system/commands/generated-cross-platform-crosswalk.json
+      - name: Validate complete catalogue reconciliation
+        run: |
+          python3 -m json.tool system/commands/generated-cross-platform-crosswalk.json >/dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("system/commands/generated-cross-platform-crosswalk.json").read_text())
+          commands = data["commands"]["commands"]
+          architectures = data["isa"]["architectures"]
+          instruction_forms = sum(len(x["instruction_rows"]) for x in architectures)
+          assert len(commands) == data["commands"]["unique_command_names"] == 892
+          assert len(architectures) == data["isa"]["architecture_records"] == 104
+          assert instruction_forms == data["isa"]["instruction_form_records"] == 154
+          assert all(x["id"] for x in commands), "symbolic command ID is empty"
+          assert all(x["options_coverage"] == "not-present-in-source-catalogue" for x in commands)
+          print(f"verified commands={len(commands)} architectures={len(architectures)} instruction_forms={instruction_forms}")
+          PY
