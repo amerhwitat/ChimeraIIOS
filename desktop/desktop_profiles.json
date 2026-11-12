@@ -137,7 +137,8 @@
           "taskbar",
           "DOSBox launch action",
           "shared semantic SVG icons"
-        ]
+        ],
+        "defaultCandidate": true
       },
       {
         "id": "chimera-classic",
@@ -164,7 +165,41 @@
         ],
         "locale": "ar",
         "direction": "rtl"
+      },
+      {
+        "id": "marine",
+        "display": "Marine Blue",
+        "protocols": [
+          "Wayland",
+          "X11"
+        ],
+        "model": "windows-inspired-taskbar-launcher-gadgets",
+        "status": "native-shell-preview",
+        "defaultCandidate": true
+      },
+      {
+        "id": "freewin11",
+        "display": "FreeWin11",
+        "protocols": [
+          "GTK4",
+          "Wayland",
+          "X11"
+        ],
+        "model": "fluent-inspired-modern-taskbar-start-quick-settings",
+        "status": "native-shell-preview",
+        "defaultCandidate": true
       }
     ]
+  },
+  "default_selection": {
+    "mode": "user-selectable",
+    "default": "aurora",
+    "candidates": [
+      "aurora",
+      "marine",
+      "freexp",
+      "freewin11"
+    ],
+    "user_preference_key": "CHIMERA_DEFAULT_DESKTOP"
   }
 }
