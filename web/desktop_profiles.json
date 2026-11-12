@@ -16,7 +16,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "GNOME Shell profile for Ubuntu and GNOME-based distributions.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-kde-plasma",
@@ -24,7 +24,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "KDE Plasma profile for Plasma-based Linux installations.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-xfce",
@@ -32,7 +32,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Lightweight Xfce desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-cinnamon",
@@ -40,7 +40,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Cinnamon desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-mate",
@@ -48,7 +48,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Traditional MATE desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-lxqt",
@@ -56,7 +56,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Lightweight LXQt/LXDE-compatible profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-budgie",
@@ -64,7 +64,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Budgie desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-pantheon",
@@ -72,7 +72,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "elementary/Pantheon-style profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-deepin",
@@ -80,7 +80,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Deepin Desktop Environment profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-enlightenment",
@@ -88,7 +88,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "Enlightenment desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "linux-cosmic",
@@ -96,7 +96,7 @@
       "family": "Linux",
       "mode": "session-adapter",
       "description": "COSMIC desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "windows-11",
@@ -104,7 +104,7 @@
       "family": "Windows",
       "mode": "web-profile-or-vm",
       "description": "Windows 11-style shell; real Windows requires an authorized VM/RDP backend.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "windows-10",
@@ -112,7 +112,7 @@
       "family": "Windows",
       "mode": "web-profile-or-vm",
       "description": "Windows 10-style shell; real Windows requires an authorized VM/RDP backend.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "windows-classic",
@@ -120,7 +120,7 @@
       "family": "Windows",
       "mode": "web-profile-or-vm",
       "description": "Classic Windows-style desktop profile.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-c64",
@@ -128,7 +128,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS VICE C64 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-c128",
@@ -136,7 +136,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS VICE C128 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-vic20",
@@ -144,7 +144,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS VICE VIC-20 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-pet",
@@ -152,7 +152,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS VICE PET core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-plus4",
@@ -160,7 +160,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS VICE Plus/4 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-amiga",
@@ -168,7 +168,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS PUAE core; user-supplied Kickstart required where applicable.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-dos",
@@ -176,7 +176,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS DOS core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-atari2600",
@@ -184,7 +184,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS Atari 2600 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-atari5200",
@@ -192,7 +192,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS Atari 5200 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-atari7800",
@@ -200,7 +200,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS Atari 7800 core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-jaguar",
@@ -208,7 +208,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS Jaguar core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-lynx",
@@ -216,7 +216,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS Lynx core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "retro-coleco",
@@ -224,7 +224,7 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS ColecoVision core.",
-      "default_candidate": false
+      "default_candidate": true
     },
     {
       "id": "freexp",
@@ -253,6 +253,33 @@
   ],
   "default_candidates": [
     "aurora-native",
+    "linux-gnome",
+    "linux-kde-plasma",
+    "linux-xfce",
+    "linux-cinnamon",
+    "linux-mate",
+    "linux-lxqt",
+    "linux-budgie",
+    "linux-pantheon",
+    "linux-deepin",
+    "linux-enlightenment",
+    "linux-cosmic",
+    "windows-11",
+    "windows-10",
+    "windows-classic",
+    "retro-c64",
+    "retro-c128",
+    "retro-vic20",
+    "retro-pet",
+    "retro-plus4",
+    "retro-amiga",
+    "retro-dos",
+    "retro-atari2600",
+    "retro-atari5200",
+    "retro-atari7800",
+    "retro-jaguar",
+    "retro-lynx",
+    "retro-coleco",
     "freexp",
     "freewin11",
     "marine-blue"
