@@ -62,12 +62,21 @@ jobs:
           test -s "$out/icons/settings.svg"
           "$out/bin/aurora-utf-selftest"
           python3 -m json.tool "$out/manifests/desktop-build-manifest.json" >/dev/null
-      - name: Validate all desktop session manifests
+      - name: Validate selectable desktop profiles and session manifests
         run: |
           set -euo pipefail
           for profile in aurora marine freexp freewin11; do
             python3 -m json.tool "desktop/sessions/$profile.json" >/dev/null
           done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("desktop/profiles/desktop-profiles.json").read_text())
+          candidates = {p["id"] for p in data["profiles"] if p.get("default_candidate")}
+          assert candidates == {"aurora", "marine", "freexp", "freewin11"}, candidates
+          catalog = json.loads(Path("desktop/applications/desktop-app-catalog.json").read_text())
+          assert len(catalog["applications"]) >= 20
+          PY
       - name: Compile shell and desktop application targets
         run: |
           set -euo pipefail
