@@ -81,7 +81,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x build-chimera-iso.sh
-          ./build-chimera-iso.sh --clean-state --storage-auto --no-storage-prompt
+          ./build-chimera-iso.sh --clean-state --storage-auto
           iso="$(find "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$HOME" /chimera-output -type f -name 'ChimeraIIOS-comprehensive-*-x86_64.iso' -print -quit 2>/dev/null || true)"
           test -n "$iso" || { echo "::error::Canonical build completed without a discoverable x86_64 ISO"; exit 1; }
           mkdir -p build/iso
