@@ -1,0 +1,131 @@
+{
+  "schema": "CHM-DATABASE-PROVIDERS-1",
+  "purpose": "Open-source database engines and development providers available to the Chimera/Koronos build. Package presence is not a claim that a daemon is started, configured, or integrated as a Koronos-native service.",
+  "build_image": {
+    "ubuntu_base": "24.04",
+    "apt_packages": [
+      "mariadb-server",
+      "mariadb-client",
+      "libmariadb-dev",
+      "postgresql",
+      "postgresql-client",
+      "libpq-dev",
+      "sqlite3",
+      "libsqlite3-dev",
+      "redis-server",
+      "redis-tools"
+    ],
+    "python_connectors": [
+      "sqlalchemy",
+      "alembic",
+      "psycopg2-binary",
+      "mysql-connector-python",
+      "redis"
+    ],
+    "daemon_policy": "Database daemons are installed as build/runtime provider packages but are not enabled or started automatically in the build container or live session."
+  },
+  "providers": [
+    {
+      "id": "mariadb",
+      "name": "MariaDB Server",
+      "upstream": "https://mariadb.org/",
+      "license": "GPL-2.0-or-later",
+      "packages": [
+        "mariadb-server",
+        "mariadb-client",
+        "libmariadb-dev"
+      ],
+      "status": "included-in-builder-package-set",
+      "koronos_integration": "hosted-provider-pending-Kore-unit-and-runtime-tests"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "upstream": "https://www.postgresql.org/",
+      "license": "PostgreSQL-License",
+      "packages": [
+        "postgresql",
+        "postgresql-client",
+        "libpq-dev"
+      ],
+      "status": "included-in-builder-package-set",
+      "koronos_integration": "hosted-provider-pending-Kore-unit-and-runtime-tests"
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "upstream": "https://sqlite.org/",
+      "license": "public-domain",
+      "packages": [
+        "sqlite3",
+        "libsqlite3-dev"
+      ],
+      "status": "included-in-builder-package-set",
+      "koronos_integration": "embedded-library-provider-pending-ABI-and-persistence-tests"
+    },
+    {
+      "id": "redis-ubuntu",
+      "name": "Redis (Ubuntu 24.04 distribution package)",
+      "upstream": "https://redis.io/",
+      "license": "verify-against-exact-Ubuntu-source-package-before-redistribution",
+      "packages": [
+        "redis-server",
+        "redis-tools"
+      ],
+      "status": "included-in-builder-package-set",
+      "koronos_integration": "hosted-provider-pending-Kore-unit-and-runtime-tests"
+    },
+    {
+      "id": "duckdb",
+      "name": "DuckDB",
+      "upstream": "https://duckdb.org/",
+      "license": "MIT",
+      "packages": [],
+      "status": "source-build-or-pinned-release-not-yet-integrated",
+      "koronos_integration": "pending"
+    },
+    {
+      "id": "firebird",
+      "name": "Firebird",
+      "upstream": "https://firebirdsql.org/",
+      "license": "IPL-1.0-and-IDPL-1.0",
+      "packages": [],
+      "status": "source-build-or-distro-package-not-yet-integrated",
+      "koronos_integration": "pending"
+    },
+    {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "upstream": "https://clickhouse.com/",
+      "license": "Apache-2.0",
+      "packages": [],
+      "status": "source-build-or-pinned-release-not-yet-integrated",
+      "koronos_integration": "pending"
+    },
+    {
+      "id": "couchdb",
+      "name": "Apache CouchDB",
+      "upstream": "https://couchdb.apache.org/",
+      "license": "Apache-2.0",
+      "packages": [],
+      "status": "source-build-or-distro-package-not-yet-integrated",
+      "koronos_integration": "pending"
+    },
+    {
+      "id": "valkey",
+      "name": "Valkey",
+      "upstream": "https://valkey.io/",
+      "license": "BSD-3-Clause",
+      "packages": [],
+      "status": "source-build-or-pinned-release-not-yet-integrated",
+      "koronos_integration": "pending"
+    }
+  ],
+  "acceptance": {
+    "package_presence": "dpkg-query verification",
+    "service_runtime": "start/health/stop tests under unprivileged service policy",
+    "persistence": "create/write/checkpoint/restart/read integrity tests",
+    "security": "least-privilege account, socket permissions, no public bind by default",
+    "koronos_native": "not-claimed-until-Kore provider adapter and Koronos ABI tests pass"
+  }
+}
