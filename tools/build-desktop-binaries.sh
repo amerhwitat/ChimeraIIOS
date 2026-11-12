@@ -61,7 +61,6 @@ while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROO
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
 # Do not ship transient Python bytecode caches in reusable desktop bundles.
 find "$OUT/aurora-source" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
-find "$OUT/aurora-source" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete
 python3 "$ROOT/tools/build-desktop-icon-files.py" \
   --sprite "$ROOT/desktop/aurora/icons/catalog.svg" \
   --manifest "$ROOT/desktop/aurora/icons/manifest.json" \
