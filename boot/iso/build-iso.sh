@@ -227,6 +227,32 @@ command -v xorriso >/dev/null || { echo "xorriso is required." >&2; exit 2; }
 # its native defaults for a hybrid BIOS/UEFI image.
 grub-mkrescue -o "$DIST/output.iso" "$DIST/iso"
 test -s "$DIST/output.iso"
+
+# Verify the *finished ISO*, not only the staging directory, contains the
+# exact three target-specific ring-3 ELFs and that the production menu layers
+# actually reference each matching module. This catches a GRUB packaging or
+# staging regression before the ISO can be mistaken for a bootable release.
+printf '%s\\n' '[6b/7] Verify target init ELFs inside the finished ISO'
+for target in live installer recovery; do
+  extracted="$WORK/tmp/iso-target-init-$target.elf"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "/boot/targets/target-init-$target.elf" "$extracted" >/dev/null
+  test -s "$extracted" || { echo "ERROR: finished ISO is missing target init ELF: $target" >&2; exit 2; }
+  cmp -s "$TARGETS_OUT/target-init-$target.elf" "$extracted" || {
+    echo "ERROR: finished ISO target init ELF differs from staged build: $target" >&2; exit 2; }
+  readelf -h "$extracted" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: finished ISO target init is not ET_EXEC: $target" >&2; exit 2; }
+  readelf -lW "$extracted" | grep -Eq 'LOAD.*R E' || {
+    echo "ERROR: finished ISO target init has no executable PT_LOAD: $target" >&2; exit 2; }
+done
+for item in "grub/grub.cfg:live" "grub/grub.cfg:installer" "grub/grub.cfg:recovery" "jasper/live.cfg:live" "jasper/install.cfg:installer" "jasper/recovery.cfg:recovery"; do
+  config="${item%%:*}"
+  target="${item##*:}"
+  extracted="$WORK/tmp/iso-menu-$target.cfg"
+  source="/boot/$config"
+  xorriso -osirrox on -indev "$DIST/output.iso" -extract "$source" "$extracted" >/dev/null
+  grep -Fq "target-init-$target.elf chimera-user-init-elf target=$target" "$extracted" || {
+    echo "ERROR: finished ISO menu $source does not route to the $target native init ELF" >&2; exit 2; }
+done
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 
 printf '%s\n' '[7/7] Inspect El Torito boot records'

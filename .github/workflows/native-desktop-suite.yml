@@ -131,7 +131,15 @@ jobs:
           python3 -m json.tool "$out/manifests/binary-headers.json" >/dev/null
           python3 -m json.tool "$out/manifests/runtime-requirements.json" >/dev/null
           ! find "$out/aurora-source" -type d -name __pycache__ | grep .
-          ! find "$out/aurora-source" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) | grep .
+          python3 - "$out/aurora-source" <<'PY'
+          import sys
+          from pathlib import Path
+          root = Path(sys.argv[1])
+          leftovers = list(root.rglob("__pycache__")) + list(root.rglob("*.pyc")) + list(root.rglob("*.pyo"))
+          if leftovers:
+              print("Python cache files remain:", *leftovers, sep="\\n")
+              raise SystemExit(1)
+          PY
       - name: Publish compiled desktop component bundle
         uses: actions/upload-artifact@v4
         with:

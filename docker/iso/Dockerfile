@@ -8,8 +8,17 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CHIMERA_ARCH=${CHIMERA_ARCH} \
     CHIMERA_FIRMWARE=${CHIMERA_FIRMWARE}
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
+# The minimal Ubuntu base may not contain a CA bundle. For the one-time CA
+# bootstrap only, disable HTTPS peer/host checks while APT still verifies the
+# signed Ubuntu Release metadata and package hashes. Install ca-certificates,
+# then refresh indexes and install the build toolchain with normal TLS checks.
+RUN test -f /etc/apt/sources.list.d/ubuntu.sources \
+    && sed -i 's|http://archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://security.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources \
+    && apt-get -o Acquire::Retries=3 -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false update \
+    && apt-get -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false install -y --no-install-recommends ca-certificates \
+    && apt-get -o Acquire::Retries=3 update \
+    && apt-get install -y --no-install-recommends \
+    bash git gcc g++ gcc-multilib make cmake ninja-build binutils nasm \
     grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin xorriso mtools dosfstools \
     python3 python3-pytest python3-cairosvg qemu-system-x86 ovmf file cpio busybox-static librsvg2-bin rsync xz-utils gzip bzip2 zstd \
     ffmpeg imagemagick unzip \

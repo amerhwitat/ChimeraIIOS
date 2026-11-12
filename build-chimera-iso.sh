@@ -18,6 +18,7 @@ Options:
   --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --prune-docker-cache        Prune Docker BuildKit cache older than CHIMERA_DOCKER_CACHE_MAX_AGE (default 24h).
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -130,6 +131,7 @@ FAILED_FILE="${CHIMERA_FAILED_STAGE_FILE:-$BUILD_DIR/.chimera-failed-stage}"
 RESUME_BUILD=0
 CLEAN_STATE=0
 FULL_BUILD=0
+PRUNE_DOCKER_CACHE=0
 STORAGE_AUTO="${CHIMERA_STORAGE_AUTO:-0}"
 STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
@@ -137,6 +139,9 @@ BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
 BUILD_DOCKER=1
 BUILD_ISO=1
+# Set only after this invocation successfully builds the image. --iso-only must
+# never delete a caller-supplied image.
+DOCKER_IMAGE_BUILT=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -235,6 +240,7 @@ while [[ $# -gt 0 ]]; do
     --skip-apache) export APACHE_ECOSYSTEM=0; shift;;
     --apache-ecosystem) export APACHE_ECOSYSTEM=1; shift;;
     --push) export CHIMERA_PUSH=1; shift;;
+    --prune-docker-cache) PRUNE_DOCKER_CACHE=1; shift;;
     --no-push) export CHIMERA_PUSH=0; shift;;
     --skip-native-iso) export CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0; shift;;
     --install-build-deps) export CHIMERA_INSTALL_BUILD_DEPS=1; shift;;
@@ -291,6 +297,12 @@ cleanup_generated_build_artifacts(){
     "$BUILD_DIR/boot-artifacts" \
     "$BUILD_DIR/live-boot" \
     "$BUILD_DIR/emulators" \
+    "$BUILD_DIR/aurora-artwork-library" \
+    "$BUILD_DIR/aurora-media" \
+    "$BUILD_DIR/aurora-selected-artwork.png" \
+    "$BUILD_DIR/architecture-discovery" \
+    "$BUILD_DIR/dos-online-discovery.json" \
+    "$SCRIPT_DIR/boot/iso/work" \
     "$ISO_TMP_DIR" 2>/dev/null || true
   find "$BUILD_DIR" -maxdepth 3 -type f \
     \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
@@ -300,13 +312,22 @@ cleanup_generated_build_artifacts(){
   # Do not prune global Docker state: stopped containers may belong to other projects.
   # Build-owned export containers are removed by their explicit labels/lifecycle.
 }
+cleanup_docker_build_cache(){
+  [[ "$PRUNE_DOCKER_CACHE" == 1 ]] || return 0
+  command -v docker >/dev/null 2>&1 || return 0
+  local age="${CHIMERA_DOCKER_CACHE_MAX_AGE:-24h}"
+  [[ "$age" =~ ^[0-9]+[smhd]$ ]] || { log_error "Invalid CHIMERA_DOCKER_CACHE_MAX_AGE: $age"; return 2; }
+  log_info "Pruning Docker BuildKit cache older than $age (explicit --prune-docker-cache request)."
+  docker builder prune --all --force --filter "until=$age" || log_warning "Docker BuildKit cache pruning failed; build outputs are retained."
+}
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
   log_info "Cleaning unused generated ISO build intermediates..."
   cleanup_generated_build_artifacts
   # Resume/failure state is no longer useful after a complete verified build.
   rm -f -- "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true
-  log_success "Unused generated build artifacts removed; final ISO/checksum retained."
+  cleanup_docker_build_cache
+  log_success "Unused generated build artifacts removed; final ISO/checksum and preserved ELF/EFI artifacts retained."
 }
 docker_image_in_use(){
   local image="$1"
@@ -320,10 +341,15 @@ cleanup_generated_docker_image(){
     return 0
   fi
   # Remove every local tag that points at the image created by this build.
-  while read -r tagged; do
-    [[ -n "$tagged" ]] || continue
-    docker image rm -f "$tagged" >/dev/null 2>&1 || true
-  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
+  # Remove only the two tags this build command creates. Do not remove other
+  # user/project tags that happen to point at the same image ID.
+  local candidate candidate_id
+  for candidate in "$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest"; do
+    candidate_id="$(docker image inspect -f '{{.Id}}' "$candidate" 2>/dev/null || true)"
+    if [[ "$candidate_id" == "$image_id" ]]; then
+      docker image rm "$candidate" >/dev/null 2>&1 || true
+    fi
+  done
   if docker image inspect "$image_id" >/dev/null 2>&1; then
     log_warning "Docker image layers remain because another local reference uses $image_id."
   else
@@ -331,7 +357,12 @@ cleanup_generated_docker_image(){
   fi
 }
 push_docker_image(){
-  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
+  if [[ "${CHIMERA_PUSH:-0}" != 1 ]]; then
+    # The image is still required by the following rootfs-export stage. It is
+    # deleted only after that stage has produced and validated the rootfs.
+    log_info "Docker publish disabled; retaining the freshly built image until rootfs export completes."
+    return 0
+  fi
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
   local target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
   local target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
@@ -358,6 +389,7 @@ push_docker_image(){
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
   cleanup_generated_docker_image "$source" "$image_id"
+  cleanup_docker_build_cache
 }
 
 is_writable_dir(){
@@ -518,6 +550,8 @@ build_docker(){
   [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
   local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  DOCKER_IMAGE_BUILT=1
+  log_info "Docker image built for this invocation: $(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG")"
 }
 
 export_rootfs(){
@@ -602,6 +636,17 @@ export_rootfs(){
     log_error 'Rootfs export is incomplete'
     exit 1
   }
+
+  # From this point onward the ISO pipeline consumes the extracted rootfs, not
+  # the Docker image. Remove only this run's generated image tags, and only
+  # after successful rootfs validation. Preserve caller-supplied --iso-only
+  # images and any image still referenced by a container.
+  if [[ "$DOCKER_IMAGE_BUILT" == 1 ]]; then
+    local exported_image_id
+    exported_image_id="$(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG" 2>/dev/null || true)"
+    cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$exported_image_id"
+    DOCKER_IMAGE_BUILT=0
+  fi
 }
 
 create_boot_menu(){
@@ -665,6 +710,17 @@ create_boot_menu(){
 
 prepare_branding(){
   header 'STEP 4: BRANDING / AURORA'
+
+  # Install the shared 14D neurovisual presentation contract into the offline
+  # desktop runtime and ISO payload. This is a deterministic theme adapter;
+  # model inference remains an optional external provider.
+  if [[ -d "$SCRIPT_DIR/desktop/shared" ]]; then
+    mkdir -p "$ROOTFS_DIR/usr/share/chimera/desktop/neurovisual" "$ISO_DIR/desktop/shared"
+    cp -a "$SCRIPT_DIR/desktop/shared/." "$ROOTFS_DIR/usr/share/chimera/desktop/neurovisual/"
+    cp -a "$SCRIPT_DIR/desktop/shared/." "$ISO_DIR/desktop/shared/"
+    [[ -s "$SCRIPT_DIR/desktop/shared/neurovisual.js" ]] || { log_error "Neurovisual browser adapter missing"; return 1; }
+    [[ -s "$SCRIPT_DIR/desktop/shared/neurovisual_state.hpp" ]] || { log_error "Neurovisual C++ state contract missing"; return 1; }
+  fi
   mkdir -p "$ROOTFS_DIR/usr/share/chimera/aurora" \
            "$ROOTFS_DIR/usr/share/chimera/aurora/assets/library" \
            "$ROOTFS_DIR/usr/share/backgrounds/chimera" \
@@ -1169,6 +1225,73 @@ stage_package_managers(){
   log_info "Providers remain optional and are detected at runtime; the ISO build will not run remote package-manager installer scripts."
 }
 
+preserve_native_build_artifacts(){
+  # Keep exact native ELF/EFI outputs available after temporary ISO staging is
+  # cleaned. These are CI/build artifacts, not automatically promoted to Git.
+  local out="$BUILD_DIR/artifacts/native-iso"
+  local kernel_dir="$SCRIPT_DIR/build/koronos/x86_64"
+  local boot_dir="$BUILD_DIR/boot-artifacts"
+  local native_dist="$SCRIPT_DIR/boot/iso/dist"
+  local finished_iso="$native_dist/output.iso"
+  local file rel
+  mkdir -p "$out/kernel" "$out/userspace" "$out/efi" "$out/boot"
+  if [[ -s "$kernel_dir/koronos.elf" ]]; then
+    install -m 0644 "$kernel_dir/koronos.elf" "$out/kernel/koronos.elf"
+  fi
+  for target in live installer recovery; do
+    file="$kernel_dir/target-init-$target.elf"
+    [[ -s "$file" ]] || { log_error "Production target init ELF missing; cannot preserve: $file"; return 1; }
+    install -m 0644 "$file" "$out/userspace/target-init-$target.elf"
+    readelf -h "$out/userspace/target-init-$target.elf" | grep -Eq 'Type:[[:space:]]+EXEC' || return 1
+    readelf -lW "$out/userspace/target-init-$target.elf" | grep -Eq 'LOAD.*R E' || return 1
+  done
+  for source_dir in "$boot_dir" "$native_dist/bootloaders" "$native_dist/iso/boot"; do
+    [[ -d "$source_dir" ]] || continue
+    while IFS= read -r -d '' file; do
+      rel="${file#"$source_dir"/}"
+      mkdir -p "$out/boot/$(dirname "$rel")"
+      case "$file" in
+        *.elf|*.EFI|*.efi|*.bin) install -m 0644 "$file" "$out/boot/$rel" ;;
+      esac
+    done < <(find "$source_dir" -type f \( -iname '*.elf' -o -iname '*.efi' -o -iname '*.bin' \) -print0)
+  done
+  local efi_source=""
+  for file in "$boot_dir/uefi/BOOTX64.EFI" "$native_dist/iso/EFI/BOOT/BOOTX64.EFI"; do
+    if [[ -s "$file" ]]; then efi_source="$file"; break; fi
+  done
+  if [[ -n "$efi_source" ]]; then install -m 0644 "$efi_source" "$out/efi/BOOTX64.EFI"; fi
+  # Preserve the EFI executable from the finished ISO itself. grub-mkrescue may
+  # synthesize the EFI boot tree while assembling the hybrid image, so looking
+  # only at pre-ISO staging directories can silently omit the real EFI binary.
+  if [[ -s "$finished_iso" ]] && command -v xorriso >/dev/null 2>&1; then
+    xorriso -osirrox on -indev "$finished_iso" \
+      -extract /EFI/BOOT/BOOTX64.EFI "$out/efi/BOOTX64.EFI" >/dev/null 2>&1 || true
+  fi
+  if [[ -s "$out/efi/BOOTX64.EFI" ]]; then
+    file "$out/efi/BOOTX64.EFI" | grep -Eqi 'PE32[+].*EFI|EFI application' || {
+      log_error "Preserved BOOTX64.EFI is not recognized as an EFI application"; return 1; }
+  else
+    log_error "Hybrid ISO is missing /EFI/BOOT/BOOTX64.EFI; refusing to publish an incomplete native artifact bundle"
+    return 1
+  fi
+  (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+  cat > "$out/ARTIFACT-MANIFEST.txt" <<'EOF_NATIVE_ARTIFACTS'
+Target-specific ring-3 init handoff ELFs (current behavior remains limited):
+  userspace/target-init-live.elf (text-console/yield smoke)
+  userspace/target-init-installer.elf (storage-plan dry run; writes no disks)
+  userspace/target-init-recovery.elf (diagnostics only; performs no repair)
+Kernel:
+  kernel/koronos.elf
+EFI:
+  efi/BOOTX64.EFI (present only when the canonical pipeline generated it)
+Boot artifacts:
+  boot/** (ELF, EFI and raw binary files copied from the generated boot-artifact tree)
+Separate user-init smoke probes are deliberately not included in this target-init bundle. These ELFs are not complete Live desktop, disk installer, or recovery-repair environments.
+EOF_NATIVE_ARTIFACTS
+  (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+  log_success "Preserved native ELF/EFI build artifacts: $out"
+}
+
 build_native_iso_pipeline(){
   if [[ "${CHIMERA_BUILD_NATIVE_ISO_PIPELINE:-1}" == 0 ]]; then
     log_info "Native boot/iso/build-iso.sh pipeline skipped by CHIMERA_BUILD_NATIVE_ISO_PIPELINE=0"
@@ -1191,6 +1314,7 @@ build_native_iso_pipeline(){
   [[ -s "$native_iso" && -s "$native_iso.sha256" ]] || { log_error "Native ISO pipeline did not produce ISO and SHA-256 checksum"; return 1; }
   (cd "$(dirname "$native_iso")" && sha256sum -c "$(basename "$native_iso").sha256") || { log_error "Native ISO checksum verification failed"; return 1; }
   log_success "Canonical native ISO and checksum verified: $native_iso"
+  preserve_native_build_artifacts
 }
 
 
@@ -1530,6 +1654,12 @@ stage_terminal_shell_suite(){
 }
 
 main(){
+  # Clean stale project-owned intermediates before starting an expensive build.
+  # The final ISO/checksum and preserved native ELF/EFI artifact bundle are kept.
+  if [[ "$CLEAN_STATE" == 1 ]]; then
+    state_reset
+    cleanup_generated_build_artifacts
+  fi
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
   if [[ "$BUILD_ISO" == 0 ]]; then
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
@@ -1563,7 +1693,6 @@ main(){
     python3 "$SCRIPT_DIR/tools/catalogs/merge_online_catalogs.py" || { log_error "Online catalog merge failed"; return 1; }
   fi
   scan_isa_and_commands_before_network_crawl
-  [[ "$CLEAN_STATE" == 1 ]] && state_reset
   CURRENT_STAGE="preflight"
   preflight
   check_deps
@@ -1614,5 +1743,5 @@ stage_sdks(){
   fi
 }
 
-trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
+trap 'rc=$?; stop_watchdog || true; if ((rc!=0)); then cleanup_docker_build_cache || true; log_error "Build stopped during stage: ${CURRENT_STAGE:-unknown}"; printf "%s\n" "${CURRENT_STAGE:-unknown}" > "$FAILED_FILE" 2>/dev/null || log_warning "Could not persist failed-stage marker at $FAILED_FILE"; fi; exit "$rc"' EXIT
 main "$@"
