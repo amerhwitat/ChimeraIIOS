@@ -96,8 +96,7 @@ def load(t):
         m=p.get("match")
         if not isinstance(m,dict) or not m.get("architecture"):
             continue
-        required=[k for k in pairs if m.get(k)]
-        if not required:
+        if not all(m.get(k) for k in ("manufacturer", "model", "device", "board")):
             continue
         if any(str(m[k]).strip().lower()!=str(x[v]).strip().lower() for k,v in pairs.items() if m.get(k)):
             continue
