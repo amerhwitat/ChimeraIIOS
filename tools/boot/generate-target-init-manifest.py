@@ -103,7 +103,7 @@ def main() -> int:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as stream:
             json.dump(manifest, stream, indent=2)
-            stream.write("\\n")
+            stream.write("\n")
         os.replace(temporary, output)
     finally:
         if os.path.exists(temporary):
