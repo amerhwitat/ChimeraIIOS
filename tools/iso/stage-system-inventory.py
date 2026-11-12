@@ -85,14 +85,25 @@ def copy_tree(src: Path, dst: Path, root: Path, kind: str, records: list[dict]) 
     if not src.is_dir():
         return
     for current, dirs, files in os.walk(src, followlinks=False):
-        dirs[:] = sorted(d for d in dirs if d not in {".git", "__pycache__", "node_modules", ".cache"})
-        current_path = Path(current)
+        current_path = Path(current).resolve()
+        # The ISO tree may itself live below a scanned source directory (notably
+        # boot/iso/dist/iso). Never walk generated output as source input.
+        dirs[:] = sorted(
+            d for d in dirs
+            if d not in {".git", "__pycache__", "node_modules", ".cache"}
+            and not (current_path / d).resolve().is_relative_to(ISO_ROOT)
+        )
+        if current_path.is_relative_to(ISO_ROOT):
+            dirs[:] = []
+            continue
         rel = current_path.relative_to(src)
         target_dir = dst / rel
         target_dir.mkdir(parents=True, exist_ok=True)
         for name in sorted(files):
             source = current_path / name
             target = target_dir / name
+            if source.resolve().is_relative_to(ISO_ROOT):
+                continue
             if source.is_symlink():
                 link = os.readlink(source)
                 if os.path.isabs(link):
@@ -144,11 +155,25 @@ def main() -> int:
     for service_root in (root / "services", root / "boot", root / "system"):
         if not service_root.is_dir():
             continue
-        for src in service_root.rglob("*"):
-            if src.is_file() and not src.is_symlink() and src.suffix in unit_suffixes:
-                relative = src.relative_to(service_root)
-                copy_file(src, iso / "usr/share/chimera/service-unit-definitions" / service_root.name / relative,
-                          root, "service-unit-definition", records)
+        # Walk explicitly so an ISO output nested below boot/ is pruned.
+        for current, dirs, files in os.walk(service_root, followlinks=False):
+            current_path = Path(current).resolve()
+            dirs[:] = sorted(
+                d for d in dirs
+                if d not in {".git", "__pycache__", "node_modules", ".cache"}
+                and not (current_path / d).resolve().is_relative_to(iso)
+            )
+            if current_path.is_relative_to(iso):
+                dirs[:] = []
+                continue
+            for name in sorted(files):
+                src = current_path / name
+                if (src.is_file() and not src.is_symlink()
+                        and not src.resolve().is_relative_to(iso)
+                        and src.suffix in unit_suffixes):
+                    relative = src.relative_to(service_root)
+                    copy_file(src, iso / "usr/share/chimera/service-unit-definitions" / service_root.name / relative,
+                              root, "service-unit-definition", records)
     # Expose explicit target/runlevel registries when present.
     for rel, target in (
         ("system/targets", "usr/share/chimera/targets"),
