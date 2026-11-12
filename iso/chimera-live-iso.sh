@@ -184,7 +184,7 @@ for target in live installer recovery; do
   }
   cp -f "$target_elf" "$STAGE/boot/targets/"
   python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \
-    --target "$target" --elf "$TARGETS_OUT/target-init-$target.elf" \
+    --target "$target" --elf "$target_elf" \
     --output "$STAGE/boot/targets/target-init-$target.manifest.json"
 done
 cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"
