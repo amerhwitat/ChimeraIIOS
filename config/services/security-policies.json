@@ -1,14 +1,51 @@
 {
-  "schema":"chimera-service-security-v1",
-  "default":{"sandbox":true,"network":false,"filesystem":"declared","devices":[]},
-  "overrides": {
-    "chimera.network":{"network":true},
-    "enterprise.ssh":{"network":true},
-    "enterprise.web":{"network":true},
-    "enterprise.database":{"filesystem":"service-data"},
-    "enterprise.fileserver":{"network":true,"filesystem":"declared-shares"},
-    "enterprise.container":{"network":true,"devices":["virtualization"]},
-    "enterprise.ai":{"devices":["accelerator-if-licensed"]}
+  "schema": "chimera-service-security-v1",
+  "default": {
+    "sandbox": true,
+    "network": false,
+    "filesystem": "declared",
+    "devices": []
   },
-  "privileged_mutation":"kore-only"
+  "overrides": {
+    "chimera.network": {
+      "network": true
+    },
+    "enterprise.ssh": {
+      "network": true
+    },
+    "enterprise.web": {
+      "network": true
+    },
+    "enterprise.database": {
+      "filesystem": "service-data"
+    },
+    "enterprise.fileserver": {
+      "network": true,
+      "filesystem": "declared-shares"
+    },
+    "enterprise.container": {
+      "network": true,
+      "devices": [
+        "virtualization"
+      ]
+    },
+    "enterprise.ai": {
+      "devices": [
+        "accelerator-if-licensed"
+      ]
+    },
+    "enterprise.ftp": {
+      "network": true,
+      "filesystem": "declared-shares"
+    },
+    "enterprise.tftp": {
+      "network": true,
+      "filesystem": "declared-readonly"
+    },
+    "enterprise.sftp": {
+      "network": true,
+      "filesystem": "declared-shares"
+    }
+  },
+  "privileged_mutation": "kore-only"
 }

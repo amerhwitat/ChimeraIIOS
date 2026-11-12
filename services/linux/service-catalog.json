@@ -22,7 +22,10 @@
       "mariadb",
       "redis-server",
       "docker",
-      "containerd"
+      "containerd",
+      "vsftpd",
+      "tftpd-hpa",
+      "openssh-server"
     ],
     "package_manager": "apt"
   },
@@ -65,7 +68,9 @@
       "systemd-networkd",
       "openvpn",
       "xrdp",
-      "frr"
+      "frr",
+      "vsftpd",
+      "tftpd-hpa"
     ],
     "server": [
       "openssh-server",
@@ -78,7 +83,9 @@
       "bind9",
       "cockpit",
       "prometheus-node-exporter",
-      "frr"
+      "frr",
+      "vsftpd",
+      "tftpd-hpa"
     ],
     "storage": [
       "udisks2",
@@ -546,6 +553,22 @@
       "label": "FRRouting Dynamic Routing Suite",
       "package": "frr",
       "unit": "frr.service",
+      "class": "network",
+      "default_enabled": false
+    },
+    {
+      "id": "vsftpd",
+      "label": "FTP/FTPS Server (disabled by default)",
+      "package": "vsftpd",
+      "unit": "vsftpd.service",
+      "class": "server",
+      "default_enabled": false
+    },
+    {
+      "id": "tftpd-hpa",
+      "label": "TFTP Server (disabled by default)",
+      "package": "tftpd-hpa",
+      "unit": "tftpd-hpa.service",
       "class": "network",
       "default_enabled": false
     }

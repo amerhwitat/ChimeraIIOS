@@ -1,0 +1,60 @@
+name: Network daemon provider validation
+on:
+  pull_request:
+    paths:
+      - 'tools/commands/install-command-providers.sh'
+      - 'services/linux/**'
+      - 'config/services/**'
+      - 'tests/services/**'
+      - 'docs/NETWORK_DAEMONS.md'
+      - '.github/workflows/network-daemons-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/commands/install-command-providers.sh'
+      - 'services/linux/**'
+      - 'config/services/**'
+      - 'tests/services/**'
+      - 'docs/NETWORK_DAEMONS.md'
+      - '.github/workflows/network-daemons-validation.yml'
+permissions:
+  contents: read
+jobs:
+  validate-network-daemons:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install real upstream daemon packages
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends binutils file openssh-server nginx apache2 vsftpd tftpd-hpa
+      - name: Validate service catalogue and provider manifest
+        run: bash tests/services/test-service-manager.sh
+      - name: Validate daemon binaries and configurations
+        run: |
+          set -euo pipefail
+          for binary in /usr/sbin/sshd /usr/sbin/nginx /usr/sbin/apache2 /usr/sbin/vsftpd /usr/sbin/in.tftpd; do
+            test -x "$binary"
+            file "$binary"
+            readelf -h "$binary" | grep -E 'Class:|Machine:'
+          done
+          sudo ssh-keygen -A
+          sudo /usr/sbin/sshd -t
+          sudo nginx -t
+          sudo apache2ctl configtest
+          /usr/sbin/vsftpd -v
+      - name: Confirm daemons were not enabled as image defaults
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("services/linux/service-catalog.json").read_text())
+          by={s["id"]:s for s in d["services"]}
+          for name in ("openssh-server","nginx","apache2","vsftpd","tftpd-hpa"):
+              assert by[name]["default_enabled"] is False, name
+              assert name in d["policy"]["never_enable_without_admin"], name
+          print("All network daemons remain opt-in.")
+          PY
