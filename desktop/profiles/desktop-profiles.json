@@ -28,7 +28,7 @@
     {
       "id": "aurora",
       "family": "chimera",
-      "protocol": "wayland",
+      "protocol": "x11",
       "default": true,
       "packages": [
         "labwc",
@@ -37,7 +37,9 @@
         "mako"
       ],
       "user_selectable": true,
-      "default_candidate": true
+      "default_candidate": true,
+      "host_preview_protocol": "x11",
+      "target_protocol": "wayland-native-pending"
     },
     {
       "id": "gnome",
@@ -310,7 +312,7 @@
     {
       "id": "marine",
       "family": "chimera",
-      "protocol": "wayland",
+      "protocol": "x11",
       "packages": [
         "labwc",
         "waybar",
@@ -321,12 +323,14 @@
       "launcher": "desktop/x11/start-session.sh",
       "status": "native-shell-preview",
       "user_selectable": true,
-      "default_candidate": true
+      "default_candidate": true,
+      "host_preview_protocol": "x11",
+      "target_protocol": "wayland-native-pending"
     },
     {
       "id": "freewin11",
       "family": "chimera",
-      "protocol": "wayland",
+      "protocol": "x11",
       "packages": [
         "labwc",
         "waybar",
@@ -337,7 +341,9 @@
       "launcher": "desktop/x11/start-session.sh",
       "status": "native-shell-preview",
       "user_selectable": true,
-      "default_candidate": true
+      "default_candidate": true,
+      "host_preview_protocol": "x11",
+      "target_protocol": "wayland-native-pending"
     }
   ],
   "default_selection": {
