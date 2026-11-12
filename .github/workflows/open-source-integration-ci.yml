@@ -3,7 +3,7 @@ on:
   push:
     paths: ['opensource/**','services/**','applications/**','database/**','data/registry/databases.json','tools/validate_open_source_matrix.py','tools/validate_provenance.py','tools/validate_database_build_matrix.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**','tests/database/**']
   pull_request:
-    paths: ['opensource/**','services/**','applications/**','tools/validate_open_source_matrix.py','tools/validate_provenance.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**']
+    paths: ['opensource/**','services/**','applications/**','database/**','data/registry/databases.json','tools/validate_open_source_matrix.py','tools/validate_provenance.py','tools/validate_database_build_matrix.py','.github/workflows/open-source-integration-ci.yml','tests/opensource/**','tests/services/**','tests/applications/**','tests/database/**']
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
