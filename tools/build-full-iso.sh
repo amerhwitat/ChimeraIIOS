@@ -212,6 +212,9 @@ if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]];
   mkdir -p "$STAGE/install/assets/aurora"
   cp "$CHIMERA_AURORA_BACKGROUND" "$STAGE/install/assets/aurora/Aurora-Wayland-Glass-Desktop.png"
 fi
+# Stage generated application binaries and complete desktop/service/target/runlevel inventories.
+python3 "$ROOT/tools/iso/stage-system-inventory.py" --root "$ROOT" --iso "$STAGE"
+test -s "$STAGE/boot/chimera/manifests/ISO-COMPONENT-INVENTORY.json" || { echo "ERROR: component inventory missing" >&2; exit 2; }
 
 FINAL="$ISO_DIR/chimera-ii-os.iso"
 if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" "$DISK_MANAGER"; fi
