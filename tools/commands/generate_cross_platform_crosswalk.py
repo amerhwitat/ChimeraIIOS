@@ -74,9 +74,9 @@ ARCH_ALIASES = {
     "x86-64": "x86_64", "x86-32": "x86", "i386": "x86",
     "arm32": "armv7", "arm32-thumb": "armv7", "aarch64": "aarch64",
     "mips32": "mips", "powerpc": "powerpc", "s390x": "s390x",
-    "riscv64": "riscv64", "riscv32": "riscv32", "z80": "dos-x86",
-    "6502": "dos-x86", "m68k": "unknown", "avr": "unknown",
-    "8051": "unknown", "chimera-c8192": "unknown", "chimera-r8192": "unknown",
+    "riscv64": "riscv64", "riscv32": "riscv32",
+    # Z80, 6502, m68k, AVR, 8051 and Chimera are deliberately not mapped to
+    # unrelated x86 backends; they remain backend-unmatched until real providers exist.
 }
 
 def norm(value: str) -> str:
