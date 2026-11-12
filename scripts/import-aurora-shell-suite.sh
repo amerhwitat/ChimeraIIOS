@@ -21,7 +21,7 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="${CHIMERA_ROOTFS_DIR:-${ROOT}/build/iso/rootfs}"
 PREFIX="${DEST}/usr"
-CACHE="${CHIMERA_SHELL_CACHE:-${ROOT}/build/shell-cache}"
+CACHE="${CHIMERA_SHELL_CACHE:-/var/tmp/chimera-shell-cache-${UID:-$(id -u)}}"
 MODE="${CHIMERA_SHELL_MODE:-source-first}"
 mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/shells" "$CACHE"
 cp "$ROOT/aurora/shells/registry.json" "$PREFIX/share/chimera/aurora/shells/registry.json"
