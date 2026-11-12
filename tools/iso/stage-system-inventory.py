@@ -22,7 +22,6 @@ SOURCE_MAP = {
     "desktop/aurora/desktop-environment.json": "usr/share/chimera/catalogues/desktop/desktop-environment.json",
     "desktop/aurora/aurora_app_registry.json": "usr/share/chimera/catalogues/desktop/aurora_app_registry.json",
     "desktop/aurora/aurora_desktop_capabilities.json": "usr/share/chimera/catalogues/desktop/aurora_desktop_capabilities.json",
-    "services/service_registry.json": "usr/share/chimera/catalogues/services/service_registry.json",
     "services/service_schema.json": "usr/share/chimera/catalogues/services/service_schema.json",
     "services/service_registry.json": "usr/share/chimera/catalogues/services/service_registry.json",
     "services/linux/service-catalog.json": "usr/share/chimera/catalogues/services/service-catalog.json",
@@ -129,7 +128,7 @@ def main() -> int:
             continue
         for src in service_root.rglob("*"):
             if src.is_file() and not src.is_symlink() and src.suffix in unit_suffixes:
-                copy_file(src, iso / "usr/lib/systemd/system/chimera" / src.name,
+                copy_file(src, iso / "usr/lib/systemd/system" / src.name,
                           root, "service-unit-definition", records)
     # Expose explicit target/runlevel registries when present.
     for rel, target in (
