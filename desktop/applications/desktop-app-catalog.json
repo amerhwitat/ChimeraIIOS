@@ -1,0 +1,269 @@
+{
+  "schema": "CHM-DESKTOP-APPLICATION-CATALOG-1",
+  "policy": "This catalogue describes launcher identities and open-source providers. A package name is an installation candidate, not proof that the app is installed or that the desktop shell can launch it in every target.",
+  "shared_desktop_defaults": [
+    "aurora",
+    "marine",
+    "freexp",
+    "freewin11"
+  ],
+  "applications": [
+    {
+      "id": "file-manager",
+      "name": "File Manager",
+      "category": "system",
+      "icon": "aurora-files",
+      "packages": [
+        "thunar"
+      ],
+      "launch": "xdg-open $HOME",
+      "status": "host-provider-launch"
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal",
+      "category": "system",
+      "icon": "terminal",
+      "packages": [
+        "xterm",
+        "kgx",
+        "gnome-terminal",
+        "konsole",
+        "xfce4-terminal"
+      ],
+      "launch": "x-terminal-emulator",
+      "status": "host-provider-launch"
+    },
+    {
+      "id": "web-browser",
+      "name": "Web Browser",
+      "category": "internet",
+      "icon": "chromium",
+      "packages": [
+        "firefox-esr",
+        "chromium"
+      ],
+      "launch": "xdg-open https://example.com",
+      "status": "host-provider-launch"
+    },
+    {
+      "id": "settings",
+      "name": "System Settings",
+      "category": "system",
+      "icon": "settings",
+      "packages": [
+        "gnome-control-center"
+      ],
+      "launch": "gnome-control-center",
+      "status": "host-provider-launch"
+    },
+    {
+      "id": "system-monitor",
+      "name": "System Monitor",
+      "category": "system",
+      "icon": "system-monitor",
+      "packages": [
+        "gnome-system-monitor",
+        "htop"
+      ],
+      "launch": "gnome-system-monitor",
+      "status": "provider-optional"
+    },
+    {
+      "id": "code-editor",
+      "name": "VSCodium",
+      "category": "development",
+      "icon": "code",
+      "packages": [
+        "codium"
+      ],
+      "launch": "codium",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "compiler-toolchain",
+      "name": "GCC and Clang",
+      "category": "development",
+      "icon": "compiler",
+      "packages": [
+        "build-essential",
+        "clang",
+        "lld",
+        "gdb"
+      ],
+      "launch": "terminal",
+      "status": "builder-toolchain"
+    },
+    {
+      "id": "debugger",
+      "name": "GDB and LLDB",
+      "category": "development",
+      "icon": "debugger",
+      "packages": [
+        "gdb",
+        "lldb"
+      ],
+      "launch": "terminal",
+      "status": "builder-toolchain"
+    },
+    {
+      "id": "assembler",
+      "name": "NASM and GNU Assembler",
+      "category": "development",
+      "icon": "assembler",
+      "packages": [
+        "nasm",
+        "binutils"
+      ],
+      "launch": "terminal",
+      "status": "builder-toolchain"
+    },
+    {
+      "id": "disassembler",
+      "name": "LLVM objdump and GNU objdump",
+      "category": "development",
+      "icon": "disassembler",
+      "packages": [
+        "llvm",
+        "binutils"
+      ],
+      "launch": "terminal",
+      "status": "builder-toolchain"
+    },
+    {
+      "id": "office-suite",
+      "name": "LibreOffice",
+      "category": "productivity",
+      "icon": "office",
+      "packages": [
+        "libreoffice"
+      ],
+      "launch": "libreoffice",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "email",
+      "name": "Thunderbird",
+      "category": "internet",
+      "icon": "mail",
+      "packages": [
+        "thunderbird"
+      ],
+      "launch": "thunderbird",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "image-editor",
+      "name": "GIMP",
+      "category": "graphics",
+      "icon": "image",
+      "packages": [
+        "gimp"
+      ],
+      "launch": "gimp",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "vector-editor",
+      "name": "Inkscape",
+      "category": "graphics",
+      "icon": "vector",
+      "packages": [
+        "inkscape"
+      ],
+      "launch": "inkscape",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "3d-editor",
+      "name": "Blender",
+      "category": "graphics",
+      "icon": "blender",
+      "packages": [
+        "blender"
+      ],
+      "launch": "blender",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "video-editor",
+      "name": "Kdenlive",
+      "category": "media",
+      "icon": "video",
+      "packages": [
+        "kdenlive"
+      ],
+      "launch": "kdenlive",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "audio-editor",
+      "name": "Audacity",
+      "category": "media",
+      "icon": "audio",
+      "packages": [
+        "audacity"
+      ],
+      "launch": "audacity",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "media-player",
+      "name": "VLC",
+      "category": "media",
+      "icon": "media",
+      "packages": [
+        "vlc"
+      ],
+      "launch": "vlc",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "pdf-reader",
+      "name": "Document Viewer",
+      "category": "productivity",
+      "icon": "pdf",
+      "packages": [
+        "evince"
+      ],
+      "launch": "evince",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "archive-manager",
+      "name": "Archive Manager",
+      "category": "system",
+      "icon": "archive",
+      "packages": [
+        "file-roller",
+        "p7zip-full"
+      ],
+      "launch": "file-roller",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "dos-environment",
+      "name": "DOSBox-X",
+      "category": "compatibility",
+      "icon": "dos",
+      "packages": [
+        "dosbox-x",
+        "dosbox"
+      ],
+      "launch": "dosbox-x",
+      "status": "optional-app-provider"
+    },
+    {
+      "id": "database-browser",
+      "name": "DB Browser for SQLite",
+      "category": "development",
+      "icon": "database",
+      "packages": [
+        "sqlitebrowser"
+      ],
+      "launch": "sqlitebrowser",
+      "status": "optional-app-provider"
+    }
+  ],
+  "default_desktop_policy": "User may choose Aurora, Marine Blue, FreeXP or FreeWin11. The first boot default remains Aurora unless a valid user preference is set."
+}
