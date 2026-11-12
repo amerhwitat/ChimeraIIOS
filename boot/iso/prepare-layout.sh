@@ -289,4 +289,10 @@ and the compressed source archive under /src.
 The canonical project documentation is staged as /chimera/docs/README.md.
 EOF
 
-python3 "$ROOT/boot/iso/validate-iso.py" --tree "$DIST" --write-manifest "$DIST/checksums/SHA256SUMS"
+# Full ISO validation is intentionally deferred to boot/iso/build-iso.sh, after it stages
+# the target-init ELF payloads and their target-runtime-status.json manifest.
+if [[ -s "$DIST/boot/targets/target-runtime-status.json" ]]; then
+  python3 "$ROOT/boot/iso/validate-iso.py" --tree "$DIST" --write-manifest "$DIST/checksums/SHA256SUMS"
+else
+  echo "[INFO] ISO layout prepared; full validation deferred until target runtime manifest is staged."
+fi
