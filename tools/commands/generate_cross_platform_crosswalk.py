@@ -172,6 +172,7 @@ def isa_crosswalk():
     return {
         "schema": "CHM-ISA-CROSS-PLATFORM-CROSSWALK-1",
         "sources": [str(ISA.relative_to(ROOT)), str(BACKENDS.relative_to(ROOT))],
+        "sources": [str(ISA.relative_to(ROOT)), str(BACKENDS.relative_to(ROOT))],
         "architecture_records": len(rows),
         "instruction_form_records": sum(len(x["instruction_rows"]) for x in rows),
         "policy": "Compiler target availability, binary-format recognition, emulation and native conformance are distinct states.",
@@ -184,6 +185,11 @@ def main():
     args = parser.parse_args()
     result = {
         "schema": "CHM-CROSS-PLATFORM-REFERENCE-1",
+        "generated_from": {
+            "command_catalogue": {"path": str(COMMANDS.relative_to(ROOT))},
+            "isa_database": {"path": str(ISA.relative_to(ROOT))},
+            "architecture_backends": {"path": str(BACKENDS.relative_to(ROOT))},
+        },
         "commands": command_crosswalk(),
         "isa": isa_crosswalk(),
     }
