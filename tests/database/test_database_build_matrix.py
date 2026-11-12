@@ -8,7 +8,7 @@ def test_database_build_matrix_is_registry_consistent():
     registry = json.loads((ROOT / "data/registry/databases.json").read_text(encoding="utf-8"))
     ids = {entry["id"] for entry in matrix["engines"]}
     registry_ids = {entry["id"] for entry in registry["engines"]}
-    assert {"sqlite", "duckdb", "rocksdb", "leveldb", "mariadb", "postgresql", "firebird", "valkey", "cassandra", "couchdb"} <= ids
+    assert {"sqlite", "duckdb", "rocksdb", "leveldb", "mariadb", "mysql-community", "postgresql", "firebird", "valkey", "cassandra", "couchdb"} <= ids
     assert ids <= registry_ids
     assert all(entry.get("license") and entry.get("upstream") and entry.get("status") for entry in matrix["engines"])
 
