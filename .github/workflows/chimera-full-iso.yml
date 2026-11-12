@@ -266,6 +266,71 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Validate and preserve native Koronos target ELF binaries
+        run: |
+          set -euo pipefail
+          out=build/native-target-elfs
+          mkdir -p "$out"
+          for name in koronos target-init-live target-init-installer target-init-recovery; do
+            src="build/koronos/x86_64/$name.elf"
+            test -s "$src" || { echo "::error::Missing native ELF: $src"; exit 1; }
+            readelf -h "$src" > "$out/$name.elf.header.txt"
+            readelf -lW "$src" > "$out/$name.elf.program-headers.txt"
+            grep -Eq 'Class:[[:space:]]+ELF64' "$out/$name.elf.header.txt"
+            grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64' "$out/$name.elf.header.txt"
+            if [[ "$name" != koronos ]]; then
+              grep -Eq 'Type:[[:space:]]+EXEC' "$out/$name.elf.header.txt"
+              grep -Eq 'LOAD.*R E' "$out/$name.elf.program-headers.txt"
+            fi
+            cp -f "$src" "$out/$name.elf"
+          done
+          # Preserve the exact target ELFs from the finished ISO and prove
+          # they are byte-for-byte the binaries built by kernel/build-koronos.sh.
+          mkdir -p "$out/staged-iso/targets"
+          for target in live installer recovery; do
+            staged="$out/staged-iso/targets/target-init-$target.elf"
+            xorriso -osirrox on -indev build/iso/chimera-ii-os.iso -extract "/boot/targets/target-init-$target.elf" "$staged" >/dev/null
+            cmp "build/koronos/x86_64/target-init-$target.elf" "$staged"
+          done
+          (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+      - name: Upload native Koronos ELF binaries and header reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-native-koronos-elfs-x86_64
+          path: build/native-target-elfs/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Extract and validate UEFI and Spit Fire BIOS boot binaries
+        run: |
+          set -euo pipefail
+          iso=build/iso/chimera-ii-os.iso
+          out=build/native-target-elfs
+          mkdir -p "$out/uefi" "$out/spitfire"
+          xorriso -osirrox on -indev "$iso" -extract /EFI/BOOT/BOOTX64.EFI "$out/uefi/BOOTX64.EFI" >/dev/null
+          test -s "$out/uefi/BOOTX64.EFI"
+          objdump -f "$out/uefi/BOOTX64.EFI" | tee "$out/uefi/BOOTX64.EFI.file-header.txt"
+          objdump -p "$out/uefi/BOOTX64.EFI" | tee "$out/uefi/BOOTX64.EFI.pe-header.txt"
+          grep -Eq 'architecture: i386:x86-64' "$out/uefi/BOOTX64.EFI.file-header.txt"
+          grep -Eq 'Subsystem[[:space:]]+0000000a[[:space:]]+\(EFI application\)' "$out/uefi/BOOTX64.EFI.pe-header.txt"
+          for name in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o; do
+            xorriso -osirrox on -indev "$iso" -extract "/boot/spitfire/$name" "$out/spitfire/$name" >/dev/null
+            test -s "$out/spitfire/$name" || { echo "::error::Missing Spit Fire artifact: $name"; exit 1; }
+          done
+          test "$(stat -c '%s' "$out/spitfire/spitfire-sf0-mbr.bin")" = 512
+          readelf -h "$out/spitfire/spitfire-sf1-longmode.o" > "$out/spitfire/spitfire-sf1-longmode.o.header.txt"
+          readelf -h "$out/spitfire/spitfire-sf2-loader.o" > "$out/spitfire/spitfire-sf2-loader.o.header.txt"
+          grep -Eq 'Class:[[:space:]]+ELF64' "$out/spitfire/spitfire-sf1-longmode.o.header.txt"
+          grep -Eq 'Class:[[:space:]]+ELF64' "$out/spitfire/spitfire-sf2-loader.o.header.txt"
+          (cd "$out" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+      - name: Upload native ELF, UEFI PE/COFF and BIOS boot binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-native-boot-binaries-x86_64
+          path: build/native-target-elfs/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Compress ISO for GitHub release asset size limit
         run: |
           set -euo pipefail
