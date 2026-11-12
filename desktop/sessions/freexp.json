@@ -1,0 +1,25 @@
+{
+  "schema": "CHM-DESKTOP-SESSION-1",
+  "id": "freexp",
+  "name": "FreeXP Classic Desktop",
+  "host_preview": {
+    "protocol": "x11",
+    "launcher": "/usr/bin/chimera-desktop-shell",
+    "arguments": [
+      "--desktop=freexp"
+    ]
+  },
+  "target": {
+    "protocol": "wayland-native-pending",
+    "compositor": "not-yet-accepted",
+    "launcher": "desktop-session-runtime-pending"
+  },
+  "default_candidate": true,
+  "status": "prototype",
+  "acceptance": [
+    "compositor-process-started",
+    "display-and-input-provider-ready",
+    "desktop-shell-ready-marker",
+    "application-launch-smoke-tests"
+  ]
+}
