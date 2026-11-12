@@ -17,6 +17,8 @@ on:
     paths:
       - 'desktop/**'
       - 'desktop/native/**'
+      - 'tools/desktop/**'
+      - 'tests/desktop/**'
       - 'tools/build-desktop-binaries.sh'
       - '.github/workflows/native-desktop-suite.yml'
   workflow_dispatch:
