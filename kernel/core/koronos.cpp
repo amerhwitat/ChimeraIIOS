@@ -399,9 +399,26 @@ static void task_monitor(void *) {
     chimera_task_info info[32]{};
     uint32_t n = chimera_sched_snapshot(info, 32);
     console_write("[MON ] ===== REAL-TIME KORONOS TASKS =====");
-    console_write("[MON ] CPUs: ");
+    console_write("[MON ] CPUs detected/online: ");
     console_u32(chimera_sched_cpu_count());
-    console_write("[MON ] Runnable: ");
+    console_raw("/");
+    console_u32(chimera_sched_online_cpu_count());
+    uint32_t ready = 0, running = 0, blocked = 0, exited = 0;
+    for (uint32_t i = 0; i < n; ++i) {
+        switch (info[i].state) {
+            case CHIMERA_TASK_READY: ++ready; break;
+            case CHIMERA_TASK_RUNNING: ++running; break;
+            case CHIMERA_TASK_BLOCKED: ++blocked; break;
+            case CHIMERA_TASK_EXITED: ++exited; break;
+            default: break;
+        }
+    }
+    console_write("[MON ] Tasks READY/RUNNING/BLOCKED/EXITED: ");
+    console_u32(ready); console_raw("/");
+    console_u32(running); console_raw("/");
+    console_u32(blocked); console_raw("/");
+    console_u32(exited);
+    console_write("[MON ] Dispatchable READY tasks: ");
     console_u32(chimera_sched_runnable_count());
     for (uint32_t i = 0; i < n; ++i) {
         // Keep each process record on one VGA/serial line. The previous
