@@ -22,7 +22,7 @@ def validate(path):
     names = set()
     for part in data["partitions"]:
         name = part.get("name", "")
-        if not name or name in names or "/" in name or "\\\\" in name:
+        if not name or name in names or "/" in name or "\\" in name:
             raise SystemExit("invalid or duplicate partition identifier")
         names.add(name)
     security = data["security"]
