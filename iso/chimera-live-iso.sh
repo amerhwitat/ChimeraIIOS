@@ -165,8 +165,8 @@ cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
-# Ensure the three ring-3 target payloads are built and attached as Multiboot2
-# modules. Staging only initramfs/installer metadata leaves the kernel with
+# Ensure the three ring-3 target handshake probes are built and attached as Multiboot2
+# modules; stage explicit ELF manifests that mark their current probe-only scope. Staging only initramfs/installer metadata leaves the kernel with
 # nothing executable to hand off to, even though the target menu appears.
 TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"
 if [[ ! -s "$TARGET_INIT_DIR/target-init-live.elf" ||
@@ -183,6 +183,9 @@ for target in live installer recovery; do
     echo "ERROR: target init is not an executable ELF: $target_elf" >&2; exit 2;
   }
   cp -f "$target_elf" "$STAGE/boot/targets/"
+  python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \\
+    --target "$target" --elf "$target_elf" \\
+    --output "$STAGE/boot/targets/target-init-$target.manifest.json"
 done
 cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"
 
