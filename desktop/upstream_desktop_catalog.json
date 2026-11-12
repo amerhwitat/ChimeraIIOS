@@ -173,6 +173,56 @@
         "localization",
         "rtl"
       ]
+    },
+    {
+      "id": "freewin11",
+      "family": "chimera",
+      "upstream": "Original Chimera FreeWin11 desktop personality",
+      "url": "https://amerhwitat.github.io/desktops/freewin11.html",
+      "protocols": [
+        "GTK4",
+        "Wayland",
+        "X11"
+      ],
+      "features": [
+        "Fluent-inspired taskbar",
+        "Start menu and search",
+        "File Explorer preview",
+        "quick settings",
+        "system widgets"
+      ],
+      "license": "Original Chimera UI; no Microsoft Windows binaries, source code, or proprietary assets",
+      "status": "native-shell-preview"
+    },
+    {
+      "id": "marine",
+      "family": "chimera",
+      "upstream": "Original Chimera Marine Blue desktop personality",
+      "url": "https://amerhwitat.github.io/apps/chimera-ii-os/web/desktop_experiences.html#marine",
+      "protocols": [
+        "GTK4",
+        "Wayland",
+        "X11"
+      ],
+      "features": [
+        "blue taskbar and launcher",
+        "Start menu",
+        "desktop gadgets",
+        "network and system meters",
+        "contextual customization"
+      ],
+      "license": "Original Chimera UI; open-source dependencies retain their upstream licenses",
+      "status": "native-shell-preview"
     }
-  ]
+  ],
+  "default_selection": {
+    "mode": "user-selectable",
+    "default": "aurora",
+    "candidates": [
+      "aurora",
+      "marine",
+      "freexp",
+      "freewin11"
+    ]
+  }
 }
