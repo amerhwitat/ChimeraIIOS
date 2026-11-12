@@ -50,7 +50,8 @@
         "waybar",
         "wofi",
         "mako"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "gnome",
@@ -59,7 +60,8 @@
       "packages": [
         "gnome-shell",
         "gdm3"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "kde-plasma",
@@ -68,7 +70,8 @@
       "packages": [
         "plasma-desktop",
         "sddm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "xfce",
@@ -77,7 +80,8 @@
       "packages": [
         "xfce4",
         "lightdm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "cinnamon",
@@ -86,7 +90,8 @@
       "packages": [
         "cinnamon-desktop-environment",
         "lightdm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "mate",
@@ -95,7 +100,8 @@
       "packages": [
         "mate-desktop-environment",
         "lightdm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "lxqt",
@@ -104,7 +110,8 @@
       "packages": [
         "lxqt",
         "sddm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "lxde",
@@ -113,7 +120,8 @@
       "packages": [
         "lxde",
         "lightdm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "budgie",
@@ -122,7 +130,8 @@
       "packages": [
         "budgie-desktop",
         "lightdm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "cosmic",
@@ -130,7 +139,8 @@
       "protocol": "wayland",
       "packages": [
         "cosmic-desktop"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "deepin",
@@ -138,7 +148,8 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "dde"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "pantheon",
@@ -146,7 +157,8 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "pantheon"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "enlightenment",
@@ -154,7 +166,8 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "enlightenment"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "ukui",
@@ -162,7 +175,8 @@
       "protocol": "wayland-or-x11",
       "packages": [
         "ukui-desktop-environment"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "trinity",
@@ -170,7 +184,8 @@
       "protocol": "x11",
       "packages": [
         "tdebase"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "lumina",
@@ -178,7 +193,8 @@
       "protocol": "x11",
       "packages": [
         "lumina-desktop"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "moksha",
@@ -186,7 +202,8 @@
       "protocol": "x11",
       "packages": [
         "moksha-desktop"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "sway",
@@ -195,7 +212,8 @@
       "packages": [
         "sway",
         "waybar"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "i3",
@@ -204,7 +222,8 @@
       "packages": [
         "i3-wm",
         "i3status"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "hyprland",
@@ -212,7 +231,8 @@
       "protocol": "wayland",
       "packages": [
         "hyprland"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "openbox",
@@ -220,7 +240,8 @@
       "protocol": "x11",
       "packages": [
         "openbox"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "icewm",
@@ -228,7 +249,8 @@
       "protocol": "x11",
       "packages": [
         "icewm"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "fluxbox",
@@ -236,7 +258,8 @@
       "protocol": "x11",
       "packages": [
         "fluxbox"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "windows-classic",
@@ -245,7 +268,8 @@
       "packages": [
         "wine",
         "winetricks"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "windows-modern",
@@ -254,19 +278,22 @@
       "packages": [
         "wine",
         "winetricks"
-      ]
+      ],
+      "default_eligible": true
     },
     {
       "id": "macos-inspired",
       "family": "macos-personality",
       "protocol": "chimera",
-      "packages": []
+      "packages": [],
+      "default_eligible": true
     },
     {
       "id": "posix-generic",
       "family": "unix",
       "protocol": "wayland-or-x11",
-      "packages": []
+      "packages": [],
+      "default_eligible": true
     }
   ]
 }
