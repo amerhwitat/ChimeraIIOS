@@ -183,8 +183,8 @@ for target in live installer recovery; do
     echo "ERROR: target init is not an executable ELF: $target_elf" >&2; exit 2;
   }
   cp -f "$target_elf" "$STAGE/boot/targets/"
-  python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \\
-    --target "$target" --elf "$TARGETS_OUT/target-init-$target.elf" \\
+  python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \
+    --target "$target" --elf "$TARGETS_OUT/target-init-$target.elf" \
     --output "$STAGE/boot/targets/target-init-$target.manifest.json"
 done
 cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"
