@@ -40,19 +40,25 @@ PACKAGES=(
   squashfs-tools xorriso mtools shellcheck dosbox dosbox-x
   xterm konsole xfce4-terminal foot kitty
   xserver-xorg xinit xauth xwayland xvfb x11-xserver-utils x11-utils openbox
-  ptyxis gnome-terminal terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal
+  gnome-terminal terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal
 )
+# Ptyxis is not published in Ubuntu 24.04 (noble) repositories. Track it as
+# an optional desktop terminal; the other terminal providers remain required.
+OPTIONAL_PACKAGES=(ptyxis)
 
 INSTALLED=()
 UNAVAILABLE=()
 FAILED=()
+OPTIONAL_INSTALLED=()
+OPTIONAL_UNAVAILABLE=()
+OPTIONAL_FAILED=()
 APT_AVAILABLE=1
 APT_UPDATE_SUCCEEDED=1
 write_report() {
   mkdir -p "$(dirname "$REPORT")"
-  python3 - "$REPORT" "$STRICT" "$APT_AVAILABLE" "$APT_UPDATE_SUCCEEDED" "${INSTALLED[*]}" "${UNAVAILABLE[*]}" "${FAILED[*]}" <<'PY'
+  python3 - "$REPORT" "$STRICT" "$APT_AVAILABLE" "$APT_UPDATE_SUCCEEDED" "${INSTALLED[*]}" "${UNAVAILABLE[*]}" "${FAILED[*]}" "${OPTIONAL_INSTALLED[*]}" "${OPTIONAL_UNAVAILABLE[*]}" "${OPTIONAL_FAILED[*]}" <<'PY'
 import json, pathlib, sys, time
-path, strict, apt_available, apt_update_succeeded, installed, unavailable, failed = sys.argv[1:]
+path, strict, apt_available, apt_update_succeeded, installed, unavailable, failed, optional_installed, optional_unavailable, optional_failed = sys.argv[1:]
 doc = {
     "schema": "CHM-COMMAND-PROVIDER-REPORT-1",
     "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -62,10 +68,14 @@ doc = {
     "installed": installed.split() if installed else [],
     "unavailable": unavailable.split() if unavailable else [],
     "failed": failed.split() if failed else [],
+    "optional_installed": optional_installed.split() if optional_installed else [],
+    "optional_unavailable": optional_unavailable.split() if optional_unavailable else [],
+    "optional_failed": optional_failed.split() if optional_failed else [],
 }
 doc["complete"] = doc["apt_available"] and doc["apt_update_succeeded"] and not doc["unavailable"] and not doc["failed"]
+doc["optional_complete"] = not doc["optional_unavailable"] and not doc["optional_failed"]
 pathlib.Path(path).write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
-print(f"[Chimera][COMMANDS] provider report: {path} complete={doc['complete']} installed={len(doc['installed'])} unavailable={len(doc['unavailable'])} failed={len(doc['failed'])}")
+print(f"[Chimera][COMMANDS] provider report: {path} complete={doc['complete']} installed={len(doc['installed'])} unavailable={len(doc['unavailable'])} failed={len(doc['failed'])} optional_unavailable={len(doc['optional_unavailable'])}")
 PY
 }
 
@@ -104,6 +114,25 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
+# Optional desktop applications are reported separately and do not block the
+# strict required-provider gate. This keeps distro-specific extras visible.
+for pkg in "${OPTIONAL_PACKAGES[@]}"; do
+  candidate=""
+  candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}' 2>/dev/null)" || candidate=""
+  if [[ -z "$candidate" || "$candidate" == "(none)" ]]; then
+    echo "[Chimera][COMMANDS][INFO] optional desktop provider unavailable: $pkg"
+    OPTIONAL_UNAVAILABLE+=("$pkg")
+    continue
+  fi
+  if apt-get install -y --no-install-recommends "$pkg"; then
+    echo "[Chimera][COMMANDS] installed optional desktop provider: $pkg"
+    OPTIONAL_INSTALLED+=("$pkg")
+  else
+    status=$?
+    echo "[Chimera][COMMANDS][WARN] optional desktop provider failed ($status): $pkg"
+    OPTIONAL_FAILED+=("$pkg")
+  fi
+done
 write_report
 rm -rf /var/lib/apt/lists/* || true
 if [[ "$STRICT" == 1 && ( ${#UNAVAILABLE[@]} -gt 0 || ${#FAILED[@]} -gt 0 ) ]]; then
