@@ -49,8 +49,9 @@
         "gnome-shell",
         "gdm3"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "kde-plasma",
@@ -60,8 +61,9 @@
         "plasma-desktop",
         "sddm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "xfce",
@@ -71,8 +73,9 @@
         "xfce4",
         "lightdm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "cinnamon",
@@ -82,8 +85,9 @@
         "cinnamon-desktop-environment",
         "lightdm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "mate",
@@ -93,8 +97,9 @@
         "mate-desktop-environment",
         "lightdm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "lxqt",
@@ -104,8 +109,9 @@
         "lxqt",
         "sddm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "lxde",
@@ -115,8 +121,9 @@
         "lxde",
         "lightdm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "budgie",
@@ -126,8 +133,9 @@
         "budgie-desktop",
         "lightdm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "cosmic",
@@ -136,8 +144,9 @@
       "packages": [
         "cosmic-desktop"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "deepin",
@@ -146,8 +155,9 @@
       "packages": [
         "dde"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "pantheon",
@@ -156,8 +166,9 @@
       "packages": [
         "pantheon"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "enlightenment",
@@ -166,8 +177,9 @@
       "packages": [
         "enlightenment"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "ukui",
@@ -176,8 +188,9 @@
       "packages": [
         "ukui-desktop-environment"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "trinity",
@@ -186,8 +199,9 @@
       "packages": [
         "tdebase"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "lumina",
@@ -196,8 +210,9 @@
       "packages": [
         "lumina-desktop"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "moksha",
@@ -206,8 +221,9 @@
       "packages": [
         "moksha-desktop"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "sway",
@@ -217,8 +233,9 @@
         "sway",
         "waybar"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "i3",
@@ -228,8 +245,9 @@
         "i3-wm",
         "i3status"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "hyprland",
@@ -238,8 +256,9 @@
       "packages": [
         "hyprland"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "openbox",
@@ -248,8 +267,9 @@
       "packages": [
         "openbox"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "icewm",
@@ -258,8 +278,9 @@
       "packages": [
         "icewm"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "fluxbox",
@@ -268,8 +289,9 @@
       "packages": [
         "fluxbox"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "windows-classic",
@@ -279,8 +301,9 @@
         "wine",
         "winetricks"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "windows-modern",
@@ -290,24 +313,27 @@
         "wine",
         "winetricks"
       ],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "macos-inspired",
       "family": "macos-personality",
       "protocol": "chimera",
       "packages": [],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "posix-generic",
       "family": "unix",
       "protocol": "wayland-or-x11",
       "packages": [],
-      "user_selectable": true,
-      "default_candidate": true
+      "user_selectable": false,
+      "default_candidate": false,
+      "provider_required": true
     },
     {
       "id": "marine",
