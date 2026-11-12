@@ -25,7 +25,7 @@ export CHIMERA_ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:?build-chimera-iso.sh must expor
 export CHIMERA_TERMINAL_MODE="${CHIMERA_TERMINAL_MODE:-source-first}"
 export CHIMERA_SHELL_MODE="${CHIMERA_SHELL_MODE:-source-first}"
 export CHIMERA_TERMINAL_CACHE="${CHIMERA_TERMINAL_CACHE:-/var/tmp/chimera-terminal-cache-${UID:-$(id -u)}}"
-export CHIMERA_SHELL_CACHE="${CHIMERA_SHELL_CACHE:-${BUILD_DIR:-$ROOT/build}/shell-cache}"
+export CHIMERA_SHELL_CACHE="${CHIMERA_SHELL_CACHE:-/var/tmp/chimera-shell-cache-${UID:-$(id -u)}}"
 mkdir -p "$CHIMERA_ROOTFS_DIR"
 bash "$ROOT/scripts/import-aurora-terminal-shell-suite.sh"
 bash "$ROOT/aurora/terminals/install-desktop-entries.sh"
