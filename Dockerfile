@@ -50,6 +50,9 @@ RUN set -eux; \
 WORKDIR /src
 COPY . /src
 
+# Verify that the database provider binaries are present in the builder image.
+RUN bash /src/tools/databases/verify_database_providers.sh
+
 # Normalize scripts in a POSIX /bin/sh-compatible RUN layer.
 RUN set -eux; \
     find /src -type f \( \
