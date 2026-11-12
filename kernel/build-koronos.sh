@@ -119,10 +119,9 @@ readelf -lW "$BUILD/user-init-timeout.elf" | grep -Eq 'LOAD.*R E' || {
 }
 printf 'Built non-cooperative userspace timeout probe: %s/user-init-timeout.elf\n' "$BUILD"
 
-# Build the production Live/Installer/Recovery ring-3 payloads that the ISO
-# stages as CHIMERA_MODULE_USER_INIT_ELF modules. Unlike the smoke probes above
-# these are the payloads shipped on the media; each emits its own readiness
-# handshake from CPL 3.
+# Build the Live/Installer/Recovery ring-3 readiness probes that the ISO
+# stages as CHIMERA_MODULE_USER_INIT_ELF modules. These prove the CPL3 syscall
+# handshake only; they are not production desktop, installer, or recovery runtimes.
 if [[ -d "$ROOT/kernel/targets" ]]; then
   for target in live installer recovery; do
     "$USER_CC" -std=c11 -O2 -Wall -Wextra -Werror -ffreestanding -fno-builtin \
@@ -140,7 +139,7 @@ if [[ -d "$ROOT/kernel/targets" ]]; then
       echo "ERROR: target-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
     }
   done
-  printf 'Built production target inits: %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
+  printf 'Built target-init handshake probes: %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
 fi
 
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"

@@ -122,6 +122,8 @@ ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
+# Compiler/linker scratch files belong on WSL's Linux filesystem, not /mnt/<drive> (DrvFs).
+HOST_TMP_DIR="${CHIMERA_HOST_TMPDIR:-/var/tmp/chimera-host-tmp-${UID:-$(id -u)}}"
 LOG_DIR="$BUILD_DIR/logs"
 LOG_FALLBACK_DIR="${CHIMERA_LOG_FALLBACK_DIR:-${TMPDIR:-/tmp}/chimera-build-logs-${UID:-$(id -u)}}"
 WATCHDOG_PID=""
@@ -165,7 +167,11 @@ if [[ "$TARGET_ARCH" != "x86_64" ]]; then
 fi
 export CHIMERA_TARGET_ARCH="$TARGET_ARCH" CHIMERA_HOST_ARCH="$HOST_ARCH" CHIMERA_MEDIA_FS_PROFILE="$MEDIA_FS_PROFILE"
 
-mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" 2>/dev/null || true
+mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" "$HOST_TMP_DIR" 2>/dev/null || true
+host_tmp_fstype="$(findmnt -T "$HOST_TMP_DIR" -n -o FSTYPE 2>/dev/null || stat -f -c %T "$HOST_TMP_DIR" 2>/dev/null || true)"
+case "$host_tmp_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) log_error "Compiler temporary directory is on a Windows-mounted filesystem ($host_tmp_fstype): $HOST_TMP_DIR"; exit 2;; esac
+host_tmp_probe="$(mktemp "$HOST_TMP_DIR/.chimera-write-test.XXXXXX")" || { log_error "Compiler temporary directory is not writable: $HOST_TMP_DIR"; exit 2; }
+rm -f -- "$host_tmp_probe"
 
 # WSL/DrvFs can expose a drive as read-only even when it reports ample free space.
 # Never let logging/state writes turn the real Docker error into a secondary failure.
@@ -177,7 +183,7 @@ ensure_log_dir(){
   fi
 }
 ensure_log_dir
-export TMPDIR="$ISO_TMP_DIR" MTOOLS_SKIP_CHECK=1
+export TMPDIR="$HOST_TMP_DIR" CHIMERA_HOST_TMPDIR="$HOST_TMP_DIR" MTOOLS_SKIP_CHECK=1
 
 log_info(){ echo -e "${BLUE}[INFO]${NC} $*"; }
 log_success(){ echo -e "${GREEN}[SUCCESS]${NC} $*"; }
@@ -194,13 +200,15 @@ process_snapshot(){
     echo "-- process tree --"
     pstree -ap $$ 2>/dev/null | head -n 80 || true
     echo "-- docker containers --"
-    docker ps -a --no-trunc 2>/dev/null || true
+    # Docker metadata endpoints can block while BuildKit is exporting a large
+    # image. Bound diagnostics so the watchdog keeps emitting CI heartbeats.
+    timeout 3s docker ps -a --no-trunc 2>/dev/null || true
     echo "-- docker disk usage --"
-    docker system df 2>/dev/null || true
+    timeout 3s docker system df 2>/dev/null || true
     echo "-- storage --"
     df -h "$BUILD_DIR" "$ISO_OUTPUT_DIR" 2>/dev/null || true
     echo "-- build directories --"
-    du -sh "$BUILD_DIR"/* "$ISO_DIR"/* 2>/dev/null | sort -h | tail -n 20 || true
+    timeout 3s du -sh "$BUILD_DIR"/* "$ISO_DIR"/* 2>/dev/null | sort -h | tail -n 20 || true
   } >> "$LOG_DIR/process-snapshots.log" 2>&1
 }
 start_watchdog(){
@@ -260,7 +268,7 @@ if [[ -n "${CHIMERA_BUILD_STORAGE_ROOT:-}" ]]; then
   BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"
   mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"
   LOG_DIR="$BUILD_DIR/logs"; ensure_log_dir || true
-  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
 fi
 
 free_bytes(){
@@ -396,7 +404,7 @@ choose_storage(){
   mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR" || return 1
   LOG_DIR="$BUILD_DIR/logs"
   ensure_log_dir || return 1
-  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+  export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
   log_success "Build storage switched to $best"
 }
 preflight(){
@@ -415,7 +423,7 @@ preflight(){
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
-      export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$ISO_TMP_DIR"
+      export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
   fi
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
@@ -625,6 +633,24 @@ create_boot_menu(){
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  # Stage the exact freestanding ring-3 init ELF for every selectable target.
+  # Without these modules, GRUB loads the kernel but Koronos correctly refuses
+  # Live/Installer/Recovery handoff. Keep manifests explicit and probe-only.
+  local target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"
+  local target_stage="$ISO_DIR/boot/targets"
+  mkdir -p "$target_stage"
+  for target in live installer recovery; do
+    local target_elf="$target_init_dir/target-init-$target.elf"
+    local staged_elf="$target_stage/target-init-$target.elf"
+    [[ -s "$target_elf" ]] || { log_error "Missing native $target init ELF: $target_elf"; exit 1; }
+    readelf -h "$target_elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { log_error "$target_elf is not ELF64"; exit 1; }
+    readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { log_error "$target_elf is not ET_EXEC"; exit 1; }
+    readelf -lW "$target_elf" | grep -Eq 'LOAD.*R E' || { log_error "$target_elf has no readable/executable PT_LOAD"; exit 1; }
+    chimera_copy_if_distinct "$target_elf" "$staged_elf"
+    python3 "$SCRIPT_DIR/tools/boot/generate-target-init-manifest.py" \\
+      --target "$target" --elf "$staged_elf" \\
+      --output "$target_stage/target-init-$target.manifest.json"
+  done
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
@@ -1392,6 +1418,12 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/targets/target-init-live.elf
+    /boot/targets/target-init-live.manifest.json
+    /boot/targets/target-init-installer.elf
+    /boot/targets/target-init-installer.manifest.json
+    /boot/targets/target-init-recovery.elf
+    /boot/targets/target-init-recovery.manifest.json
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt
@@ -1420,6 +1452,23 @@ verify_iso(){
     fi
   done
   xorriso -indev "$iso" -find /EFI/BOOT/BOOTX64.EFI -type f | tee "$LOG_DIR/iso-uefi-files.log"
+  # Verify the on-media ELF bytes against their target-specific manifests.
+  python3 - "$ISO_DIR/boot/targets" <<'PYTARGET'
+import hashlib, json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+for target in ("live", "installer", "recovery"):
+    elf = root / f"target-init-{target}.elf"
+    manifest = root / f"target-init-{target}.manifest.json"
+    doc = json.loads(manifest.read_text(encoding="utf-8"))
+    if doc.get("schema") != "CHM-NATIVE-TARGET-INIT-1" or doc.get("target") != target:
+        raise SystemExit(f"invalid target-init manifest: {manifest}")
+    digest = hashlib.sha256(elf.read_bytes()).hexdigest()
+    if doc.get("sha256") != digest or doc.get("production_ready") is not False:
+        raise SystemExit(f"target-init checksum/status mismatch: {target}")
+    if doc.get("payload_kind") != "ring3-readiness-probe" or not doc.get("limitations"):
+        raise SystemExit(f"target-init maturity declaration missing: {target}")
+    print(f"[TARGET] {target}: ELF/manifest checksum verified; probe-only status retained")
+PYTARGET
   log_success "BIOS/UEFI boot files and graphical boot, installer and Aurora asset contract verified."
   if command -v qemu-system-x86_64 >/dev/null 2>&1; then
     log_info 'Launching a non-asserting QEMU firmware smoke probe; timeout is not proof of boot success.'

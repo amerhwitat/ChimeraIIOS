@@ -212,6 +212,9 @@ if [[ -n "${CHIMERA_AURORA_BACKGROUND:-}" && -f "$CHIMERA_AURORA_BACKGROUND" ]];
   mkdir -p "$STAGE/install/assets/aurora"
   cp "$CHIMERA_AURORA_BACKGROUND" "$STAGE/install/assets/aurora/Aurora-Wayland-Glass-Desktop.png"
 fi
+# Stage generated application binaries and complete desktop/service/target/runlevel inventories.
+python3 "$ROOT/tools/iso/stage-system-inventory.py" --root "$ROOT" --iso "$STAGE"
+test -s "$STAGE/boot/chimera/manifests/ISO-COMPONENT-INVENTORY.json" || { echo "ERROR: component inventory missing" >&2; exit 2; }
 
 FINAL="$ISO_DIR/chimera-ii-os.iso"
 if [[ -x "$DISK_MANAGER" ]]; then CHIMERA_ROOT="$ROOT" CHIMERA_EXPECTED_BUILD_GB="${CHIMERA_EXPECTED_BUILD_GB:-20}" "$DISK_MANAGER"; fi
@@ -235,6 +238,9 @@ if [[ -n "$BASE" && -f "$BASE" ]] && command -v xorriso >/dev/null 2>&1; then
     -map "$STAGE/network-tools" /network-tools \
     -map "$STAGE/compat" /compat \
     -map "$STAGE/build-artifacts" /build-artifacts \
+    -map "$STAGE/usr" /usr \
+    -map "$STAGE/opt" /opt \
+    -map "$STAGE/etc" /etc \
     -commit -end
 else
   CHIMERA_KERNEL="$KERNEL" CHIMERA_OUTPUT_ISO="$FINAL" "$ROOT/iso/chimera-live-iso.sh"

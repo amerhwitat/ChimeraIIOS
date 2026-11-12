@@ -26,9 +26,44 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PROFILE="${1:-$ROOT/mobile/device-profiles/reference-aarch64.json}"
 OUT="${2:-$ROOT/mobile/images/dist}"
 python3 "$ROOT/mobile/build/validate-profile.py" "$PROFILE"
-rm -rf "$OUT"
-mkdir -p "$OUT"
-cp "$PROFILE" "$OUT/device-profile.json"
-printf 'Chimera Mobile research image layout prepared at %s\n' "$OUT"
-printf '%s\n' 'This stage intentionally stops before device flashing/signing.'
-printf '%s\n' 'A production image requires the exact device kernel/vendor modules and authorized AVB signing keys.'
+
+# Constrain cleanup to the repository's mobile image workspace.
+python3 - "$ROOT" "$OUT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1]).resolve()
+out = Path(sys.argv[2])
+if out.is_symlink():
+    raise SystemExit("refusing symlink output directory")
+resolved = out.resolve()
+allowed = (root / "mobile" / "images").resolve()
+if resolved == allowed or allowed not in resolved.parents:
+    raise SystemExit(f"output must be a child of {allowed}: {resolved}")
+if resolved == root or resolved == Path("/"):
+    raise SystemExit("refusing unsafe output path")
+PY
+STAGE="$OUT.tmp.$$"
+trap 'rm -rf -- "$STAGE"' EXIT
+rm -rf -- "$STAGE"
+mkdir -p "$STAGE"
+cp "$PROFILE" "$STAGE/device-profile.json"
+python3 - "$PROFILE" "$STAGE/mobile-image-manifest.json" <<'PY'
+import json, sys
+from pathlib import Path
+profile = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+manifest = {
+    "schema": "CHM-MOBILE-IMAGE-RESEARCH-1",
+    "profile": profile["id"],
+    "architecture": profile["architecture"],
+    "support_status": profile["support_status"],
+    "flashable": False,
+    "reason": "No hardware-validated device boot bundle, vendor modules, AVB-signed images, or tested adapter is supplied."
+}
+Path(sys.argv[2]).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+PY
+rm -rf -- "$OUT"
+mv -- "$STAGE" "$OUT"
+trap - EXIT
+printf 'Chimera Mobile research layout prepared at %s\n' "$OUT"
+printf '%s\n' 'NOT FLASHABLE: no device-specific signed boot bundle is present.'
+printf '%s\n' 'Production images require exact device kernel/vendor modules, AVB signing, rollback metadata and hardware boot tests.'

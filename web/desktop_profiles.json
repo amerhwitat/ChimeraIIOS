@@ -7,196 +7,240 @@
       "title": "Aurora Wayland Glass",
       "family": "Aurora",
       "mode": "native-or-web",
-      "description": "Chimera II native glass desktop and browser-compatible shell."
+      "description": "Chimera II native glass desktop and browser-compatible shell.",
+      "default_eligible": true
     },
     {
       "id": "linux-gnome",
       "title": "Ubuntu / GNOME",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "GNOME Shell profile for Ubuntu and GNOME-based distributions."
+      "description": "GNOME Shell profile for Ubuntu and GNOME-based distributions.",
+      "default_eligible": true
     },
     {
       "id": "linux-kde-plasma",
       "title": "KDE Plasma",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "KDE Plasma profile for Plasma-based Linux installations."
+      "description": "KDE Plasma profile for Plasma-based Linux installations.",
+      "default_eligible": true
     },
     {
       "id": "linux-xfce",
       "title": "Xfce",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Lightweight Xfce desktop profile."
+      "description": "Lightweight Xfce desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-cinnamon",
       "title": "Cinnamon",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Cinnamon desktop profile."
+      "description": "Cinnamon desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-mate",
       "title": "MATE",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Traditional MATE desktop profile."
+      "description": "Traditional MATE desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-lxqt",
       "title": "LXQt / LXDE",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Lightweight LXQt/LXDE-compatible profile."
+      "description": "Lightweight LXQt/LXDE-compatible profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-budgie",
       "title": "Budgie",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Budgie desktop profile."
+      "description": "Budgie desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-pantheon",
       "title": "Pantheon",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "elementary/Pantheon-style profile."
+      "description": "elementary/Pantheon-style profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-deepin",
       "title": "Deepin",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Deepin Desktop Environment profile."
+      "description": "Deepin Desktop Environment profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-enlightenment",
       "title": "Enlightenment",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "Enlightenment desktop profile."
+      "description": "Enlightenment desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "linux-cosmic",
       "title": "COSMIC",
       "family": "Linux",
       "mode": "session-adapter",
-      "description": "COSMIC desktop profile."
+      "description": "COSMIC desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "windows-11",
       "title": "Windows 11 UI",
       "family": "Windows",
       "mode": "web-profile-or-vm",
-      "description": "Windows 11-style shell; real Windows requires an authorized VM/RDP backend."
+      "description": "Windows 11-style shell; real Windows requires an authorized VM/RDP backend.",
+      "default_eligible": true
     },
     {
       "id": "windows-10",
       "title": "Windows 10 UI",
       "family": "Windows",
       "mode": "web-profile-or-vm",
-      "description": "Windows 10-style shell; real Windows requires an authorized VM/RDP backend."
+      "description": "Windows 10-style shell; real Windows requires an authorized VM/RDP backend.",
+      "default_eligible": true
     },
     {
       "id": "windows-classic",
       "title": "Classic Windows UI",
       "family": "Windows",
       "mode": "web-profile-or-vm",
-      "description": "Classic Windows-style desktop profile."
+      "description": "Classic Windows-style desktop profile.",
+      "default_eligible": true
     },
     {
       "id": "retro-c64",
       "title": "Retro · Commodore 64",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS VICE C64 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS VICE C64 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-c128",
       "title": "Retro · Commodore 128",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS VICE C128 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS VICE C128 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-vic20",
       "title": "Retro · VIC-20",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS VICE VIC-20 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS VICE VIC-20 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-pet",
       "title": "Retro · Commodore PET",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS VICE PET core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS VICE PET core.",
+      "default_eligible": true
     },
     {
       "id": "retro-plus4",
       "title": "Retro · Commodore Plus/4",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS VICE Plus/4 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS VICE Plus/4 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-amiga",
       "title": "Retro · Commodore Amiga",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS PUAE core; user-supplied Kickstart required where applicable."
+      "description": "Three.js WebGL workstation shell with EmulatorJS PUAE core; user-supplied Kickstart required where applicable.",
+      "default_eligible": true
     },
     {
       "id": "retro-dos",
       "title": "Retro · IBM PC / DOS",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS DOS core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS DOS core.",
+      "default_eligible": true
     },
     {
       "id": "retro-atari2600",
       "title": "Retro · Atari 2600",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS Atari 2600 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS Atari 2600 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-atari5200",
       "title": "Retro · Atari 5200",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS Atari 5200 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS Atari 5200 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-atari7800",
       "title": "Retro · Atari 7800",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS Atari 7800 core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS Atari 7800 core.",
+      "default_eligible": true
     },
     {
       "id": "retro-jaguar",
       "title": "Retro · Atari Jaguar",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS Jaguar core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS Jaguar core.",
+      "default_eligible": true
     },
     {
       "id": "retro-lynx",
       "title": "Retro · Atari Lynx",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS Lynx core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS Lynx core.",
+      "default_eligible": true
     },
     {
       "id": "retro-coleco",
       "title": "Retro · ColecoVision",
       "family": "Retro",
       "mode": "webgl-wasm",
-      "description": "Three.js WebGL workstation shell with EmulatorJS ColecoVision core."
+      "description": "Three.js WebGL workstation shell with EmulatorJS ColecoVision core.",
+      "default_eligible": true
+    },
+    {
+      "id": "freexp",
+      "title": "FreeXP",
+      "family": "Chimera",
+      "mode": "native-shell-preview",
+      "default_eligible": true,
+      "description": "Original Windows-XP-inspired Chimera desktop shell; preview status."
+    },
+    {
+      "id": "freewin11",
+      "title": "FreeWin11",
+      "family": "Chimera",
+      "mode": "native-shell-preview",
+      "default_eligible": true,
+      "description": "Original Windows-11-inspired Chimera desktop shell; preview status, not Microsoft Windows."
     }
   ]
 }

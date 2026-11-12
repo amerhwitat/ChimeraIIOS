@@ -31,6 +31,10 @@
     "freexp": [
       "chimera-desktop-shell",
       "--desktop=freexp"
+    ],
+    "freewin11": [
+      "chimera-desktop-shell",
+      "--desktop=freewin11"
     ]
   },
   "status": "provider-declared-runtime-not-yet-verified",

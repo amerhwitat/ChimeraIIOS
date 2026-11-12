@@ -83,7 +83,7 @@ ENV DEBIAN_FRONTEND=noninteractive CHIMERA_GUI=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash ca-certificates python3 pciutils usbutils dmidecode iproute2 procps \
-    systemd systemd-sysv dosbox \
+    systemd systemd-sysv dosbox xterm \
     samba smbclient cifs-utils winbind libnss-winbind libpam-winbind \
     krb5-user realmd adcli sssd sssd-ad sssd-ldap sssd-tools ldap-utils \
     libsasl2-modules-gssapi-mit avahi-daemon avahi-utils gvfs-backends \

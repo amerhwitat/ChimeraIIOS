@@ -21,9 +21,15 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="${CHIMERA_ROOTFS_DIR:-${ROOT}/build/iso/rootfs}"
 PREFIX="${DEST}/usr"
-CACHE="${CHIMERA_TERMINAL_CACHE:-${ROOT}/build/terminal-cache}"
+CACHE="${CHIMERA_TERMINAL_CACHE:-/var/tmp/chimera-terminal-cache-${UID:-$(id -u)}}"
 MODE="${CHIMERA_TERMINAL_MODE:-source-first}"
 mkdir -p "$PREFIX/bin" "$PREFIX/share/chimera/aurora/terminals" "$PREFIX/share/applications" "$CACHE"
+# Rust/CMake compilation must not put high-churn build artifacts on WSL DrvFs (/mnt/c, /mnt/e).
+# Keep an explicit override for CI, but reject known Windows-mounted filesystems.
+cache_fstype="$(findmnt -T "$CACHE" -n -o FSTYPE 2>/dev/null || stat -f -c %T "$CACHE" 2>/dev/null || true)"
+case "$cache_fstype" in 9p|drvfs|fuseblk|ntfs|ntfs3) printf '[AURORA-TERMINAL] Terminal cache is on a Windows-mounted filesystem (%s): %s\n' "$cache_fstype" "$CACHE" >&2; exit 2;; esac
+CARGO_BUILD_JOBS="${CHIMERA_CARGO_BUILD_JOBS:-2}"
+[[ "$CARGO_BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || { printf '[AURORA-TERMINAL] CHIMERA_CARGO_BUILD_JOBS must be a positive integer\n' >&2; exit 2; }
 cp "$ROOT/aurora/terminals/registry.json" "$PREFIX/share/chimera/aurora/terminals/registry.json"
 log(){ printf '[AURORA-TERMINAL] %s\n' "$*"; }
 have(){ command -v "$1" >/dev/null 2>&1; }
@@ -88,21 +94,44 @@ require_native_build_arch() {
 install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
 source_build(){
   require_native_build_arch || return 1;
-  local id="$1" url="$2"; local src="$CACHE/src-$id"
-  if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
+  local id="$1" url="$2"; local src="$CACHE/src-$id"; local cargo_target="$CACHE/cargo-target-$id"
+  if [[ ! -d "$src/.git" ]]; then
+    rm -rf "$src"
+    if [[ "$id" == "alacritty" ]]; then
+      # Pin a release whose Rust and system-library requirements are known for
+      # Ubuntu 24.04; do not build an unbounded upstream default branch.
+      log "Cloning Alacritty v0.13.2 from $url"
+      git clone --depth 1 --branch v0.13.2 "$url" "$src"
+    else
+      log "Cloning $id from $url"
+      git clone --depth 1 "$url" "$src"
+    fi
+  fi
   case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
-    wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
-    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
+    alacritty)
+      have cargo || { log "Cargo is required for the pinned Alacritty source build"; return 1; }
+      (cd "$src" && CARGO_TARGET_DIR="$cargo_target" CARGO_BUILD_JOBS="$CARGO_BUILD_JOBS" cargo build --release --locked)
+      install -m 0755 "$cargo_target/release/alacritty" "$PREFIX/bin/alacritty"
+      ;;
+    wezterm) (cd "$src" && CARGO_TARGET_DIR="$cargo_target" CARGO_BUILD_JOBS="$CARGO_BUILD_JOBS" cargo build --release --bin wezterm-gui); install -m 0755 "$cargo_target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
+    contour) rm -rf "$src/build"; (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build --parallel "$CARGO_BUILD_JOBS"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
       have python3 || return 1
       local zigver venv
-      zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
-      [[ -n "$zigver" ]] || { log "Ghostty source has no pinned .zig-version"; return 1; }
+      if [[ -f "$src/.zig-version" ]]; then
+        zigver="$(tr -d '[:space:]' < "$src/.zig-version")"
+      elif [[ -f "$src/build.zig.zon" ]]; then
+        # Current upstream exposes its required Zig release in build.zig.zon.
+        zigver="$(sed -nE 's/.*minimum_zig_version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "$src/build.zig.zon" | head -n 1)"
+      else
+        log "Ghostty source has neither .zig-version nor build.zig.zon"
+        return 1
+      fi
+      [[ -n "$zigver" ]] || { log "Could not determine Ghostty's required Zig version"; return 1; }
       venv="$CACHE/zig-venv"
       python3 -m venv "$venv"
       "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
-      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
+      (cd "$src" && ZIG_GLOBAL_CACHE_DIR="$CACHE/zig-global-cache" ZIG_LOCAL_CACHE_DIR="$CACHE/zig-local-cache-ghostty" "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast -Dcpu=baseline)
       cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
 
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
@@ -111,7 +140,7 @@ source_build(){
     dash) (cd "$src" && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/src/dash" "$PREFIX/bin/" ;;
     mksh) (cd "$src" && sh Build.sh -r -j"$(nproc)"); find "$src" -type f -name mksh -perm -111 -exec cp {} "$PREFIX/bin/mksh" \; -quit ;;
     elvish) (cd "$src" && go build -o "$PREFIX/bin/elvish" ./cmd/elvish);;
-    nushell) (cd "$src" && cargo build --release --bin nu); cp "$src/target/release/nu" "$PREFIX/bin/" ;;
+    nushell) (cd "$src" && CARGO_TARGET_DIR="$cargo_target" CARGO_BUILD_JOBS="$CARGO_BUILD_JOBS" cargo build --release --bin nu); cp "$cargo_target/release/nu" "$PREFIX/bin/" ;;
     *) return 1;;
   esac
   local built

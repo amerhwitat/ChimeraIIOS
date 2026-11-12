@@ -33,7 +33,9 @@ jobs:
           PY
       - name: Flash safety contract
         run: |
-          grep -q "Live device set changed" tools/mobile/chimera-mobile-flash.sh
-          grep -q "FLASH CHIMERA" tools/mobile/chimera-mobile-flash.sh
-          grep -q "fastboot-profiled" tools/mobile/chimera-mobile-flash.sh
-          ! grep -q "oem unlock" tools/mobile/chimera-mobile-flash.sh
+          grep -q "generic-flash is disabled" tools/mobile/chimera-mobile-flash.sh
+          grep -q "chimera-mobile-fastboot.py" tools/mobile/chimera-mobile-flash.sh
+          grep -q "FLASH CHIMERA" tools/mobile/chimera-mobile-fastboot.py
+          grep -q "hardware-validated" tools/mobile/chimera-mobile-fastboot.py
+          ! grep -qi "oem unlock" tools/mobile/chimera-mobile-flash.sh
+          ! grep -qi "fastboot.*flash" tools/mobile/chimera-mobile-flash.sh

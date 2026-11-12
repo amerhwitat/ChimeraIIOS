@@ -38,6 +38,14 @@ Mobile flashing is confirmation-gated and device-profile constrained. The toolin
 
 The common contracts and roadmap are present; production device support remains profile-specific and requires hardware validation before a device is declared supported.
 
+## Flash tool and image readiness
+
+The mobile probe is read-only by default. The build/flash path requires exactly one authorized ADB target and a hardware-validated profile with exact manufacturer/model/codename identifiers, a tested vendor adapter, device-specific boot/vendor_boot/vbmeta images, signature/rollback metadata and verified hashes. Generic SoC templates are reference-only and cannot be selected for a flash build.
+
+The current reference, MediaTek, Qualcomm and Samsung templates are explicitly marked `reference-only`. They are not installable phone images. The mobile image staging script produces a research layout with `flashable: false`; it does not pretend that a desktop Koronos ELF or data ISO is an Android boot image. Generic partition flashing is disabled. No phone partitions are written by detection, discovery, build, or validation commands.
+
+Before a device-specific image can be released, the exact phone model/codename and authorized vendor boot bundle are required, followed by hardware boot, display, touch, storage, network, verified-boot, update/rollback and recovery tests.
+
 ## Endianness and cross-architecture boundaries
 
 Mobile builds consume the shared [endianness contract](../system/architecture/endianness.json) and freestanding helpers at `kernel/include/chimera/endianness.h`. The device OS/SoC ABI determines native data order; the boot handoff records the target and active mode. Microkernel IPC uses canonical little-endian serialized fields, while native in-memory structures remain ABI-specific. Android/iOS hosted execution does not establish that an emulated guest shares the host byte order. Emulators and compatibility layers must keep guest byte order independent and validate executable format metadata. Device-specific kernel, driver, Aurora and endian-mode behavior is not considered validated until tested on the named target profile.

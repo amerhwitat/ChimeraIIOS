@@ -50,6 +50,9 @@ declare -A COMMAND_PACKAGE=(
 # Additional packages used by the build scripts and generated applications.
 declare -a BUILD_PACKAGES=(
   build-essential binutils gcc g++ make cmake ninja-build pkg-config
+  libcairo2-dev libpango1.0-dev
+  rustc cargo libfontconfig1-dev libfreetype6-dev libxcb-xfixes0-dev
+  libxkbcommon-dev libwayland-dev
   python3 python3-dev python3-venv python3-pip python3-setuptools python3-wheel
   git curl wget ca-certificates file rsync cpio gzip xz-utils bzip2 tar busybox
   xorriso grub-common grub2-common grub-pc-bin grub-efi-amd64-bin mtools
@@ -78,29 +81,32 @@ else
   say DEPS "Missing mandatory commands: ${missing[*]}"
 fi
 
-if (( ${#missing[@]} > 0 )) && [[ "$AUTO_INSTALL" == "1" ]]; then
+if [[ "$AUTO_INSTALL" == "1" ]]; then
   if ! command -v apt-get >/dev/null 2>&1 || [[ ! -f /etc/debian_version ]]; then
-    die "Automatic installation currently supports Debian/Ubuntu hosts. Missing: ${missing[*]}"
+    (( ${#missing[@]} == 0 )) || die "Automatic installation currently supports Debian/Ubuntu hosts. Missing: ${missing[*]}"
+    say DEPS "Non-Debian host: package installation skipped; existing mandatory commands are present."
+  else
+    apt_prefix=()
+    if [[ "$(id -u)" -ne 0 ]]; then
+      command -v sudo >/dev/null 2>&1 || die "sudo is required for automatic dependency installation."
+      apt_prefix=(sudo)
+    fi
+
+    say DEPS "Refreshing APT indexes and ensuring the complete build and terminal dependency set."
+    for attempt in $(seq 1 "$APT_RETRY"); do
+      if "${apt_prefix[@]}" apt-get update; then break; fi
+      [[ "$attempt" -lt "$APT_RETRY" ]] || die "apt-get update failed after $APT_RETRY attempts."
+      sleep 2
+    done
+    "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${BUILD_PACKAGES[@]}"
+
+    missing=()
+    for c in "${REQUIRED_COMMANDS[@]}"; do
+      command -v "$c" >/dev/null 2>&1 || missing+=("$c")
+    done
+    (( ${#missing[@]} == 0 )) || die "Mandatory commands remain missing after package installation: ${missing[*]}"
+    pkg-config --exists cairo pangocairo || die "Cairo/Pango development metadata is still unavailable after installing libcairo2-dev/libpango1.0-dev."
   fi
-
-  apt_prefix=()
-  if [[ "$(id -u)" -ne 0 ]]; then
-    command -v sudo >/dev/null 2>&1 || die "sudo is required for automatic dependency installation."
-    apt_prefix=(sudo)
-  fi
-
-  say DEPS "Refreshing APT indexes and installing the complete build dependency set."
-  for attempt in $(seq 1 "$APT_RETRY"); do
-    if "${apt_prefix[@]}" apt-get update; then break; fi
-    [[ "$attempt" -lt "$APT_RETRY" ]] || die "apt-get update failed after $APT_RETRY attempts."
-    sleep 2
-  done
-  "${apt_prefix[@]}" apt-get install -y --no-install-recommends "${BUILD_PACKAGES[@]}"
-
-  missing=()
-  for c in "${REQUIRED_COMMANDS[@]}"; do
-    command -v "$c" >/dev/null 2>&1 || missing+=("$c")
-  done
 fi
 
 (( ${#missing[@]} == 0 )) || die "Mandatory dependencies remain missing: ${missing[*]}"

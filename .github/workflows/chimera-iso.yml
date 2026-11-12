@@ -28,6 +28,8 @@ on:
       - 'tools/portfolio/**'
       - 'tools/boot/**'
       - 'tools/commands/**'
+      - 'tools/iso/**'
+      - 'tests/iso/**'
       - 'tools/build-boot-artifacts.sh'
       - 'tools/build-live-boot-binaries.sh'
       - 'tools/aurora/**'
@@ -63,6 +65,8 @@ on:
       - 'tools/portfolio/**'
       - 'tools/boot/**'
       - 'tools/commands/**'
+      - 'tools/iso/**'
+      - 'tests/iso/**'
       - 'tools/build-boot-artifacts.sh'
       - 'tools/build-live-boot-binaries.sh'
       - 'tools/aurora/**'
@@ -115,6 +119,8 @@ jobs:
           for p in mobile/device-profiles/*.json; do python3 mobile/build/validate-profile.py "$p"; done
       - name: Test target-specific native init routing and release gate
         run: python3 -m pytest -q tests/boot/test_iso_target_routing_artwork.py tests/boot/test_chimera_iso_release_gate.py
+      - name: Regression-test ISO inventory nested-output exclusion
+        run: python3 tests/iso/test_stage_system_inventory.py
 
       - name: Configure Java 25 for portfolio Maven projects
         uses: actions/setup-java@v4
@@ -223,11 +229,26 @@ jobs:
           for target in live installer recovery; do
             built="build/koronos/x86_64/target-init-${target}.elf"
             staged="boot/iso/dist/iso/boot/targets/target-init-${target}.elf"
+            manifest="boot/iso/dist/iso/boot/targets/target-init-${target}.manifest.json"
             test -s "$built"
             test -s "$staged"
+            test -s "$manifest"
             readelf -h "$staged" | grep -Eq 'Type:[[:space:]]+EXEC'
             cmp -s "$built" "$staged"
-            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" boot/iso/dist/iso/boot/grub.cfg
+            python3 - "$target" "$staged" "$manifest" <<'PY'
+          import hashlib, json, pathlib, sys
+          target, elf_path, manifest_path = sys.argv[1:]
+          elf = pathlib.Path(elf_path)
+          doc = json.loads(pathlib.Path(manifest_path).read_text())
+          assert doc["schema"] == "CHM-NATIVE-TARGET-INIT-1"
+          assert doc["target"] == target
+          assert doc["sha256"] == hashlib.sha256(elf.read_bytes()).hexdigest()
+          assert doc["payload_kind"] == "ring3-readiness-probe"
+          assert doc["production_ready"] is False
+          assert doc["limitations"], target
+          print(f"{target}: staged ELF/manifest SHA-256 and probe-only status PASS")
+          PY
+            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" boot/iso/dist/iso/boot/grub/grub.cfg
           done
           grep -Fq "target-init-live.elf chimera-user-init-elf target=live" boot/iso/dist/iso/boot/loader-menu.cfg
           grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" boot/iso/dist/iso/boot/loader-menu.cfg
@@ -239,6 +260,7 @@ jobs:
             boot/iso/dist/output.iso
             boot/iso/dist/output.iso.sha256
             boot/iso/dist/ISO-BOOT-REPORT.txt
+            boot/iso/dist/iso/boot/targets/*.manifest.json
             build/koronos/x86_64/koronos.elf
             build/koronos/x86_64/target-init-live.elf
             build/koronos/x86_64/target-init-installer.elf

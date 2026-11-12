@@ -10,7 +10,8 @@
           "Wayland",
           "X11"
         ],
-        "model": "overview-workspaces"
+        "model": "overview-workspaces",
+        "default_eligible": true
       },
       {
         "id": "kde-plasma",
@@ -19,7 +20,8 @@
           "Wayland",
           "X11"
         ],
-        "model": "panel-widgets"
+        "model": "panel-widgets",
+        "default_eligible": true
       },
       {
         "id": "xfce",
@@ -27,7 +29,8 @@
         "protocols": [
           "X11"
         ],
-        "model": "traditional-lightweight"
+        "model": "traditional-lightweight",
+        "default_eligible": true
       },
       {
         "id": "cinnamon",
@@ -36,7 +39,8 @@
           "X11",
           "Wayland-transition"
         ],
-        "model": "traditional-modern"
+        "model": "traditional-modern",
+        "default_eligible": true
       },
       {
         "id": "mate",
@@ -44,7 +48,8 @@
         "protocols": [
           "X11"
         ],
-        "model": "traditional"
+        "model": "traditional",
+        "default_eligible": true
       },
       {
         "id": "lxqt",
@@ -53,7 +58,8 @@
           "X11",
           "Wayland-compositor"
         ],
-        "model": "lightweight-qt"
+        "model": "lightweight-qt",
+        "default_eligible": true
       },
       {
         "id": "classic-x11",
@@ -61,66 +67,78 @@
         "protocols": [
           "X11"
         ],
-        "model": "classic-window-manager"
+        "model": "classic-window-manager",
+        "default_eligible": true
       }
     ],
     "windows": [
       {
         "id": "windows-classic",
         "display": "Windows Classic",
-        "model": "classic-taskbar-start"
+        "model": "classic-taskbar-start",
+        "default_eligible": true
       },
       {
         "id": "windows-xp",
         "display": "Windows XP",
-        "model": "classic-taskbar-start"
+        "model": "classic-taskbar-start",
+        "default_eligible": true
       },
       {
         "id": "windows-7",
         "display": "Windows 7",
-        "model": "aero-taskbar-start"
+        "model": "aero-taskbar-start",
+        "default_eligible": true
       },
       {
         "id": "windows-8",
         "display": "Windows 8/8.1",
-        "model": "start-screen-charms"
+        "model": "start-screen-charms",
+        "default_eligible": true
       },
       {
         "id": "windows-10",
         "display": "Windows 10",
-        "model": "start-taskbar-action-center"
+        "model": "start-taskbar-action-center",
+        "default_eligible": true
       },
       {
         "id": "windows-11",
         "display": "Windows 11",
-        "model": "centered-start-snap"
+        "model": "centered-start-snap",
+        "default_eligible": true
       },
       {
         "id": "winui-modern",
         "display": "Windows App SDK / WinUI",
-        "model": "modern-fluent"
+        "model": "modern-fluent",
+        "default_eligible": true
       }
     ],
     "macos": [
       {
         "id": "mac-classic",
         "display": "Classic Mac-inspired",
-        "model": "menu-bar-desktop"
+        "model": "menu-bar-desktop",
+        "default_eligible": true
       },
       {
         "id": "mac-cocoa",
         "display": "Cocoa/AppKit",
-        "model": "menu-bar-dock"
+        "model": "menu-bar-dock",
+        "default_eligible": true
       },
       {
         "id": "mac-modern",
         "display": "Modern macOS",
-        "model": "menu-bar-dock-control-center"
+        "model": "menu-bar-dock-control-center",
+        "default_eligible": true
       },
       {
         "id": "swiftui",
         "display": "SwiftUI-era",
-        "model": "adaptive-native"
+        "model": "adaptive-native",
+        "default_eligible": true
       }
     ],
     "chimera": [
@@ -137,7 +155,8 @@
           "taskbar",
           "DOSBox launch action",
           "shared semantic SVG icons"
-        ]
+        ],
+        "default_eligible": true
       },
       {
         "id": "chimera-classic",
@@ -145,7 +164,8 @@
         "inherits": [
           "windows-classic",
           "mate"
-        ]
+        ],
+        "default_eligible": true
       },
       {
         "id": "chimera-modern",
@@ -154,7 +174,8 @@
           "windows-11",
           "kde-plasma",
           "mac-modern"
-        ]
+        ],
+        "default_eligible": true
       },
       {
         "id": "chimera-arabic",
@@ -163,7 +184,26 @@
           "chimera-modern"
         ],
         "locale": "ar",
-        "direction": "rtl"
+        "direction": "rtl",
+        "default_eligible": true
+      },
+      {
+        "id": "freewin11",
+        "display": "FreeWin11",
+        "protocols": [
+          "X11"
+        ],
+        "model": "original-windows-11-inspired-shell",
+        "status": "native-shell-preview",
+        "default_eligible": true,
+        "features": [
+          "Fluent-inspired taskbar",
+          "Start menu",
+          "window snapping layout",
+          "desktop widgets",
+          "shared semantic SVG icons"
+        ],
+        "note": "Original open-source-inspired UI; not Microsoft Windows and does not redistribute Microsoft binaries."
       }
     ]
   }

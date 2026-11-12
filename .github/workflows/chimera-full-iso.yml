@@ -10,8 +10,14 @@ on:
       - "desktop/**"
       - "iso/**"
       - "tools/build-live-boot-binaries.sh"
+      - "build-chimera-iso.sh"
+      - "tools/iso/**"
+      - "tests/iso/**"
       - "tools/build-full-iso.sh"
       - "tools/build-full-iso.*"
+      - "build-chimera-iso.sh"
+      - "tools/iso/**"
+      - "tests/iso/**"
       - "CMakeLists.txt"
       - "tests/boot/**"
       - ".github/workflows/chimera-full-iso.yml"
@@ -55,7 +61,7 @@ jobs:
       - name: Install ISO and cross-build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd
+          sudo apt-get install -y cmake ninja-build nasm xorriso grub-pc-bin grub-efi-amd64-bin grub-common grub2-common mtools dosfstools qemu-system-x86 gcc g++ clang openjdk-21-jdk python3 python3-pip git curl busybox-static cpio zstd squashfs-tools libcairo2-dev libpango1.0-dev pkg-config
 
       - name: Validate boot target routing and embedded artwork contract
         run: python3 tests/boot/test_iso_target_routing_artwork.py
@@ -68,12 +74,20 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Build canonical ISO with clean state and automatic storage
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          CHIMERA_HOST_TMPDIR: /var/tmp/chimera-host-tmp
         run: |
-          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
-          ./tools/build-full-iso.sh
+          set -euo pipefail
+          chmod +x build-chimera-iso.sh
+          ./build-chimera-iso.sh --clean-state --storage-auto
+          iso="$(find "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$HOME" /chimera-output -type f -name 'ChimeraIIOS-comprehensive-*-x86_64.iso' -print -quit 2>/dev/null || true)"
+          test -n "$iso" || { echo "::error::Canonical build completed without a discoverable x86_64 ISO"; exit 1; }
+          mkdir -p build/iso
+          cp -- "$iso" build/iso/chimera-ii-os.iso
+          (cd build/iso && sha256sum chimera-ii-os.iso > chimera-ii-os.iso.sha256)
+          file build/iso/chimera-ii-os.iso
 
       - name: Validate ISO artifacts
         run: |
@@ -101,6 +115,24 @@ jobs:
           extract /install/installer/installation.img "$tmp/installation.img"
           extract /install/installer/installation-manifest.json "$tmp/installation-manifest.json"
           extract /install/installer/installer-contract.json "$tmp/installer-contract.json"
+          for target in live installer recovery; do
+            extract "/boot/targets/target-init-$target.elf" "$tmp/target-init-$target.elf"
+            extract "/boot/targets/target-init-$target.manifest.json" "$tmp/target-init-$target.manifest.json"
+          done
+          python3 - "$tmp" <<'PY'
+          import hashlib, json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          for target in ("live", "installer", "recovery"):
+              elf = root / f"target-init-{target}.elf"
+              manifest = json.loads((root / f"target-init-{target}.manifest.json").read_text())
+              assert manifest["schema"] == "CHM-NATIVE-TARGET-INIT-1"
+              assert manifest["target"] == target
+              assert manifest["sha256"] == hashlib.sha256(elf.read_bytes()).hexdigest()
+              assert manifest["payload_kind"] == "ring3-readiness-probe"
+              assert manifest["production_ready"] is False
+              assert manifest["limitations"]
+              print(f"{target}: ISO target ELF hash and probe-only manifest verified")
+          PY
           extract /boot/grub/grub.cfg "$tmp/grub.cfg"
           extract /boot/grub/aurora-wayland-glass.jpg "$tmp/aurora-wayland-glass.jpg"
           extract /boot/grub/Init.mp4 "$tmp/Init.mp4"

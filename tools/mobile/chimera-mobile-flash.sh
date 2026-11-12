@@ -29,48 +29,7 @@ need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
 COMMAND="${1:-gui}"
 
 generic_flash() {
-  need fastboot
-  local serial="${GENERIC_SERIAL:-}" manifest="${GENERIC_MANIFEST:-}"
-  [[ -n "$serial" ]] || die "Set GENERIC_SERIAL to the exact Fastboot serial."
-  [[ -n "$manifest" && -f "$manifest" ]] || die "Set GENERIC_MANIFEST to a JSON partition manifest."
-  python3 - "$serial" "$manifest" <<'PY'
-import hashlib,json,os,subprocess,sys
-from pathlib import Path
-serial,manifest=sys.argv[1],Path(sys.argv[2])
-try: m=json.loads(manifest.read_text(encoding="utf-8"))
-except Exception as e: raise SystemExit("Invalid generic flash manifest: "+str(e))
-if m.get("schema")!="CHM-GENERIC-FLASH-1":
-    raise SystemExit("Manifest schema must be CHM-GENERIC-FLASH-1")
-parts=m.get("partitions",[])
-if not parts: raise SystemExit("Manifest contains no partitions.")
-if len(parts)>64: raise SystemExit("Refusing more than 64 partition writes in one generic operation.")
-q=subprocess.run(["fastboot","devices"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-live=[x.split()[0] for x in q.stdout.splitlines() if x.split()]
-if live != [serial]:
-    raise SystemExit(f"Live Fastboot device mismatch: expected only {serial}, found {live}")
-print("\nWARNING: GENERIC PARTITION FLASH MODE")
-print("This mode deliberately does NOT require a Chimera exact-device profile.")
-print("It can erase/overwrite incompatible partitions and may permanently brick a device.")
-print("The manifest must explicitly name every partition and image.")
-print("Device:",serial)
-for x in parts:
-    name=x.get("name",""); image=Path(x.get("image",""))
-    if not name or not image.is_file(): raise SystemExit("Invalid partition/image entry: "+str(x))
-    if "/" in name or "\\" in name or name in {".",".."}: raise SystemExit("Unsafe partition name: "+name)
-    if "sha256" not in x: raise SystemExit("Every generic image must have a SHA-256: "+name)
-    got=hashlib.sha256(image.read_bytes()).hexdigest()
-    if got.lower()!=str(x["sha256"]).lower(): raise SystemExit("SHA-256 mismatch: "+name)
-    print(f"  {name} <- {image}  sha256={got}")
-if m.get("backup_manifest"):
-    Path(m["backup_manifest"]).write_text(json.dumps({"serial":serial,"partitions":[x["name"] for x in parts]},indent=2)+"\n")
-if os.environ.get("CHIMERA_GENERIC_FLASH_ACK")!="I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS":
-    raise SystemExit("Set CHIMERA_GENERIC_FLASH_ACK=I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS to enable generic writes.")
-answer=input('Type GENERIC FLASH CHIMERA to continue: ')
-if answer!="GENERIC FLASH CHIMERA": raise SystemExit("Cancelled.")
-for x in parts:
-    subprocess.run(["fastboot","-s",serial,"flash",x["name"],x["image"]],check=True)
-print("GENERIC CHIMERA FLASH COMPLETE")
-PY
+  die "generic-flash is disabled. Phone writes require a hardware-validated exact-device profile, vendor-approved adapter, signed images, verified hashes, and explicit device confirmation."
 }
 
 case "$COMMAND" in
@@ -102,28 +61,7 @@ case "$COMMAND" in
     python3 "$BUILDER" --build
     REPORT="$ROOT/build/mobile/last-build.json"
     [[ -s "$REPORT" ]] || die "mobile build report was not generated"
-    python3 - "$REPORT" <<'PY'
-import hashlib,json,subprocess,sys
-from pathlib import Path
-r=json.load(open(sys.argv[1],encoding="utf-8")); target=r.get("target",{}); serial=target.get("serial")
-if not serial: raise SystemExit("No exact Android serial in build report.")
-q=subprocess.run(["adb","devices"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-live=[x.split()[0] for x in q.stdout.splitlines()[1:] if len(x.split())>=2 and x.split()[1]=="device"]
-if live != [serial]: raise SystemExit(f"Live device set changed; expected only {serial}, found {live}. Refusing to flash.")
-p=r.get("profile",{}); flash=p.get("flash",{})
-if flash.get("method")!="fastboot-profiled": raise SystemExit("No verified flash adapter exists for this exact device profile.")
-parts=flash.get("partitions",[])
-if not parts: raise SystemExit("Exact device profile declares no flash partitions; refusing to write.")
-print("Verified exact device:",serial,p.get("id"),"architecture=",target.get("architecture"))
-print("Partitions:",", ".join(x["name"] for x in parts))
-if input('Type FLASH CHIMERA to continue: ')!="FLASH CHIMERA": raise SystemExit("Cancelled.")
-for item in parts:
-    image=Path(item["image"])
-    if not image.is_file(): raise SystemExit("Missing mapped image: "+str(image))
-    if hashlib.sha256(image.read_bytes()).hexdigest().lower()!=item["sha256"].lower(): raise SystemExit("SHA-256 mismatch: "+str(image))
-    subprocess.run(["fastboot","-s",serial,"flash",item["name"],str(image)],check=True)
-print("CHIMERA FLASH COMPLETE")
-PY
+    python3 "$SCRIPT_DIR/chimera-mobile-fastboot.py" "$REPORT"
     ;;
   generic-flash)
     generic_flash
@@ -137,23 +75,18 @@ PY
 Chimera II OS Mobile Edition Flash Tool
   (no argument)       Aurora GUI
   ports               Scan USB, udev/sysfs, ADB, Fastboot, Apple usbmux, MTP, serial and Thunderbolt/USB4
-  detect              Full host scan + Android hardware/software inspection
-  inspect             Alias for detect
-  power-on            Reboot a detected Fastboot phone into Android, then inspect it
-  rom-discover        Discover exact-device public ROM/firmware/security metadata
-  build               Build only for an exact matched Chimera device profile
-  flash               Profiled, exact-device flashing with hash verification
-  generic-flash       Advanced generic Fastboot partition flashing from an explicit manifest
-  --dry-run            Build/verify without writing a phone
+  detect              Inspect connected Android device and host capabilities
+  power-on            Request a supported reboot to Fastboot
+  rom-discover        Discover public ROM/firmware metadata
+  build               Build only for an exact matched device profile
+  flash               Profiled flashing with device, signature and hash checks
+  generic-flash       Disabled; unprofiled partition writes are refused
+  --dry-run           Build and verify without writing a phone
 
-GENERIC FLASH SAFETY CONTRACT:
-  GENERIC_SERIAL=<exact-fastboot-serial>
-  GENERIC_MANIFEST=/path/to/manifest.json
-  CHIMERA_GENERIC_FLASH_ACK=I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS
-
-Manifest schema:
-  {"schema":"CHM-GENERIC-FLASH-1",
-   "partitions":[{"name":"boot","image":"/path/boot.img","sha256":"..."}]}
+A flashable image requires an exact hardware-validated device profile, signed
+vendor boot components, a supported device-specific adapter, matching serial
+and product identity, verified image hashes, and explicit confirmation.
+Generic profiles are reference-only and cannot authorize partition writes.
 EOF
     ;;
   *) die "unknown command: $COMMAND";;

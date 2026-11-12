@@ -40,6 +40,8 @@ int main(){
     assert(fair_runs[0]>=2&&fair_runs[1]>=2&&fair_runs[2]>=2);
 
     chimera_sched_init(2);
+    assert(chimera_sched_cpu_count()==2);
+    assert(chimera_sched_online_cpu_count()==1); // AP workers are not implemented.
     int serial_runs = 0;
     auto serial_task = [](void *arg) { ++*static_cast<int *>(arg); };
     assert(chimera_sched_submit(serial_task,&serial_runs,10)>0);

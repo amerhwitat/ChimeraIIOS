@@ -74,6 +74,8 @@ extern "C" void chimera_sched_init(uint32_t n){
     unlock();
 }
 extern "C" uint32_t chimera_sched_cpu_count(){lock();uint32_t n=cpus;unlock();return n;}
+/* AP startup and per-CPU workers are not implemented yet: only the BSP is online. */
+extern "C" uint32_t chimera_sched_online_cpu_count(){return 1u;}
 extern "C" int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priority){
     if(!fn)return -1;
     lock();if(count>=MAX_TASKS){unlock();return -2;}
