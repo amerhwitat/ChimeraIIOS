@@ -1,0 +1,32 @@
+name: Database provider package verification
+
+on:
+  push:
+    paths:
+      - "Dockerfile"
+      - "databases/**"
+      - "tools/databases/**"
+      - ".github/workflows/database-providers.yml"
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - "databases/**"
+      - "tools/databases/**"
+      - ".github/workflows/database-providers.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-ubuntu-packages:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install database provider packages from Ubuntu
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mariadb-server mariadb-client libmariadb-dev postgresql postgresql-client libpq-dev sqlite3 libsqlite3-dev redis-server redis-tools
+      - name: Verify provider executables and package records
+        run: bash tools/databases/verify_database_providers.sh
+      - name: Validate provider catalogue
+        run: python3 -m json.tool databases/database-provider-catalog.json >/dev/null
