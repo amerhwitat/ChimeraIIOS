@@ -41,7 +41,7 @@ def readelf(*args: str) -> str:
 
 
 def field(text: str, name: str) -> str:
-    match = re.search(rf"^\\s*{re.escape(name)}:\\s*(.*?)\\s*$", text, re.M)
+    match = re.search(rf"^\s*{re.escape(name)}:\s*(.*?)\s*$", text, re.M)
     if not match:
         raise SystemExit(f"ELF header is missing {name}")
     return match.group(1)
@@ -66,7 +66,7 @@ def main() -> int:
     entry = field(header, "Entry point address")
     loads = [
         line.strip() for line in program_headers.splitlines()
-        if re.match(r"^\\s*LOAD\\s", line)
+        if re.match(r"^\s*LOAD\s", line)
     ]
 
     if elf_class != "ELF64":
@@ -75,7 +75,7 @@ def main() -> int:
         raise SystemExit(f"expected ET_EXEC, got {elf_type}")
     if machine != "Advanced Micro Devices X86-64":
         raise SystemExit(f"expected x86-64 ELF, got {machine}")
-    if not any(re.search(r"\\bR\\s+E\\b", line) for line in loads):
+    if not any(re.search(r"\bR\s+E\b", line) for line in loads):
         raise SystemExit("target ELF has no readable/executable PT_LOAD segment")
 
     digest = hashlib.sha256(elf.read_bytes()).hexdigest()
