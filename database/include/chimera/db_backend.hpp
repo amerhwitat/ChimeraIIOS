@@ -10,6 +10,8 @@ struct Backend { std::string_view name; Model model; std::string_view license; s
 inline constexpr Backend kBackends[] = {
  {"MariaDB Community Server",Model::Relational,"GPLv2","client/service"},
  {"PostgreSQL",Model::Relational,"PostgreSQL License","client/service"},
+ {"Firebird",Model::Relational,"IPL-1.0/IDPL-1.0","client/service"},
+ {"MySQL Community Server",Model::Relational,"GPLv2","client/service"},
  {"SQLite",Model::EmbeddedRelational,"Public Domain","in-process"},
  {"DuckDB",Model::Analytical,"MIT","in-process"},
  {"RocksDB",Model::KeyValue,"Apache-2.0/GPLv2","storage-engine"},
