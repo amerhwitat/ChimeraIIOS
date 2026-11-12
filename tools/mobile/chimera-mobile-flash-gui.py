@@ -3,7 +3,7 @@
 import json,queue,subprocess,threading,sys,os
 from pathlib import Path
 import tkinter as tk
-from tkinter import messagebox,ttk
+from tkinter import messagebox,simpledialog,ttk
 ROOT=Path(__file__).resolve().parents[2]; BUILDER=Path(__file__).with_name("chimera-mobile-build.py"); CLI=Path(__file__).with_name("chimera-mobile-flash.sh"); SCANNER=Path(__file__).with_name("chimera-device-port-scan.py"); PYTHON=sys.executable
 class App(tk.Tk):
  def __init__(self):
@@ -40,8 +40,13 @@ class App(tk.Tk):
    except Exception as e: self.q.put(("log","ERROR: "+str(e)))
    finally: self.q.put(("status","Ready"))
   threading.Thread(target=w,daemon=True).start()
- def cmd(self,args,title=""):
-  p=subprocess.run(args,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); self.q.put(("info",(title+"\n" if title else "")+p.stdout)); self.q.put(("log",p.stdout))
+ def cmd(self,args,title="",input_text=None):
+  p=subprocess.run(args,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,input=input_text)
+  output=(title+"\n" if title else "")+p.stdout
+  self.q.put(("info",output)); self.q.put(("log",p.stdout))
+  if p.returncode:
+   self.q.put(("log",f"COMMAND FAILED (exit {p.returncode}): {' '.join(args)}"))
+   raise RuntimeError(f"Command failed with exit code {p.returncode}")
  def port_scan(self): self.work(lambda:self.cmd([PYTHON,str(SCANNER),"--json"],"UNIVERSAL HOST-PORT INVENTORY"))
  def detect(self): self.work(lambda:self.cmd([PYTHON,str(BUILDER),"--detect"],"DEVICE + SOFTWARE DETECTION"))
  def wake(self): self.work(lambda:self.cmd([PYTHON,str(BUILDER),"--detect","--power-on"]))
@@ -52,9 +57,21 @@ class App(tk.Tk):
   if not p.exists(): messagebox.showerror("Validation","Build first."); return
   r=json.loads(p.read_text()); self.put(self.info,json.dumps({"ROM":r["rom"],"ROM_SHA256":r["rom_sha256"],"ISO":r["iso"],"ISO_SHA256":r["iso_sha256"],"profile":r["profile"]["id"],"target":r["target"]},indent=2,ensure_ascii=False))
  def flash(self):
-  if not (ROOT/"build/mobile/last-build.json").exists(): messagebox.showerror("Flash","Build the exact-device ROM first."); return
-  if not messagebox.askyesno("Confirm flash","Exact profile, live serial, partitions and SHA-256 will be rechecked before writing. Continue?"): return
-  self.work(lambda:self.cmd(["bash",str(CLI),"flash"]))
+  report=ROOT/"build/mobile/last-build.json"
+  if not report.exists(): messagebox.showerror("Flash","Build the exact-device image first."); return
+  try:
+   data=json.loads(report.read_text(encoding="utf-8"))
+   if data.get("profile",{}).get("support_status")!="hardware-validated":
+    raise ValueError("The selected device profile is not hardware-validated.")
+   if not data.get("profile",{}).get("flash",{}).get("partitions"):
+    raise ValueError("No approved device-specific partition adapter is present.")
+  except Exception as e:
+   messagebox.showerror("Flash blocked",str(e)); return
+  if not messagebox.askyesno("Confirm device-specific flash","The tool will recheck exact model, live serial, signed images and SHA-256 before writing. Continue?"): return
+  typed=simpledialog.askstring("Final flash confirmation","Type exactly FLASH CHIMERA to authorize the device-specific write:",parent=self)
+  if typed!="FLASH CHIMERA":
+   self.q.put(("log","Flash cancelled: confirmation phrase did not match.")); return
+  self.work(lambda:self.cmd(["bash",str(CLI),"flash"],input_text="FLASH CHIMERA\n"))
  def generic_flash(self):
   messagebox.showwarning("Generic flash disabled","Unprofiled partition writes are disabled. Use a hardware-validated exact-device profile with signed images and an approved vendor adapter.")
 if __name__=="__main__": App().mainloop()
