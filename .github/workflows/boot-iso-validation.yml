@@ -11,6 +11,8 @@ on:
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'tools/boot/**'
+      - 'tools/iso/**'
+      - 'tools/build-full-iso.sh'
       - 'tools/catalogs/**'
       - 'data/isa/online-source-catalog.json'
       - 'isa/isa_database.json'
@@ -109,6 +111,29 @@ jobs:
           ]:
               json.loads(p.read_text())
           print("boot artwork and manifests are syntactically valid")
+          PY
+      - name: Validate generated application and system inventory staging
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/iso/stage-system-inventory.py
+          stage="$(mktemp -d)"
+          trap 'rm -rf "$stage"' EXIT
+          python3 tools/iso/stage-system-inventory.py --root "$PWD" --iso "$stage"
+          python3 - "$stage" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          manifest = root / "boot/chimera/manifests/ISO-COMPONENT-INVENTORY.json"
+          sums = root / "boot/chimera/manifests/ISO-COMPONENT-SHA256SUMS"
+          doc = json.loads(manifest.read_text())
+          assert doc["schema"] == "CHM-ISO-COMPONENT-INVENTORY-1"
+          assert doc["files"] > 0
+          assert sums.is_file() and sums.stat().st_size > 0
+          kinds = doc["kinds"]
+          assert kinds.get("registry-or-contract", 0) > 0
+          assert kinds.get("source-runtime-or-desktop-assets", 0) > 0
+          assert (root / "usr/share/chimera/desktops/source").is_dir()
+          assert (root / "usr/share/chimera/services").is_dir()
+          print("Generated apps/desktops/services/targets/runlevels inventory: PASS")
           PY
       - name: Validate installation media contract
         run: bash tests/image/test_installation_media_contract.sh
