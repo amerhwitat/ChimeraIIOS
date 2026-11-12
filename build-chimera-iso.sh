@@ -1137,7 +1137,8 @@ stage_package_managers(){
   local desktop="$SCRIPT_DIR/desktop/aurora/aurora-package-managers.desktop"
   local catalog="$SCRIPT_DIR/appcenter/catalog/package-managers.json"
   local database_catalog="$SCRIPT_DIR/data/registry/databases.json"
-  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog"; do
+  local database_build_matrix="$SCRIPT_DIR/database/build-matrix.json"
+  for f in "$cli" "$panel" "$desktop" "$catalog" "$database_catalog" "$database_build_matrix"; do
     [[ -s "$f" ]] || { log_error "Package manager payload missing: $f"; return 1; }
   done
   mkdir -p "$ROOTFS_DIR/usr/bin" "$ROOTFS_DIR/usr/share/chimera/aurora" \
@@ -1149,7 +1150,9 @@ stage_package_managers(){
   install -m 0644 "$desktop" "$ROOTFS_DIR/usr/share/applications/aurora-package-managers.desktop"
   install -m 0644 "$catalog" "$ROOTFS_DIR/usr/share/chimera/appcenter/package-managers.json"
   install -m 0644 "$database_catalog" "$ROOTFS_DIR/usr/share/chimera/database/databases.json"
+  install -m 0644 "$database_build_matrix" "$ROOTFS_DIR/usr/share/chimera/database/build-matrix.json"
   cp -f "$database_catalog" "$ISO_DIR/system/database/databases.json"
+  cp -f "$database_build_matrix" "$ISO_DIR/system/database/build-matrix.json"
   cp -f "$cli" "$ISO_DIR/system/package-managers/chimera-package-manager.sh"
   cp -f "$panel" "$ISO_DIR/system/desktop/aurora/package_manager_panel.py"
   cp -f "$desktop" "$ISO_DIR/system/desktop/aurora/aurora-package-managers.desktop"
