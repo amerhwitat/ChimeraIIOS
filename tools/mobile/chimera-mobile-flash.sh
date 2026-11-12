@@ -28,11 +28,6 @@ die(){ echo "[ERROR] $*" >&2; exit 1; }
 need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
 COMMAND="${1:-gui}"
 
-generic_flash() {
-  die "generic-flash is disabled: flashing requires a verified exact-device profile, signed/hash-matched images, and a device-specific partition map."
-}
-
-
 case "$COMMAND" in
   gui|--gui)
     need python3; [[ -f "$GUI" ]] || die "GUI not found: $GUI"
@@ -86,7 +81,7 @@ print("CHIMERA FLASH COMPLETE")
 PY
     ;;
   generic-flash)
-    generic_flash
+    die "generic-flash is disabled: use a verified exact-device profile."
     ;;
   --dry-run)
     need python3; python3 "$BUILDER" --build
@@ -103,17 +98,8 @@ Chimera II OS Mobile Edition Flash Tool
   rom-discover        Discover exact-device public ROM/firmware/security metadata
   build               Build only for an exact matched Chimera device profile
   flash               Profiled, exact-device flashing with hash verification
-  generic-flash       Advanced generic Fastboot partition flashing from an explicit manifest
   --dry-run            Build/verify without writing a phone
 
-GENERIC FLASH SAFETY CONTRACT:
-  GENERIC_SERIAL=<exact-fastboot-serial>
-  GENERIC_MANIFEST=/path/to/manifest.json
-  CHIMERA_GENERIC_FLASH_ACK=I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS
-
-Manifest schema:
-  {"schema":"CHM-GENERIC-FLASH-1",
-   "partitions":[{"name":"boot","image":"/path/boot.img","sha256":"..."}]}
 EOF
     ;;
   *) die "unknown command: $COMMAND";;
