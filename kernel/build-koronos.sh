@@ -140,7 +140,7 @@ if [[ -d "$ROOT/kernel/targets" ]]; then
       echo "ERROR: target-init-${target}.elf has no read/execute PT_LOAD" >&2; exit 1;
     }
   done
-  printf 'Built production target inits: %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
+  printf 'Built ring-3 target handoff probes (not production userspaces): %s/target-init-{live,installer,recovery}.elf\n' "$BUILD"
 fi
 
 printf 'N-bit artifacts: %s/nbit\n' "$BUILD"
