@@ -29,48 +29,7 @@ need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
 COMMAND="${1:-gui}"
 
 generic_flash() {
-  need fastboot
-  local serial="${GENERIC_SERIAL:-}" manifest="${GENERIC_MANIFEST:-}"
-  [[ -n "$serial" ]] || die "Set GENERIC_SERIAL to the exact Fastboot serial."
-  [[ -n "$manifest" && -f "$manifest" ]] || die "Set GENERIC_MANIFEST to a JSON partition manifest."
-  python3 - "$serial" "$manifest" <<'PY'
-import hashlib,json,os,subprocess,sys
-from pathlib import Path
-serial,manifest=sys.argv[1],Path(sys.argv[2])
-try: m=json.loads(manifest.read_text(encoding="utf-8"))
-except Exception as e: raise SystemExit("Invalid generic flash manifest: "+str(e))
-if m.get("schema")!="CHM-GENERIC-FLASH-1":
-    raise SystemExit("Manifest schema must be CHM-GENERIC-FLASH-1")
-parts=m.get("partitions",[])
-if not parts: raise SystemExit("Manifest contains no partitions.")
-if len(parts)>64: raise SystemExit("Refusing more than 64 partition writes in one generic operation.")
-q=subprocess.run(["fastboot","devices"],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-live=[x.split()[0] for x in q.stdout.splitlines() if x.split()]
-if live != [serial]:
-    raise SystemExit(f"Live Fastboot device mismatch: expected only {serial}, found {live}")
-print("\nWARNING: GENERIC PARTITION FLASH MODE")
-print("This mode deliberately does NOT require a Chimera exact-device profile.")
-print("It can erase/overwrite incompatible partitions and may permanently brick a device.")
-print("The manifest must explicitly name every partition and image.")
-print("Device:",serial)
-for x in parts:
-    name=x.get("name",""); image=Path(x.get("image",""))
-    if not name or not image.is_file(): raise SystemExit("Invalid partition/image entry: "+str(x))
-    if "/" in name or "\\" in name or name in {".",".."}: raise SystemExit("Unsafe partition name: "+name)
-    if "sha256" not in x: raise SystemExit("Every generic image must have a SHA-256: "+name)
-    got=hashlib.sha256(image.read_bytes()).hexdigest()
-    if got.lower()!=str(x["sha256"]).lower(): raise SystemExit("SHA-256 mismatch: "+name)
-    print(f"  {name} <- {image}  sha256={got}")
-if m.get("backup_manifest"):
-    Path(m["backup_manifest"]).write_text(json.dumps({"serial":serial,"partitions":[x["name"] for x in parts]},indent=2)+"\n")
-if os.environ.get("CHIMERA_GENERIC_FLASH_ACK")!="I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS":
-    raise SystemExit("Set CHIMERA_GENERIC_FLASH_ACK=I_UNDERSTAND_GENERIC_FLASH_IS_DANGEROUS to enable generic writes.")
-answer=input('Type GENERIC FLASH CHIMERA to continue: ')
-if answer!="GENERIC FLASH CHIMERA": raise SystemExit("Cancelled.")
-for x in parts:
-    subprocess.run(["fastboot","-s",serial,"flash",x["name"],x["image"]],check=True)
-print("GENERIC CHIMERA FLASH COMPLETE")
-PY
+  die "generic-flash is disabled. Phone writes require a hardware-validated exact-device profile, vendor-approved adapter, signed images, verified hashes, and explicit device confirmation."
 }
 
 case "$COMMAND" in
