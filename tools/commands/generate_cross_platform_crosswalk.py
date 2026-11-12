@@ -100,8 +100,19 @@ def command_crosswalk():
             if isinstance(item, str):
                 by_name[item].add(namespace)
     rows = []
+    used_ids = set()
     for name in sorted(by_name, key=lambda x: (x.lower(), x)):
         exact = sorted(by_name[name])
+        stable_id = command_id(name)
+        if stable_id in used_ids:
+            stable_id += "--" + "--".join(exact)
+        suffix = 2
+        candidate = stable_id
+        while candidate in used_ids:
+            candidate = f"{stable_id}--{suffix}"
+            suffix += 1
+        stable_id = candidate
+        used_ids.add(stable_id)
         semantic = ALIASES.get(name.lower(), {})
         equivalents = {}
         for platform in ("linux_bash", "macos", "windows_cmd", "powershell"):
@@ -113,7 +124,7 @@ def command_crosswalk():
             if values:
                 equivalents[platform] = values
         rows.append({
-            "id": command_id(name),
+            "id": stable_id,
             "name": name,
             "catalogue_namespaces": exact,
             "platform_equivalents": equivalents,
