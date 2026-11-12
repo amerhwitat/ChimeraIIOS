@@ -110,6 +110,8 @@ def main() -> int:
     ap.add_argument("--iso", required=True, type=Path)
     args = ap.parse_args()
     root, iso = args.root.resolve(), args.iso.resolve()
+    for required_root in ("usr", "opt", "etc", "boot"):
+        (iso / required_root).mkdir(parents=True, exist_ok=True)
     records: list[dict] = []
     missing_generated = []
     for rel, target in SOURCE_MAP.items():
