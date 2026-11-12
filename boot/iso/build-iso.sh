@@ -96,8 +96,8 @@ for target in live installer recovery; do
   grub-file --is-x86-multiboot2 "$target_elf" >/dev/null 2>&1 && true
   readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { echo "ERROR: $target_elf is not ET_EXEC" >&2; exit 2; }
   cp -f "$target_elf" "$TARGETS_OUT/"
-  python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \\
-    --target "$target" --elf "$TARGETS_OUT/target-init-$target.elf" \\
+  python3 "$ROOT/tools/boot/generate-target-init-manifest.py" \
+    --target "$target" --elf "$TARGETS_OUT/target-init-$target.elf" \
     --output "$TARGETS_OUT/target-init-$target.manifest.json"
   test -s "$TARGETS_OUT/target-init-$target.manifest.json"
 done
