@@ -53,6 +53,8 @@ GENERATED_MAP = {
     "build/network-tools": "opt/chimera/generated/network-tools",
     "build/live-boot": "opt/chimera/generated/live-boot",
 }
+ISO_ROOT: Path
+
 UNIT_DIRS = (
     ("systemd", "etc/systemd/system"),
     ("usr-lib-systemd", "usr/lib/systemd/system"),
@@ -76,8 +78,8 @@ def copy_file(src: Path, dst: Path, root: Path, kind: str, records: list[dict]) 
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
     records.append({"kind": kind, "source": src.relative_to(root).as_posix(),
-                    "iso_path": "/" + dst.as_posix(), "bytes": dst.stat().st_size,
-                    "sha256": digest(dst)})
+                    "iso_path": "/" + dst.relative_to(ISO_ROOT).as_posix(),
+                    "bytes": dst.stat().st_size, "sha256": digest(dst)})
 
 def copy_tree(src: Path, dst: Path, root: Path, kind: str, records: list[dict]) -> None:
     if not src.is_dir():
@@ -100,7 +102,8 @@ def copy_tree(src: Path, dst: Path, root: Path, kind: str, records: list[dict]) 
                     target.unlink()
                 target.symlink_to(link)
                 records.append({"kind": kind, "source": source.relative_to(root).as_posix(),
-                                "iso_path": "/" + target.as_posix(), "symlink": link})
+                                "iso_path": "/" + target.relative_to(ISO_ROOT).as_posix(),
+                                "symlink": link})
             elif source.is_file():
                 copy_file(source, target, root, kind, records)
 
@@ -109,7 +112,9 @@ def main() -> int:
     ap.add_argument("--root", required=True, type=Path)
     ap.add_argument("--iso", required=True, type=Path)
     args = ap.parse_args()
+    global ISO_ROOT
     root, iso = args.root.resolve(), args.iso.resolve()
+    ISO_ROOT = iso
     for required_root in ("usr", "opt", "etc", "boot"):
         (iso / required_root).mkdir(parents=True, exist_ok=True)
     records: list[dict] = []
