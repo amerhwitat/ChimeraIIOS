@@ -81,14 +81,36 @@ def discover_roms(t, download=False):
     return json.loads(q.stdout.splitlines()[-1])
 
 def load(t):
+    # Only profiles explicitly hardware-validated and bound to non-empty exact
+    # identifiers may be selected. Generic SoC templates are never flash targets.
+    pairs={"manufacturer":"manufacturer","model":"model","device":"device","product":"product","board":"board","platform":"platform"}
+    x=t["properties"]
+    candidates=[]
     for f in sorted(PROFILES.glob("*.json")):
-        try: p=json.loads(f.read_text(encoding="utf-8"))
-        except Exception: continue
-        m=p.get("match",{}); x=t["properties"]
-        pairs={"manufacturer":"manufacturer","model":"model","device":"device","product":"product","board":"board","platform":"platform"}
-        if all(not m.get(k) or m[k].lower()==x[v].lower() for k,v in pairs.items()) and (not m.get("architecture") or m["architecture"]==t["architecture"]):
-            return p,f
-    raise SystemExit("No exact Chimera device profile matches this phone; refusing generic ROM generation.")
+        try:
+            p=json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if p.get("support_status") != "hardware-validated":
+            continue
+        m=p.get("match")
+        if not isinstance(m,dict) or not m.get("architecture"):
+            continue
+        required=[k for k in pairs if m.get(k)]
+        if not required:
+            continue
+        if any(str(m[k]).strip().lower()!=str(x[v]).strip().lower() for k,v in pairs.items() if m.get(k)):
+            continue
+        if m["architecture"] != t["architecture"]:
+            continue
+        if not p.get("codename") or not isinstance(p.get("policy"),dict) or not isinstance(p.get("flash"),dict):
+            continue
+        candidates.append((p,f))
+    if len(candidates)==1:
+        return candidates[0]
+    if len(candidates)>1:
+        raise SystemExit("More than one exact hardware profile matched; refusing ambiguous device selection.")
+    raise SystemExit("No hardware-validated exact-device profile matches this phone. Generic SoC templates are reference-only; no ROM/flash image was generated.")
 
 def sha(p):
     h=hashlib.sha256()
@@ -97,6 +119,18 @@ def sha(p):
     return h.hexdigest()
 
 def build(t,p,pf):
+    # Do not package a reference ELF as a purported phone ROM. A flashable
+    # bundle needs a device-supplied, signed boot chain and explicit mappings.
+    if p.get("support_status") != "hardware-validated":
+        raise SystemExit("Profile is not hardware-validated; refusing to create a flashable image.")
+    flash=p.get("flash",{})
+    if flash.get("method") not in {"fastboot-profiled","vendor-signed"} or not flash.get("partitions"):
+        raise SystemExit("Exact device profile lacks an approved device-specific flash adapter and partition map.")
+    required=("boot_image","vendor_boot_image","vbmeta_image")
+    bundle=p.get("boot_bundle",{})
+    missing=[name for name in required if not bundle.get(name) or not Path(bundle[name]).is_file()]
+    if missing:
+        raise SystemExit("Missing device-specific signed boot bundle inputs: "+", ".join(missing))
     OUT.joinpath("artifacts").mkdir(parents=True,exist_ok=True)
     s=OUT/"staging"/p["id"]; shutil.rmtree(s,ignore_errors=True); s.mkdir(parents=True)
     progress(5,"profile","Matching exact device profile","مطابقة ملف الجهاز")
