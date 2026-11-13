@@ -1,6 +1,6 @@
 {
   "schema": "CHM-ISA-SOURCE-DISCOVERY-1",
-  "generated_utc": "2026-11-13T01:00:55Z",
+  "generated_utc": "2026-11-13T10:03:30Z",
   "source_count": 13,
   "fetched_count": 11,
   "failed_sources": [
@@ -17,10 +17,10 @@
       "adapter": "json",
       "status": "fetched",
       "fetched_url": "https://github.com/riscv/riscv-unified-db",
-      "sha256": "89e4c6f52a711cf80242b3b9201a2053489fb872f1be37416d1f22a425006d52",
-      "bytes": 341567,
-      "fetched_utc": "2026-11-13T01:00:47Z",
-      "cache_file": "isa/sources/cache/riscv-unified-db-89e4c6f52a71.source"
+      "sha256": "73968597023a8d2797abfefe92cb2a6e4804025cb441a6b5b4fef9e0d149528a",
+      "bytes": 341574,
+      "fetched_utc": "2026-11-13T10:03:21Z",
+      "cache_file": "isa/sources/cache/riscv-unified-db-73968597023a.source"
     },
     {
       "id": "riscv-isa-manual",
@@ -33,7 +33,7 @@
       "fetched_url": "https://docs.riscv.org/reference/isa/",
       "sha256": "f095c7c98f7bb5d8526f8b04206fd25aeb441b5b9cbad5d19b51d862a20e46b0",
       "bytes": 374,
-      "fetched_utc": "2026-11-13T01:00:47Z",
+      "fetched_utc": "2026-11-13T10:03:22Z",
       "cache_file": "isa/sources/cache/riscv-isa-manual-f095c7c98f7b.source"
     },
     {
@@ -45,10 +45,10 @@
       "adapter": "tablegen-index",
       "status": "fetched",
       "fetched_url": "https://github.com/llvm/llvm-project/tree/main/llvm/lib/Target",
-      "sha256": "8d02f4770f8b1252d36949996a328412f5ce3a3fc05c174af2cb86e0b3af475b",
-      "bytes": 389575,
-      "fetched_utc": "2026-11-13T01:00:48Z",
-      "cache_file": "isa/sources/cache/llvm-mc-8d02f4770f8b.source"
+      "sha256": "4bc08394d6b59c3f5d19da374bc162755b464ec8a0ecc0424c410c718aa751ba",
+      "bytes": 386973,
+      "fetched_utc": "2026-11-13T10:03:23Z",
+      "cache_file": "isa/sources/cache/llvm-mc-4bc08394d6b5.source"
     },
     {
       "id": "gnu-binutils-opcodes",
@@ -74,10 +74,10 @@
       "adapter": "decoder-index",
       "status": "fetched",
       "fetched_url": "https://github.com/qemu/qemu/tree/master/target",
-      "sha256": "47aaddf61b74aaebbd91934dea49caa056093ef30218173d72e5e1607e9b1376",
-      "bytes": 208438,
-      "fetched_utc": "2026-11-13T01:00:50Z",
-      "cache_file": "isa/sources/cache/qemu-tcg-47aaddf61b74.source"
+      "sha256": "4a0e7cc0d3bce126cef9e1bb6a14edbce3c489738be32aa7054299f0d3aaa461",
+      "bytes": 208446,
+      "fetched_utc": "2026-11-13T10:03:25Z",
+      "cache_file": "isa/sources/cache/qemu-tcg-4a0e7cc0d3bc.source"
     },
     {
       "id": "intel-sdm",
@@ -88,10 +88,10 @@
       "adapter": "reference-only",
       "status": "fetched",
       "fetched_url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
-      "sha256": "ada07f84144182635218d05fa99bcdab0d1437346596fc5c4b0b6294dcb04702",
-      "bytes": 151718,
-      "fetched_utc": "2026-11-13T01:00:51Z",
-      "cache_file": "isa/sources/cache/intel-sdm-ada07f841441.source"
+      "sha256": "c44af009c5e5ac49cac34dd96bd526c00541db4dfabea5a60f77c617ce6ee7c8",
+      "bytes": 151715,
+      "fetched_utc": "2026-11-13T10:03:25Z",
+      "cache_file": "isa/sources/cache/intel-sdm-c44af009c5e5.source"
     },
     {
       "id": "amd-architecture-programming",
@@ -102,10 +102,10 @@
       "adapter": "reference-only",
       "status": "fetched",
       "fetched_url": "https://www.amd.com/en/search/documentation/hub.html",
-      "sha256": "ddf9758767ab7a193a062bcaeb9ddc4e30d6370a68f58dce5d3743f8bd755212",
-      "bytes": 214809,
-      "fetched_utc": "2026-11-13T01:00:51Z",
-      "cache_file": "isa/sources/cache/amd-architecture-programming-ddf9758767ab.source"
+      "sha256": "7f5162c7dcf99649317d5db9d33d1d87c752ede4b306befefb4d5cbe36318bb0",
+      "bytes": 214806,
+      "fetched_utc": "2026-11-13T10:03:26Z",
+      "cache_file": "isa/sources/cache/amd-architecture-programming-7f5162c7dcf9.source"
     },
     {
       "id": "arm-architecture-reference",
@@ -118,7 +118,7 @@
       "fetched_url": "https://support.arm.com/documentation/",
       "sha256": "89b98c1a7f15377ac42bff86c0912004ecfe15c8d6e495da555166e0e695ef95",
       "bytes": 8434,
-      "fetched_utc": "2026-11-13T01:00:52Z",
+      "fetched_utc": "2026-11-13T10:03:27Z",
       "cache_file": "isa/sources/cache/arm-architecture-reference-89b98c1a7f15.source"
     },
     {
@@ -132,7 +132,7 @@
       "fetched_url": "https://openpower.foundation/specifications/",
       "sha256": "2574ded7d5146d03d317eab43955dabc99defaddf071c5cdabe9b0f545b68ca2",
       "bytes": 15156,
-      "fetched_utc": "2026-11-13T01:00:53Z",
+      "fetched_utc": "2026-11-13T10:03:28Z",
       "cache_file": "isa/sources/cache/power-isa-2574ded7d514.source"
     },
     {
@@ -144,10 +144,10 @@
       "adapter": "reference-only",
       "status": "fetched",
       "fetched_url": "https://mips.com/",
-      "sha256": "19e71eb0c0ae37c834bd2bfa9db7a480fcf9442f8bf7536cc8881250880ac371",
+      "sha256": "526c6d8b88a4b847bed67069e88186a39533af94585e961ba9af41a184bcfbea",
       "bytes": 253975,
-      "fetched_utc": "2026-11-13T01:00:53Z",
-      "cache_file": "isa/sources/cache/mips-architecture-19e71eb0c0ae.source"
+      "fetched_utc": "2026-11-13T10:03:28Z",
+      "cache_file": "isa/sources/cache/mips-architecture-526c6d8b88a4.source"
     },
     {
       "id": "sparc-architecture",
@@ -175,7 +175,7 @@
       "fetched_url": "https://loongson.github.io/LoongArch-Documentation/",
       "sha256": "8b199bc6e53519f138cc6b353f29d6ceb23c3c86571a1793db391fbf887929cd",
       "bytes": 2919,
-      "fetched_utc": "2026-11-13T01:00:54Z",
+      "fetched_utc": "2026-11-13T10:03:29Z",
       "cache_file": "isa/sources/cache/loongarch-reference-8b199bc6e535.source"
     },
     {
@@ -187,10 +187,10 @@
       "adapter": "repository-index",
       "status": "fetched",
       "fetched_url": "https://github.com/riscv",
-      "sha256": "87518b298df11b99d2dc792381eaac2188d74077753cbd21f8ce8e8bec9b71b1",
-      "bytes": 271507,
-      "fetched_utc": "2026-11-13T01:00:55Z",
-      "cache_file": "isa/sources/cache/openisa-riscv-87518b298df1.source"
+      "sha256": "2a803254a629182dd553389b848537375069769412ce952dae87595f7edbc803",
+      "bytes": 270078,
+      "fetched_utc": "2026-11-13T10:03:30Z",
+      "cache_file": "isa/sources/cache/openisa-riscv-2a803254a629.source"
     }
   ],
   "policy": "Discovery is not ingestion. Vendor prose is not parsed as opcodes. Each imported row must preserve source revision, license, encoding mask, architectural state effects, and execution status."
