@@ -16,6 +16,7 @@ const char* desktop_name() {
   if (std::strcmp(desktop_id, "marine") == 0) return "Marine Blue Desktop";
   if (std::strcmp(desktop_id, "freexp") == 0) return "FreeXP Classic Desktop";
   if (std::strcmp(desktop_id, "freewin11") == 0) return "FreeWin11 Desktop";
+  if (std::strcmp(desktop_id, "nebula") == 0) return "Nebula Glass Desktop";
   return "Aurora Wayland Glass Desktop";
 }
 
@@ -146,6 +147,12 @@ void install_style() {
     button.accent:hover { background: #459bb1; }
     .footer { background: #121d2c; padding: 12px 24px; }
     .window-title { font-weight: 700; }
+    window.nebula { background: #10101f; color: #f5f1ff; }
+    window.nebula headerbar { background: #19172d; color: #f7f3ff; }
+    window.nebula .sidebar { background: #141329; }
+    window.nebula .brand { color: #b6a2ff; }
+    window.nebula .app-card { background: #211e39; border-color: #51477a; }
+    window.nebula button.accent { background: #7058dc; }
     window.marine { background: #111827; }
     window.marine headerbar { background: #1d293b; }
     window.marine .sidebar { background: #182337; }
@@ -213,7 +220,8 @@ void activate(GtkApplication* app, gpointer) {
   const bool marine = std::strcmp(desktop_id, "marine") == 0;
   const bool freexp = std::strcmp(desktop_id, "freexp") == 0;
   const bool freewin11 = std::strcmp(desktop_id, "freewin11") == 0;
-  gtk_widget_add_css_class(window, marine ? "marine" : (freexp ? "freexp" : (freewin11 ? "freewin11" : "aurora")));
+  const bool nebula = std::strcmp(desktop_id, "nebula") == 0;
+  gtk_widget_add_css_class(window, nebula ? "nebula" : (marine ? "marine" : (freexp ? "freexp" : (freewin11 ? "freewin11" : "aurora"))));
 
   GtkWidget* root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   gtk_window_set_child(GTK_WINDOW(window), root);
@@ -232,7 +240,7 @@ void activate(GtkApplication* app, gpointer) {
   gtk_widget_set_size_request(sidebar, 220, -1);
   gtk_box_append(GTK_BOX(body), sidebar);
   GtkWidget* brand = gtk_label_new(marine ? "MARINE  •  WORKSPACE" :
-      (freexp ? "FREEXP  •  CLASSIC WORKSPACE" : (freewin11 ? "FREEWIN11  •  MODERN WORKSPACE" : "AURORA  •  WORKSPACE")));
+      (freexp ? "FREEXP  •  CLASSIC WORKSPACE" : (freewin11 ? "FREEWIN11  •  MODERN WORKSPACE" : (nebula ? "NEBULA  •  MUSIC GLASS WORKSPACE" : "AURORA  •  WORKSPACE"))));
   gtk_widget_add_css_class(brand, "brand");
   gtk_box_append(GTK_BOX(sidebar), brand);
   for (const char* item : {"Overview", "Applications", "Files", "Settings",
@@ -342,16 +350,17 @@ int main(int argc, char** argv) {
     if (std::strncmp(argv[i], "--desktop=", 10) == 0) {
       const char* value = argv[i] + 10;
       if (std::strcmp(value, "aurora") == 0 || std::strcmp(value, "marine") == 0 ||
-          std::strcmp(value, "freexp") == 0 || std::strcmp(value, "freewin11") == 0)
+          std::strcmp(value, "freexp") == 0 || std::strcmp(value, "freewin11") == 0 ||
+          std::strcmp(value, "nebula") == 0)
         desktop_id = value;
       else {
-        g_printerr("Unknown desktop '%s'; use aurora, marine, freexp or freewin11.\n", value);
+        g_printerr("Unknown desktop '%s'; use aurora, marine, freexp, freewin11 or nebula.\n", value);
         return 2;
       }
     } else if (std::strcmp(argv[i], "--self-test") == 0) {
       self_test = true;
     } else {
-      g_printerr("Usage: %s [--desktop=aurora|marine|freexp|freewin11] [--self-test]\n", argv[0]);
+      g_printerr("Usage: %s [--desktop=aurora|marine|freexp|freewin11|nebula] [--self-test]\n", argv[0]);
       return 2;
     }
   }
