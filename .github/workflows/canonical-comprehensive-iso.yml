@@ -1,0 +1,106 @@
+name: Canonical clean-state comprehensive ISO
+
+on:
+  push:
+    branches: [main, 'feat/nebula-glass-desktop']
+    paths:
+      - 'build-chimera-iso.sh'
+      - 'Dockerfile.comprehensive'
+      - 'boot/**'
+      - 'kernel/**'
+      - 'userspace/**'
+      - 'installer/**'
+      - 'tools/**'
+      - 'scripts/**'
+      - 'system/**'
+      - 'data/**'
+      - 'desktop/**'
+      - 'applications/**'
+      - 'package/**'
+      - '.github/workflows/canonical-comprehensive-iso.yml'
+  pull_request:
+    paths:
+      - 'build-chimera-iso.sh'
+      - 'Dockerfile.comprehensive'
+      - 'boot/**'
+      - 'kernel/**'
+      - 'userspace/**'
+      - 'installer/**'
+      - 'tools/**'
+      - 'scripts/**'
+      - 'system/**'
+      - 'data/**'
+      - 'desktop/**'
+      - 'applications/**'
+      - 'package/**'
+      - '.github/workflows/canonical-comprehensive-iso.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: canonical-comprehensive-iso-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Run canonical clean-state ISO builder
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install host ISO and native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            build-essential cmake ninja-build nasm binutils \
+            cpio busybox-static grub-pc-bin grub-efi-amd64-bin \
+            xorriso squashfs-tools mtools dosfstools zstd \
+            python3 python3-pip python3-venv jq curl wget git \
+            pkg-config libssl-dev libelf-dev qemu-system-x86
+
+      - name: Verify Docker engine
+        run: |
+          docker version
+          docker info
+
+      - name: Run requested canonical build command
+        env:
+          CHIMERA_STORAGE_PROMPT: '0'
+          CHIMERA_BUILD_WATCHDOG_INTERVAL: '30'
+        run: ./build-chimera-iso.sh --clean-state --storage-auto
+
+      - name: Locate, checksum and compress the generated ISO
+        run: |
+          set -euo pipefail
+          mapfile -t images < <(
+            find / -type f -name 'ChimeraIIOS-comprehensive-1.0.0-x86_64.iso' \
+              -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' \
+              -not -path '/run/*' 2>/dev/null | sort -u
+          )
+          if (( ${#images[@]} == 0 )); then
+            echo "::error::Canonical builder completed without producing the expected x86_64 ISO."
+            exit 1
+          fi
+          iso="${images[0]}"
+          mkdir -p "$RUNNER_TEMP/canonical-iso"
+          cp "$iso" "$RUNNER_TEMP/canonical-iso/ChimeraIIOS-comprehensive-1.0.0-x86_64.iso"
+          cd "$RUNNER_TEMP/canonical-iso"
+          sha256sum ChimeraIIOS-comprehensive-1.0.0-x86_64.iso > ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.sha256
+          zstd -T0 -3 --force ChimeraIIOS-comprehensive-1.0.0-x86_64.iso -o ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.zst
+          zstd -t ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.zst
+          sha256sum ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.zst > ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.zst.sha256
+          sha256sum --check ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.sha256
+          sha256sum --check ChimeraIIOS-comprehensive-1.0.0-x86_64.iso.zst.sha256
+          ls -lh
+
+      - name: Upload canonical ISO and checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera2os-canonical-clean-state-iso
+          path: ${{ runner.temp }}/canonical-iso/*
+          if-no-files-found: error
+          retention-days: 30
