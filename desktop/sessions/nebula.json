@@ -15,11 +15,12 @@
     "launcher": "desktop-session-runtime-pending"
   },
   "default_candidate": true,
-  "status": "prototype",
+  "status": "gtk4-host-preview-pending-verification",
   "acceptance": [
     "compositor-process-started",
     "display-and-input-provider-ready",
     "desktop-shell-ready-marker",
     "application-launch-smoke-tests"
-  ]
+  ],
+  "profile_registry": "desktop/profiles/desktop-profiles.json"
 }
