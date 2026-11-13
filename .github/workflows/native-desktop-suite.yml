@@ -65,7 +65,7 @@ jobs:
       - name: Validate selectable desktop profiles and session manifests
         run: |
           set -euo pipefail
-          for profile in aurora marine freexp freewin11; do
+          for profile in aurora marine freexp freewin11 nebula; do
             python3 -m json.tool "desktop/sessions/$profile.json" >/dev/null
           done
           python3 - <<'PY'
@@ -73,7 +73,7 @@ jobs:
           from pathlib import Path
           data = json.loads(Path("desktop/profiles/desktop-profiles.json").read_text())
           candidates = {p["id"] for p in data["profiles"] if p.get("default_candidate")}
-          assert candidates == {"aurora", "marine", "freexp", "freewin11"}, candidates
+          assert candidates == {"aurora", "marine", "freexp", "freewin11", "nebula"}, candidates
           catalog = json.loads(Path("desktop/applications/desktop-app-catalog.json").read_text())
           assert len(catalog["applications"]) >= 20
           PY
@@ -115,6 +115,7 @@ jobs:
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=marine --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freewin11 --self-test
+          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=nebula --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freewin11 --self-test
           if "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=invalid --self-test; then
             echo "invalid desktop profile was accepted" >&2
