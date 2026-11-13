@@ -66,15 +66,15 @@
     "unknown": "غير_مترجم",
     "vector": "متجه"
   },
-  "candidate_definition_count": 7382,
-  "generated_utc": "2026-11-12T16:56:58.919707+00:00",
+  "candidate_definition_count": 7384,
+  "generated_utc": "2026-11-13T00:51:08.436439+00:00",
   "schema_version": "1.0",
   "source_policy": "Source metadata and hashes plus TableGen definition identifiers only. Not an exhaustive instruction list and not a conformance claim.",
   "sources": [
     {
       "authority": "Intel",
-      "bytes_read": 151350,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "bytes_read": 151352,
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -1762,7 +1762,7 @@
         {
           "depth": 2,
           "name": "See the details",
-          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/altera-sensor-integration-edge-physical-ai.html"
+          "url": "https://www.intel.com/content/www/us/en/newsroom/news/artificial-intelligence/radixark-open-ai-inference.html"
         },
         {
           "depth": 2,
@@ -2097,7 +2097,7 @@
         {
           "depth": 3,
           "name": "Explore Intel IPU Adapter E2100",
-          "url": "https://www.intel.com/content/www/us/en/products/details/network-io/ipu/adapter-e2100"
+          "url": "https://www.intel.com/content/www/us/en/products/details/network-io/ipu/adapter-e2100.html"
         },
         {
           "depth": 3,
@@ -2706,13 +2706,13 @@
       "id": "intel-sdm",
       "kind": "official-document-index",
       "link_depth_limit": 10,
-      "sha256": "f5c13ae05e4a738002944d6aa32dea2b3ca4f2efbd4c4e6421924b644cb9edd4",
+      "sha256": "f405c1263418c56b19104513649eec6080a3a21a5956415941bc3aab5d93d020",
       "status": "ok",
       "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",
@@ -2724,7 +2724,7 @@
     {
       "authority": "Arm",
       "bytes_read": 8434,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -2742,7 +2742,7 @@
     {
       "authority": "RISC-V International",
       "bytes_read": 374,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -3386,7 +3386,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 2858,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -3402,7 +3402,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 660754,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 1154,
       "definition_identifiers": [
@@ -4573,7 +4573,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 264258,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 766,
       "definition_identifiers": [
@@ -5356,7 +5356,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 104495,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 337,
       "definition_identifiers": [
@@ -5710,7 +5710,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 142674,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 571,
       "definition_identifiers": [
@@ -6298,7 +6298,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 258624,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 745,
       "definition_identifiers": [
@@ -7060,7 +7060,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 130107,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 717,
       "definition_identifiers": [
@@ -7793,10 +7793,10 @@
     },
     {
       "authority": "LLVM Project",
-      "bytes_read": 91892,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "bytes_read": 92280,
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
-      "definition_identifier_count": 382,
+      "definition_identifier_count": 384,
       "definition_identifiers": [
         "ADDRri",
         "ADDRrr",
@@ -8001,6 +8001,7 @@
         "RETRY",
         "RETTri",
         "RETTrr",
+        "ReadCycleCounter",
         "RegCCOp",
         "RegCC_GEZ",
         "RegCC_GZ",
@@ -8071,6 +8072,7 @@
         "SPlo",
         "SPloadbig",
         "SPloadlittle",
+        "SPreadcyclecounter",
         "SPselectfcc",
         "SPselecticc",
         "SPselectreg",
@@ -8186,14 +8188,14 @@
       "http_content_type": "text/plain",
       "id": "llvm-sparc-tablegen",
       "kind": "machine-readable-instruction-definitions",
-      "sha256": "f8be00130edd4bf5e9b9892f739da2c2307f0f7f924bb0aafeb10f7e6a717f4e",
+      "sha256": "31c39b8fb358017f0edde3fd2b98a650a9ca4e527bb68046248c848741f84a74",
       "status": "ok",
       "url": "https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/lib/Target/Sparc/SparcInstrInfo.td"
     },
     {
       "authority": "LLVM Project",
       "bytes_read": 69552,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 294,
       "definition_identifiers": [
@@ -8504,7 +8506,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 120055,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 493,
       "definition_identifiers": [
@@ -9013,7 +9015,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Hexagon",
       "family_arabic": "هيكساغون",
@@ -9025,7 +9027,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 43033,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 224,
       "definition_identifiers": [
@@ -9266,7 +9268,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 149980,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 629,
       "definition_identifiers": [
@@ -9912,7 +9914,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 113833,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 372,
       "definition_identifiers": [
@@ -10301,7 +10303,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 19896,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 71,
       "definition_identifiers": [
@@ -10389,7 +10391,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 54865,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 186,
       "definition_identifiers": [
@@ -10592,7 +10594,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 52685,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 241,
       "definition_identifiers": [
@@ -10850,7 +10852,7 @@
     {
       "authority": "LLVM Project",
       "bytes_read": 89459,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 200,
       "definition_identifiers": [
@@ -11066,7 +11068,7 @@
     },
     {
       "authority": "LLVM Project",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "OpenRISC",
       "family_arabic": "أوبن ريسك",
@@ -11078,7 +11080,7 @@
     {
       "authority": "Loongson",
       "bytes_read": 1714242,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11102,7 +11104,7 @@
     {
       "authority": "WebAssembly Community Group",
       "bytes_read": 10128,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11360,7 +11362,7 @@
     },
     {
       "authority": "Linux kernel documentation",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "eBPF",
       "family_arabic": "إي بي بي إف",
@@ -11371,8 +11373,8 @@
     },
     {
       "authority": "NVIDIA",
-      "bytes_read": 3966049,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "bytes_read": 3966036,
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11381,14 +11383,14 @@
       "http_content_type": "text/html",
       "id": "nvidia-ptx-isa",
       "kind": "official-virtual-isa-reference",
-      "sha256": "fe9769ca67d2c82e854b282ced98d0938435951b58fc59f7c987bca8af70d273",
+      "sha256": "b1631f49fb0ba77a29908403dd1dbee0e31eadc5a46afd58db8f97d425e7300f",
       "status": "ok",
       "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/"
     },
     {
       "authority": "OpenRISC",
       "bytes_read": 15637,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11912,7 +11914,7 @@
     {
       "authority": "AMD",
       "bytes_read": 2575,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -11923,14 +11925,14 @@
       "id": "amd-microblaze-reference",
       "kind": "official-architecture-reference",
       "link_depth_limit": 10,
-      "sha256": "cb70714b68b648556f5a43ac7b82477f1e0ddb589f65ed2acf80c1b0dfa7f2ca",
+      "sha256": "77118f822916875c4fe5ec93a388d7e5dbf243d438c93026a0c4772d9cb68b60",
       "status": "ok",
       "url": "https://docs.amd.com/r/en-US/ug984-vivado-microblaze-ref"
     },
     {
       "authority": "OpenPOWER Foundation",
       "bytes_read": 16572,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -12978,7 +12980,7 @@
     },
     {
       "authority": "IBM",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "IBM z/Architecture",
       "family_arabic": "آي بي إم زد",
@@ -12990,7 +12992,7 @@
     {
       "authority": "Oracle",
       "bytes_read": 36288,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -13863,16 +13865,6 @@
         {
           "depth": 3,
           "name": "A",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/idx-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "A",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/idx-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "A",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54837/idx-1.html"
         },
         {
@@ -14052,11 +14044,6 @@
         },
         {
           "depth": 3,
-          "name": "Basic Network Configuration Scenario",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gmoyk.html"
-        },
-        {
-          "depth": 3,
           "name": "beadm create Command Options",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54749/options.html"
         },
@@ -14177,11 +14164,6 @@
         },
         {
           "depth": 3,
-          "name": "Chapter 1 Installation Options Base Package Sets",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmiej.html"
-        },
-        {
-          "depth": 3,
           "name": "Chapter 1 Introduction",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54836/osplg-intro.html"
         },
@@ -14204,16 +14186,6 @@
           "depth": 3,
           "name": "Chapter 1 Overview of Booting and Shutting Down a System",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54742/bootintro-66644.html"
-        },
-        {
-          "depth": 3,
-          "name": "Chapter 1 Planning For Network Deployment",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipplan-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "Chapter 1 Summary of Oracle Solaris Network Administration",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/overview-1.html"
         },
         {
           "depth": 3,
@@ -14297,21 +14269,6 @@
         },
         {
           "depth": 3,
-          "name": "Chapter 2 Network Configuration Scenarios",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/network-2.html"
-        },
-        {
-          "depth": 3,
-          "name": "Chapter 2 Packages Installed by Group Packages for SPARC Based Systems",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmkfy.html"
-        },
-        {
-          "depth": 3,
-          "name": "Chapter 2 Planning for Using IPv6 Addresses",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-1.html"
-        },
-        {
-          "depth": 3,
           "name": "Chapter 2 Transitioning to an Oracle Solaris 11 Installation Method",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/install-1.html"
         },
@@ -14349,11 +14306,6 @@
           "depth": 3,
           "name": "Chapter 3 Managing Devices",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/device-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "Chapter 3 Packages Installed by Group Packages for x86 Based Systems",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmlez.html"
         },
         {
           "depth": 3,
@@ -14487,11 +14439,6 @@
         },
         {
           "depth": 3,
-          "name": "Combining Aggregations With VNICs for High Availability",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gondu.html"
-        },
-        {
-          "depth": 3,
           "name": "Commands and Tools for Managing User Accounts",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/acctsetup-1.html"
         },
@@ -14504,11 +14451,6 @@
           "depth": 3,
           "name": "Comparing Installation Options",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/compareinstall.html"
-        },
-        {
-          "depth": 3,
-          "name": "Comparing Networking Features",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gsbbt.html"
         },
         {
           "depth": 3,
@@ -14602,11 +14544,6 @@
         },
         {
           "depth": 3,
-          "name": "Configuring Network Services to Support IPv6",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/gljli.html"
-        },
-        {
-          "depth": 3,
           "name": "Configuring Publishers",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54739/publisher-config.html"
         },
@@ -14649,16 +14586,6 @@
           "depth": 3,
           "name": "Copying a Repository From the Internet",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54747/copyrepo2.html"
-        },
-        {
-          "depth": 3,
-          "name": "Create an EVS Switch to Deploy the Cloud Workload",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gonod.html"
-        },
-        {
-          "depth": 3,
-          "name": "Create Oracle Solaris Zones on the Oracle VM Server for SPARC Guest Domains",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gonsm.html"
         },
         {
           "depth": 3,
@@ -14837,11 +14764,6 @@
         },
         {
           "depth": 3,
-          "name": "Determining the Network Hardware",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipplan-2.html"
-        },
-        {
-          "depth": 3,
           "name": "Determining Your Starting Point",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54845/gmplf.html"
         },
@@ -14903,22 +14825,7 @@
         {
           "depth": 3,
           "name": "Document Information",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/docinfo.html"
-        },
-        {
-          "depth": 3,
-          "name": "Document Information",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54816/docinfo.html"
-        },
-        {
-          "depth": 3,
-          "name": "Document Information",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/docinfo.html"
-        },
-        {
-          "depth": 3,
-          "name": "Document Information",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/docinfo.html"
         },
         {
           "depth": 3,
@@ -14972,11 +14879,6 @@
         },
         {
           "depth": 3,
-          "name": "Ensuring Hardware Support for IPv6",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-16.html"
-        },
-        {
-          "depth": 3,
           "name": "Ensuring That You Have the Proper Device Drivers",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/devdriver.html"
         },
@@ -15004,16 +14906,6 @@
           "depth": 3,
           "name": "Examples of Cloning Boot Environments",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54749/iecreate.html"
-        },
-        {
-          "depth": 3,
-          "name": "Features for Managing Network Resources in Oracle Solaris",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gmzac.html"
-        },
-        {
-          "depth": 3,
-          "name": "Features for Managing Network Security in Oracle Solaris",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/netsecure-1.html"
         },
         {
           "depth": 3,
@@ -15094,11 +14986,6 @@
           "depth": 3,
           "name": "Hardware Issues",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54816/gpxmm.html"
-        },
-        {
-          "depth": 3,
-          "name": "Highlights of Network Administration in Oracle Solaris",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gmybs.html"
         },
         {
           "depth": 3,
@@ -15322,11 +15209,6 @@
         },
         {
           "depth": 3,
-          "name": "How to Prepare DNS for IPv6 Support",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-35.html"
-        },
-        {
-          "depth": 3,
           "name": "How to Prepare for a GUI Installation",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/gofxp.html"
         },
@@ -15334,11 +15216,6 @@
           "depth": 3,
           "name": "How to Prepare for a Text Installation",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/gnrfo.html"
-        },
-        {
-          "depth": 3,
-          "name": "How to Prepare Network Services for IPv6 Support",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-18.html"
         },
         {
           "depth": 3,
@@ -15492,26 +15369,6 @@
         },
         {
           "depth": 3,
-          "name": "Installation Group Package Content for SPARC Based Systems",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmkgl.html"
-        },
-        {
-          "depth": 3,
-          "name": "Installation Group Package Content for x86 Based Systems",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmkdw.html"
-        },
-        {
-          "depth": 3,
-          "name": "Installation Group Package Types and Usage",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmkea.html"
-        },
-        {
-          "depth": 3,
-          "name": "Installation Group Packages",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gmjbl.html"
-        },
-        {
-          "depth": 3,
           "name": "Installation Privileges",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54739/install-priv.html"
         },
@@ -15609,21 +15466,6 @@
           "depth": 3,
           "name": "IPS Installation Package Groups",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/gmvcm.html"
-        },
-        {
-          "depth": 3,
-          "name": "IPv4 Autonomous System Topology",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/gcxjg.html"
-        },
-        {
-          "depth": 3,
-          "name": "IPv6 Network Topology Overview",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/gljmk.html"
-        },
-        {
-          "depth": 3,
-          "name": "IPv6 Planning Tasks",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-2.html"
         },
         {
           "depth": 3,
@@ -15762,11 +15604,6 @@
         },
         {
           "depth": 3,
-          "name": "Network Administration by Functional Area",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gnqal.html"
-        },
-        {
-          "depth": 3,
           "name": "Network Administration Command Changes",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/gneys.html"
         },
@@ -15774,16 +15611,6 @@
           "depth": 3,
           "name": "Network Administration Features",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/gmvbo.html"
-        },
-        {
-          "depth": 3,
-          "name": "Network Administration Within the Oracle Solaris Network Protocol Stack",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/desstack-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "Network Topology Description",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipplan-38.html"
         },
         {
           "depth": 3,
@@ -15827,18 +15654,8 @@
         },
         {
           "depth": 3,
-          "name": "Objectives for Creating and Deploying a Cloud Environment",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/goocd.html"
-        },
-        {
-          "depth": 3,
           "name": "Observability, Debugging, and Tuning Features",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/debug-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "Obtaining IP Addresses for Your Network",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipplan-4.html"
         },
         {
           "depth": 3,
@@ -15992,16 +15809,6 @@
         },
         {
           "depth": 3,
-          "name": "Planning for Routers on Your Network",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipplan-37.html"
-        },
-        {
-          "depth": 3,
-          "name": "Planning for Tunnel Use on the Network",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-31.html"
-        },
-        {
-          "depth": 3,
           "name": "Platform and Performance Enhancements",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54847/paprm.html"
         },
@@ -16024,11 +15831,6 @@
           "depth": 3,
           "name": "Preparing a System for Installing Multiple Operating Systems",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/prepmulti.html"
-        },
-        {
-          "depth": 3,
-          "name": "Preparing an IPv6 Addressing Plan",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/gljne.html"
         },
         {
           "depth": 3,
@@ -16137,11 +15939,6 @@
         },
         {
           "depth": 3,
-          "name": "Security Considerations for an IPv6 Implementation",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipv6-planning-41.html"
-        },
-        {
-          "depth": 3,
           "name": "Security Feature Changes",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/glhcm.html"
         },
@@ -16204,11 +16001,6 @@
           "depth": 3,
           "name": "Setting Up an AI Client",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/clientsetup.html"
-        },
-        {
-          "depth": 3,
-          "name": "Setting Up an EVS Virtual Tenant Network",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gnxci.html"
         },
         {
           "depth": 3,
@@ -16359,11 +16151,6 @@
           "depth": 3,
           "name": "Storage and File Systems Features",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54838/gljix.html"
-        },
-        {
-          "depth": 3,
-          "name": "Summary of Network Virtualization in Oracle Solaris",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/gnqaq.html"
         },
         {
           "depth": 3,
@@ -16612,11 +16399,6 @@
         },
         {
           "depth": 3,
-          "name": "Using Naming Entities on Your Network",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/gljlh.html"
-        },
-        {
-          "depth": 3,
           "name": "Using Oracle Configuration Manager",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/ocm.html"
         },
@@ -16629,11 +16411,6 @@
           "depth": 3,
           "name": "Using Secure Shell to Remotely Monitor Installations",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54756/remote.html"
-        },
-        {
-          "depth": 3,
-          "name": "Using Subnets on Your Network",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/ipplan-33.html"
         },
         {
           "depth": 3,
@@ -16678,22 +16455,7 @@
         {
           "depth": 3,
           "name": "Using This Documentation",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54814/gpvtx.html"
-        },
-        {
-          "depth": 3,
-          "name": "Using This Documentation",
           "url": "https://docs.oracle.com/cd/E53394_01/html/E54816/preface-13.html"
-        },
-        {
-          "depth": 3,
-          "name": "Using This Documentation",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54821/preface-1.html"
-        },
-        {
-          "depth": 3,
-          "name": "Using This Documentation",
-          "url": "https://docs.oracle.com/cd/E53394_01/html/E54834/nwrdm-preface.html"
         },
         {
           "depth": 3,
@@ -16984,7 +16746,7 @@
     {
       "authority": "MIPS",
       "bytes_read": 197062,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -17016,13 +16778,13 @@
       "id": "mips-architecture-docs",
       "kind": "architecture-documentation-index",
       "link_depth_limit": 10,
-      "sha256": "692c7b4e3bc7230c366dd0000ab58c321bd69678fca96a7d04ae4e3c06082dcc",
+      "sha256": "6044ca987304d1a44344b5db04c677778ba438dab8f9dae0cc707f94307fcc7f",
       "status": "ok",
       "url": "https://www.mips.com/products/architectures/"
     },
     {
       "authority": "Microchip",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "AVR",
       "family_arabic": "معمارية إيه في آر",
@@ -17033,7 +16795,7 @@
     },
     {
       "authority": "Texas Instruments",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "MSP430",
       "family_arabic": "إم إس بي 430",
@@ -17044,7 +16806,7 @@
     },
     {
       "authority": "Zilog",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "Z80",
       "family_arabic": "غير مترجم",
@@ -17056,7 +16818,7 @@
     {
       "authority": "Arm Keil",
       "bytes_read": 8434,
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "coverage_note": "Source definitions are discovery candidates only; they do not establish ISA conformance or runtime support.",
       "definition_identifier_count": 0,
       "definition_identifiers": [],
@@ -17071,7 +16833,7 @@
     },
     {
       "authority": "NXP",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "source exceeds 4194304 byte safety limit",
       "family": "Motorola 68000",
       "family_arabic": "موتورولا 68000",
@@ -17082,7 +16844,7 @@
     },
     {
       "authority": "Bitsavers archive",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 403: Forbidden",
       "family": "VAX",
       "family_arabic": "غير مترجم",
@@ -17093,7 +16855,7 @@
     },
     {
       "authority": "Renesas",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "HTTP Error 404: Not Found",
       "family": "Renesas RX",
       "family_arabic": "رينيساس آر إكس",
@@ -17104,7 +16866,7 @@
     },
     {
       "authority": "AMD",
-      "checked_utc": "2026-11-12T16:56:58.919707+00:00",
+      "checked_utc": "2026-11-13T00:51:08.436439+00:00",
       "error": "The read operation timed out",
       "family": "x86-64",
       "family_arabic": "إكس 86-64",
