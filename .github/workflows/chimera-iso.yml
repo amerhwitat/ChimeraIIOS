@@ -216,21 +216,35 @@ jobs:
             test -s "boot/iso/dist/iso/boot/visual/$visual"
           done
           test -s boot/iso/dist/iso/boot/visual/aurora-media/manifest.json
-      - name: Verify Live, Installer and Recovery init ELFs inside ISO
+      - name: Verify Live, Installer and Recovery init ELFs inside the generated ISO
         shell: bash
         run: |
           set -euo pipefail
+          iso=boot/iso/dist/output.iso
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          extract() {
+            local member="$1" destination="$2"
+            xorriso -osirrox on -indev "$iso" -extract "$member" "$destination" >/dev/null
+            test -s "$destination" || { echo "::error::ISO member missing: $member"; exit 1; }
+          }
+          extract /boot/grub/grub.cfg "$tmp/grub.cfg"
+          extract /boot/jasper/recovery.cfg "$tmp/recovery.cfg"
+          extract /boot/loader-menu.cfg "$tmp/loader-menu.cfg"
           for target in live installer recovery; do
             built="build/koronos/x86_64/target-init-${target}.elf"
-            staged="boot/iso/dist/iso/boot/targets/target-init-${target}.elf"
-            test -s "$built"
-            test -s "$staged"
-            readelf -h "$staged" | grep -Eq 'Type:[[:space:]]+EXEC'
-            cmp -s "$built" "$staged"
-            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" boot/iso/dist/iso/boot/grub.cfg
+            extracted="$tmp/target-init-${target}.elf"
+            extract "/boot/targets/target-init-${target}.elf" "$extracted"
+            readelf -h "$extracted" | grep -Eq 'Type:[[:space:]]+EXEC'
+            readelf -lW "$extracted" | grep -Eq 'LOAD.*R E'
+            cmp -s "$built" "$extracted"
           done
-          grep -Fq "target-init-live.elf chimera-user-init-elf target=live" boot/iso/dist/iso/boot/loader-menu.cfg
-          grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" boot/iso/dist/iso/boot/loader-menu.cfg
+          grep -Fq "target-init-live.elf chimera-user-init-elf target=live" "$tmp/grub.cfg"
+          grep -Fq "target-init-installer.elf chimera-user-init-elf target=installer" "$tmp/grub.cfg"
+          grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" "$tmp/recovery.cfg"
+          grep -Fq "target-init-live.elf chimera-user-init-elf target=live" "$tmp/loader-menu.cfg"
+          grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" "$tmp/loader-menu.cfg"
+          echo "Verified all three exact target-init ELF bytes and production GRUB/Jasper routing inside the generated ISO."
       - name: Upload structured ISO and native boot payloads
         uses: actions/upload-artifact@v4
         with:

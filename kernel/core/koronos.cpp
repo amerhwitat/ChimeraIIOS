@@ -197,6 +197,7 @@ static void console_hex32(uint32_t v) {
 
 static const char *module_kind_name(uint32_t k) {
     switch (k) {
+        case CHIMERA_MODULE_USER_INIT_ELF: return "USER INIT ELF";
         case CHIMERA_MODULE_LIVE_INITRAMFS: return "LIVE INITRAMFS";
         case CHIMERA_MODULE_LIVE_MANIFEST: return "LIVE MANIFEST";
         case CHIMERA_MODULE_RECOVERY_INITRAMFS: return "RECOVERY INITRAMFS";
