@@ -17,7 +17,8 @@
     jasper: { name: "Jasper", skin: "Windows 12", glyph: "⊞", family: "windows" },
     gates: { name: "Gates", skin: "macOS", glyph: "", family: "mac" },
     aurora: { name: "Aurora", skin: "Linux 7.x", glyph: "◉", family: "linux" },
-    marine: { name: "Marine", skin: "Windows 10", glyph: "≋", family: "windows" }
+    marine: { name: "Marine", skin: "Windows 10", glyph: "≋", family: "windows" },
+    nebula: { name: "Nebula", skin: "Aurora Music Glass", glyph: "♫", family: "mac" }
   };
 
   const SHORTCUTS = {
