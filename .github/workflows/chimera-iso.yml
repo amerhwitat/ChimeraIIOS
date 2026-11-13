@@ -227,7 +227,7 @@ jobs:
             test -s "$staged"
             readelf -h "$staged" | grep -Eq 'Type:[[:space:]]+EXEC'
             cmp -s "$built" "$staged"
-            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" boot/iso/dist/iso/boot/grub.cfg
+            grep -Fq "target-init-${target}.elf chimera-user-init-elf target=${target}" boot/iso/dist/iso/boot/grub/grub.cfg
           done
           grep -Fq "target-init-live.elf chimera-user-init-elf target=live" boot/iso/dist/iso/boot/loader-menu.cfg
           grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" boot/iso/dist/iso/boot/loader-menu.cfg
@@ -248,3 +248,5 @@ jobs:
             build/aurora-media/**
           if-no-files-found: error
           retention-days: 90
+
+# Re-run target-ELF verification against the corrected generated GRUB path.
