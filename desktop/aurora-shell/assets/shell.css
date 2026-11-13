@@ -94,6 +94,8 @@ html[data-profile="nebula"] {
   --menubar-h: 28px;
   --taskbar-h: 0px;
 }
+.nebula-now-playing { display:none; }
+html[data-profile="nebula"] .nebula-now-playing { display:inline-flex; }
 html[data-profile="nebula"] #menubar { display:flex; background:rgba(8,9,20,.58); backdrop-filter:blur(30px) saturate(175%); }
 html[data-profile="nebula"] #dock {
   display:flex; flex-direction:column; align-items:center; gap:9px;
