@@ -625,6 +625,19 @@ create_boot_menu(){
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+  # Stage the three target-specific native ring-3 init ELFs built by kernel/build-koronos.sh.
+  # Without these modules GRUB can load Koronos and its initramfs, but the kernel
+  # has no executable userspace entry to admit for Live, Installer, or Recovery.
+  local target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"
+  mkdir -p "$ISO_DIR/boot/targets"
+  for target in live installer recovery; do
+    local target_init="$target_init_dir/target-init-$target.elf"
+    [[ -s "$target_init" ]] || { log_error "Native $target init ELF missing: $target_init"; exit 1; }
+    readelf -h "$target_init" | grep -Eq 'Class:[[:space:]]+ELF64' || { log_error "Native $target init is not ELF64: $target_init"; exit 1; }
+    readelf -h "$target_init" | grep -Eq 'Type:[[:space:]]+EXEC' || { log_error "Native $target init is not ET_EXEC: $target_init"; exit 1; }
+    install -m 0644 "$target_init" "$ISO_DIR/boot/targets/target-init-$target.elf"
+    sha256sum "$ISO_DIR/boot/targets/target-init-$target.elf" > "$ISO_DIR/boot/targets/target-init-$target.elf.sha256"
+  done
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
@@ -1384,6 +1397,14 @@ verify_iso(){
   grep -qi 'UEFI' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no UEFI El Torito boot entry'; exit 1; }
   grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB does not load the staged Koronos ELF through Multiboot2'; exit 1; }
   grep -q 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
+  for target in live installer recovery; do
+    grep -Fq "module2 /boot/targets/target-init-$target.elf chimera-user-init-elf target=$target" "$ISO_DIR/boot/grub/grub.cfg" || {
+      log_error "GRUB does not select the native $target init ELF"; exit 1;
+    }
+    staged="$ISO_DIR/boot/targets/target-init-$target.elf"
+    readelf -h "$staged" | grep -Eq 'Type:[[:space:]]+EXEC' || { log_error "Staged $target init is not ET_EXEC"; exit 1; }
+    cmp -s "$staged" "$SCRIPT_DIR/build/koronos/x86_64/target-init-$target.elf" || { log_error "Staged $target init differs from its build output"; exit 1; }
+  done
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
@@ -1392,6 +1413,9 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/targets/target-init-live.elf
+    /boot/targets/target-init-installer.elf
+    /boot/targets/target-init-recovery.elf
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
     /boot/grub/aurora-theme.txt

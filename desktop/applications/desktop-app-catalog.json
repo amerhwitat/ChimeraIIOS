@@ -5,7 +5,8 @@
     "aurora",
     "marine",
     "freexp",
-    "freewin11"
+    "freewin11",
+    "nebula"
   ],
   "applications": [
     {
@@ -265,5 +266,22 @@
       "status": "optional-app-provider"
     }
   ],
-  "default_desktop_policy": "User may choose Aurora, Marine Blue, FreeXP or FreeWin11. The first boot default remains Aurora unless a valid user preference is set."
+  "default_desktop_policy": "User may choose Aurora, Marine Blue, FreeXP, FreeWin11 or Nebula Glass. The first boot default remains Aurora unless a valid user preference is set.",
+  "desktop_profiles": [
+    {
+      "id": "nebula",
+      "name": "Nebula Glass",
+      "family": "mac",
+      "skin": "Aurora Music Glass",
+      "description": "Music-first translucent aurora desktop with a vertical application dock, dark glass windows and compact status controls.",
+      "reference": "User-provided desktop screenshot in the project request",
+      "capabilities": [
+        "glass-window-chrome",
+        "vertical-app-dock",
+        "top-menubar",
+        "music-workspace-theme"
+      ],
+      "status": "browser-shell-profile; native-compositor-and-audio-session-not-claimed"
+    }
+  ]
 }

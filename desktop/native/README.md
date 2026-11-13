@@ -17,3 +17,8 @@ c++ -std=c++20 -O2 $(pkg-config --cflags gtk4) desktop/native/chimera-desktop-sh
 The launcher uses an allowlist of fixed host commands and does not interpolate shell strings. Missing host applications are reported in the status line. The `--self-test` flag builds and presents the window, then exits for headless CI under Xvfb.
 
 **Important runtime boundary:** this is a native GTK shell client for a Linux user-space/display server. It is not a Wayland compositor and cannot run directly on Koronos until the kernel can execute ordinary user processes and the OS has compatible graphics, input, and service APIs. The existing HTML designs remain reference prototypes; this source is a separate native implementation path, not proof that all desktop functions are complete.
+
+
+## Nebula Glass Desktop
+
+Nebula Glass is an additional music-first desktop personality inspired by the user-provided reference screenshot. The browser shell adds a dark translucent window treatment, aurora-friendly contrast, a left vertical app dock and a compact top status bar. Select it with `?profile=nebula` in the Aurora shell. The GTK4 shell accepts `--desktop=nebula` and applies the matching palette to its native application surface. This is a desktop-shell personality, not a compositor, audio server, or proof of a running Koronos GUI session; those remain separate runtime acceptance gates.

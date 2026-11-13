@@ -65,7 +65,7 @@ jobs:
       - name: Validate selectable desktop profiles and session manifests
         run: |
           set -euo pipefail
-          for profile in aurora marine freexp freewin11; do
+          for profile in aurora marine freexp freewin11 nebula; do
             python3 -m json.tool "desktop/sessions/$profile.json" >/dev/null
           done
           python3 - <<'PY'
@@ -73,7 +73,7 @@ jobs:
           from pathlib import Path
           data = json.loads(Path("desktop/profiles/desktop-profiles.json").read_text())
           candidates = {p["id"] for p in data["profiles"] if p.get("default_candidate")}
-          assert candidates == {"aurora", "marine", "freexp", "freewin11"}, candidates
+          assert candidates == {"aurora", "marine", "freexp", "freewin11", "nebula"}, candidates
           catalog = json.loads(Path("desktop/applications/desktop-app-catalog.json").read_text())
           assert len(catalog["applications"]) >= 20
           PY
@@ -114,7 +114,8 @@ jobs:
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=aurora --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=marine --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
-          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freexp --self-test
+          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freewin11 --self-test
+          xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=nebula --self-test
           xvfb-run -a "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=freewin11 --self-test
           if "$CHIMERA_DESKTOP_BUILD_DIR/bin/chimera-desktop-shell" --desktop=invalid --self-test; then
             echo "invalid desktop profile was accepted" >&2
@@ -130,8 +131,15 @@ jobs:
           python3 tools/binary/inspect_binary.py --json "$out"/bin/* > "$out/manifests/binary-headers.json"
           python3 -m json.tool "$out/manifests/binary-headers.json" >/dev/null
           python3 -m json.tool "$out/manifests/runtime-requirements.json" >/dev/null
-          ! find "$out/aurora-source" -type d -name __pycache__ | grep .
-          ! find "$out/aurora-source" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) | grep .
+          python3 - "$out/aurora-source" <<'PY'
+          import sys
+          from pathlib import Path
+          root = Path(sys.argv[1])
+          bad = [str(p) for p in root.rglob("__pycache__")]
+          bad += [str(p) for p in root.rglob("*") if p.is_file() and p.suffix in {".pyc", ".pyo"}]
+          if bad:
+              raise SystemExit("generated Python bytecode leaked into portable source bundle: " + ", ".join(bad))
+          PY
       - name: Publish compiled desktop component bundle
         uses: actions/upload-artifact@v4
         with:
