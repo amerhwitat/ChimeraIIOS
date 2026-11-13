@@ -40,7 +40,9 @@ PACKAGES=(
   squashfs-tools xorriso mtools shellcheck dosbox dosbox-x
   xterm konsole xfce4-terminal foot kitty
   xserver-xorg xinit xauth xwayland xvfb x11-xserver-utils x11-utils openbox
-  ptyxis gnome-terminal terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal
+  # Ptyxis is not present in the Ubuntu 24.04 (Noble) archive used by the comprehensive builder.
+  # Keep it out of the required set; the other terminal providers remain mandatory.
+  gnome-terminal terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal
 )
 
 INSTALLED=()
