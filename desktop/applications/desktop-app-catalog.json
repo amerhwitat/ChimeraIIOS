@@ -266,7 +266,7 @@
       "status": "optional-app-provider"
     }
   ],
-  "default_desktop_policy": "User may choose Aurora, Marine Blue, FreeXP or FreeWin11. The first boot default remains Aurora unless a valid user preference is set.",
+  "default_desktop_policy": "User may choose Aurora, Marine Blue, FreeXP, FreeWin11 or Nebula Glass. The first boot default remains Aurora unless a valid user preference is set.",
   "desktop_profiles": [
     {
       "id": "nebula",
