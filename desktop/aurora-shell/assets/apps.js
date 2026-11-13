@@ -10,7 +10,7 @@
     shell: "WebKit2GTK kiosk · X11",
     kernel: "Linux 6.12 (live image)",
     native: "Koronos microkernel sources ship in /opt/aurora/repo/kernel (not in the boot path)",
-    profiles: "Jasper (Windows 12) · Gates (macOS) · Aurora (Linux 7.x) · Marine (Windows 10)"
+    profiles: "Jasper (Windows 12) · Gates (macOS) · Aurora (Linux 7.x) · Marine (Windows 10) · Nebula Glass (music-first)"
   };
 
   // ------------------------------------------------------------------ Files
