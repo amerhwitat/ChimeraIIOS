@@ -103,14 +103,22 @@ jobs:
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           xorriso -osirrox on -indev "$iso" -extract /live/filesystem.squashfs "$tmp/filesystem.squashfs" >/dev/null
-          unsquashfs -no-xattrs -d "$tmp/root" "$tmp/filesystem.squashfs" >/dev/null
+          unsquashfs -no-xattrs -d "$tmp/root" "$tmp/filesystem.squashfs"
           root="$tmp/root"
-          test -x "$root/usr/bin/openbox"
-          test -x "$root/usr/bin/xprop"
-          test -x "$root/usr/local/bin/aurora-session"
-          test -s "$root/opt/aurora/application-bundle.json"
-          test -d "$root/opt/aurora/app-catalogs"
-          test -d "$root/opt/aurora/apps/native/aurora"
+          for required in /usr/bin/openbox /usr/bin/xprop /usr/local/bin/aurora-session; do
+            if [[ ! -x "$root$required" ]]; then
+              echo "Missing executable in live rootfs: $required" >&2
+              ls -la "$root$(dirname "$required")" || true
+              exit 1
+            fi
+          done
+          for required in /opt/aurora/application-bundle.json /opt/aurora/app-catalogs /opt/aurora/apps/native/aurora; do
+            if [[ ! -e "$root$required" ]]; then
+              echo "Missing live application bundle path: $required" >&2
+              find "$root/opt/aurora" -maxdepth 3 -type d -print 2>/dev/null | head -100 || true
+              exit 1
+            fi
+          done
           grep -Fq 'Openbox window manager ready' "$root/usr/local/bin/aurora-session"
           python3 - "$root/opt/aurora" <<'PY'
           import json, pathlib, sys

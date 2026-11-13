@@ -125,6 +125,16 @@
     ],
     "chimera": [
       {
+        "id": "freexp-trinity",
+        "display": "FreeXP / Q4OS Trinity (XPQ4 style)",
+        "protocols": [
+          "X11"
+        ],
+        "model": "classic-windows-xp-inspired",
+        "upstream": "https://xpq4.sourceforge.io/",
+        "status": "profile-candidate"
+      },
+      {
         "id": "freexp",
         "display": "FreeXP Classic",
         "protocols": [

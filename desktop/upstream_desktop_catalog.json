@@ -3,6 +3,22 @@
   "policy": "Compatibility metadata only. Do not copy proprietary assets, trademarks, binaries, or upstream source without license review.",
   "desktops": [
     {
+      "id": "freexp-trinity",
+      "family": "linux",
+      "upstream": "Q4OS FreeXP / XPQ4",
+      "url": "https://xpq4.sourceforge.io/",
+      "protocols": [
+        "X11"
+      ],
+      "features": [
+        "Trinity Desktop Environment",
+        "Windows XP-inspired layout",
+        "optional theme switching",
+        "Debian package base"
+      ],
+      "license": "XPQ4 project listed as GPL-2.0; review each bundled theme/icon asset separately"
+    },
+    {
       "id": "freexp",
       "family": "chimera",
       "upstream": "Chimera FreeXP classic GTK profile",
