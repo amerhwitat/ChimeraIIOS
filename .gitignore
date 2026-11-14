@@ -18,6 +18,13 @@ docker-compose.override.yml
 *.iso.md5
 build-report.txt
 
+# Generated Koronos Linux-reference build output (never production ISO payloads)
+/koronos-build-*/
+/init-live
+/init-installer
+/init-recovery
+/init-build.log
+
 # Build directories
 build/
 dist/
