@@ -15,6 +15,9 @@ make -C "$SRC" clean all check BUILD="$BUILD/objects"
 mkdir -p "$BUILD/iso/boot/grub"
 cp "$BUILD/objects/koronos32-probe.elf" "$BUILD/iso/boot/koronos32-probe.elf"
 cat > "$BUILD/iso/boot/grub/grub.cfg" <<'GRUBCFG'
+serial --unit=0 --speed=115200
+terminal_input serial
+terminal_output serial
 set timeout=0
 set default=0
 menuentry "Koronos 32-bit bring-up probe" {
