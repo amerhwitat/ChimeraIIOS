@@ -123,3 +123,46 @@ The latest review of the x86-64 source separates acceptance tests from actual ex
 The latest repository validation is green, but it is not a QEMU proof: https://github.com/amerhwitat/ChimeraIIOS/actions/runs/39126421943
 
 Do not publish a release or report userspace-ready until a freestanding Koronos build and independent QEMU Live, Installer, and Recovery traces prove the real user-mode entry, first syscall, same kernel-owned nonzero PID, readiness handshake, and target behavior. Keep the PR draft while these conditions are unmet.
+
+
+## Updated source audit and ISO integration fix (2026-11-14)
+
+This section supersedes older statements above where the x86-64 implementation has since advanced. It records source-level findings only; no new ISO or QEMU run is claimed here.
+
+### Linux reference sequence
+
+The current upstream Linux reference is [init/main.c](https://github.com/torvalds/linux/blob/master/init/main.c):
+
+1. rest_init() creates the init task first so it receives PID 1, then creates kthreadd and starts the scheduler.
+2. kernel_init() waits for kthreadd, completes kernel initialization, and enters kernel_init_freeable().
+3. kernel_init_freeable() prepares SMP and core services, waits for initramfs, opens the initial console when available, and prepares the real root namespace when an early /init is not executable from the initramfs.
+4. kernel_init() executes the selected init process (/init first for initramfs, then configured/default init paths). PID 1 remains an ordinary userspace process; it is not a short-lived kernel callback.
+
+Koronos should preserve the same separation: discover/validate boot modules, make a root filesystem available, create a kernel-owned process with an address space and user stack, enter CPL3, and keep PID 1 schedulable while services and the selected target run. A one-shot readiness probe is not a substitute for persistent PID 1.
+
+### Current Koronos source state
+
+- kernel/core/target_launch.cpp now performs target selection, ELF admission, PT_LOAD mapping through the address-space loader, CR3 setup, ring-3 entry, and validates a CPL3-origin syscall plus the target/PID readiness marker.
+- kernel/core/process.cpp remains a process admission/state table; the CHIMERA_PROCESS_LOAD_PLAN_ONLY marker remains in the public process header. The bootstrap launcher still enters one user process synchronously and returns to the kernel on exit or its PIT deadline. It is not yet a general process-aware preemptive scheduler with persistent PID 1, child lifecycle, wait/reap, and signals.
+- kernel/targets/live_init.c, installer_init.c, and recovery_init.c are explicitly ring-3 readiness probes. They emit the handshake, exercise basic syscalls, and exit. Live is not a graphical desktop, Installer is a storage dry run, and Recovery is diagnostics-only.
+- The Multiboot2 initramfs modules are still passed as payload data. The native Koronos path does not yet unpack them into a mounted rootfs with working /dev, /proc, /sys, writable /tmp, and VFS-backed open/read/write/exec.
+- The installer still lacks a production block-device writer and persistence verification; Recovery still lacks filesystem/boot repair execution; Aurora still lacks a native compositor/X server session on the freestanding path.
+
+### Comprehensive builder correction
+
+build-chimera-iso.sh previously built the Koronos target-init ELFs through kernel/build-koronos.sh but did not copy them into its own ISO staging tree, even though the GRUB entries referenced /boot/targets/target-init-*.elf. It also did not stage the /boot/ai/knowledge-db.json module referenced by those entries. The builder now:
+
+- copies Live, Installer, and Recovery target-init ELFs to /boot/targets/;
+- generates and stages per-target SHA-256/ELF manifests while retaining payload_kind=ring3-readiness-probe and production_ready=false;
+- builds and validates the knowledge database in the selected build workspace, then stages it and its checksum under /boot/ai/;
+- requires these files during ISO structural verification.
+
+Regression coverage was added to tests/boot/test_iso_target_routing_artwork.py. These changes fix dangling module references in the comprehensive builder's staging path; they do not convert the probe ELFs into production target runtimes or prove a successful BIOS/UEFI boot.
+
+### Remaining acceptance work
+
+1. Implement initramfs unpack/rootfs activation and the minimum VFS/syscall contract needed by the target init.
+2. Replace the synchronous probe launcher with persistent PID 1 process scheduling, timer-safe context switching, exit/wait/reap, and signals.
+3. Make Live start a real shell/session and Aurora compositor; make Installer perform safe, confirmed disk writes and prove reboot persistence; make Recovery perform and verify real repair operations.
+4. Run the unchanged six-case Live/Installer/Recovery × BIOS/UEFI QEMU gate, inspect each trace, and require the same immutable ISO SHA-256 for all cases.
+5. Only then treat the native ISO as a release candidate. Packaging success, an ELF header check, or a probe readiness marker alone is insufficient.
