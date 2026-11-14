@@ -3,7 +3,7 @@
   "version": "1.0",
   "architecture": "x86_64",
   "type": "live_system",
-  "init_binary": "linux-reference-init-live",
+  "init_binary": null,
   "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
@@ -11,18 +11,19 @@
     "status": "BLOCKED"
   },
   "handoff_sequence": [
-    "kernel_control_transfer",
-    "init_cpl3_acknowledgement",
+    "linux_kernel_starts_pid1_reference",
+    "linux_userspace_pid1_acknowledgement",
     "mount_virtual_filesystems",
     "environment_setup",
     "service_initialization",
     "desktop_launch",
-    "userspace_active"
+    "linux_reference_userspace_active"
   ],
   "entry_point": null,
   "kernel_command_line": null,
   "status": "REFERENCE_ONLY_NOT_PRODUCTION",
   "production_eligible": false,
   "binary_role": "linux-host-reference-only",
-  "reference_scope": "Linux PID 1 behavior reference only; not a Koronos-native init ELF"
+  "reference_scope": "Linux PID 1 behavior reference only; not a Koronos-native init ELF",
+  "reference_binary_name": "linux-reference-init-live"
 }
