@@ -1,0 +1,24 @@
+{
+  "target": "installer",
+  "version": "1.0",
+  "architecture": "x86_64,arm64",
+  "type": "installer_system",
+  "init_binary": "init-installer",
+  "init_cpl3_verified": true,
+  "acceptance_gate": {
+    "requires_native_init": true,
+    "native_init_present": true,
+    "status": "ACCEPTED"
+  },
+  "handoff_sequence": [
+    "kernel_control_transfer",
+    "init_cpl3_acknowledgement",
+    "mount_virtual_filesystems",
+    "environment_setup",
+    "installer_payload_launch",
+    "installation_ready"
+  ],
+  "entry_point": "/sbin/init",
+  "kernel_command_line": "root=/dev/mapper/koronos-install init=/sbin/init target=installer",
+  "status": "READY"
+}

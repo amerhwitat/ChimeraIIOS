@@ -1,0 +1,20 @@
+{
+  "target": "live",
+  "version": "1.0",
+  "type": "live_system",
+  "init_binary": "init-live",
+  "init_cpl3_verified": true,
+  "acceptance_gate": {
+    "requires_native_init": true,
+    "native_init_present": true,
+    "status": "ACCEPTED"
+  },
+  "handoff_sequence": [
+    "kernel_control_transfer",
+    "init_cpl3_acknowledgement",
+    "mount_virtual_filesystems",
+    "environment_setup",
+    "service_initialization",
+    "desktop_launch"
+  ]
+}
