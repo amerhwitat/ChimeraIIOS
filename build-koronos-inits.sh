@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -Eeuo pipefail
 # ==============================================================================
 # KORONOS INIT SYSTEM - KERNEL → USERSPACE HANDOFF
 # ==============================================================================
@@ -15,9 +16,14 @@
 # BUILD CONFIGURATION
 # ==============================================================================
 
-ARCH="${KORONOS_ARCH:-x86_64}"
+ARCH="${KORONOS_ARCH:-$(uname -m)}"
+if [[ "$ARCH" != "x86_64" ]]; then
+    echo "This Linux-host reference builder supports only x86_64; it is not a Koronos cross-compiler." >&2
+    exit 64
+fi
 TARGET="${1:-live}"  # live, installer, recovery
-OUTPUT_DIR="${2:-.}"
+OUTPUT_DIR="${2:-build/koronos-linux-reference-inits}"
+mkdir -p "$OUTPUT_DIR"
 BUILD_LOG="$OUTPUT_DIR/init-build.log"
 
 {
@@ -167,7 +173,7 @@ void signal_handler(int sig) {
 }
 
 int main(int argc, char *argv[]) {
-    printf("[KORONOS_INIT_CPL3_ACKNOWLEDGEMENT] PID=%d\n", getpid());
+    printf("[LINUX_REFERENCE_INIT_PID1_ACK] PID=%d\n", getpid());
     
     // Verify we're PID 1
     if (getpid() != 1) {
@@ -221,7 +227,7 @@ cat > "$OUTPUT_DIR/init-installer-main.c" << 'INSTALLER_INIT_EOF'
 #include <sys/mount.h>
 
 int main(int argc, char *argv[]) {
-    printf("[KORONOS_INIT_CPL3_ACKNOWLEDGEMENT] PID=%d\n", getpid());
+    printf("[LINUX_REFERENCE_INIT_PID1_ACK] PID=%d\n", getpid());
     
     if (getpid() != 1) {
         fprintf(stderr, "ERROR: Init must run as PID 1\n");
@@ -271,7 +277,7 @@ cat > "$OUTPUT_DIR/init-recovery-main.c" << 'RECOVERY_INIT_EOF'
 #include <sys/mount.h>
 
 int main(int argc, char *argv[]) {
-    printf("[KORONOS_INIT_CPL3_ACKNOWLEDGEMENT] PID=%d\n", getpid());
+    printf("[LINUX_REFERENCE_INIT_PID1_ACK] PID=%d\n", getpid());
     
     if (getpid() != 1) {
         fprintf(stderr, "ERROR: Init must run as PID 1\n");
@@ -325,38 +331,30 @@ fi
 
 echo "Using compiler: $CC"
 
-# Compile Live init
-$CC -static -O2 -o "$OUTPUT_DIR/init-live" "$OUTPUT_DIR/init-live-main.c" -Wall 2>&1 | grep -v "warning:" || true
-if [ -f "$OUTPUT_DIR/init-live" ]; then
-    chmod +x "$OUTPUT_DIR/init-live"
-    SIZE=$(stat -f%z "$OUTPUT_DIR/init-live" 2>/dev/null || stat -c%s "$OUTPUT_DIR/init-live" 2>/dev/null)
-    echo "[✓] Live init compiled: init-live ($SIZE bytes)"
-else
-    echo "[✗] Failed to compile Live init"
-    exit 1
-fi
+# Compile Linux-host reference init (not a Koronos-native ELF).
+"$CC" -static -O2 -Wall -Wextra -Werror -o "$OUTPUT_DIR/linux-reference-init-live" "$OUTPUT_DIR/init-live-main.c"
+test -s "$OUTPUT_DIR/linux-reference-init-live"
+chmod +x "$OUTPUT_DIR/linux-reference-init-live"
+readelf -h "$OUTPUT_DIR/linux-reference-init-live" | grep -Eq 'Class:[[:space:]]+ELF64'
+readelf -h "$OUTPUT_DIR/linux-reference-init-live" | grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64'
+SIZE=$(stat -c%s "$OUTPUT_DIR/linux-reference-init-live")
+echo "[✓] Linux reference init compiled: linux-reference-init-live ($SIZE bytes)"
 
-# Compile Installer init
-$CC -static -O2 -o "$OUTPUT_DIR/init-installer" "$OUTPUT_DIR/init-installer-main.c" -Wall 2>&1 | grep -v "warning:" || true
-if [ -f "$OUTPUT_DIR/init-installer" ]; then
-    chmod +x "$OUTPUT_DIR/init-installer"
-    SIZE=$(stat -f%z "$OUTPUT_DIR/init-installer" 2>/dev/null || stat -c%s "$OUTPUT_DIR/init-installer" 2>/dev/null)
-    echo "[✓] Installer init compiled: init-installer ($SIZE bytes)"
-else
-    echo "[✗] Failed to compile Installer init"
-    exit 1
-fi
+# Compile Linux-host installer reference init (not a Koronos-native ELF).
+"$CC" -static -O2 -Wall -Wextra -Werror -o "$OUTPUT_DIR/linux-reference-init-installer" "$OUTPUT_DIR/init-installer-main.c"
+test -s "$OUTPUT_DIR/linux-reference-init-installer"
+chmod +x "$OUTPUT_DIR/linux-reference-init-installer"
+readelf -h "$OUTPUT_DIR/linux-reference-init-installer" | grep -Eq 'Class:[[:space:]]+ELF64'
+readelf -h "$OUTPUT_DIR/linux-reference-init-installer" | grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64'
+SIZE=$(stat -c%s "$OUTPUT_DIR/linux-reference-init-installer")
+echo "[✓] Linux reference init compiled: linux-reference-init-installer ($SIZE bytes)"
 
-# Compile Recovery init
-$CC -static -O2 -o "$OUTPUT_DIR/init-recovery" "$OUTPUT_DIR/init-recovery-main.c" -Wall 2>&1 | grep -v "warning:" || true
-if [ -f "$OUTPUT_DIR/init-recovery" ]; then
-    chmod +x "$OUTPUT_DIR/init-recovery"
-    SIZE=$(stat -f%z "$OUTPUT_DIR/init-recovery" 2>/dev/null || stat -c%s "$OUTPUT_DIR/init-recovery" 2>/dev/null)
-    echo "[✓] Recovery init compiled: init-recovery ($SIZE bytes)"
-else
-    echo "[✗] Failed to compile Recovery init"
-    exit 1
-fi
+# Compile Linux-host recovery reference init (not a Koronos-native ELF).
+"$CC" -static -O2 -Wall -Wextra -Werror -o "$OUTPUT_DIR/linux-reference-init-recovery" "$OUTPUT_DIR/init-recovery-main.c"
+test -s "$OUTPUT_DIR/linux-reference-init-recovery"
+chmod +x "$OUTPUT_DIR/linux-reference-init-recovery"
+readelf -h "$OUTPUT_DIR/linux-reference-init-recovery" | grep -Eq 'Class:[[:space:]]+ELF64'
+readelf -h "$OUTPUT_DIR/linux-reference-init-recovery" | grep -Eq 'Machine:[[:space:]]+Advanced Micro Devices X86-64'
 
 # ==============================================================================
 # STEP 5: CREATE TARGET MANIFESTS
@@ -369,14 +367,14 @@ cat > "$OUTPUT_DIR/target-manifest-live.json" << 'MANIFEST_LIVE'
 {
   "target": "live",
   "version": "1.0",
-  "architecture": "x86_64,arm64",
+  "architecture": "x86_64",
   "type": "live_system",
-  "init_binary": "init-live",
-  "init_cpl3_verified": true,
+  "init_binary": "linux-reference-init-live",
+  "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
-    "native_init_present": true,
-    "status": "ACCEPTED"
+    "native_init_present": false,
+    "status": "BLOCKED"
   },
   "handoff_sequence": [
     "kernel_control_transfer",
@@ -387,9 +385,9 @@ cat > "$OUTPUT_DIR/target-manifest-live.json" << 'MANIFEST_LIVE'
     "desktop_launch",
     "userspace_active"
   ],
-  "entry_point": "/sbin/init",
+  "entry_point": null,
   "kernel_command_line": "root=/dev/mapper/koronos-live init=/sbin/init target=live",
-  "status": "READY"
+  "status": "REFERENCE_ONLY_NOT_PRODUCTION"
 }
 MANIFEST_LIVE
 
@@ -397,14 +395,14 @@ cat > "$OUTPUT_DIR/target-manifest-installer.json" << 'MANIFEST_INSTALLER'
 {
   "target": "installer",
   "version": "1.0",
-  "architecture": "x86_64,arm64",
+  "architecture": "x86_64",
   "type": "installer_system",
-  "init_binary": "init-installer",
-  "init_cpl3_verified": true,
+  "init_binary": "linux-reference-init-installer",
+  "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
-    "native_init_present": true,
-    "status": "ACCEPTED"
+    "native_init_present": false,
+    "status": "BLOCKED"
   },
   "handoff_sequence": [
     "kernel_control_transfer",
@@ -414,9 +412,9 @@ cat > "$OUTPUT_DIR/target-manifest-installer.json" << 'MANIFEST_INSTALLER'
     "installer_payload_launch",
     "installation_ready"
   ],
-  "entry_point": "/sbin/init",
+  "entry_point": null,
   "kernel_command_line": "root=/dev/mapper/koronos-install init=/sbin/init target=installer",
-  "status": "READY"
+  "status": "REFERENCE_ONLY_NOT_PRODUCTION"
 }
 MANIFEST_INSTALLER
 
@@ -424,14 +422,14 @@ cat > "$OUTPUT_DIR/target-manifest-recovery.json" << 'MANIFEST_RECOVERY'
 {
   "target": "recovery",
   "version": "1.0",
-  "architecture": "x86_64,arm64",
+  "architecture": "x86_64",
   "type": "recovery_system",
-  "init_binary": "init-recovery",
-  "init_cpl3_verified": true,
+  "init_binary": "linux-reference-init-recovery",
+  "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
-    "native_init_present": true,
-    "status": "ACCEPTED"
+    "native_init_present": false,
+    "status": "BLOCKED"
   },
   "handoff_sequence": [
     "kernel_control_transfer",
@@ -441,9 +439,9 @@ cat > "$OUTPUT_DIR/target-manifest-recovery.json" << 'MANIFEST_RECOVERY'
     "recovery_shell_launch",
     "recovery_ready"
   ],
-  "entry_point": "/sbin/init",
+  "entry_point": null,
   "kernel_command_line": "root=/dev/mapper/koronos-recovery init=/sbin/init target=recovery",
-  "status": "READY"
+  "status": "REFERENCE_ONLY_NOT_PRODUCTION"
 }
 MANIFEST_RECOVERY
 
@@ -457,16 +455,16 @@ echo ""
 echo "Verifying handoff architecture..."
 echo ""
 echo "Build Summary:"
-echo "  ✓ init-live: CPL3 ring-3 live system init"
-echo "  ✓ init-installer: CPL3 ring-3 installer init"
-echo "  ✓ init-recovery: CPL3 ring-3 recovery init"
+echo "  ✓ linux-reference-init-live: Linux-hosted reference only"
+echo "  ✓ linux-reference-init-installer: Linux-hosted reference only"
+echo "  ✓ linux-reference-init-recovery: Linux-hosted reference only"
 echo "  ✓ Target manifests with acceptance gates"
 echo "  ✓ Handoff sequence verified"
 echo ""
-echo "Status: HANDOFF ARCHITECTURE COMPLETE"
+echo "Status: LINUX REFERENCE BUILT; KORONOS PRODUCTION HANDOFF REMAINS BLOCKED"
 echo ""
 echo "Output directory: $OUTPUT_DIR"
-echo "All binaries and manifests ready for ISO build"
+echo "Reference binaries are NOT eligible for Koronos ISO staging."
 echo ""
 
 } 2>&1 | tee "$BUILD_LOG"
