@@ -7,6 +7,12 @@ static inline void outb(uint16_t port, uint8_t value) {
     __asm__ volatile ("outb %0, %1" : : "a"(value), "Nd"(port));
 }
 
+static inline uint8_t inb(uint16_t port) {
+    uint8_t value;
+    __asm__ volatile ("inb %1, %0" : "=a"(value) : "Nd"(port));
+    return value;
+}
+
 static void serial_init(void) {
     outb(0x3F8 + 1, 0x00);
     outb(0x3F8 + 3, 0x80);
@@ -18,7 +24,12 @@ static void serial_init(void) {
 }
 
 static void serial_write(const char *s) {
-    while (*s) outb(0x3F8, (uint8_t)*s++);
+    while (*s) {
+        while ((inb(0x3F8 + 5) & 0x20u) == 0) {
+            __asm__ volatile ("pause");
+        }
+        outb(0x3F8, (uint8_t)*s++);
+    }
 }
 
 void koronos32_main(void) {
