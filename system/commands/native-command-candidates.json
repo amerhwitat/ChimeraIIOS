@@ -798,6 +798,7 @@
       "normalized_name": ".bashrc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -1341,6 +1342,7 @@
       "normalized_name": ".inputrc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -1642,6 +1644,7 @@
       "normalized_name": ".period",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash"
       ],
       "source_urls": [
@@ -2303,6 +2306,7 @@
       "normalized_name": ".source",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "macos"
       ],
@@ -7145,6 +7149,7 @@
       "normalized_name": "664",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash"
       ],
       "source_urls": [
@@ -10537,6 +10542,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -11593,6 +11599,7 @@
       "normalized_name": "apropos",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -11618,6 +11625,7 @@
       "normalized_name": "apt",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -11641,6 +11649,7 @@
       "normalized_name": "apt-get",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -11663,6 +11672,7 @@
       "normalized_name": "aptitude",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -11725,6 +11735,7 @@
       "normalized_name": "arguments",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -11771,6 +11782,7 @@
       "normalized_name": "arithmetic",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -11841,6 +11853,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "vbscript",
         "vbscript_core"
@@ -12082,6 +12095,7 @@
       "normalized_name": "aspell",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -12270,6 +12284,7 @@
       "normalized_name": "at",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "posix",
@@ -13120,6 +13135,7 @@
       "normalized_name": "awk",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -13502,6 +13518,7 @@
       "normalized_name": "base32",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -13544,6 +13561,7 @@
       "normalized_name": "base64",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -13570,6 +13588,7 @@
       "normalized_name": "basename",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -13618,6 +13637,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -13747,6 +13767,7 @@
       "normalized_name": "bashbangsplat",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -13768,6 +13789,7 @@
       "normalized_name": "bashrc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash"
       ],
       "source_urls": [
@@ -13888,6 +13910,7 @@
       "normalized_name": "bc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -14248,6 +14271,7 @@
       "normalized_name": "bg",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -14295,6 +14319,7 @@
       "normalized_name": "bind",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17046,6 +17071,7 @@
       "normalized_name": "break",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17218,6 +17244,7 @@
       "normalized_name": "builtin",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17304,6 +17331,7 @@
       "normalized_name": "bzip2",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17435,6 +17463,7 @@
       "normalized_name": "cal",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17549,6 +17578,7 @@
       "normalized_name": "caller",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17616,6 +17646,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17640,6 +17671,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -17878,6 +17910,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -18107,6 +18140,7 @@
       "normalized_name": "cfdisk",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -18275,6 +18309,7 @@
       "normalized_name": "chattr",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -18569,6 +18604,7 @@
       "normalized_name": "chgrp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -19975,6 +20011,7 @@
       "normalized_name": "chkconfig",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -20061,6 +20098,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -20154,6 +20192,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -20201,6 +20240,7 @@
       "normalized_name": "chpasswd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -20267,6 +20307,7 @@
       "normalized_name": "chroot",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -20458,6 +20499,7 @@
       "normalized_name": "cksum",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -21250,6 +21292,7 @@
       "normalized_name": "cmp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -21526,6 +21569,7 @@
       "normalized_name": "comm",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -21554,6 +21598,7 @@
         "access",
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -22546,6 +22591,7 @@
       "normalized_name": "continue",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -23251,6 +23297,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -23299,6 +23346,7 @@
       "normalized_name": "cpio",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -24399,6 +24447,7 @@
       "normalized_name": "cron",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -24424,6 +24473,7 @@
       "normalized_name": "crontab",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -24450,6 +24500,7 @@
       "normalized_name": "crontabs",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash"
       ],
       "source_urls": [
@@ -24577,6 +24628,7 @@
       "normalized_name": "csplit",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -24828,6 +24880,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -24958,6 +25011,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -25244,6 +25298,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -26157,6 +26212,7 @@
       "normalized_name": "dc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -26263,6 +26319,7 @@
       "normalized_name": "dd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -26309,6 +26366,7 @@
       "normalized_name": "ddrescue",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells"
@@ -26333,6 +26391,7 @@
       "normalized_name": "ddrescuelog",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -26436,6 +26495,7 @@
       "normalized_name": "declare",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -27242,6 +27302,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -27469,6 +27530,7 @@
       "normalized_name": "diff",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -27496,6 +27558,7 @@
       "normalized_name": "diff3",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -27540,6 +27603,7 @@
       "normalized_name": "dig",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -27627,6 +27691,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -27698,6 +27763,7 @@
       "normalized_name": "dircolors",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows_cmd"
@@ -27821,6 +27887,7 @@
       "normalized_name": "dirname",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -27884,6 +27951,7 @@
       "normalized_name": "dirs",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -28724,6 +28792,7 @@
       "normalized_name": "dmesg",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -29050,6 +29119,7 @@
       "normalized_name": "dos2unix",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -29155,6 +29225,7 @@
       "normalized_name": "dpkg",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -30998,6 +31069,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -31142,6 +31214,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -31395,6 +31468,7 @@
       "normalized_name": "eject",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -31678,6 +31752,7 @@
       "normalized_name": "enable",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -32116,6 +32191,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -32699,6 +32775,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -32909,6 +32986,7 @@
       "normalized_name": "exec",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -33104,6 +33182,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -33259,6 +33338,7 @@
       "normalized_name": "expand",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -33395,6 +33475,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -33686,6 +33767,7 @@
       "normalized_name": "expr",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -33854,6 +33936,7 @@
       "normalized_name": "factor",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -33873,6 +33956,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -33947,6 +34031,7 @@
       "normalized_name": "fdformat",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -33969,6 +34054,7 @@
       "normalized_name": "fdisk",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -34076,6 +34162,7 @@
       "normalized_name": "fg",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -34123,6 +34210,7 @@
       "normalized_name": "file",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -34337,6 +34425,7 @@
         "access",
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -34696,6 +34785,7 @@
       "normalized_name": "fmt",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -34720,6 +34810,7 @@
       "normalized_name": "fold",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -34829,6 +34920,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -35689,6 +35781,7 @@
       "normalized_name": "fsck",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -36162,6 +36255,7 @@
       "normalized_name": "ftp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -37033,6 +37127,7 @@
       "normalized_name": "function",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -37104,6 +37199,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "macos",
         "vbscript",
@@ -37154,6 +37250,7 @@
       "normalized_name": "fuser",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -37260,6 +37357,7 @@
       "normalized_name": "gawk",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells"
@@ -40416,6 +40514,7 @@
       "normalized_name": "getfacl",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -40663,6 +40762,7 @@
       "normalized_name": "getopts",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -41030,6 +41130,7 @@
       "normalized_name": "global-queryopt",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -42464,6 +42565,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -42558,6 +42660,7 @@
       "normalized_name": "groupadd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows_cmd"
@@ -42581,6 +42684,7 @@
       "normalized_name": "groupdel",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -42603,6 +42707,7 @@
       "normalized_name": "groupmod",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -42625,6 +42730,7 @@
       "normalized_name": "groups",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -43070,6 +43176,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -43176,6 +43283,7 @@
       "normalized_name": "hash",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -43264,6 +43372,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -43421,6 +43530,7 @@
       "normalized_name": "here",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "macos",
         "powershell",
@@ -43537,6 +43647,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -43637,6 +43748,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -43751,6 +43863,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -43863,6 +43976,7 @@
       "normalized_name": "htop",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -44322,6 +44436,7 @@
       "normalized_name": "iconv",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -44369,6 +44484,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -44495,6 +44611,7 @@
       "normalized_name": "if",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -44593,6 +44710,7 @@
       "normalized_name": "ifconfig",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -44618,6 +44736,7 @@
       "normalized_name": "ifdown",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -44681,6 +44800,7 @@
       "normalized_name": "ifup",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -44743,6 +44863,7 @@
       "normalized_name": "import",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -45239,6 +45360,7 @@
       "normalized_name": "install",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -45902,6 +46024,7 @@
       "normalized_name": "iostat",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -45926,6 +46049,7 @@
       "normalized_name": "ip",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -46392,6 +46516,7 @@
       "normalized_name": "iw",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -46612,6 +46737,7 @@
       "normalized_name": "jobs",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -46658,6 +46784,7 @@
       "normalized_name": "join",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -46968,6 +47095,7 @@
       "normalized_name": "keyboard",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "powershell"
@@ -47072,6 +47200,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -47141,6 +47270,7 @@
       "normalized_name": "killall",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -47165,6 +47295,7 @@
       "normalized_name": "klist",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -47834,6 +47965,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -48088,6 +48220,7 @@
       "normalized_name": "less",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -48115,6 +48248,7 @@
       "normalized_name": "let",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -48660,6 +48794,7 @@
       "normalized_name": "link",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "posix"
@@ -48704,6 +48839,7 @@
       "normalized_name": "linux",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -49010,6 +49146,7 @@
       "normalized_name": "ln",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -49057,6 +49194,7 @@
       "normalized_name": "local",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -49165,6 +49303,7 @@
       "normalized_name": "locate",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -49317,6 +49456,7 @@
       "normalized_name": "login",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -49684,6 +49824,7 @@
       "normalized_name": "logname",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -49753,6 +49894,7 @@
       "normalized_name": "logout",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -49817,6 +49959,7 @@
       "normalized_name": "look",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -49923,6 +50066,7 @@
       "normalized_name": "lpc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -49965,6 +50109,7 @@
       "normalized_name": "lpr",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -50048,6 +50193,7 @@
       "normalized_name": "lprm",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -50110,6 +50256,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -50198,6 +50345,7 @@
       "normalized_name": "lsattr",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -50220,6 +50368,7 @@
       "normalized_name": "lsblk",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -50282,6 +50431,7 @@
       "normalized_name": "lsof",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -50306,6 +50456,7 @@
       "normalized_name": "lspci",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -50391,6 +50542,7 @@
       "normalized_name": "m4",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -50849,6 +51001,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -51299,6 +51452,7 @@
       "normalized_name": "mandoc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -51401,6 +51555,7 @@
       "normalized_name": "mapfile",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -51628,6 +51783,7 @@
       "normalized_name": "md5sum",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -52356,6 +52512,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -52387,6 +52544,7 @@
       "normalized_name": "mkfifo",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -52413,6 +52571,7 @@
       "normalized_name": "mkfile",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -52480,6 +52639,7 @@
       "normalized_name": "mknod",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -52502,6 +52662,7 @@
       "normalized_name": "mktemp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -52586,6 +52747,7 @@
       "normalized_name": "mmv",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -52672,6 +52834,7 @@
       "normalized_name": "modprobe",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -52821,6 +52984,7 @@
       "normalized_name": "more",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -52873,6 +53037,7 @@
       "normalized_name": "most",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -52916,6 +53081,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -53467,6 +53633,7 @@
       "normalized_name": "mtools",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells"
@@ -53491,6 +53658,7 @@
       "normalized_name": "mtr",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -53511,6 +53679,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -53681,6 +53850,7 @@
       "normalized_name": "nc",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -54690,6 +54860,7 @@
       "normalized_name": "netstat",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -55690,6 +55861,7 @@
       "normalized_name": "nft",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -55752,6 +55924,7 @@
       "normalized_name": "nice",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -55778,6 +55951,7 @@
       "normalized_name": "nl",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -55908,6 +56082,7 @@
       "normalized_name": "nohup",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -55934,6 +56109,7 @@
       "normalized_name": "notify-send",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -55981,6 +56157,7 @@
       "normalized_name": "nslookup",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows",
@@ -56919,6 +57096,26 @@
       "status": "candidate-only"
     },
     {
+      "arabic_label": "أمان تحديث (October OS security update)",
+      "dispatch": "defer-to-runtime-learning",
+      "execution_allowed": false,
+      "learning": {
+        "policy": "RNN may rank documented providers and request tests; it must not execute unknown commands or invent implementation claims.",
+        "queue": "runtime-rnn-command-candidates",
+        "state": "unresolved"
+      },
+      "name": "October OS security update",
+      "normalized_name": "october os security update",
+      "platforms": [
+        "arabic-command-catalog",
+        "windows"
+      ],
+      "source_urls": [
+        "https://learn.microsoft.com/azure/azure-local/security-update/security-update"
+      ],
+      "status": "candidate-only"
+    },
+    {
       "arabic_label": "أمر نظام — od",
       "dispatch": "defer-to-runtime-learning",
       "execution_allowed": false,
@@ -57211,6 +57408,7 @@
       "normalized_name": "op",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -57233,6 +57431,7 @@
       "normalized_name": "open",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -57401,6 +57600,7 @@
       "normalized_name": "openssl",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -58184,6 +58384,7 @@
       "normalized_name": "passwd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -58251,6 +58452,7 @@
       "normalized_name": "paste",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -58637,6 +58839,7 @@
       "normalized_name": "perf",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -58679,6 +58882,7 @@
       "normalized_name": "permissions",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows_cmd"
@@ -58802,6 +59006,7 @@
       "normalized_name": "pgrep",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -58906,6 +59111,7 @@
       "normalized_name": "ping",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -59041,6 +59247,7 @@
       "normalized_name": "pipes",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -59142,6 +59349,7 @@
       "normalized_name": "pkill",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -59753,6 +59961,7 @@
       "normalized_name": "popd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -59847,6 +60056,26 @@
       ],
       "source_urls": [
         "https://ss64.com/nt/portqry.html"
+      ],
+      "status": "candidate-only"
+    },
+    {
+      "arabic_label": "أمر نظام — Ports.jpg",
+      "dispatch": "defer-to-runtime-learning",
+      "execution_allowed": false,
+      "learning": {
+        "policy": "RNN may rank documented providers and request tests; it must not execute unknown commands or invent implementation claims.",
+        "queue": "runtime-rnn-command-candidates",
+        "state": "unresolved"
+      },
+      "name": "Ports.jpg",
+      "normalized_name": "ports.jpg",
+      "platforms": [
+        "arabic-command-catalog",
+        "tools"
+      ],
+      "source_urls": [
+        "https://ss64.com/tools/ports.jpg"
       ],
       "status": "candidate-only"
     },
@@ -60210,6 +60439,7 @@
       "normalized_name": "pr",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -60458,6 +60688,7 @@
       "normalized_name": "printenv",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -60482,6 +60713,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -60841,6 +61073,7 @@
       "normalized_name": "prompt",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "powershell",
@@ -60950,6 +61183,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -61718,6 +61952,7 @@
       "normalized_name": "pushd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -61787,6 +62022,7 @@
       "normalized_name": "pv",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -61807,6 +62043,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -62285,6 +62522,7 @@
       "normalized_name": "quota",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -62309,6 +62547,7 @@
       "normalized_name": "quotacheck",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -62452,6 +62691,7 @@
       "normalized_name": "ram",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -62514,6 +62754,7 @@
       "normalized_name": "rar",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -62596,6 +62837,7 @@
       "normalized_name": "rcp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -62705,6 +62947,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -62837,6 +63080,7 @@
       "normalized_name": "readarray",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -62899,6 +63143,7 @@
       "normalized_name": "readonly",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -63226,10 +63471,11 @@
         "queue": "runtime-rnn-command-candidates",
         "state": "unresolved"
       },
-      "name": "Redirection",
+      "name": "redirection",
       "normalized_name": "redirection",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -64186,6 +64432,7 @@
       "normalized_name": "rem",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "vbscript",
@@ -65236,6 +65483,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows",
@@ -66158,6 +66406,7 @@
       "normalized_name": "return",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -66184,6 +66433,7 @@
       "normalized_name": "rev",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -66307,6 +66557,7 @@
       "normalized_name": "rg",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -66413,6 +66664,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -66461,6 +66713,7 @@
       "normalized_name": "rmdir",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -66492,6 +66745,7 @@
       "normalized_name": "rmmod",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -66849,6 +67103,7 @@
       "normalized_name": "rsync",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -66896,6 +67151,7 @@
       "normalized_name": "run",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows_cmd"
@@ -67598,6 +67854,7 @@
       "normalized_name": "scp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -67620,6 +67877,7 @@
       "normalized_name": "screen",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -67666,6 +67924,7 @@
       "normalized_name": "script",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash"
       ],
       "source_urls": [
@@ -67984,6 +68243,7 @@
       "normalized_name": "sdiff",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -68316,6 +68576,7 @@
       "normalized_name": "sed",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -68366,6 +68627,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -68723,6 +68985,7 @@
       "normalized_name": "seq",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -69050,6 +69313,7 @@
       "normalized_name": "set",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -70468,6 +70732,7 @@
       "normalized_name": "setfacl",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -70882,6 +71147,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -71189,6 +71455,7 @@
       "normalized_name": "shift",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -71257,6 +71524,7 @@
       "normalized_name": "shopt",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -71481,6 +71749,7 @@
       "normalized_name": "shuf",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -71503,6 +71772,7 @@
       "normalized_name": "shutdown",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -71741,6 +72011,7 @@
       "normalized_name": "sleep",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -71808,6 +72079,7 @@
       "normalized_name": "slocate",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -71870,6 +72142,7 @@
       "normalized_name": "sntp",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -72019,6 +72292,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -72075,6 +72349,7 @@
       "normalized_name": "source",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -72240,6 +72515,7 @@
       "normalized_name": "split",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -72710,6 +72986,7 @@
       "normalized_name": "ss",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -72778,6 +73055,7 @@
       "normalized_name": "ssh",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos_core",
@@ -73148,6 +73426,7 @@
       "normalized_name": "stat",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -73293,6 +73572,7 @@
       "normalized_name": "sticky",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -73519,6 +73799,7 @@
       "normalized_name": "strace",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -73831,6 +74112,7 @@
       "normalized_name": "su",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -74297,6 +74579,7 @@
       "normalized_name": "sudo",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -74323,6 +74606,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -74428,6 +74712,7 @@
       "normalized_name": "suspend",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -74662,6 +74947,7 @@
       "normalized_name": "sync",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -75127,6 +75413,7 @@
       "normalized_name": "systemctl",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -75334,6 +75621,7 @@
       "normalized_name": "tabs",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -75360,6 +75648,7 @@
       "normalized_name": "tac",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -75383,6 +75672,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -75492,6 +75782,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -75688,6 +75979,7 @@
       "normalized_name": "tee",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -75959,6 +76251,7 @@
       "normalized_name": "terminal",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -76021,6 +76314,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -76491,6 +76785,7 @@
       "platforms": [
         "access",
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -76549,6 +76844,7 @@
       "normalized_name": "timeout",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "posix",
@@ -76615,6 +76911,7 @@
       "normalized_name": "times",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -76766,6 +77063,7 @@
       "normalized_name": "tmux",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -76872,6 +77170,7 @@
       "normalized_name": "top",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -76895,6 +77194,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -76966,6 +77266,7 @@
       "normalized_name": "tput",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -76993,6 +77294,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -77060,6 +77362,7 @@
       "normalized_name": "traceroute",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -77288,6 +77591,7 @@
       "normalized_name": "trap",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -77398,6 +77702,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -77647,6 +77952,7 @@
       "normalized_name": "tsort",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "posix"
@@ -77691,6 +77997,7 @@
       "normalized_name": "tty",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -77717,6 +78024,7 @@
       "normalized_name": "type",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -77979,6 +78287,7 @@
       "normalized_name": "ulimit",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -78005,6 +78314,7 @@
       "normalized_name": "umask",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -78054,6 +78364,7 @@
       "normalized_name": "unalias",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -78080,6 +78391,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -78209,6 +78521,7 @@
       "normalized_name": "unexpand",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -78397,6 +78710,7 @@
       "normalized_name": "uniq",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -78443,6 +78757,7 @@
       "normalized_name": "units",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -78489,6 +78804,7 @@
       "normalized_name": "unix2dos",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -78591,6 +78907,7 @@
       "normalized_name": "unrar",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -78674,6 +78991,7 @@
       "normalized_name": "unset",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -78698,6 +79016,7 @@
       "normalized_name": "unshar",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -78720,6 +79039,7 @@
       "normalized_name": "until",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -79198,6 +79518,7 @@
       "normalized_name": "useradd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "powershell",
@@ -79242,6 +79563,7 @@
       "normalized_name": "userdel",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -79284,6 +79606,7 @@
       "normalized_name": "usermod",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -79306,6 +79629,7 @@
       "normalized_name": "users",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -79477,6 +79801,7 @@
       "normalized_name": "uudecode",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -79503,6 +79828,7 @@
       "normalized_name": "uuencode",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -79529,6 +79855,7 @@
       "normalized_name": "uuidgen",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -79675,6 +80002,7 @@
       "normalized_name": "variable",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "vbscript",
         "windows_cmd"
@@ -79736,10 +80064,11 @@
         "queue": "runtime-rnn-command-candidates",
         "state": "unresolved"
       },
-      "name": "Variables",
+      "name": "variables",
       "normalized_name": "variables",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -80319,6 +80648,7 @@
       "normalized_name": "vmstat",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -80512,6 +80842,7 @@
       "normalized_name": "wait",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -80663,6 +80994,7 @@
       "normalized_name": "watch",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "windows_cmd"
@@ -81009,6 +81341,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -81476,6 +81809,7 @@
       "normalized_name": "whereis",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -81542,6 +81876,7 @@
       "platforms": [
         "arabic-command-catalog",
         "common-command-candidate",
+        "compatibility_commands",
         "gnu_linux",
         "linux_bash",
         "linux_posix_shells",
@@ -81569,6 +81904,7 @@
       "normalized_name": "while",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -81616,6 +81952,7 @@
       "normalized_name": "who",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -81642,6 +81979,7 @@
         "arabic-command-catalog",
         "chimera-native-implemented",
         "common-command-candidate",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -81754,6 +82092,7 @@
       "normalized_name": "wildcards",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "powershell",
@@ -82523,6 +82862,7 @@
       "normalized_name": "wl-copy",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -82545,6 +82885,7 @@
       "normalized_name": "wl-paste",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -82772,6 +83113,7 @@
       "normalized_name": "write",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -83368,6 +83710,7 @@
       "normalized_name": "xargs",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -83477,6 +83820,7 @@
       "normalized_name": "xclip",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -83584,6 +83928,7 @@
       "normalized_name": "xdg-open",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -83714,6 +84059,26 @@
       "status": "candidate-only"
     },
     {
+      "arabic_label": "أمر نظام — xprotect",
+      "dispatch": "defer-to-runtime-learning",
+      "execution_allowed": false,
+      "learning": {
+        "policy": "RNN may rank documented providers and request tests; it must not execute unknown commands or invent implementation claims.",
+        "queue": "runtime-rnn-command-candidates",
+        "state": "unresolved"
+      },
+      "name": "xprotect",
+      "normalized_name": "xprotect",
+      "platforms": [
+        "arabic-command-catalog",
+        "macos"
+      ],
+      "source_urls": [
+        "https://ss64.com/mac/xprotect.html"
+      ],
+      "status": "candidate-only"
+    },
+    {
       "arabic_label": "أمر نظام — XRAT",
       "dispatch": "defer-to-runtime-learning",
       "execution_allowed": false,
@@ -83787,6 +84152,7 @@
       "normalized_name": "xxd",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos"
@@ -83811,6 +84177,7 @@
       "normalized_name": "xz",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells"
       ],
@@ -83876,6 +84243,7 @@
       "normalized_name": "yes",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -83961,6 +84329,7 @@
       "normalized_name": "zip",
       "platforms": [
         "arabic-command-catalog",
+        "compatibility_commands",
         "linux_bash",
         "linux_posix_shells",
         "macos",
@@ -84234,9 +84603,9 @@
     "whoami"
   ],
   "counts": {
-    "candidate_only": 4066,
+    "candidate_only": 4069,
     "native_implemented": 15,
-    "total": 4081
+    "total": 4084
   },
   "generated_by": "tools/commands/import_command_candidates.py",
   "native_allowlist": [
