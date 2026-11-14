@@ -9,9 +9,25 @@ INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
+MAIN_BUILDER = (ROOT / "build-chimera-iso.sh").read_text()
 
 
 class IsoTargetRoutingTests(unittest.TestCase):
+    def test_comprehensive_iso_stages_every_target_init_module_and_manifest(self):
+        self.assertIn('local target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"', MAIN_BUILDER)
+        self.assertIn('target_elf="$target_init_dir/target-init-$target.elf"', MAIN_BUILDER)
+        self.assertIn('chimera_copy_if_distinct "$target_elf" "$ISO_DIR/boot/targets/target-init-$target.elf"', MAIN_BUILDER)
+        self.assertIn('generate-target-init-manifest.py', MAIN_BUILDER)
+        self.assertIn('target-init-$target.manifest.json', MAIN_BUILDER)
+        for target in ("live", "installer", "recovery"):
+            self.assertIn(f"/boot/targets/target-init-{target}.elf", MAIN_BUILDER)
+            self.assertIn(f"/boot/targets/target-init-{target}.manifest.json", MAIN_BUILDER)
+        # The embedded payloads are still explicitly probe-only, never promoted
+        # to a production desktop/installer/recovery runtime by ISO packaging.
+        manifest_generator = (ROOT / "tools/boot/generate-target-init-manifest.py").read_text()
+        self.assertIn('"production_ready": False', manifest_generator)
+        self.assertIn('"payload_kind": "ring3-readiness-probe"', manifest_generator)
+
     def test_installer_menu_passes_installer_modules_to_koronos(self):
         start = GRUB.index('--id install {')
         end = GRUB.index('\n}', start)
