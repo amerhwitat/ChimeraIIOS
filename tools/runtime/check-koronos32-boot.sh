@@ -12,6 +12,12 @@ for tool in make gcc ld grub-mkrescue xorriso qemu-system-i386 timeout readelf; 
 done
 mkdir -p "$BUILD"
 make -C "$SRC" clean all check BUILD="$BUILD/objects"
+grub-file --is-x86-multiboot "$BUILD/objects/koronos32-probe.elf" || {
+  echo "ERROR: ELF32 probe does not contain a GRUB-recognized Multiboot v1 header" >&2
+  readelf -SW "$BUILD/objects/koronos32-probe.elf" >&2 || true
+  readelf -lW "$BUILD/objects/koronos32-probe.elf" >&2 || true
+  exit 1
+}
 mkdir -p "$BUILD/iso/boot/grub"
 cp "$BUILD/objects/koronos32-probe.elf" "$BUILD/iso/boot/koronos32-probe.elf"
 cat > "$BUILD/iso/boot/grub/grub.cfg" <<'GRUBCFG'
