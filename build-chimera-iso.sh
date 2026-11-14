@@ -336,6 +336,37 @@ cleanup_generated_docker_image(){
     log_success "Unused generated Docker image removed: $image_id"
   fi
 }
+
+# Docker storage cleanup is intentionally global for stopped containers,
+# unused images, and build cache: these are precisely the objects requested
+# for reclamation. Running containers and images referenced by any container
+# are retained by Docker. Volumes are never pruned.
+docker_cleanup_unused(){
+  local reason="${1:-between build stages}"
+  [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || {
+    log_info "Docker storage cleanup disabled by CHIMERA_DOCKER_CLEANUP=0 ($reason)"
+    return 0
+  }
+  command -v docker >/dev/null 2>&1 || { log_warning "Docker CLI unavailable; cannot reclaim Docker storage ($reason)"; return 0; }
+  docker info >/dev/null 2>&1 || { log_warning "Docker daemon unavailable; cannot reclaim Docker storage ($reason)"; return 0; }
+  log_info "Reclaiming unused Docker storage ($reason): stopped containers, unused images, and build cache"
+  docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  docker container prune --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  docker image prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+}
+
+cleanup_docker_after_rootfs(){
+  [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
+  # Rootfs has now been exported and the optional registry push has completed;
+  # the local build image is no longer needed by subsequent ISO stages.
+  local ref
+  for ref in "$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest"; do
+    docker image rm "$ref" >/dev/null 2>&1 || true
+  done
+  docker_cleanup_unused "after rootfs export and Docker publish"
+}
 push_docker_image(){
   [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
   local source="$DOCKER_IMAGE:$DOCKER_TAG"
@@ -443,7 +474,7 @@ state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
-  local order='docker rootfs commands docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
+  local order='docker rootfs docker-publish commands terminals-shells boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report'; local ci ti
   ci=$(printf '%s\n' "$order" | awk -v x="$c" '{for(i=1;i<=NF;i++)if($i==x)print i}'); ti=$(printf '%s\n' "$order" | awk -v x="$t" '{for(i=1;i<=NF;i++)if($i==x)print i}')
   [[ -n "$ci" && -n "$ti" && "$ci" -ge "$ti" ]]
 }
@@ -518,6 +549,8 @@ check_deps(){
 build_docker(){
   header 'STEP 1: BUILD DOCKER IMAGE'
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
+  # Reclaim stale Docker storage before allocating space for a fresh image.
+  docker_cleanup_unused "before Docker image build"
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
@@ -1580,6 +1613,7 @@ main(){
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
     run_stage docker build_docker
     run_stage docker-publish push_docker_image
+    cleanup_docker_after_rootfs
     BUILD_SUCCEEDED=1
     log_success "Docker-only pipeline completed."
     return 0
@@ -1614,7 +1648,7 @@ main(){
   check_deps
   CURRENT_STAGE=""
   local completed="$(state_get)"
-  for stage in docker rootfs commands terminals-shells docker-publish boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+  for stage in docker rootfs docker-publish commands terminals-shells boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
