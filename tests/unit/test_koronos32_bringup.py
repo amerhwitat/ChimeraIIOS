@@ -22,6 +22,7 @@ class Koronos32BringupContractTests(unittest.TestCase):
         source = (ARCH / "kernel.c").read_text(encoding="utf-8")
         script = (ROOT / "tools" / "runtime" / "check-koronos32-boot.sh").read_text(encoding="utf-8")
         self.assertIn("KORONOS32_BOOT_OK", source)
+        self.assertIn("-boot d", script)
         self.assertIn("serial-probe-only", source)
         self.assertIn("not the production Koronos kernel", script)
 
