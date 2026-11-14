@@ -1654,8 +1654,8 @@ main(){
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
     case "$stage" in
       docker) run_stage docker build_docker;;
-      docker-publish) run_stage docker-publish push_docker_image;;
       rootfs) run_stage rootfs export_rootfs;;
+      docker-publish) run_stage docker-publish push_docker_image; cleanup_docker_after_rootfs;;
       commands) run_stage commands build_command_runtime;;
       terminals-shells) run_stage terminals-shells stage_terminal_shell_suite;;
       boot) run_stage boot create_boot_menu;;
