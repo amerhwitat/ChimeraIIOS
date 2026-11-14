@@ -24,7 +24,7 @@ menuentry "Koronos 32-bit bring-up probe" {
 GRUBCFG
 grub-mkrescue -o "$ISO" "$BUILD/iso" >/dev/null
 set +e
-timeout "$TIMEOUT_SECONDS" qemu-system-i386 -machine pc -m 128M -cdrom "$ISO" -display none -serial file:"$LOG" -monitor none -no-reboot -no-shutdown
+timeout "$TIMEOUT_SECONDS" qemu-system-i386 -machine pc -m 128M -boot d -cdrom "$ISO" -display none -serial file:"$LOG" -monitor none -no-reboot -no-shutdown
 qemu_status=$?
 set -e
 if ! grep -Fq 'KORONOS32_BOOT_OK' "$LOG"; then
