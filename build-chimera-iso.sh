@@ -631,6 +631,26 @@ create_boot_menu(){
   local k="$SCRIPT_DIR/build/koronos/x86_64/koronos.elf"; [[ -s "$k" ]] || { log_error 'Koronos ELF missing'; exit 1; }
   mkdir -p "$ISO_DIR/boot/koronos" "$ISO_DIR/boot/jasper" "$ISO_DIR/boot/spitfire" "$ISO_DIR/boot/grub" "$ISO_DIR/boot/live" "$ISO_DIR/EFI/BOOT"
   chimera_copy_if_distinct "$k" "$ISO_DIR/boot/kernel.bin"; chimera_copy_if_distinct "$k" "$ISO_DIR/boot/koronos/koronos.elf"
+
+  # Stage the exact target-specific ring-3 init ELFs referenced by the GRUB
+  # menus. The kernel build produces these probes, but the comprehensive ISO
+  # path previously copied only Koronos + initramfs, leaving GRUB module2
+  # references dangling and causing Koronos to withhold target handoff.
+  # Manifests explicitly preserve their probe-only scope; this is not a
+  # production Live/Installer/Recovery readiness claim.
+  local target_init_dir="$SCRIPT_DIR/build/koronos/x86_64"
+  mkdir -p "$ISO_DIR/boot/targets"
+  for target in live installer recovery; do
+    local target_elf="$target_init_dir/target-init-$target.elf"
+    [[ -s "$target_elf" ]] || { log_error "Missing $target ring-3 target-init ELF: $target_elf"; exit 1; }
+    readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || { log_error "$target_elf is not ET_EXEC"; exit 1; }
+    chimera_copy_if_distinct "$target_elf" "$ISO_DIR/boot/targets/target-init-$target.elf"
+    python3 "$SCRIPT_DIR/tools/boot/generate-target-init-manifest.py" \
+      --target "$target" \
+      --elf "$ISO_DIR/boot/targets/target-init-$target.elf" \
+      --output "$ISO_DIR/boot/targets/target-init-$target.manifest.json"
+    [[ -s "$ISO_DIR/boot/targets/target-init-$target.manifest.json" ]] || { log_error "$target target-init manifest was not generated"; exit 1; }
+  done
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
@@ -1398,8 +1418,16 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/targets/target-init-live.elf
+    /boot/targets/target-init-live.manifest.json
+    /boot/targets/target-init-installer.elf
+    /boot/targets/target-init-installer.manifest.json
+    /boot/targets/target-init-recovery.elf
+    /boot/targets/target-init-recovery.manifest.json
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
+    /boot/recovery/chimera-recovery-initramfs.img
+    /boot/recovery/recovery-manifest.json
     /boot/grub/aurora-theme.txt
     /boot/visual/aurora-boot.png
     /boot/visual/aurora-menu.png
