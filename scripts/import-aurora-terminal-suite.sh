@@ -93,7 +93,7 @@ source_build(){
   case "$id" in
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
-    contour) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
+    contour) log "Building Contour without optional bundled WASI status-line extensions (native terminal remains enabled)"; (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCONTOUR_EXTENSIONS_BUNDLED=OFF && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
       have python3 || return 1
       local zigver venv
@@ -108,11 +108,25 @@ source_build(){
         log "Ghostty source has neither a usable .zig-version nor build.zig.zon minimum_zig_version"
         return 1
       }
-      venv="$CACHE/zig-venv"
-      python3 -m venv "$venv"
-      "$venv/bin/pip" install --disable-pip-version-check "ziglang==$zigver"
-      (cd "$src" && "$venv/bin/python" -m ziglang build -Doptimize=ReleaseFast)
-      cp "$src/zig-out/bin/ghostty" "$PREFIX/bin/" ;;
+      # Avoid requiring ensurepip/python3-venv on the build host. Install
+      # the pinned Zig package into an isolated cache directory instead.
+      local zig_python pip_cmd
+      zig_python="$CACHE/zig-python-$zigver"
+      if python3 -m pip --version >/dev/null 2>&1; then
+        pip_cmd=(python3 -m pip)
+      elif have pip3; then
+        pip_cmd=(pip3)
+      elif have pip; then
+        pip_cmd=(pip)
+      else
+        log "Ghostty requires pip to install its pinned Zig toolchain; install python3-pip"
+        return 1
+      fi
+      mkdir -p "$zig_python"
+      "${pip_cmd[@]}" install --disable-pip-version-check --no-warn-script-location --upgrade --target "$zig_python" "ziglang==$zigver"
+      (cd "$src" && PYTHONPATH="$zig_python${PYTHONPATH:+:$PYTHONPATH}" python3 -m ziglang build -Doptimize=ReleaseFast)
+      [[ -x "$src/zig-out/bin/ghostty" ]] || { log "Ghostty build completed without producing zig-out/bin/ghostty"; return 1; }
+      install -m 0755 "$src/zig-out/bin/ghostty" "$PREFIX/bin/ghostty" ;;
 
     fish) (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"); cp "$src/build/fish" "$PREFIX/bin/" ;;
     zsh) (cd "$src" && ./Util/preconfig || autoconf && ./configure --prefix=/usr && make -j"$(nproc)"); cp "$src/Src/zsh" "$PREFIX/bin/" ;;
