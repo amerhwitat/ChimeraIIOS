@@ -92,7 +92,7 @@ source_build(){
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
     alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
-    wezterm) (cd "$src" && cargo build --release --bin wezterm-gui); install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
+    wezterm) if ! have rustup; then   log "Installing official rustup stable toolchain for WezTerm (Ubuntu archive Rust may be too old)";   have curl || { log "curl is required to bootstrap rustup"; return 1; };   curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable; fi; export PATH="$HOME/.cargo/bin:$PATH"; rustup toolchain install stable --profile minimal; (cd "$src" && cargo +stable build --release --bin wezterm-gui 2>&1 | tee "$CACHE/wezterm-build.log"); [[ -x "$src/target/release/wezterm-gui" ]] || { log "WezTerm did not produce target/release/wezterm-gui; see $CACHE/wezterm-build.log"; return 1; }; install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour) log "Building Contour without optional bundled WASI status-line extensions (native terminal remains enabled)"; (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCONTOUR_EXTENSIONS_BUNDLED=OFF && cmake --build build -j"$(nproc)"); find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
       have python3 || return 1
@@ -112,6 +112,15 @@ source_build(){
       # the pinned Zig package into an isolated cache directory instead.
       local zig_python pip_cmd
       zig_python="$CACHE/zig-python-$zigver"
+      if ! python3 -m pip --version >/dev/null 2>&1 && ! have pip3 && ! have pip; then
+        if have apt-get; then
+          log "Bootstrapping python3-pip for the pinned Ghostty Zig package"
+          apt-get update -o Acquire::Retries=5 && apt-get install -y --no-install-recommends python3-pip || { log "Unable to install python3-pip"; return 1; }
+        else
+          log "No pip executable and apt-get is unavailable; cannot install Ghostty Zig toolchain"
+          return 1
+        fi
+      fi
       if python3 -m pip --version >/dev/null 2>&1; then
         pip_cmd=(python3 -m pip)
       elif have pip3; then
