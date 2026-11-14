@@ -469,8 +469,14 @@ preflight(){
   fi
   command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
 }
-state_get(){ [[ -f "$STATE_FILE" ]] && sed -n 's/^completed=//p' "$STATE_FILE" | tail -1 || true; }
-state_mark(){ printf 'schema=2\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."; }
+state_get(){
+  [[ -f "$STATE_FILE" ]] || return 0
+  # Stage order changed when Docker publish moved directly after rootfs
+  # export; do not interpret old checkpoints using the new stage sequence.
+  grep -qx 'schema=3' "$STATE_FILE" || return 0
+  sed -n 's/^completed=//p' "$STATE_FILE" | tail -1
+}
+state_mark(){ printf 'schema=3\ncompleted=%s\nupdated=%s\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STATE_FILE" 2>/dev/null || log_warning "Build state could not be written to $STATE_FILE; continuing without persistent resume state."; }
 state_reset(){ rm -f "$STATE_FILE" "$FAILED_FILE" 2>/dev/null || true; }
 state_done(){
   local c="$1" t="$2"; [[ -n "$c" ]] || return 1
