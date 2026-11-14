@@ -370,6 +370,9 @@ cat > "$OUTPUT_DIR/target-manifest-live.json" << 'MANIFEST_LIVE'
   "architecture": "x86_64",
   "type": "live_system",
   "init_binary": "linux-reference-init-live",
+  "production_eligible": false,
+  "binary_role": "linux-host-reference-only",
+  "reference_scope": "Linux PID 1 behavior reference only; not a Koronos-native init ELF",
   "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
@@ -398,6 +401,9 @@ cat > "$OUTPUT_DIR/target-manifest-installer.json" << 'MANIFEST_INSTALLER'
   "architecture": "x86_64",
   "type": "installer_system",
   "init_binary": "linux-reference-init-installer",
+  "production_eligible": false,
+  "binary_role": "linux-host-reference-only",
+  "reference_scope": "Linux PID 1 behavior reference only; not a Koronos-native init ELF",
   "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
@@ -425,6 +431,9 @@ cat > "$OUTPUT_DIR/target-manifest-recovery.json" << 'MANIFEST_RECOVERY'
   "architecture": "x86_64",
   "type": "recovery_system",
   "init_binary": "linux-reference-init-recovery",
+  "production_eligible": false,
+  "binary_role": "linux-host-reference-only",
+  "reference_scope": "Linux PID 1 behavior reference only; not a Koronos-native init ELF",
   "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
