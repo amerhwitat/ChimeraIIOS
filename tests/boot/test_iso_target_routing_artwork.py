@@ -18,6 +18,10 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('target_elf="$target_init_dir/target-init-$target.elf"', MAIN_BUILDER)
         self.assertIn('chimera_copy_if_distinct "$target_elf" "$ISO_DIR/boot/targets/target-init-$target.elf"', MAIN_BUILDER)
         self.assertIn('generate-target-init-manifest.py', MAIN_BUILDER)
+        self.assertIn('knowledge_db.py" build --out "$knowledge_db"', MAIN_BUILDER)
+        self.assertIn('knowledge_db.py" validate --db "$knowledge_db"', MAIN_BUILDER)
+        self.assertIn('"$ISO_DIR/boot/ai/knowledge-db.json"', MAIN_BUILDER)
+        self.assertIn('/boot/ai/knowledge-db.json', MAIN_BUILDER)
         self.assertIn('target-init-$target.manifest.json', MAIN_BUILDER)
         for target in ("live", "installer", "recovery"):
             self.assertIn(f"/boot/targets/target-init-{target}.elf", MAIN_BUILDER)
