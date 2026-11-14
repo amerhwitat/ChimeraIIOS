@@ -380,16 +380,16 @@ cat > "$OUTPUT_DIR/target-manifest-live.json" << 'MANIFEST_LIVE'
     "status": "BLOCKED"
   },
   "handoff_sequence": [
-    "kernel_control_transfer",
-    "init_cpl3_acknowledgement",
+    "linux_kernel_starts_pid1_reference",
+    "linux_userspace_pid1_acknowledgement",
     "mount_virtual_filesystems",
     "environment_setup",
     "service_initialization",
     "desktop_launch",
-    "userspace_active"
+    "linux_reference_userspace_active"
   ],
   "entry_point": null,
-  "kernel_command_line": "root=/dev/mapper/koronos-live init=/sbin/init target=live",
+  "kernel_command_line": null,
   "status": "REFERENCE_ONLY_NOT_PRODUCTION"
 }
 MANIFEST_LIVE
@@ -411,15 +411,15 @@ cat > "$OUTPUT_DIR/target-manifest-installer.json" << 'MANIFEST_INSTALLER'
     "status": "BLOCKED"
   },
   "handoff_sequence": [
-    "kernel_control_transfer",
-    "init_cpl3_acknowledgement",
+    "linux_kernel_starts_pid1_reference",
+    "linux_userspace_pid1_acknowledgement",
     "mount_virtual_filesystems",
     "environment_setup",
     "installer_payload_launch",
     "installation_ready"
   ],
   "entry_point": null,
-  "kernel_command_line": "root=/dev/mapper/koronos-install init=/sbin/init target=installer",
+  "kernel_command_line": null,
   "status": "REFERENCE_ONLY_NOT_PRODUCTION"
 }
 MANIFEST_INSTALLER
@@ -441,15 +441,15 @@ cat > "$OUTPUT_DIR/target-manifest-recovery.json" << 'MANIFEST_RECOVERY'
     "status": "BLOCKED"
   },
   "handoff_sequence": [
-    "kernel_control_transfer",
-    "init_cpl3_acknowledgement",
+    "linux_kernel_starts_pid1_reference",
+    "linux_userspace_pid1_acknowledgement",
     "mount_virtual_filesystems",
     "environment_setup",
     "recovery_shell_launch",
     "recovery_ready"
   ],
   "entry_point": null,
-  "kernel_command_line": "root=/dev/mapper/koronos-recovery init=/sbin/init target=recovery",
+  "kernel_command_line": null,
   "status": "REFERENCE_ONLY_NOT_PRODUCTION"
 }
 MANIFEST_RECOVERY
