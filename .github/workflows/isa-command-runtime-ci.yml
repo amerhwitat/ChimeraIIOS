@@ -281,7 +281,11 @@ jobs:
           git add isa/sources/imports/riscv-opcodes.json isa/generated/universal-instruction-catalog.json system/commands/native-command-candidates.json system/commands/command-runtime-capabilities.json
           if ! git diff --cached --quiet; then
             git commit -m "chore(isa): persist sourced ISA and command imports [catalog-bot]"
-            test "${GITHUB_REF:-}" != refs/heads/* || git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+            if [[ "${GITHUB_REF:-}" == refs/heads/* ]]; then
+              git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+            else
+              echo "Skipping catalog persistence for non-branch ref: ${GITHUB_REF:-unknown}"
+            fi
           else
             echo "Generated catalogs already match the committed sources."
           fi
