@@ -28,7 +28,7 @@ BUILD_LOG="$OUTPUT_DIR/init-build.log"
 
 {
 echo "================================================================================"
-echo "KORONOS INIT BUILDER - Kernel→Userspace Handoff"
+echo "Linux-hosted Koronos handoff reference builder"
 echo "================================================================================"
 echo "Architecture: $ARCH"
 echo "Target: $TARGET"
@@ -59,52 +59,52 @@ cat > "$OUTPUT_DIR/init-live-main.c" << 'LIVE_INIT_EOF'
 void print_banner(void) {
     printf("\n");
     printf("================================================================================\n");
-    printf("                 KORONOS LIVE SYSTEM - INIT (PID=1)\n");
+    printf("                 Linux reference Live init (PID=1)\n");
     printf("================================================================================\n");
-    printf("[KORONOS_INIT] Kernel→Userspace Handoff Starting\n");
-    printf("[KORONOS_INIT] Target: LIVE SYSTEM\n");
-    printf("[KORONOS_INIT] Version: %s\n", KORONOS_VERSION);
-    printf("[KORONOS_INIT] Architecture: x86_64\n");
-    printf("[KORONOS_INIT] PID: %d (Parent: %d)\n", getpid(), getppid());
-    printf("[KORONOS_INIT] Status: CPL3 RING-3 USER SPACE\n");
+    printf("[LINUX_REFERENCE_INIT] Kernel→Userspace Handoff Starting\n");
+    printf("[LINUX_REFERENCE_INIT] Target: LIVE SYSTEM\n");
+    printf("[LINUX_REFERENCE_INIT] Version: %s\n", KORONOS_VERSION);
+    printf("[LINUX_REFERENCE_INIT] Architecture: x86_64\n");
+    printf("[LINUX_REFERENCE_INIT] PID: %d (Parent: %d)\n", getpid(), getppid());
+    printf("[LINUX_REFERENCE_INIT] Status: CPL3 RING-3 USER SPACE\n");
     printf("================================================================================\n\n");
 }
 
 void mount_filesystems(void) {
-    printf("[KORONOS_INIT] Mounting virtual filesystems...\n");
+    printf("[LINUX_REFERENCE_INIT] Mounting virtual filesystems...\n");
     
     // Mount procfs
     if (mount("proc", "/proc", "proc", 0, NULL) < 0) {
-        printf("[KORONOS_INIT_ERROR] Failed to mount /proc\n");
+        printf("[LINUX_REFERENCE_INIT_ERROR] Failed to mount /proc\n");
     } else {
-        printf("[KORONOS_INIT] ✓ /proc mounted\n");
+        printf("[LINUX_REFERENCE_INIT] ✓ /proc mounted\n");
     }
     
     // Mount sysfs
     if (mount("sysfs", "/sys", "sysfs", 0, NULL) < 0) {
-        printf("[KORONOS_INIT_ERROR] Failed to mount /sys\n");
+        printf("[LINUX_REFERENCE_INIT_ERROR] Failed to mount /sys\n");
     } else {
-        printf("[KORONOS_INIT] ✓ /sys mounted\n");
+        printf("[LINUX_REFERENCE_INIT] ✓ /sys mounted\n");
     }
     
     // Mount devtmpfs
     if (mount("devtmpfs", "/dev", "devtmpfs", 0, "size=10m,nr_inodes=248418,mode=0755") < 0) {
-        printf("[KORONOS_INIT_ERROR] Failed to mount /dev\n");
+        printf("[LINUX_REFERENCE_INIT_ERROR] Failed to mount /dev\n");
     } else {
-        printf("[KORONOS_INIT] ✓ /dev mounted\n");
+        printf("[LINUX_REFERENCE_INIT] ✓ /dev mounted\n");
     }
     
     // Create pts
     mkdir("/dev/pts", 0755);
     if (mount("devpts", "/dev/pts", "devpts", 0, "gid=5,mode=0620") < 0) {
-        printf("[KORONOS_INIT_WARNING] Failed to mount /dev/pts\n");
+        printf("[LINUX_REFERENCE_INIT_WARNING] Failed to mount /dev/pts\n");
     } else {
-        printf("[KORONOS_INIT] ✓ /dev/pts mounted\n");
+        printf("[LINUX_REFERENCE_INIT] ✓ /dev/pts mounted\n");
     }
 }
 
 void setup_environment(void) {
-    printf("[KORONOS_INIT] Setting up environment...\n");
+    printf("[LINUX_REFERENCE_INIT] Setting up environment...\n");
     
     // Set critical environment variables
     setenv("PATH", "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin", 1);
@@ -113,11 +113,11 @@ void setup_environment(void) {
     setenv("KORONOS_TARGET", "live", 1);
     setenv("KORONOS_HANDOFF", "kernel_to_userspace", 1);
     
-    printf("[KORONOS_INIT] ✓ Environment configured\n");
+    printf("[LINUX_REFERENCE_INIT] ✓ Environment configured\n");
 }
 
 void start_services(void) {
-    printf("[KORONOS_INIT] Starting core services...\n");
+    printf("[LINUX_REFERENCE_INIT] Starting core services...\n");
     
     pid_t pid;
     
@@ -127,7 +127,7 @@ void start_services(void) {
         execlp("syslogd", "syslogd", NULL);
         exit(1);
     }
-    printf("[KORONOS_INIT] ✓ Syslog started (PID: %d)\n", pid);
+    printf("[LINUX_REFERENCE_INIT] ✓ Syslog started (PID: %d)\n", pid);
     
     // Start udevd  
     pid = fork();
@@ -135,19 +135,19 @@ void start_services(void) {
         execlp("udevd", "udevd", "--daemon", NULL);
         exit(1);
     }
-    printf("[KORONOS_INIT] ✓ Udev started (PID: %d)\n", pid);
+    printf("[LINUX_REFERENCE_INIT] ✓ Udev started (PID: %d)\n", pid);
 }
 
 int launch_desktop(void) {
-    printf("[KORONOS_INIT] Launching desktop environment...\n");
-    printf("[KORONOS_INIT] Attempting to start Aurora Glass desktop...\n");
+    printf("[LINUX_REFERENCE_INIT] Launching desktop environment...\n");
+    printf("[LINUX_REFERENCE_INIT] Attempting to start Aurora Glass desktop...\n");
     
     pid_t pid = fork();
     if (pid == 0) {
         // Try to launch X server and desktop
         if (execl("/usr/bin/startx", "startx", NULL) < 0) {
             // Fallback to shell
-            printf("[KORONOS_INIT] Desktop failed, launching shell...\n");
+            printf("[LINUX_REFERENCE_INIT] Desktop failed, launching shell...\n");
             if (execl("/bin/bash", "bash", "-l", NULL) < 0) {
                 perror("Failed to launch shell");
                 exit(1);
@@ -155,7 +155,7 @@ int launch_desktop(void) {
         }
         exit(0);
     } else if (pid > 0) {
-        printf("[KORONOS_INIT] Desktop launcher started (PID: %d)\n", pid);
+        printf("[LINUX_REFERENCE_INIT] Desktop launcher started (PID: %d)\n", pid);
         return pid;
     } else {
         perror("fork failed");
@@ -164,15 +164,15 @@ int launch_desktop(void) {
 }
 
 void signal_handler(int sig) {
-    printf("[KORONOS_INIT] Received signal %d\n", sig);
+    printf("[LINUX_REFERENCE_INIT] Received signal %d\n", sig);
     if (sig == SIGTERM || sig == SIGINT) {
-        printf("[KORONOS_INIT] Initiating system shutdown...\n");
+        printf("[LINUX_REFERENCE_INIT] Initiating system shutdown...\n");
         sync();
         exit(0);
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(void) {
     printf("[LINUX_REFERENCE_INIT_PID1_ACK] PID=%d\n", getpid());
     
     // Verify we're PID 1
@@ -192,19 +192,19 @@ int main(int argc, char *argv[]) {
     setup_environment();
     start_services();
     
-    printf("[KORONOS_INIT] Handoff sequence complete\n");
-    printf("[KORONOS_INIT] CPL3 RING-3 USERSPACE ACTIVE\n");
-    printf("[KORONOS_INIT] Launching Live environment...\n\n");
+    printf("[LINUX_REFERENCE_INIT] Handoff sequence complete\n");
+    printf("[LINUX_REFERENCE_INIT] Linux userspace active (reference only)\n");
+    printf("[LINUX_REFERENCE_INIT] Launching Live environment...\n\n");
     
     // Launch desktop
-    int desktop_pid = launch_desktop();
+    (void)launch_desktop();
     
     // Main event loop
-    printf("[KORONOS_INIT] Entering main event loop (PID: %d)...\n", getpid());
+    printf("[LINUX_REFERENCE_INIT] Entering main event loop (PID: %d)...\n", getpid());
     while (1) {
         pid_t child = wait(NULL);
         if (child > 0) {
-            printf("[KORONOS_INIT] Child process %d exited\n", child);
+            printf("[LINUX_REFERENCE_INIT] Child process %d exited\n", child);
         }
     }
     
@@ -226,7 +226,7 @@ cat > "$OUTPUT_DIR/init-installer-main.c" << 'INSTALLER_INIT_EOF'
 #include <unistd.h>
 #include <sys/mount.h>
 
-int main(int argc, char *argv[]) {
+int main(void) {
     printf("[LINUX_REFERENCE_INIT_PID1_ACK] PID=%d\n", getpid());
     
     if (getpid() != 1) {
@@ -236,12 +236,12 @@ int main(int argc, char *argv[]) {
     
     printf("\n");
     printf("================================================================================\n");
-    printf("                 KORONOS INSTALLER - INIT (PID=1)\n");
+    printf("                 Linux reference Installer init (PID=1)\n");
     printf("================================================================================\n");
-    printf("[KORONOS_INIT_INSTALLER] Kernel→Userspace Handoff\n");
-    printf("[KORONOS_INIT_INSTALLER] Target: INSTALLER SYSTEM\n");
-    printf("[KORONOS_INIT_INSTALLER] PID: %d\n", getpid());
-    printf("[KORONOS_INIT_INSTALLER] Status: CPL3 RING-3 USERSPACE\n");
+    printf("[LINUX_REFERENCE_INIT_INSTALLER] Kernel→Userspace Handoff\n");
+    printf("[LINUX_REFERENCE_INIT_INSTALLER] Target: INSTALLER SYSTEM\n");
+    printf("[LINUX_REFERENCE_INIT_INSTALLER] PID: %d\n", getpid());
+    printf("[LINUX_REFERENCE_INIT_INSTALLER] Status: CPL3 RING-3 USERSPACE\n");
     printf("================================================================================\n\n");
     
     // Mount critical filesystems
@@ -249,8 +249,8 @@ int main(int argc, char *argv[]) {
     mount("sysfs", "/sys", "sysfs", 0, NULL);
     mount("devtmpfs", "/dev", "devtmpfs", 0, "size=10m,mode=0755");
     
-    printf("[KORONOS_INIT_INSTALLER] Launching installer wizard...\n");
-    printf("[KORONOS_INIT_INSTALLER] Handoff complete - installation payload ready\n");
+    printf("[LINUX_REFERENCE_INIT_INSTALLER] Launching installer wizard...\n");
+    printf("[LINUX_REFERENCE_INIT_INSTALLER] Handoff complete - installation payload ready\n");
     
     // Launch installer UI
     execl("/usr/bin/installer-ui", "installer-ui", NULL);
@@ -276,7 +276,7 @@ cat > "$OUTPUT_DIR/init-recovery-main.c" << 'RECOVERY_INIT_EOF'
 #include <unistd.h>
 #include <sys/mount.h>
 
-int main(int argc, char *argv[]) {
+int main(void) {
     printf("[LINUX_REFERENCE_INIT_PID1_ACK] PID=%d\n", getpid());
     
     if (getpid() != 1) {
@@ -286,12 +286,12 @@ int main(int argc, char *argv[]) {
     
     printf("\n");
     printf("================================================================================\n");
-    printf("                 KORONOS RECOVERY - INIT (PID=1)\n");
+    printf("                 Linux reference Recovery init (PID=1)\n");
     printf("================================================================================\n");
-    printf("[KORONOS_INIT_RECOVERY] Kernel→Userspace Handoff\n");
-    printf("[KORONOS_INIT_RECOVERY] Target: RECOVERY SYSTEM\n");
-    printf("[KORONOS_INIT_RECOVERY] PID: %d\n", getpid());
-    printf("[KORONOS_INIT_RECOVERY] Status: CPL3 RING-3 USERSPACE\n");
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] Kernel→Userspace Handoff\n");
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] Target: RECOVERY SYSTEM\n");
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] PID: %d\n", getpid());
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] Status: CPL3 RING-3 USERSPACE\n");
     printf("================================================================================\n\n");
     
     // Mount critical filesystems
@@ -299,9 +299,9 @@ int main(int argc, char *argv[]) {
     mount("sysfs", "/sys", "sysfs", 0, NULL);
     mount("devtmpfs", "/dev", "devtmpfs", 0, "size=10m,mode=0755");
     
-    printf("[KORONOS_INIT_RECOVERY] Emergency recovery shell ready\n");
-    printf("[KORONOS_INIT_RECOVERY] Handoff complete - recovery environment active\n");
-    printf("[KORONOS_INIT_RECOVERY] Type 'help' for recovery commands\n\n");
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] Emergency recovery shell ready\n");
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] Handoff complete - recovery environment active\n");
+    printf("[LINUX_REFERENCE_INIT_RECOVERY] Type 'help' for recovery commands\n\n");
     
     // Launch recovery shell
     execl("/bin/bash", "bash", "-i", "-l", NULL);
