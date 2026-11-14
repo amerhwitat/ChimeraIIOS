@@ -651,6 +651,15 @@ create_boot_menu(){
       --output "$ISO_DIR/boot/targets/target-init-$target.manifest.json"
     [[ -s "$ISO_DIR/boot/targets/target-init-$target.manifest.json" ]] || { log_error "$target target-init manifest was not generated"; exit 1; }
   done
+  # GRUB attaches this database to every native boot entry. Build it in the
+  # selected build workspace (not in the source tree), validate it, and stage
+  # it as a named Multiboot2 module so the kernel's AI registry sees real data.
+  local knowledge_db="$BUILD_DIR/knowledge-db.json"
+  python3 "$SCRIPT_DIR/tools/ai/knowledge_db.py" build --out "$knowledge_db"
+  python3 "$SCRIPT_DIR/tools/ai/knowledge_db.py" validate --db "$knowledge_db"
+  mkdir -p "$ISO_DIR/boot/ai"
+  cp -f "$knowledge_db" "$ISO_DIR/boot/ai/knowledge-db.json"
+  sha256sum "$ISO_DIR/boot/ai/knowledge-db.json" > "$ISO_DIR/boot/ai/knowledge-db.json.sha256"
   bash "$SCRIPT_DIR/tools/build-boot-artifacts.sh"
   local b="$BUILD_DIR/boot-artifacts"; [[ -s "$b/jasper/jasper.elf" ]] || { log_error 'Jasper ELF missing'; exit 1; }
   cp "$b/jasper/jasper.elf" "$ISO_DIR/boot/jasper/"
@@ -1418,6 +1427,8 @@ verify_iso(){
   local required_iso_paths=(
     /boot/grub/grub.cfg
     /boot/koronos/koronos.elf
+    /boot/ai/knowledge-db.json
+    /boot/ai/knowledge-db.json.sha256
     /boot/targets/target-init-live.elf
     /boot/targets/target-init-live.manifest.json
     /boot/targets/target-init-installer.elf
