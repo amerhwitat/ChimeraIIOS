@@ -22,7 +22,7 @@ struct MmapTag { uint32_t type, size, entry_size, entry_version; };
 struct MmapEntry { uint64_t address, length; uint32_t type, reserved; };
 
 static void frame_debug(const char *message) {
-#if defined(__x86_64__)
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
     while (message && *message) {
         const uint8_t byte = static_cast<uint8_t>(*message++);
         __asm__ volatile("outb %0, $0xE9" : : "a"(byte));
