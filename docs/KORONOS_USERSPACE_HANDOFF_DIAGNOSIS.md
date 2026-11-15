@@ -166,3 +166,15 @@ Regression coverage was added to tests/boot/test_iso_target_routing_artwork.py. 
 3. Make Live start a real shell/session and Aurora compositor; make Installer perform safe, confirmed disk writes and prove reboot persistence; make Recovery perform and verify real repair operations.
 4. Run the unchanged six-case Live/Installer/Recovery × BIOS/UEFI QEMU gate, inspect each trace, and require the same immutable ISO SHA-256 for all cases.
 5. Only then treat the native ISO as a release candidate. Packaging success, an ELF header check, or a probe readiness marker alone is insufficient.
+
+
+## Persistent PID 1 handoff implementation — 2026-11-15
+
+The target handoff path now adopts the persistent-PID1 correction already exercised in the OctavianOS candidate PR #211:
+
+- Each freestanding Live, Installer, and Recovery init emits its readiness line from ring 3 and then calls `init_pid1_wait()`; it no longer exits immediately after the probe.
+- The kernel accepts the readiness write only after the DPL3 syscall acknowledgement, validates that the same process-table PID is still `CHIMERA_PROCESS_RUNNING`, disarms the startup-only PIT deadline, and emits `KORONOS PID1 ACTIVE` from kernel context.
+- The handoff verifier requires ordered kernel-ready → CPL3 syscall acknowledgement → user-authored readiness → kernel-verified PID1 ACTIVE records for the same target and nonzero PID. It rejects traces that subsequently report termination or timeout.
+- Regression tests cover all three target init payloads, marker ordering, PID/target matching, missing persistence evidence, and termination after readiness.
+
+**Scope boundary:** this fixes the short-lived-init/stale-handoff defect and proves a persistent bootstrap PID 1. The current PID 1 waits in a `pause` loop; it is not yet a service supervisor or interactive shell. This does not complete initramfs extraction/mounting, `/dev`/`/proc`/`/sys`, writable `/tmp`, a general process scheduler, real Live desktop, installer disk writing, recovery repair, or SMP. The generated target manifests therefore remain explicitly probe/bootstrap-only and `production_ready=false`. Production release remains blocked pending those independent runtime tests.
