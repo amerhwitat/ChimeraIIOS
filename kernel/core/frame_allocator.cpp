@@ -31,6 +31,19 @@ static void frame_debug(const char *message) {
     (void)message;
 #endif
 }
+static void frame_debug_u32(const char *label, uint32_t value) {
+    static const char digits[] = "0123456789ABCDEF";
+    frame_debug(label);
+    for (int shift = 28; shift >= 0; shift -= 4) {
+        const uint8_t byte = static_cast<uint8_t>(digits[(value >> shift) & 0xFu]);
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+        __asm__ volatile("outb %0, $0xE9" : : "a"(byte));
+#else
+        (void)byte;
+#endif
+    }
+    frame_debug("\n");
+}
 static void lock() { while (__sync_lock_test_and_set(&allocator_lock, 1u)) {} }
 static void unlock() { __sync_lock_release(&allocator_lock); }
 static bool bit(const uint32_t *map, uint32_t i) {
@@ -101,9 +114,19 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
     uint64_t framebuffer_base[8]{};
     uint64_t framebuffer_size[8]{};
     uint32_t framebuffer_count = 0;
+    uint32_t tag_count = 0;
     for (uint32_t off = 8u; off <= total - 8u;) {
+        if (++tag_count > 65536u) {
+            frame_debug("[FRM] tag-count limit exceeded\n");
+            return false;
+        }
         const Tag *tag = reinterpret_cast<const Tag *>(base + off);
-        if (tag->size < 8u || tag->size > total - off) return false;
+        frame_debug_u32("[FRM] tag type=0x", tag->type);
+        frame_debug_u32("[FRM] tag size=0x", tag->size);
+        if (tag->size < 8u || tag->size > total - off) {
+            frame_debug("[FRM] malformed tag size\n");
+            return false;
+        }
         if (tag->type == MB2_TAG_END) {
             if (tag->size != 8u) return false;
             found_end = true;
@@ -112,15 +135,40 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
         if (tag->type == MB2_TAG_MMAP) {
             if (found_map || tag->size < sizeof(MmapTag)) return false;
             const MmapTag *m = reinterpret_cast<const MmapTag *>(tag);
-            if (m->entry_version != 0u || m->entry_size < sizeof(MmapEntry)) return false;
-            const uint32_t bytes = tag->size - sizeof(MmapTag);
-            if (bytes % m->entry_size) return false;
-            for (uint32_t pos = sizeof(MmapTag); pos < tag->size; pos += m->entry_size) {
-                const MmapEntry *entry = reinterpret_cast<const MmapEntry *>(base + off + pos);
-                uint64_t end = 0;
-                if (!range_end(entry->address, entry->length, &end)) return false;
-                if (entry->type == 1u && !add_usable_range(entry->address, entry->length)) return false;
+            frame_debug_u32("[FRM] mmap entry-size=0x", m->entry_size);
+            if (m->entry_version != 0u || m->entry_size < sizeof(MmapEntry) || m->entry_size > 4096u) {
+                frame_debug("[FRM] invalid mmap entry version or size\n");
+                return false;
             }
+            const uint32_t bytes = tag->size - sizeof(MmapTag);
+            frame_debug_u32("[FRM] mmap payload-bytes=0x", bytes);
+            if (bytes % m->entry_size) {
+                frame_debug("[FRM] mmap payload is not entry-aligned\n");
+                return false;
+            }
+            uint32_t entry_count = 0;
+            for (uint32_t pos = sizeof(MmapTag); pos < tag->size; pos += m->entry_size) {
+                if (++entry_count > 4096u) {
+                    frame_debug("[FRM] mmap entry-count limit exceeded\n");
+                    return false;
+                }
+                const MmapEntry *entry = reinterpret_cast<const MmapEntry *>(base + off + pos);
+                frame_debug("[FRM] mmap entry begin\n");
+                uint64_t end = 0;
+                if (!range_end(entry->address, entry->length, &end)) {
+                    frame_debug("[FRM] invalid mmap entry range\n");
+                    return false;
+                }
+                if (entry->type == 1u) {
+                    frame_debug("[FRM] usable range begin\n");
+                    if (!add_usable_range(entry->address, entry->length)) {
+                        frame_debug("[FRM] usable range rejected\n");
+                        return false;
+                    }
+                    frame_debug("[FRM] usable range complete\n");
+                }
+            }
+            frame_debug("[FRM] mmap tag complete\n");
             found_map = true;
         } else if (tag->type == MB2_TAG_FRAMEBUFFER) {
             if (tag->size < 32u) return false;
