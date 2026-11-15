@@ -88,11 +88,7 @@ jobs:
           }
           mkdir -p build/iso
           cp "$iso" build/iso/chimera-ii-os.iso
-          if [ -s "$iso.sha256" ]; then
-            cp "$iso.sha256" build/iso/chimera-ii-os.iso.sha256
-          else
-            sha256sum build/iso/chimera-ii-os.iso > build/iso/chimera-ii-os.iso.sha256
-          fi
+          sha256sum build/iso/chimera-ii-os.iso > build/iso/chimera-ii-os.iso.sha256
           sha256sum -c build/iso/chimera-ii-os.iso.sha256
 
       - name: Validate ISO artifacts
