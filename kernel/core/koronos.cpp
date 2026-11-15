@@ -477,10 +477,12 @@ extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length)
     }
     koronos_syscall_trace("[SYSC] WRITE user range validated");
     const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
-    if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
-        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
     koronos_syscall_trace("[SYSC] WRITE copying bytes to debug console");
     for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    /* The user-authored readiness bytes must appear in the trace before the
+       kernel records PID1 ACTIVE. Keep this check after the actual write. */
+    if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
+        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
     koronos_syscall_trace("[SYSC] WRITE completed");
     return static_cast<int64_t>(length);
 }
