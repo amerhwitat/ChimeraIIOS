@@ -76,13 +76,14 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x build-chimera-iso.sh
+          bash -n build-chimera-iso.sh
           sudo env CHIMERA_FETCH_SOURCES=0 CHIMERA_DOCKER_CLEANUP=1 \
             ./build-chimera-iso.sh --clean-state --storage-auto --no-storage-prompt
           iso="$(find /root /home/runner /mnt /tmp -maxdepth 7 -type f \
             -name 'ChimeraIIOS-comprehensive-1.0.0-x86_64.iso' -print -quit 2>/dev/null)"
           test -n "$iso" && test -s "$iso" || {
             echo "::error::Canonical builder did not produce ChimeraIIOS-comprehensive-1.0.0-x86_64.iso"
-            find /home/runner /mnt /tmp -maxdepth 7 -type f -name '*.iso' -print 2>/dev/null | head -n 50
+            find /root /home/runner /mnt /tmp -maxdepth 7 -type f -name '*.iso' -print 2>/dev/null | head -n 50
             exit 1
           }
           mkdir -p build/iso
