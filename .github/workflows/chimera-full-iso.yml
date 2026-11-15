@@ -270,7 +270,7 @@ jobs:
           done
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
+            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching user readiness -> kernel-verified persistent PID 1 ACTIVE markers."
           else
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
