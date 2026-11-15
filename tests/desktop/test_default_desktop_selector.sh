@@ -3,7 +3,8 @@ set -Eeuo pipefail
 root="$(mktemp -d)"
 trap 'rm -rf "$root"' EXIT
 export HOME="$root/home"
-mkdir -p "$HOME"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$HOME" "$XDG_CONFIG_HOME"
 bash tools/desktop/set-default-desktop.sh freewin11
 grep -qx 'default_desktop=freewin11' "$HOME/.config/chimera/desktop.conf"
 bash tools/desktop/set-default-desktop.sh freexp
