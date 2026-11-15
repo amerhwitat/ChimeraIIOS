@@ -68,12 +68,31 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Run canonical clean-state Docker ISO builder
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          CHIMERA_FETCH_SOURCES: "0"
+          CHIMERA_DOCKER_CLEANUP: "1"
         run: |
-          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
-          ./tools/build-full-iso.sh
+          set -euo pipefail
+          chmod +x build-chimera-iso.sh
+          sudo env CHIMERA_FETCH_SOURCES=0 CHIMERA_DOCKER_CLEANUP=1 \
+            ./build-chimera-iso.sh --clean-state --storage-auto --no-storage-prompt
+          iso="$(find /home/runner /mnt /tmp -maxdepth 7 -type f \
+            -name 'ChimeraIIOS-comprehensive-1.0.0-x86_64.iso' -print -quit 2>/dev/null)"
+          test -n "$iso" && test -s "$iso" || {
+            echo "::error::Canonical builder did not produce ChimeraIIOS-comprehensive-1.0.0-x86_64.iso"
+            find /home/runner /mnt /tmp -maxdepth 7 -type f -name '*.iso' -print 2>/dev/null | head -n 50
+            exit 1
+          }
+          mkdir -p build/iso
+          cp "$iso" build/iso/chimera-ii-os.iso
+          if [ -s "$iso.sha256" ]; then
+            cp "$iso.sha256" build/iso/chimera-ii-os.iso.sha256
+          else
+            sha256sum build/iso/chimera-ii-os.iso > build/iso/chimera-ii-os.iso.sha256
+          fi
+          sha256sum -c build/iso/chimera-ii-os.iso.sha256
 
       - name: Validate ISO artifacts
         run: |
