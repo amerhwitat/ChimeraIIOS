@@ -57,7 +57,16 @@ if [[ -f "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" ]]; then
   "$CXX" -std=c++20 -O2 -Wall -Wextra -I"$ROOT/desktop/aurora/i18n" "$ROOT/desktop/aurora/i18n/aurora_utf_selftest.cpp" "$ROOT/desktop/aurora/i18n/aurora_utf.cpp" "$ROOT/desktop/aurora/i18n/aurora_emoji.cpp" -o "$OUT/bin/aurora-utf-selftest"
   "$OUT/bin/aurora-utf-selftest"
 fi
-while IFS= read -r -d '' py; do python3 -m py_compile "$py"; done < <(find "$ROOT/desktop" -type f -name '*.py' -print0)
+python3 - "$ROOT/desktop" <<'PY'
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1])
+for source in sorted(root.rglob("*.py")):
+    # Compile without creating __pycache__ in the source tree or relying on
+    # Bash process substitution in nested build environments.
+    compile(source.read_text(encoding="utf-8"), str(source), "exec")
+PY
 cp -a "$ROOT/desktop/aurora" "$OUT/aurora-source"
 # Do not ship transient Python bytecode caches in reusable desktop bundles.
 find "$OUT/aurora-source" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete

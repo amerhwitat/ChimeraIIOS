@@ -14,13 +14,16 @@
   }
 
   function render() {
-    const current = localStorage.getItem(STORAGE_KEY) || catalog.default;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const validIds = new Set(catalog.profiles.map(profile => profile.id));
+    const current = stored && validIds.has(stored) ? stored : catalog.default;
     profiles.innerHTML = catalog.profiles.map(profile => `
       <article class="card" style="padding:20px">
         <h2>${profile.title}</h2>
         <p>${profile.description}</p>
         <p><small>${profile.family} · ${profile.mode}</small></p>
-        <button data-profile="${profile.id}">${profile.id === current ? 'Current desktop' : 'Switch to this desktop'}</button>
+        ${profile.default_candidate ? '<p><small>Selectable startup default</small></p>' : ''}
+        <button data-profile="${profile.id}" aria-pressed="${profile.id === current}">${profile.id === current ? 'Current desktop' : (profile.default_candidate ? 'Set as default desktop' : 'Switch desktop')}</button>
       </article>
     `).join('');
     const selected = catalog.profiles.find(profile => profile.id === current);
