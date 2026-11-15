@@ -72,17 +72,17 @@ static void reserve_range(uint64_t start, uint64_t length) {
 static bool add_usable_range(uint64_t start, uint64_t length) {
     uint64_t end = 0;
     if (!range_end(start, length, &end)) {
-        frame_debug("[FRM] invalid usable range\\n");
+        frame_debug("[FRM] invalid usable range\n");
         return false;
     }
     /* Explicitly reject rather than silently discard RAM the allocator cannot
        address under the current bootstrap mapping contract. */
     if (end > KORONOS_FRAME_PHYS_LIMIT) {
-        frame_debug("[FRM] usable RAM extends beyond mapped limit\\n");
+        frame_debug("[FRM] usable RAM extends beyond mapped limit\n");
         return false;
     }
     if (start >= KORONOS_FRAME_PHYS_LIMIT) {
-        frame_debug("[FRM] usable RAM starts beyond mapped limit\\n");
+        frame_debug("[FRM] usable RAM starts beyond mapped limit\n");
         return false;
     }
     uint64_t first = (start + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
@@ -98,18 +98,18 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
     return true;
 }
 static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
-    frame_debug("[FRM] multiboot parse enter\\n");
+    frame_debug("[FRM] multiboot parse enter\n");
     if (!info || !total_out) {
-        frame_debug("[FRM] invalid multiboot pointer\\n");
+        frame_debug("[FRM] invalid multiboot pointer\n");
         return false;
     }
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
     const uint32_t total = *reinterpret_cast<const uint32_t *>(base);
     if (total < 16u || total > 16u * 1024u * 1024u) {
-        frame_debug("[FRM] invalid multiboot total size\\n");
+        frame_debug("[FRM] invalid multiboot total size\n");
         return false;
     }
-    frame_debug("[FRM] multiboot tag scan begin\\n");
+    frame_debug("[FRM] multiboot tag scan begin\n");
     bool found_map = false, found_end = false;
     uint64_t framebuffer_base[8]{};
     uint64_t framebuffer_size[8]{};
@@ -191,14 +191,14 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
         off = static_cast<uint32_t>(next);
     }
     if (!found_map || !found_end) {
-        frame_debug("[FRM] mmap or end tag missing\\n");
+        frame_debug("[FRM] mmap or end tag missing\n");
         return false;
     }
-    frame_debug("[FRM] multiboot tag scan complete\\n");
+    frame_debug("[FRM] multiboot tag scan complete\n");
     for (uint32_t i = 0; i < framebuffer_count; ++i)
         reserve_range(framebuffer_base[i], framebuffer_size[i]);
     *total_out = total;
-    frame_debug("[FRM] multiboot parse complete\\n");
+    frame_debug("[FRM] multiboot parse complete\n");
     return true;
 }
 static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
@@ -224,9 +224,9 @@ static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
 }
 
 extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base, uint64_t kernel_end) {
-    frame_debug("[FRM] allocator init enter\\n");
+    frame_debug("[FRM] allocator init enter\n");
     if (initialized) {
-        frame_debug("[FRM] allocator already initialized\\n");
+        frame_debug("[FRM] allocator already initialized\n");
         return -1;
     }
     for (uint32_t i = 0; i < BITMAP_WORDS; ++i) {
@@ -237,36 +237,36 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     allocator_lock = 0;
     uint32_t info_size = 0;
     if (!parse_multiboot(info, &info_size)) {
-        frame_debug("[FRM] allocator parse failed\\n");
+        frame_debug("[FRM] allocator parse failed\n");
         return -2;
     }
-    frame_debug("[FRM] allocator parse passed\\n");
+    frame_debug("[FRM] allocator parse passed\n");
     if (kernel_base < 0x100000u || kernel_end <= kernel_base ||
         kernel_end > KORONOS_FRAME_PHYS_LIMIT) {
-        frame_debug("[FRM] invalid kernel reservation bounds\\n");
+        frame_debug("[FRM] invalid kernel reservation bounds\n");
         return -3;
     }
 
     reserve_range(0, 0x100000u);
     reserve_range(kernel_base, kernel_end - kernel_base);
     reserve_range(info, info_size);
-    frame_debug("[FRM] reserving multiboot modules\\n");
+    frame_debug("[FRM] reserving multiboot modules\n");
     if (!reserve_multiboot_modules(info, info_size)) {
-        frame_debug("[FRM] module reservation failed\\n");
+        frame_debug("[FRM] module reservation failed\n");
         return -5;
     }
-    frame_debug("[FRM] module reservation complete\\n");
+    frame_debug("[FRM] module reservation complete\n");
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
         if (!module || !module->size) continue;
         reserve_range(module->base, module->size);
     }
     if (!free_pages) {
-        frame_debug("[FRM] no free pages after reservations\\n");
+        frame_debug("[FRM] no free pages after reservations\n");
         return -4;
     }
     initialized = true;
-    frame_debug("[FRM] allocator init complete\\n");
+    frame_debug("[FRM] allocator init complete\n");
     return 0;
 }
 
