@@ -268,7 +268,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         (void)chimera_process_set_state(active_pid,CHIMERA_PROCESS_FAULTED);
         (void)chimera_process_reap(active_pid,nullptr);
         active_target=TARGET_NONE; active_pid=0; active_root=0;
-        koronos_target_log("[RUN ] ERROR: native root/tmpfs mount failed"); return -12;
+        koronos_target_log("[RUN ] ERROR: persistent root filesystem unavailable; refusing native userspace dispatch"); return -12;
     }
     koronos_syscall_reset_process_fds();
     syscall_ack_seen=0;
