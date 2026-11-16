@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
+
+# These test executables use assert() for their checks. Release builds define
+# NDEBUG globally, so keep assertions enabled for this test-only directory.
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  add_compile_options(-UNDEBUG)
+endif()
 add_executable(chimera_kernel_sync_test
   kernel_sync_test.cpp
   ../../kernel/core/scheduler.cpp
