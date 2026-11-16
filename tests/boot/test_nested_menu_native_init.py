@@ -17,9 +17,9 @@ MENU_FILES = (
     "boot/spitfire/spitfire-menu.cfg",
 )
 INIT_MODULE = re.compile(
-    r"(?m)^\s*module2\s+/boot/targets/target-init-(live|installer|recovery)\.elf"
-    r"\s+chimera-user-init-elf\s+target=(live|installer|recovery)"
-    r"\s+firmware=\$grub_platform\s*$"
+    r"(?m)^[ \t]*module2[ \t]+/boot/targets/target-init-(live|installer|recovery)\.elf"
+    r"[ \t]+chimera-user-init-elf[ \t]+target=(live|installer|recovery)"
+    r"[ \t]+firmware=\$grub_platform[ \t]*$"
 )
 
 
