@@ -1,5 +1,6 @@
 import json, subprocess, sys, unittest
 from pathlib import Path
+from test_nested_menu_native_init import NestedMenuNativeInitContract  # expose nested-menu contract tests to this existing CI step
 ROOT=Path(__file__).resolve().parents[2]
 class BootPipelineContractTest(unittest.TestCase):
  def test_static_boot_contract(self):
