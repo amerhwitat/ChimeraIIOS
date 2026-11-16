@@ -2,7 +2,7 @@ name: Boot and ISO validation
 
 on:
   push:
-    branches: [main, "docs/cpu-architecture-matrix-20261104"]
+    branches: [main]
     paths:
       - 'boot/**'
       - 'kernel/**'
