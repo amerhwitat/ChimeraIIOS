@@ -327,19 +327,30 @@ docker_image_in_use(){
 }
 cleanup_generated_docker_image(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || { log_info "Build-owned Docker image cleanup disabled by CHIMERA_DOCKER_CLEANUP=0"; return 0; }
-  local image="$1" image_id="$2"
+  local image="$1" image_id="$2" ref target target_tag
   [[ -n "$image_id" ]] || return 0
   if docker_image_in_use "$image_id"; then
     log_warning "Keeping build image $image ($image_id): a container still references it."
     return 0
   fi
-  # Remove by immutable ID so all local tags created for this build are removed
-  # together, including the Docker Hub tag; the remote registry copy is untouched.
-  docker image rm -f "$image_id" >/dev/null 2>&1 || true
+  # Remove only tags this invocation assigned; never erase other repositories'
+  # references even if their content happens to have the same immutable image ID.
+  local refs=("$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest")
+  if [[ "${CHIMERA_PUSH:-0}" == 1 ]]; then
+    target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
+    target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
+    refs+=("$target:$target_tag")
+    [[ "$target_tag" == "latest" || "${CHIMERA_DOCKERHUB_PUSH_LATEST:-0}" != 1 ]] || refs+=("$target:latest")
+  fi
+  for ref in "${refs[@]}"; do
+    if [[ "$(docker image inspect -f '{{.Id}}' "$ref" 2>/dev/null || true)" == "$image_id" ]]; then
+      docker image rm -f "$ref" >/dev/null 2>&1 || true
+    fi
+  done
   if docker image inspect "$image_id" >/dev/null 2>&1; then
-    log_warning "Docker image layers remain because another local reference uses $image_id."
+    log_warning "Image layers remain because another local tag/reference still uses $image_id."
   else
-    log_success "Unused generated Docker image and its local tags removed: $image_id"
+    log_success "Unused generated Docker image tags removed: $image_id"
   fi
 }
 
