@@ -282,29 +282,25 @@ free_bytes(){
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
 docker_image_bytes(){ docker image inspect "$1" --format '{{.Size}}' 2>/dev/null | awk 'NR==1{print $1+0}'; }
 cleanup_generated_build_artifacts(){
-  # Remove only build-owned intermediate artifacts. Never touch repository
-  # source/assets, the final ISO/checksum, or explicitly supplied media.
-  rm -rf -- \
-    "$ISO_DIR/rootfs" \
-    "$ISO_DIR/live" \
-    "$ISO_DIR/boot" \
-    "$ISO_DIR/install" \
-    "$ISO_DIR/system" \
-    "$ISO_DIR/desktop" \
-    "$ISO_DIR/network" \
-    "$ISO_DIR/drivers" \
-    "$ISO_DIR/games" \
-    "$BUILD_DIR/boot-artifacts" \
-    "$BUILD_DIR/live-boot" \
-    "$BUILD_DIR/emulators" \
-    "$ISO_TMP_DIR" 2>/dev/null || true
-  find "$BUILD_DIR" -maxdepth 3 -type f \
-    \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
+  # Run only after ISO creation and structural verification. Preserve source
+  # assets, user media, logs, final ISO/checksum, and reusable Koronos products.
+  local path
+  for path in \
+    "$ROOTFS_DIR" \
+    "$ISO_DIR/rootfs" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/install" \
+    "$ISO_DIR/system" "$ISO_DIR/desktop" "$ISO_DIR/network" \
+    "$ISO_DIR/drivers" "$ISO_DIR/games" \
+    "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" \
+    "$BUILD_DIR/aurora-artwork-library" "$BUILD_DIR/aurora-media" \
+    "$BUILD_DIR/aurora-selected-artwork.png" "$BUILD_DIR/knowledge-db.json" \
+    "$BUILD_DIR/dos-online-discovery.json" "$ISO_TMP_DIR"; do
+    [[ -n "$path" ]] && rm -rf -- "$path" 2>/dev/null || true
+  done
+  find "$BUILD_DIR" -maxdepth 4 -type f \
+    \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' \
+       -o -name '*.lock' -o -name '*.swp' -o -name '*~' \) \
     -delete 2>/dev/null || true
-  # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  # Do not prune global Docker state: stopped containers may belong to other projects.
-  # Build-owned export containers are removed by their explicit labels/lifecycle.
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -315,8 +311,9 @@ cleanup_final_success_artifacts(){
   log_success "Unused generated build artifacts removed; final ISO/checksum retained."
 }
 docker_image_in_use(){
-  local image="$1"
-  docker ps -aq --filter "ancestor=$image" | grep -q .
+  local image_id="$1"
+  [[ -n "$image_id" ]] || return 1
+  docker ps -aq --filter "ancestor=$image_id" | grep -q .
 }
 cleanup_generated_docker_image(){
   local image="$1" image_id="$2" tagged=""
@@ -337,35 +334,35 @@ cleanup_generated_docker_image(){
   fi
 }
 
-# Docker storage cleanup is intentionally global for stopped containers,
-# unused images, and build cache: these are precisely the objects requested
-# for reclamation. Running containers and images referenced by any container
-# are retained by Docker. Volumes are never pruned.
+# Never prune global Docker state by default: the daemon may be shared with
+# unrelated projects. Remove only the image created by this invocation.
 docker_cleanup_unused(){
-  local reason="${1:-between build stages}"
+  local reason="${1:-after successful Chimera export/publish}"
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || {
     log_info "Docker storage cleanup disabled by CHIMERA_DOCKER_CLEANUP=0 ($reason)"
     return 0
   }
   command -v docker >/dev/null 2>&1 || { log_warning "Docker CLI unavailable; cannot reclaim Docker storage ($reason)"; return 0; }
   docker info >/dev/null 2>&1 || { log_warning "Docker daemon unavailable; cannot reclaim Docker storage ($reason)"; return 0; }
-  log_info "Reclaiming unused Docker storage ($reason): stopped containers, unused images, and build cache"
   docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
-  docker container prune --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
-  docker image prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
-  docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  if [[ "${CHIMERA_DOCKER_PRUNE_GLOBAL:-0}" == 1 ]]; then
+    log_warning "Explicit global Docker prune enabled; unrelated unused objects may be removed."
+    docker container prune --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+    docker image prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+    docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  fi
   docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
 }
 
 cleanup_docker_after_rootfs(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
-  # Rootfs has now been exported and the optional registry push has completed;
-  # the local build image is no longer needed by subsequent ISO stages.
-  local ref
-  for ref in "$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest"; do
-    docker image rm "$ref" >/dev/null 2>&1 || true
-  done
-  docker_cleanup_unused "after rootfs export and Docker publish"
+  local image_id="${CHIMERA_BUILT_IMAGE_ID:-}"
+  [[ -n "$image_id" ]] || {
+    log_info "No image was built by this invocation (for example iso-only); preserving the caller's Docker image."
+    return 0
+  }
+  cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$image_id"
+  docker_cleanup_unused "after successful rootfs export and optional Docker Hub publish"
 }
 push_docker_image(){
   [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
@@ -555,16 +552,19 @@ check_deps(){
 build_docker(){
   header 'STEP 1: BUILD DOCKER IMAGE'
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
-  # Reclaim stale Docker storage before allocating space for a fresh image.
   docker_cleanup_unused "before Docker image build"
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
   [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
-  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog
+  ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  CHIMERA_BUILT_IMAGE_ID="$(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG")"
+  [[ -n "$CHIMERA_BUILT_IMAGE_ID" ]] || { log_error "Docker build succeeded but its image ID could not be recorded"; return 1; }
+  export CHIMERA_BUILT_IMAGE_ID
+  log_info "Recorded build-owned Docker image ID: $CHIMERA_BUILT_IMAGE_ID"
 }
-
 export_rootfs(){
   header 'STEP 2: EXPORT DOCKER ROOTFS'
   cleanup_generated_build_artifacts
@@ -587,7 +587,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --name "$cname" --label chimera.build.owner=build-chimera-iso --label chimera.build.role=rootfs-export "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
@@ -1619,7 +1619,12 @@ main(){
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
     run_stage docker build_docker
     run_stage docker-publish push_docker_image
-    cleanup_docker_after_rootfs
+    if [[ "${CHIMERA_PUSH:-0}" == 1 ]]; then
+      cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$CHIMERA_BUILT_IMAGE_ID"
+      docker_cleanup_unused "after successful Docker Hub publish"
+    else
+      log_warning "--docker-only did not export a rootfs or push to Docker Hub; retaining the local image."
+    fi
     BUILD_SUCCEEDED=1
     log_success "Docker-only pipeline completed."
     return 0
