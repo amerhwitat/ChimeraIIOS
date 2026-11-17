@@ -175,8 +175,10 @@ extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length
         }
         ready_seen=1;
         /* The ten-second deadline protects startup only. Once PID 1 has
-           completed its user-originated readiness handshake, keep it alive
-           and let the outer supervisor monitor its process lifetime. */
+           completed its user-originated readiness handshake, keep it alive.
+           This synchronous launcher remains suspended in ring 3 until the
+           process exits; a process-context scheduler/supervisor is still
+           required before other userspace services can run or monitor it. */
         koronos_user_timeout_disarm();
         log_pid1_active(static_cast<Target>(active_target), active_pid);
         return 1;
