@@ -21,7 +21,7 @@ Options:
   --push                      Publish the generated image to Docker Hub before build-owned image cleanup.
 
 Cleanup controls:
-  CHIMERA_DOCKER_CLEANUP=0       Preserve build-owned local Docker images and intermediates.
+  CHIMERA_DOCKER_CLEANUP=0       Preserve build-owned local Docker images and containers.
   CHIMERA_DOCKER_PRUNE_GLOBAL=1  Also prune unused Docker objects/cache globally (shared-daemon impact).
   Default cleanup removes only this build image/container and generated ISO staging; volumes are never pruned.
 
