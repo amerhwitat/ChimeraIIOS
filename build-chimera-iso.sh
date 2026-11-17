@@ -363,8 +363,20 @@ docker_cleanup_unused(){
   docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
 }
 
+cleanup_generated_docker_containers(){
+  [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
+  command -v docker >/dev/null 2>&1 || return 0
+  docker info >/dev/null 2>&1 || return 0
+  local container_id
+  while IFS= read -r container_id; do
+    [[ -n "$container_id" ]] || continue
+    docker rm -f "$container_id" >/dev/null 2>&1 || true
+    log_info "Removed build-owned Docker export container: $container_id"
+  done < <(docker ps -aq --filter 'label=chimera.build.owner=build-chimera-iso')
+}
 cleanup_docker_after_rootfs(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
+  cleanup_generated_docker_containers
   local image_id="${CHIMERA_BUILT_IMAGE_ID:-}"
   [[ -n "$image_id" ]] || {
     log_info "No image was built by this invocation (for example iso-only); preserving the caller's Docker image."
@@ -1629,6 +1641,7 @@ main(){
     run_stage docker build_docker
     run_stage docker-publish push_docker_image
     if [[ "${CHIMERA_PUSH:-0}" == 1 ]]; then
+      cleanup_generated_docker_containers
       cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$CHIMERA_BUILT_IMAGE_ID"
       docker_cleanup_unused "after successful Docker Hub publish"
     else
