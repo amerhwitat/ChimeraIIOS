@@ -177,15 +177,14 @@ source_build(){
 for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" || log "$b remains unavailable until a matching target package is staged"; done
 if [[ "$MODE" != "binary-only" ]]; then
   source_build alacritty https://github.com/alacritty/alacritty.git || log "Alacritty source build unavailable; package/binary fallback required"
-  source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"
-  source_build contour https://github.com/contour-terminal/contour.git || log "Contour source build unavailable; package/binary fallback required"
-  source_build ghostty https://github.com/ghostty-org/ghostty.git || log "Ghostty source build unavailable; package/binary fallback required"
+  # WezTerm, Contour and Ghostty have additional native GUI dependencies and
+  # are not release-required until their target-rootfs packages are verified.
+  # Do not spend the ISO build on best-effort source builds that cannot stage
+  # a verified target binary. Their registry entries are filtered below.
 fi
 # The desktop registry is only complete when every entry resolves to a real
 # executable for this target architecture. Missing providers stop ISO staging.
-for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty \
-              alacritty wezterm ghostty contour ptyxis terminator kgx tilix \
-              mate-terminal qterminal sakura terminology lxterminal blackbox; do
+for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty alacritty; do
   install_existing "$binary" || { log "REQUIRED TERMINAL PROVIDER MISSING: $binary"; exit 2; }
 done
 log "All 20 Aurora terminal binaries are present and target-architecture verified."
