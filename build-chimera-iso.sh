@@ -327,21 +327,19 @@ docker_image_in_use(){
 }
 cleanup_generated_docker_image(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || { log_info "Build-owned Docker image cleanup disabled by CHIMERA_DOCKER_CLEANUP=0"; return 0; }
-  local image="$1" image_id="$2" tagged=""
+  local image="$1" image_id="$2"
   [[ -n "$image_id" ]] || return 0
   if docker_image_in_use "$image_id"; then
-    log_warning "Keeping Docker image $image because a container still references it."
+    log_warning "Keeping build image $image ($image_id): a container still references it."
     return 0
   fi
-  # Remove every local tag that points at the image created by this build.
-  while read -r tagged; do
-    [[ -n "$tagged" ]] || continue
-    docker image rm -f "$tagged" >/dev/null 2>&1 || true
-  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
+  # Remove by immutable ID so all local tags created for this build are removed
+  # together, including the Docker Hub tag; the remote registry copy is untouched.
+  docker image rm -f "$image_id" >/dev/null 2>&1 || true
   if docker image inspect "$image_id" >/dev/null 2>&1; then
     log_warning "Docker image layers remain because another local reference uses $image_id."
   else
-    log_success "Unused generated Docker image removed: $image_id"
+    log_success "Unused generated Docker image and its local tags removed: $image_id"
   fi
 }
 
