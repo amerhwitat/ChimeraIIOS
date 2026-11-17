@@ -63,7 +63,7 @@ prepare(){
 import struct,sys
 p=sys.argv[1]
 with open(p,"rb") as f: h=f.read(20)
-if len(h)<20 or h[:4]!=b"\\x7fELF" or h[4]!=2 or h[5] not in (1,2):
+if len(h)<20 or h[:4]!=b"\x7fELF" or h[4]!=2 or h[5] not in (1,2):
     raise SystemExit("Koronos reference kernel is not a supported ELF64 image")
 endian="<" if h[5]==1 else ">"
 machine=struct.unpack(endian+"H",h[18:20])[0]
@@ -90,7 +90,7 @@ doc={
    "A matching architecture label does not establish device compatibility."
  ]
 }
-with open(path,"w",encoding="utf-8") as f: json.dump(doc,f,indent=2); f.write("\\n")
+with open(path,"w",encoding="utf-8") as f: json.dump(doc,f,indent=2); f.write("\n")
 PY
   sha256sum "$OUT/payload/manifest.json" "$OUT/payload/koronos-reference-host.elf" > "$OUT/payload/SHA256SUMS"
   echo "Prepared reference-only payload (host ELF architecture: $host_arch; requested device architecture: $arch)."
