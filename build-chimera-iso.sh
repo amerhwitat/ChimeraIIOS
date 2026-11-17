@@ -18,6 +18,12 @@ Options:
   --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --push                      Publish the generated image to Docker Hub before build-owned image cleanup.
+
+Cleanup controls:
+  CHIMERA_DOCKER_CLEANUP=0       Preserve build-owned local Docker images and intermediates.
+  CHIMERA_DOCKER_PRUNE_GLOBAL=1  Also prune unused Docker objects/cache globally (shared-daemon impact).
+  Default cleanup removes only this build image/container and generated ISO staging; volumes are never pruned.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -320,6 +326,7 @@ docker_image_in_use(){
   docker ps -aq --filter "ancestor=$image_id" | grep -q .
 }
 cleanup_generated_docker_image(){
+  [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || { log_info "Build-owned Docker image cleanup disabled by CHIMERA_DOCKER_CLEANUP=0"; return 0; }
   local image="$1" image_id="$2" tagged=""
   [[ -n "$image_id" ]] || return 0
   if docker_image_in_use "$image_id"; then
