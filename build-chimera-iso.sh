@@ -297,7 +297,7 @@ cleanup_generated_build_artifacts(){
     log_info "Preserving explicitly configured external rootfs directory: $ROOTFS_DIR"
   fi
   for path in \
-    "$ISO_DIR/rootfs" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/install" \
+    "$ISO_DIR/rootfs" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/EFI" "$ISO_DIR/install" \
     "$ISO_DIR/system" "$ISO_DIR/desktop" "$ISO_DIR/network" \
     "$ISO_DIR/drivers" "$ISO_DIR/games" \
     "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" \
