@@ -285,8 +285,12 @@ cleanup_generated_build_artifacts(){
   # Run only after ISO creation and structural verification. Preserve source
   # assets, user media, logs, final ISO/checksum, and reusable Koronos products.
   local path
+  if [[ "$ROOTFS_DIR" == "$BUILD_DIR/"* || "$ROOTFS_DIR" == "$ISO_DIR/"* ]]; then
+    rm -rf -- "$ROOTFS_DIR" 2>/dev/null || true
+  else
+    log_info "Preserving explicitly configured external rootfs directory: $ROOTFS_DIR"
+  fi
   for path in \
-    "$ROOTFS_DIR" \
     "$ISO_DIR/rootfs" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/install" \
     "$ISO_DIR/system" "$ISO_DIR/desktop" "$ISO_DIR/network" \
     "$ISO_DIR/drivers" "$ISO_DIR/games" \
@@ -318,7 +322,7 @@ docker_image_in_use(){
 cleanup_generated_docker_image(){
   local image="$1" image_id="$2" tagged=""
   [[ -n "$image_id" ]] || return 0
-  if docker_image_in_use "$image"; then
+  if docker_image_in_use "$image_id"; then
     log_warning "Keeping Docker image $image because a container still references it."
     return 0
   fi
