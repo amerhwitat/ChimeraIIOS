@@ -48,7 +48,7 @@ jobs:
           sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/share/boost /usr/local/share/chromium || true
           sudo apt-get clean
           sudo apt-get update
-          sudo apt-get install -y cpio grub-pc-bin grub-efi-amd64-bin grub-common grub2-common xorriso squashfs-tools busybox-static mtools dosfstools nasm
+          sudo apt-get install -y gettext libfontconfig1-dev libfreetype-dev libxcb-xfixes0-dev libxkbcommon-dev libwayland-dev libx11-dev cpio grub-pc-bin grub-efi-amd64-bin grub-common grub2-common xorriso squashfs-tools busybox-static mtools dosfstools nasm
           docker info
           df -h
 
