@@ -28,7 +28,7 @@ usage(){ cat <<'EOF'
 Usage:
   mobile-flash-tool.sh --detect
   mobile-flash-tool.sh --discover
-  mobile-flash-tool.sh --prepare [--arch aarch64]
+  mobile-flash-tool.sh --prepare [--arch aarch64|armv7|x86_64]
   mobile-flash-tool.sh --verify --manifest FILE
   mobile-flash-tool.sh --flash --device CODENAME --manifest FILE [--dry-run]
 
