@@ -1,0 +1,35 @@
+name: Mobile flash tool safety checks
+
+on:
+  push:
+    paths:
+      - "mobile/flash/mobile-flash-tool.sh"
+      - ".github/workflows/mobile-flash-tool-check.yml"
+  pull_request:
+    paths:
+      - "mobile/flash/mobile-flash-tool.sh"
+      - ".github/workflows/mobile-flash-tool-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shell-and-help:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell syntax
+        run: bash -n mobile/flash/mobile-flash-tool.sh
+      - name: Validate help output
+        run: |
+          set -euo pipefail
+          help="$(bash mobile/flash/mobile-flash-tool.sh --help)"
+          grep -Fq -- '--prepare [--arch aarch64|armv7|x86_64]' <<<"$help"
+          grep -Fq 'reference-only payload' <<<"$help"
+          grep -Fq 'Generic partition writes' <<<"$help"
+          if grep -Fq 'unsafe generic partition' <<<"$help"; then
+            echo "Unexpected unsafe generic-flash claim in help output" >&2
+            exit 1
+          fi
