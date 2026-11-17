@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 
-# --- Chimera II OS standard help ---
+# Help is kept in sync with the actual, fail-closed command interface below.
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   cat <<'CHIMERA_HELP'
-Chimera II OS script: mobile/flash/mobile-flash-tool.sh
+Chimera II OS Mobile Flash Tool
 
 Usage:
-  mobile/flash/mobile-flash-tool.sh [options] [arguments]
+  mobile/flash/mobile-flash-tool.sh --detect
+  mobile/flash/mobile-flash-tool.sh --discover
+  mobile/flash/mobile-flash-tool.sh --prepare [--arch aarch64|armv7|x86_64]
+  mobile/flash/mobile-flash-tool.sh --verify --manifest FILE
+  mobile/flash/mobile-flash-tool.sh --flash --device CODENAME --manifest FILE [--dry-run]
 
-Options:
-  -h, --help    Show this help and exit successfully.
-
-Notes:
-  This help entry is provided consistently across Chimera II OS shell tools.
-  The script's existing command-line interface and environment variables remain unchanged.
+Safety:
+  Preparation creates a reference-only payload; it is not a phone boot image.
+  Flashing requires an exact device manifest, matching image hashes, signed
+  images, explicit confirmation and an approved vendor transport adapter.
+  Generic partition writes and bootloader/authentication bypasses are disabled.
 CHIMERA_HELP
   exit 0
 fi
@@ -51,15 +54,47 @@ discover(){
 
 prepare(){
   local arch="aarch64"
-  while (($#)); do case "$1" in --arch) arch="$2"; shift 2;; *) usage; exit 2;; esac; done
+  while (($#)); do case "$1" in --arch) (($# >= 2)) || { usage; exit 2; }; arch="$2"; shift 2;; *) usage; exit 2;; esac; done
+  case "$arch" in aarch64|armv7|x86_64) ;; *) echo "Unsupported architecture: $arch" >&2; exit 2;; esac
   mkdir -p "$OUT/payload"
-  test -f "$KERNEL" || { echo "Koronos reference kernel not found: $KERNEL" >&2; exit 3; }
+  test -s "$KERNEL" || { echo "Koronos reference kernel not found: $KERNEL" >&2; exit 3; }
+  local host_arch
+  host_arch="$(python3 - "$KERNEL" <<'PY'
+import struct,sys
+p=sys.argv[1]
+with open(p,"rb") as f: h=f.read(20)
+if len(h)<20 or h[:4]!=b"\\x7fELF" or h[4]!=2 or h[5] not in (1,2):
+    raise SystemExit("Koronos reference kernel is not a supported ELF64 image")
+endian="<" if h[5]==1 else ">"
+machine=struct.unpack(endian+"H",h[18:20])[0]
+print({62:"x86_64",183:"aarch64",40:"armv7"}.get(machine,"unknown"))
+PY
+)"
   cp -f "$KERNEL" "$OUT/payload/koronos-reference-host.elf"
-  cat > "$OUT/payload/manifest.json" <<EOF
-{"schema":"CHM-MOBILE-PAYLOAD-2","architecture":"$arch","device_specific":true,"requires_signed_device_boot_bundle":true,"generic_partition_flash":false}
-EOF
+  python3 - "$OUT/payload/manifest.json" "$arch" "$host_arch" <<'PY'
+import json,sys
+path,target,host=sys.argv[1:]
+doc={
+ "schema":"CHM-MOBILE-REFERENCE-3",
+ "payload_kind":"reference-only-host-kernel",
+ "requested_device_architecture":target,
+ "reference_kernel_architecture":host,
+ "device_specific":False,
+ "bootable_phone_image":False,
+ "requires_exact_device_kernel_vendor_modules_and_authorized_avb_signing":True,
+ "generic_partition_flash":False,
+ "flash_enabled":False,
+ "limitations":[
+   "This ELF is the x86_64 Koronos host/reference kernel, not an Android boot image.",
+   "No device DTB/DTBO, vendor modules, partition image, AVB signature or device boot bundle is produced.",
+   "A matching architecture label does not establish device compatibility."
+ ]
+}
+with open(path,"w",encoding="utf-8") as f: json.dump(doc,f,indent=2); f.write("\\n")
+PY
   sha256sum "$OUT/payload/manifest.json" "$OUT/payload/koronos-reference-host.elf" > "$OUT/payload/SHA256SUMS"
-  echo "Prepared device-independent reference payload. It is not a phone boot image."
+  echo "Prepared reference-only payload (host ELF architecture: $host_arch; requested device architecture: $arch)."
+  echo "NOT FLASHABLE: exact-device kernel, vendor modules, boot metadata and authorized AVB signing are absent."
 }
 
 manifest_get(){
