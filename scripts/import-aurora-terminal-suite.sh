@@ -85,13 +85,24 @@ require_native_build_arch() {
   target="$(normalize_arch "$TARGET_ARCH")" || return 1
   [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
 }
+ensure_rust_toolchain() {
+  if ! have cargo; then
+    if ! have curl; then log "curl is required to install the pinned Rust toolchain"; return 1; fi
+    log "Installing Rust stable toolchain required by terminal source builds"
+    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+    [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  fi
+  [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  have cargo || { log "Rust cargo remains unavailable after toolchain setup"; return 1; }
+  rustup toolchain install stable --profile minimal
+}
 install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
 source_build(){
   require_native_build_arch || return 1;
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
+    alacritty) ensure_rust_toolchain || return 1; (cd "$src" && cargo +stable build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) if ! have rustup; then   log "Installing official rustup stable toolchain for WezTerm (Ubuntu archive Rust may be too old)";   have curl || { log "curl is required to bootstrap rustup"; return 1; };   curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable; fi; export PATH="$HOME/.cargo/bin:$PATH"; rustup toolchain install stable --profile minimal; (cd "$src" && cargo +stable build --release --bin wezterm-gui 2>&1 | tee "$CACHE/wezterm-build.log"); [[ -x "$src/target/release/wezterm-gui" ]] || { log "WezTerm did not produce target/release/wezterm-gui; see $CACHE/wezterm-build.log"; return 1; }; install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour)
       if ! find /usr /opt -name Qt6Config.cmake -print -quit 2>/dev/null | grep -q .; then
