@@ -372,7 +372,7 @@ cleanup_generated_docker_containers(){
     [[ -n "$container_id" ]] || continue
     docker rm -f "$container_id" >/dev/null 2>&1 || true
     log_info "Removed build-owned Docker export container: $container_id"
-  done < <(docker ps -aq --filter 'label=chimera.build.owner=build-chimera-iso')
+  done < <(docker ps -aq --filter "label=chimera.build.run=$BASHPID")
 }
 cleanup_docker_after_rootfs(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
@@ -608,7 +608,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" --label chimera.build.owner=build-chimera-iso --label chimera.build.role=rootfs-export "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --name "$cname" --label chimera.build.owner=build-chimera-iso --label "chimera.build.run=$BASHPID" --label chimera.build.role=rootfs-export "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
