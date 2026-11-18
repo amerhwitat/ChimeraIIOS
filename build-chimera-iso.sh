@@ -301,13 +301,15 @@ cleanup_generated_build_artifacts(){
   # final ISO verification). Preserve source assets, user media, logs, final ISO,
   # checksum, and reusable Koronos build products.
   local path
-  if [[ "$ROOTFS_DIR" == "$BUILD_DIR/"* || "$ROOTFS_DIR" == "$ISO_DIR/"* ]]; then
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 ]]; then
+    log_info "Preserving supplied prebuilt rootfs input: $ROOTFS_DIR"
+  elif [[ "$ROOTFS_DIR" == "$BUILD_DIR/"* || "$ROOTFS_DIR" == "$ISO_DIR/"* ]]; then
     rm -rf -- "$ROOTFS_DIR" 2>/dev/null || true
   else
     log_info "Preserving explicitly configured external rootfs directory: $ROOTFS_DIR"
   fi
   for path in \
-    "$ISO_DIR/rootfs" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/EFI" "$ISO_DIR/install" \
+    "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/EFI" "$ISO_DIR/install" \
     "$ISO_DIR/system" "$ISO_DIR/desktop" "$ISO_DIR/network" \
     "$ISO_DIR/drivers" "$ISO_DIR/games" \
     "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" \
