@@ -11,7 +11,7 @@ static void frame_trace(const char *message) {
         const uint8_t value = static_cast<uint8_t>(*message++);
         __asm__ volatile("outb %0, $0xE9" : : "a"(value));
     }
-    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\\n'));
+    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\n'));
 #else
     (void)message;
 #endif
