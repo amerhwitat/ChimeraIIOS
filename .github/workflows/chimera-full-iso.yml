@@ -8,6 +8,8 @@ on:
       - "boot/**"
       - "installer/**"
       - "desktop/**"
+      - "scripts/**"
+      - "tools/terminals/**"
       - "iso/**"
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-full-iso.sh"
