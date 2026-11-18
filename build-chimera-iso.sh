@@ -304,7 +304,9 @@ cleanup_generated_build_artifacts(){
     "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" \
     "$BUILD_DIR/aurora-artwork-library" "$BUILD_DIR/aurora-media" \
     "$BUILD_DIR/aurora-selected-artwork.png" "$BUILD_DIR/knowledge-db.json" \
-    "$BUILD_DIR/dos-online-discovery.json" "$ISO_TMP_DIR"; do
+    "$BUILD_DIR/dos-online-discovery.json" "$BUILD_DIR/.cache" "$BUILD_DIR/cache" \
+    "$BUILD_DIR/tmp" "$BUILD_DIR/temp" "$BUILD_DIR/scratch" "$BUILD_DIR/iso-cache" \
+    "$ISO_TMP_DIR"; do
     [[ -n "$path" ]] && rm -rf -- "$path" 2>/dev/null || true
   done
   find "$BUILD_DIR" -maxdepth 4 -type f \
