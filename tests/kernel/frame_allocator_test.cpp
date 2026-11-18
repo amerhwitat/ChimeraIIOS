@@ -11,12 +11,12 @@ extern "C" const chimera_boot_module *chimera_multiboot_module(uint32_t) { retur
 static void put32(uint8_t *p, uint32_t v) { memcpy(p, &v, sizeof(v)); }
 static void put64(uint8_t *p, uint64_t v) { memcpy(p, &v, sizeof(v)); }
 
-static size_t make_info(uint8_t *b, bool above4g, bool framebuffer) {
+static size_t make_info(uint8_t *b, bool above4g, bool framebuffer, bool large = false) {
     memset(b, 0, 256);
     size_t off = 8;
     put32(b + off, 6); put32(b + off + 4, above4g ? 64 : 40);
     put32(b + off + 8, 24); put32(b + off + 12, 0);
-    put64(b + off + 16, 0x100000); put64(b + off + 24, 0x3f00000);
+    put64(b + off + 16, 0x100000); put64(b + off + 24, large ? 0xf0000000ull : 0x3f00000ull);
     put32(b + off + 32, 1); put32(b + off + 36, 0);
     if (above4g) {
         put64(b + off + 40, 0x100000000ull); put64(b + off + 48, 0x100000);
@@ -42,6 +42,14 @@ static size_t make_info(uint8_t *b, bool above4g, bool framebuffer) {
 
 int main(int argc, char **argv) {
     uint8_t info[256];
+    if (argc > 1 && strcmp(argv[1], "large") == 0) {
+        make_info(info, false, false, true);
+        assert(koronos_frame_allocator_init(reinterpret_cast<uint64_t>(info), 0x100000, 0x200000) == 0);
+        /* 0xF0000000 bytes / 4-KiB frames, less the kernel and module. */
+        assert(koronos_frame_free_count() == 982528ull);
+        puts("frame allocator: large usable RAM range populated correctly");
+        return 0;
+    }
     if (argc > 1 && strcmp(argv[1], "above4g") == 0) {
         make_info(info, true, false);
         assert(koronos_frame_allocator_init(reinterpret_cast<uint64_t>(info), 0x100000, 0x200000) == -2);

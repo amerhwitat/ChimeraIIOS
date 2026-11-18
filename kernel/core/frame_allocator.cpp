@@ -4,6 +4,18 @@
 #include "chimera/multiboot_modules.h"
 
 namespace {
+static void frame_trace(const char *message) {
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+    if (!message) return;
+    while (*message) {
+        const uint8_t value = static_cast<uint8_t>(*message++);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(value));
+    }
+    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\n'));
+#else
+    (void)message;
+#endif
+}
 constexpr uint32_t PAGE_COUNT = static_cast<uint32_t>(KORONOS_FRAME_PHYS_LIMIT / KORONOS_FRAME_SIZE);
 constexpr uint32_t WORD_BITS = 32u;
 constexpr uint32_t BITMAP_WORDS = PAGE_COUNT / WORD_BITS;
@@ -28,6 +40,14 @@ static bool bit(const uint32_t *map, uint32_t i) {
 }
 static void set_bit(uint32_t *map, uint32_t i) { map[i / WORD_BITS] |= 1u << (i % WORD_BITS); }
 static void clear_bit(uint32_t *map, uint32_t i) { map[i / WORD_BITS] &= ~(1u << (i % WORD_BITS)); }
+static uint32_t popcount32(uint32_t value) {
+    value -= (value >> 1u) & 0x55555555u;
+    value = (value & 0x33333333u) + ((value >> 2u) & 0x33333333u);
+    value = (value + (value >> 4u)) & 0x0f0f0f0fu;
+    value += value >> 8u;
+    value += value >> 16u;
+    return value & 0x3fu;
+}
 
 static bool range_end(uint64_t start, uint64_t length, uint64_t *end) {
     if (!length || start > UINT64_MAX - length) return false;
@@ -56,12 +76,29 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
     uint64_t first = (start + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
     const uint64_t last = end / KORONOS_FRAME_SIZE;
     if (first < FIRST_ALLOCATABLE_PAGE) first = FIRST_ALLOCATABLE_PAGE;
-    for (uint64_t p = first; p < last; ++p) {
-        const uint32_t i = static_cast<uint32_t>(p);
-        if (!bit(free_bitmap, i) && !bit(allocated_bitmap, i)) {
-            set_bit(free_bitmap, i);
-            ++free_pages;
-        }
+    if (first >= last) return true;
+
+    /*
+     * Populate complete bitmap words instead of touching every 4-KiB page.
+     * A 4-GiB bootstrap window contains 1,048,576 pages; doing this work
+     * page-by-page for every Multiboot memory-map entry needlessly stalls
+     * early boot. Preserve any frames already reserved or allocated.
+     */
+    const uint64_t first_word = first / WORD_BITS;
+    const uint64_t end_word = (last + WORD_BITS - 1u) / WORD_BITS;
+    for (uint64_t word = first_word; word < end_word; ++word) {
+        const uint32_t low = (word == first_word)
+            ? static_cast<uint32_t>(first % WORD_BITS) : 0u;
+        const uint32_t high = (word == ((last - 1u) / WORD_BITS))
+            ? static_cast<uint32_t>(((last - 1u) % WORD_BITS) + 1u) : WORD_BITS;
+        const uint32_t low_mask = 0xffffffffu << low;
+        const uint32_t high_mask = (high == WORD_BITS)
+            ? 0xffffffffu : ((1u << high) - 1u);
+        const uint32_t mask = low_mask & high_mask;
+        const uint32_t index = static_cast<uint32_t>(word);
+        const uint32_t newly_free = mask & ~(free_bitmap[index] | allocated_bitmap[index]);
+        free_bitmap[index] |= newly_free;
+        free_pages += static_cast<uint64_t>(popcount32(newly_free));
     }
     return true;
 }
@@ -92,7 +129,14 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
                 const MmapEntry *entry = reinterpret_cast<const MmapEntry *>(base + off + pos);
                 uint64_t end = 0;
                 if (!range_end(entry->address, entry->length, &end)) return false;
-                if (entry->type == 1u && !add_usable_range(entry->address, entry->length)) return false;
+                if (entry->type == 1u) {
+                    frame_trace("FA:usable-range-enter");
+                    if (!add_usable_range(entry->address, entry->length)) {
+                        frame_trace("FA:usable-range-reject");
+                        return false;
+                    }
+                    frame_trace("FA:usable-range-done");
+                }
             }
             found_map = true;
         } else if (tag->type == MB2_TAG_FRAMEBUFFER) {
@@ -144,22 +188,31 @@ static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
 }
 
 extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base, uint64_t kernel_end) {
-    if (initialized) return -1;
+    frame_trace("FA:init-enter");
+    if (initialized) { frame_trace("FA:already-initialized"); return -1; }
     for (uint32_t i = 0; i < BITMAP_WORDS; ++i) {
         free_bitmap[i] = 0;
         allocated_bitmap[i] = 0;
     }
     free_pages = 0;
     allocator_lock = 0;
+    frame_trace("FA:bitmaps-cleared");
     uint32_t info_size = 0;
-    if (!parse_multiboot(info, &info_size)) return -2;
+    frame_trace("FA:parse-multiboot-enter");
+    if (!parse_multiboot(info, &info_size)) { frame_trace("FA:parse-multiboot-failed"); return -2; }
+    frame_trace("FA:parse-multiboot-done");
     if (kernel_base < 0x100000u || kernel_end <= kernel_base ||
         kernel_end > KORONOS_FRAME_PHYS_LIMIT) return -3;
 
+    frame_trace("FA:reserve-low-memory");
     reserve_range(0, 0x100000u);
+    frame_trace("FA:reserve-kernel");
     reserve_range(kernel_base, kernel_end - kernel_base);
+    frame_trace("FA:reserve-boot-info");
     reserve_range(info, info_size);
-    if (!reserve_multiboot_modules(info, info_size)) return -5;
+    frame_trace("FA:reserve-modules-enter");
+    if (!reserve_multiboot_modules(info, info_size)) { frame_trace("FA:reserve-modules-failed"); return -5; }
+    frame_trace("FA:reserve-modules-done");
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
         if (!module || !module->size) continue;
@@ -167,6 +220,7 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     }
     if (!free_pages) return -4;
     initialized = true;
+    frame_trace("FA:init-complete");
     return 0;
 }
 
