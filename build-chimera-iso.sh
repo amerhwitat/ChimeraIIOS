@@ -16,7 +16,8 @@ Options:
   --storage-auto              Automatically select a writable build-storage location when needed.
   --storage PATH              Place build intermediates and ISO output under PATH.
   --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
-  --no-docker                 Skip Docker entirely; use an already-populated rootfs at CHIMERA_ROOTFS_DIR (or the default build rootfs path).
+  --no-docker                 Skip Docker entirely; use an already-populated rootfs.
+  --rootfs PATH               Use PATH as the prepared rootfs input (also settable with CHIMERA_ROOTFS_DIR).
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
   --push                      Push to Docker Hub; after rootfs export, clear all local Docker containers, images and caches.
@@ -128,6 +129,7 @@ ISO_VERSION="1.0.0"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$SCRIPT_DIR/build}"
 ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
+ROOTFS_INPUT_DIR="${CHIMERA_ROOTFS_DIR:-}"
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 # Compiler/linker scratch files belong on WSL's Linux filesystem, not /mnt/<drive> (DrvFs).
@@ -242,6 +244,7 @@ while [[ $# -gt 0 ]]; do
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --no-docker) BUILD_DOCKER=0; SKIP_DOCKER_PIPELINE=1; shift;;
+    --rootfs) [[ -n "${2:-}" ]] || { log_error "--rootfs requires a path"; exit 2; }; ROOTFS_INPUT_DIR="$2"; shift 2;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
     --full) FULL_BUILD=1; shift;;
@@ -503,6 +506,10 @@ choose_storage(){
 }
 preflight(){
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 && -n "$ROOTFS_INPUT_DIR" ]]; then
+    ROOTFS_DIR="$ROOTFS_INPUT_DIR"
+    export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR"
+  fi
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
   header 'CPU / MEDIA PROFILE'
   log_info "Detected build-host CPU: $HOST_ARCH"
@@ -510,15 +517,22 @@ preflight(){
   log_info "Media filesystem profile: $MEDIA_FS_PROFILE (ISO9660/El Torito + SquashFS rootfs)"
   log_info "SquashFS worker count: ${CHIMERA_SQUASHFS_PROCESSORS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2)}"
   header 'LARGE ISO / STORAGE PREFLIGHT'
-  local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
+  local rg=20 og="$(free_gib "$ISO_OUTPUT_DIR")"
+  if [[ "$SKIP_DOCKER_PIPELINE" == 0 ]]; then rg="$(free_gib "$ROOTFS_DIR")"; fi
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
-  if ((rg<20 || og<20)); then
+  if (( (SKIP_DOCKER_PIPELINE == 0 && rg<20) || og<20 )); then
     if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable writable storage with enough free space found'; log_error 'A read-only /mnt drive is never selected automatically.'; exit 1; }
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
       export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
+  fi
+  # Storage selection can change ROOTFS_DIR; restore an explicit prepared-rootfs
+  # path afterwards so --storage-auto only relocates build outputs, not inputs.
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 && -n "$ROOTFS_INPUT_DIR" ]]; then
+    ROOTFS_DIR="$ROOTFS_INPUT_DIR"
+    export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR"
   fi
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
   # Network research is opt-in; failures do not silently promote support claims.
@@ -1692,6 +1706,10 @@ stage_terminal_shell_suite(){
 }
 
 main(){
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 && "$BUILD_ISO" == 0 ]]; then
+    log_error "--no-docker cannot be combined with --docker-only."
+    return 2
+  fi
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
   if [[ "$BUILD_ISO" == 0 ]]; then
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
@@ -1707,10 +1725,6 @@ main(){
     return 0
   fi
   if [[ "$SKIP_DOCKER_PIPELINE" == 1 ]]; then
-    if [[ "$BUILD_ISO" == 0 ]]; then
-      log_error "--no-docker cannot be combined with --docker-only."
-      return 2
-    fi
     if [[ ! -d "$ROOTFS_DIR/etc" || ( ! -d "$ROOTFS_DIR/bin" && ! -d "$ROOTFS_DIR/usr/bin" ) ]]; then
       log_error "--no-docker requires an existing populated rootfs with /etc and /bin or /usr/bin: $ROOTFS_DIR"
       log_error "Set CHIMERA_ROOTFS_DIR to the prepared rootfs directory, or use the default $BUILD_DIR/rootfs."
