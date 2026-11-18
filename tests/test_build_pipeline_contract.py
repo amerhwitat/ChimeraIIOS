@@ -39,6 +39,9 @@ class BuildPipelineContractTests(unittest.TestCase):
         self.assertIn('Docker checks skipped by --no-docker', self.script)
         self.assertIn('Skipping Docker stage \'$stage\' by --no-docker', self.script)
         self.assertIn('local required_tools=(cpio grub-mkrescue xorriso mksquashfs)', self.script)
+        self.assertIn('--rootfs PATH               Use PATH as the prepared rootfs input', self.script)
+        self.assertIn('ROOTFS_DIR="$ROOTFS_INPUT_DIR"', self.script)
+        self.assertIn('Preserving supplied prebuilt rootfs input:', self.script)
 
     def test_rootfs_is_exported_once_by_the_named_container_path(self):
         self.assertIn('docker export "$cname"', self.script)
