@@ -416,7 +416,12 @@ cleanup_docker_after_rootfs(){
   fi
   docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
   if docker buildx version >/dev/null 2>&1; then
-    docker buildx prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    local builders builder
+    builders="$(docker buildx ls --format '{{.Name}}' 2>/dev/null | sort -u || true)"
+    while IFS= read -r builder; do
+      [[ -n "$builder" ]] || continue
+      docker buildx prune --builder "$builder" --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    done <<< "$builders"
   fi
   docker system prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
   docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
