@@ -21,6 +21,29 @@ struct Tag { uint32_t type, size; };
 struct MmapTag { uint32_t type, size, entry_size, entry_version; };
 struct MmapEntry { uint64_t address, length; uint32_t type, reserved; };
 
+static void frame_debug(const char *message) {
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+    while (message && *message) {
+        const uint8_t byte = static_cast<uint8_t>(*message++);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(byte));
+    }
+#else
+    (void)message;
+#endif
+}
+static void frame_debug_u32(const char *label, uint32_t value) {
+    static const char digits[] = "0123456789ABCDEF";
+    frame_debug(label);
+    for (int shift = 28; shift >= 0; shift -= 4) {
+        const uint8_t byte = static_cast<uint8_t>(digits[(value >> shift) & 0xFu]);
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+        __asm__ volatile("outb %0, $0xE9" : : "a"(byte));
+#else
+        (void)byte;
+#endif
+    }
+    frame_debug("\n");
+}
 static void lock() { while (__sync_lock_test_and_set(&allocator_lock, 1u)) {} }
 static void unlock() { __sync_lock_release(&allocator_lock); }
 static bool bit(const uint32_t *map, uint32_t i) {
@@ -48,11 +71,20 @@ static void reserve_range(uint64_t start, uint64_t length) {
 }
 static bool add_usable_range(uint64_t start, uint64_t length) {
     uint64_t end = 0;
-    if (!range_end(start, length, &end)) return false;
+    if (!range_end(start, length, &end)) {
+        frame_debug("[FRM] invalid usable range\n");
+        return false;
+    }
     /* Explicitly reject rather than silently discard RAM the allocator cannot
        address under the current bootstrap mapping contract. */
-    if (end > KORONOS_FRAME_PHYS_LIMIT) return false;
-    if (start >= KORONOS_FRAME_PHYS_LIMIT) return false;
+    if (end > KORONOS_FRAME_PHYS_LIMIT) {
+        frame_debug("[FRM] usable RAM extends beyond mapped limit\n");
+        return false;
+    }
+    if (start >= KORONOS_FRAME_PHYS_LIMIT) {
+        frame_debug("[FRM] usable RAM starts beyond mapped limit\n");
+        return false;
+    }
     uint64_t first = (start + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
     const uint64_t last = end / KORONOS_FRAME_SIZE;
     if (first < FIRST_ALLOCATABLE_PAGE) first = FIRST_ALLOCATABLE_PAGE;
@@ -66,17 +98,35 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
     return true;
 }
 static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
-    if (!info || !total_out) return false;
+    frame_debug("[FRM] multiboot parse enter\n");
+    if (!info || !total_out) {
+        frame_debug("[FRM] invalid multiboot pointer\n");
+        return false;
+    }
     const uint8_t *base = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(info));
     const uint32_t total = *reinterpret_cast<const uint32_t *>(base);
-    if (total < 16u || total > 16u * 1024u * 1024u) return false;
+    if (total < 16u || total > 16u * 1024u * 1024u) {
+        frame_debug("[FRM] invalid multiboot total size\n");
+        return false;
+    }
+    frame_debug("[FRM] multiboot tag scan begin\n");
     bool found_map = false, found_end = false;
     uint64_t framebuffer_base[8]{};
     uint64_t framebuffer_size[8]{};
     uint32_t framebuffer_count = 0;
+    uint32_t tag_count = 0;
     for (uint32_t off = 8u; off <= total - 8u;) {
+        if (++tag_count > 65536u) {
+            frame_debug("[FRM] tag-count limit exceeded\n");
+            return false;
+        }
         const Tag *tag = reinterpret_cast<const Tag *>(base + off);
-        if (tag->size < 8u || tag->size > total - off) return false;
+        frame_debug_u32("[FRM] tag type=0x", tag->type);
+        frame_debug_u32("[FRM] tag size=0x", tag->size);
+        if (tag->size < 8u || tag->size > total - off) {
+            frame_debug("[FRM] malformed tag size\n");
+            return false;
+        }
         if (tag->type == MB2_TAG_END) {
             if (tag->size != 8u) return false;
             found_end = true;
@@ -85,15 +135,40 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
         if (tag->type == MB2_TAG_MMAP) {
             if (found_map || tag->size < sizeof(MmapTag)) return false;
             const MmapTag *m = reinterpret_cast<const MmapTag *>(tag);
-            if (m->entry_version != 0u || m->entry_size < sizeof(MmapEntry)) return false;
-            const uint32_t bytes = tag->size - sizeof(MmapTag);
-            if (bytes % m->entry_size) return false;
-            for (uint32_t pos = sizeof(MmapTag); pos < tag->size; pos += m->entry_size) {
-                const MmapEntry *entry = reinterpret_cast<const MmapEntry *>(base + off + pos);
-                uint64_t end = 0;
-                if (!range_end(entry->address, entry->length, &end)) return false;
-                if (entry->type == 1u && !add_usable_range(entry->address, entry->length)) return false;
+            frame_debug_u32("[FRM] mmap entry-size=0x", m->entry_size);
+            if (m->entry_version != 0u || m->entry_size < sizeof(MmapEntry) || m->entry_size > 4096u) {
+                frame_debug("[FRM] invalid mmap entry version or size\n");
+                return false;
             }
+            const uint32_t bytes = tag->size - sizeof(MmapTag);
+            frame_debug_u32("[FRM] mmap payload-bytes=0x", bytes);
+            if (bytes % m->entry_size) {
+                frame_debug("[FRM] mmap payload is not entry-aligned\n");
+                return false;
+            }
+            uint32_t entry_count = 0;
+            for (uint32_t pos = sizeof(MmapTag); pos < tag->size; pos += m->entry_size) {
+                if (++entry_count > 4096u) {
+                    frame_debug("[FRM] mmap entry-count limit exceeded\n");
+                    return false;
+                }
+                const MmapEntry *entry = reinterpret_cast<const MmapEntry *>(base + off + pos);
+                frame_debug("[FRM] mmap entry begin\n");
+                uint64_t end = 0;
+                if (!range_end(entry->address, entry->length, &end)) {
+                    frame_debug("[FRM] invalid mmap entry range\n");
+                    return false;
+                }
+                if (entry->type == 1u) {
+                    frame_debug("[FRM] usable range begin\n");
+                    if (!add_usable_range(entry->address, entry->length)) {
+                        frame_debug("[FRM] usable range rejected\n");
+                        return false;
+                    }
+                    frame_debug("[FRM] usable range complete\n");
+                }
+            }
+            frame_debug("[FRM] mmap tag complete\n");
             found_map = true;
         } else if (tag->type == MB2_TAG_FRAMEBUFFER) {
             if (tag->size < 32u) return false;
@@ -115,10 +190,15 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
         if (next <= off || next > total) return false;
         off = static_cast<uint32_t>(next);
     }
-    if (!found_map || !found_end) return false;
+    if (!found_map || !found_end) {
+        frame_debug("[FRM] mmap or end tag missing\n");
+        return false;
+    }
+    frame_debug("[FRM] multiboot tag scan complete\n");
     for (uint32_t i = 0; i < framebuffer_count; ++i)
         reserve_range(framebuffer_base[i], framebuffer_size[i]);
     *total_out = total;
+    frame_debug("[FRM] multiboot parse complete\n");
     return true;
 }
 static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
@@ -144,7 +224,11 @@ static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
 }
 
 extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base, uint64_t kernel_end) {
-    if (initialized) return -1;
+    frame_debug("[FRM] allocator init enter\n");
+    if (initialized) {
+        frame_debug("[FRM] allocator already initialized\n");
+        return -1;
+    }
     for (uint32_t i = 0; i < BITMAP_WORDS; ++i) {
         free_bitmap[i] = 0;
         allocated_bitmap[i] = 0;
@@ -152,21 +236,37 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     free_pages = 0;
     allocator_lock = 0;
     uint32_t info_size = 0;
-    if (!parse_multiboot(info, &info_size)) return -2;
+    if (!parse_multiboot(info, &info_size)) {
+        frame_debug("[FRM] allocator parse failed\n");
+        return -2;
+    }
+    frame_debug("[FRM] allocator parse passed\n");
     if (kernel_base < 0x100000u || kernel_end <= kernel_base ||
-        kernel_end > KORONOS_FRAME_PHYS_LIMIT) return -3;
+        kernel_end > KORONOS_FRAME_PHYS_LIMIT) {
+        frame_debug("[FRM] invalid kernel reservation bounds\n");
+        return -3;
+    }
 
     reserve_range(0, 0x100000u);
     reserve_range(kernel_base, kernel_end - kernel_base);
     reserve_range(info, info_size);
-    if (!reserve_multiboot_modules(info, info_size)) return -5;
+    frame_debug("[FRM] reserving multiboot modules\n");
+    if (!reserve_multiboot_modules(info, info_size)) {
+        frame_debug("[FRM] module reservation failed\n");
+        return -5;
+    }
+    frame_debug("[FRM] module reservation complete\n");
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
         if (!module || !module->size) continue;
         reserve_range(module->base, module->size);
     }
-    if (!free_pages) return -4;
+    if (!free_pages) {
+        frame_debug("[FRM] no free pages after reservations\n");
+        return -4;
+    }
     initialized = true;
+    frame_debug("[FRM] allocator init complete\n");
     return 0;
 }
 

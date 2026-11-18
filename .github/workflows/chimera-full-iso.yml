@@ -40,7 +40,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   CHIMERA_FETCH_SOURCES: "0"
@@ -68,12 +68,28 @@ jobs:
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
 
-      - name: Build ASM/C/C++ and compose ISO
+      - name: Run canonical clean-state Docker ISO builder
         env:
           CHIMERA_AURORA_BACKGROUND: ""
+          CHIMERA_FETCH_SOURCES: "0"
+          CHIMERA_DOCKER_CLEANUP: "1"
         run: |
-          chmod +x iso/chimera-live-iso.sh tools/build-full-iso.sh
-          ./tools/build-full-iso.sh
+          set -euo pipefail
+          chmod +x build-chimera-iso.sh
+          bash -n build-chimera-iso.sh
+          sudo env CHIMERA_FETCH_SOURCES=0 CHIMERA_DOCKER_CLEANUP=1 \
+            ./build-chimera-iso.sh --clean-state --storage-auto --no-storage-prompt
+          iso="$(find /root /home/runner /mnt /tmp -maxdepth 7 -type f \
+            -name 'ChimeraIIOS-comprehensive-1.0.0-x86_64.iso' -print -quit 2>/dev/null)"
+          test -n "$iso" && test -s "$iso" || {
+            echo "::error::Canonical builder did not produce ChimeraIIOS-comprehensive-1.0.0-x86_64.iso"
+            find /root /home/runner /mnt /tmp -maxdepth 7 -type f -name '*.iso' -print 2>/dev/null | head -n 50
+            exit 1
+          }
+          mkdir -p build/iso
+          cp "$iso" build/iso/chimera-ii-os.iso
+          sha256sum build/iso/chimera-ii-os.iso > build/iso/chimera-ii-os.iso.sha256
+          sha256sum -c build/iso/chimera-ii-os.iso.sha256
 
       - name: Validate ISO artifacts
         run: |
@@ -270,7 +286,7 @@ jobs:
           done
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
+            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching user readiness -> kernel-verified persistent PID 1 ACTIVE markers."
           else
             echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
           fi
