@@ -1,0 +1,101 @@
+name: Canonical ChimeraIIOS clean ISO build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "build-chimera-iso.sh"
+      - "Dockerfile.comprehensive"
+      - "docker/**"
+      - "tools/**"
+      - "kernel/**"
+      - "boot/**"
+      - "system/**"
+      - "desktop/**"
+      - "installer/**"
+      - ".github/workflows/canonical-clean-iso.yml"
+  push:
+    branches: [main]
+    paths:
+      - "build-chimera-iso.sh"
+      - "Dockerfile.comprehensive"
+      - "docker/**"
+      - "tools/**"
+      - "kernel/**"
+      - "boot/**"
+      - "system/**"
+      - "desktop/**"
+      - "installer/**"
+      - ".github/workflows/canonical-clean-iso.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chimera-canonical-iso-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  canonical-iso:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reclaim runner disk and install ISO build dependencies
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/share/boost /usr/local/share/chromium || true
+          sudo apt-get clean
+          sudo apt-get update
+          sudo apt-get install -y gettext libfontconfig1-dev libfreetype-dev libxcb-xfixes0-dev libxkbcommon-dev libwayland-dev libx11-dev cpio grub-pc-bin grub-efi-amd64-bin grub-common grub2-common xorriso squashfs-tools busybox-static mtools dosfstools nasm
+          docker info
+          df -h
+
+      - name: Validate canonical builder and regression contracts
+        run: |
+          set -euo pipefail
+          bash -n ./build-chimera-iso.sh
+          bash tests/build/test_cpu_aware_iso.sh
+
+      - name: Run the requested canonical clean storage-auto build
+        env:
+          CHIMERA_BUILD_STORAGE_ROOT: ${{ runner.temp }}/chimera-storage
+          CHIMERA_HOST_TMPDIR: ${{ runner.temp }}/chimera-host-tmp
+          CHIMERA_FETCH_SOURCES: "0"
+          CHIMERA_VERBOSE: "1"
+          CHIMERA_CAPTURE_CONSOLE: "1"
+        run: |
+          set -euo pipefail
+          mkdir -p "$CHIMERA_BUILD_STORAGE_ROOT" "$CHIMERA_HOST_TMPDIR"
+          ./build-chimera-iso.sh --clean-state --storage-auto
+
+      - name: Verify and stage canonical ISO artifact
+        if: success()
+        env:
+          CHIMERA_BUILD_STORAGE_ROOT: ${{ runner.temp }}/chimera-storage
+        run: |
+          set -euo pipefail
+          output="$CHIMERA_BUILD_STORAGE_ROOT/chimera-output"
+          iso="$(find "$output" -maxdepth 1 -type f -name '*.iso' -print -quit)"
+          test -n "$iso" && test -s "$iso"
+          mkdir -p dist
+          cp "$iso" dist/chimera-iios-comprehensive-amd64.iso
+          sha256sum dist/chimera-iios-comprehensive-amd64.iso | tee dist/chimera-iios-comprehensive-amd64.iso.sha256
+          sha256sum -c dist/chimera-iios-comprehensive-amd64.iso.sha256
+          file dist/chimera-iios-comprehensive-amd64.iso
+          cp -a "$CHIMERA_BUILD_STORAGE_ROOT/chimera-build/logs" dist/build-logs
+          test -s build-report.txt && cp build-report.txt dist/ || true
+
+      - name: Upload canonical ISO and build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-iios-canonical-iso-${{ github.sha }}
+          path: |
+            dist/chimera-iios-comprehensive-amd64.iso
+            dist/chimera-iios-comprehensive-amd64.iso.sha256
+            dist/build-logs/**
+            dist/build-report.txt
+          if-no-files-found: warn
+          retention-days: 30

@@ -31,6 +31,18 @@ class BuildPipelineContractTests(unittest.TestCase):
         self.assertIn('Skipping Docker build for --iso-only', self.script)
         self.assertIn('Skipping Docker publish for --iso-only', self.script)
 
+    def test_no_docker_mode_uses_prebuilt_rootfs_without_touching_docker(self):
+        self.assertIn('--no-docker                 Skip Docker entirely;', self.script)
+        self.assertIn('--no-docker) BUILD_DOCKER=0; SKIP_DOCKER_PIPELINE=1; shift;;', self.script)
+        self.assertIn('if [[ "$SKIP_DOCKER_PIPELINE" == 1 ]]; then', self.script)
+        self.assertIn('requires an existing populated rootfs with /etc and /bin or /usr/bin', self.script)
+        self.assertIn('Docker checks skipped by --no-docker', self.script)
+        self.assertIn('Skipping Docker stage \'$stage\' by --no-docker', self.script)
+        self.assertIn('local required_tools=(cpio grub-mkrescue xorriso mksquashfs)', self.script)
+        self.assertIn('--rootfs PATH               Use PATH as the prepared rootfs input', self.script)
+        self.assertIn('ROOTFS_DIR="$ROOTFS_INPUT_DIR"', self.script)
+        self.assertIn('Preserving supplied prebuilt rootfs input:', self.script)
+
     def test_rootfs_is_exported_once_by_the_named_container_path(self):
         self.assertIn('docker export "$cname"', self.script)
         self.assertNotIn('chimera_export_docker_rootfs "$DOCKER_IMAGE:$DOCKER_TAG"', self.script)

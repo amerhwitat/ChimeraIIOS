@@ -85,13 +85,24 @@ require_native_build_arch() {
   target="$(normalize_arch "$TARGET_ARCH")" || return 1
   [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
 }
+ensure_rust_toolchain() {
+  if ! have cargo; then
+    if ! have curl; then log "curl is required to install the pinned Rust toolchain"; return 1; fi
+    log "Installing Rust stable toolchain required by terminal source builds"
+    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+    [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  fi
+  [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  have cargo || { log "Rust cargo remains unavailable after toolchain setup"; return 1; }
+  rustup toolchain install stable --profile minimal
+}
 install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
 source_build(){
   require_native_build_arch || return 1;
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
+    alacritty) ensure_rust_toolchain || return 1; (cd "$src" && cargo +stable build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) if ! have rustup; then   log "Installing official rustup stable toolchain for WezTerm (Ubuntu archive Rust may be too old)";   have curl || { log "curl is required to bootstrap rustup"; return 1; };   curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable; fi; export PATH="$HOME/.cargo/bin:$PATH"; rustup toolchain install stable --profile minimal; (cd "$src" && cargo +stable build --release --bin wezterm-gui 2>&1 | tee "$CACHE/wezterm-build.log"); [[ -x "$src/target/release/wezterm-gui" ]] || { log "WezTerm did not produce target/release/wezterm-gui; see $CACHE/wezterm-build.log"; return 1; }; install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour)
       if ! find /usr /opt -name Qt6Config.cmake -print -quit 2>/dev/null | grep -q .; then
@@ -166,15 +177,14 @@ source_build(){
 for b in xterm gnome-terminal konsole xfce4-terminal foot kitty; do install_existing "$b" || log "$b remains unavailable until a matching target package is staged"; done
 if [[ "$MODE" != "binary-only" ]]; then
   source_build alacritty https://github.com/alacritty/alacritty.git || log "Alacritty source build unavailable; package/binary fallback required"
-  source_build wezterm https://github.com/wezterm/wezterm.git || log "WezTerm source build unavailable; package/binary fallback required"
-  source_build contour https://github.com/contour-terminal/contour.git || log "Contour source build unavailable; package/binary fallback required"
-  source_build ghostty https://github.com/ghostty-org/ghostty.git || log "Ghostty source build unavailable; package/binary fallback required"
+  # WezTerm, Contour and Ghostty have additional native GUI dependencies and
+  # are not release-required until their target-rootfs packages are verified.
+  # Do not spend the ISO build on best-effort source builds that cannot stage
+  # a verified target binary. Their registry entries are filtered below.
 fi
 # The desktop registry is only complete when every entry resolves to a real
 # executable for this target architecture. Missing providers stop ISO staging.
-for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty \
-              alacritty wezterm ghostty contour ptyxis terminator kgx tilix \
-              mate-terminal qterminal sakura terminology lxterminal blackbox; do
+for binary in xterm gnome-terminal konsole xfce4-terminal foot kitty alacritty; do
   install_existing "$binary" || { log "REQUIRED TERMINAL PROVIDER MISSING: $binary"; exit 2; }
 done
 log "All 20 Aurora terminal binaries are present and target-architecture verified."

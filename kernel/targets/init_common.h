@@ -99,3 +99,11 @@ static void init_emit_readiness(long pid) {
     message[used++] = '\n';
     (void)init_write(1, message, used);
 }
+
+
+/* PID 1 remains resident after its user-originated readiness handshake.
+ * This is a bootstrap residency guarantee, not a scheduler or service manager.
+ * PAUSE avoids a hot busy loop; preemptive scheduling is still a separate gate. */
+__attribute__((noreturn)) static void init_pid1_wait(void) {
+    for (;;) __asm__ volatile("pause" ::: "memory");
+}

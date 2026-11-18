@@ -16,8 +16,17 @@ Options:
   --storage-auto              Automatically select a writable build-storage location when needed.
   --storage PATH              Place build intermediates and ISO output under PATH.
   --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
+  --no-docker                 Skip Docker entirely; use an already-populated rootfs.
+  --rootfs PATH               Use PATH as the prepared rootfs input (also settable with CHIMERA_ROOTFS_DIR).
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
+  --push                      Push to Docker Hub; after rootfs export, clear all local Docker containers, images and caches.
+
+Cleanup controls:
+  CHIMERA_DOCKER_CLEANUP=0       Disable the post-export/push global Docker cleanup.
+  Default after successful rootfs export AND --push: remove ALL local containers,
+  ALL local images, and Docker BuildKit/buildx caches across this shared daemon.
+  This is destructive to other projects using the same Docker daemon. Volumes are preserved.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -120,6 +129,8 @@ ISO_VERSION="1.0.0"
 BUILD_DIR="${CHIMERA_BUILD_DIR:-$SCRIPT_DIR/build}"
 ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
+ROOTFS_INPUT_DIR="${CHIMERA_ROOTFS_DIR:-}"
+ROOTFS_OPTION_SET=0
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 # Compiler/linker scratch files belong on WSL's Linux filesystem, not /mnt/<drive> (DrvFs).
@@ -137,8 +148,11 @@ STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
+CHIMERA_DOCKERHUB_PUSHED=0
+CHIMERA_ROOTFS_EXPORTED=0
 BUILD_DOCKER=1
 BUILD_ISO=1
+SKIP_DOCKER_PIPELINE=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -230,6 +244,8 @@ while [[ $# -gt 0 ]]; do
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
+    --no-docker) BUILD_DOCKER=0; SKIP_DOCKER_PIPELINE=1; shift;;
+    --rootfs) [[ -n "${2:-}" ]] || { log_error "--rootfs requires a path"; exit 2; }; ROOTFS_INPUT_DIR="$2"; ROOTFS_OPTION_SET=1; shift 2;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
     --full) FULL_BUILD=1; shift;;
@@ -248,6 +264,13 @@ while [[ $# -gt 0 ]]; do
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# The explicit --rootfs option is an input contract for --no-docker; the
+# CHIMERA_ROOTFS_DIR environment variable retains its existing Docker-build meaning.
+if [[ "$ROOTFS_OPTION_SET" == 1 && "$SKIP_DOCKER_PIPELINE" != 1 ]]; then
+  log_error "--rootfs is intended for --no-docker; use CHIMERA_ROOTFS_DIR to override the Docker-export destination."
+  exit 2
+fi
 
 # Apply full-build invariants after parsing so option order cannot re-enable resume.
 if [[ "$FULL_BUILD" == 1 ]]; then
@@ -282,29 +305,34 @@ free_bytes(){
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
 docker_image_bytes(){ docker image inspect "$1" --format '{{.Size}}' 2>/dev/null | awk 'NR==1{print $1+0}'; }
 cleanup_generated_build_artifacts(){
-  # Remove only build-owned intermediate artifacts. Never touch repository
-  # source/assets, the final ISO/checksum, or explicitly supplied media.
-  rm -rf -- \
-    "$ISO_DIR/rootfs" \
-    "$ISO_DIR/live" \
-    "$ISO_DIR/boot" \
-    "$ISO_DIR/install" \
-    "$ISO_DIR/system" \
-    "$ISO_DIR/desktop" \
-    "$ISO_DIR/network" \
-    "$ISO_DIR/drivers" \
-    "$ISO_DIR/games" \
-    "$BUILD_DIR/boot-artifacts" \
-    "$BUILD_DIR/live-boot" \
-    "$BUILD_DIR/emulators" \
-    "$ISO_TMP_DIR" 2>/dev/null || true
-  find "$BUILD_DIR" -maxdepth 3 -type f \
-    \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' -o -name '*.lock' \) \
+  # Clear generated staging/intermediates from prior runs (also called after
+  # final ISO verification). Preserve source assets, user media, logs, final ISO,
+  # checksum, and reusable Koronos build products.
+  local path
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 ]]; then
+    log_info "Preserving supplied prebuilt rootfs input: $ROOTFS_DIR"
+  elif [[ "$ROOTFS_DIR" == "$BUILD_DIR/"* || "$ROOTFS_DIR" == "$ISO_DIR/"* ]]; then
+    rm -rf -- "$ROOTFS_DIR" 2>/dev/null || true
+  else
+    log_info "Preserving explicitly configured external rootfs directory: $ROOTFS_DIR"
+  fi
+  for path in \
+    "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/EFI" "$ISO_DIR/install" \
+    "$ISO_DIR/system" "$ISO_DIR/desktop" "$ISO_DIR/network" \
+    "$ISO_DIR/drivers" "$ISO_DIR/games" \
+    "$BUILD_DIR/boot-artifacts" "$BUILD_DIR/live-boot" "$BUILD_DIR/emulators" \
+    "$BUILD_DIR/aurora-artwork-library" "$BUILD_DIR/aurora-media" \
+    "$BUILD_DIR/aurora-selected-artwork.png" "$BUILD_DIR/knowledge-db.json" \
+    "$BUILD_DIR/dos-online-discovery.json" "$BUILD_DIR/.cache" "$BUILD_DIR/cache" \
+    "$BUILD_DIR/tmp" "$BUILD_DIR/temp" "$BUILD_DIR/scratch" "$BUILD_DIR/iso-cache" \
+    "$ISO_TMP_DIR"; do
+    [[ -n "$path" ]] && rm -rf -- "$path" 2>/dev/null || true
+  done
+  find "$BUILD_DIR" -maxdepth 4 -type f \
+    \( -name '*.tmp' -o -name '*.partial' -o -name '*.part' \
+       -o -name '*.lock' -o -name '*.swp' -o -name '*~' \) \
     -delete 2>/dev/null || true
-  # Remove empty build-owned directories left after the sweep.
   find "$ISO_DIR" -depth -type d -empty -delete 2>/dev/null || true
-  # Do not prune global Docker state: stopped containers may belong to other projects.
-  # Build-owned export containers are removed by their explicit labels/lifecycle.
 }
 cleanup_final_success_artifacts(){
   [[ "$BUILD_SUCCEEDED" == 1 ]] || return 0
@@ -315,57 +343,105 @@ cleanup_final_success_artifacts(){
   log_success "Unused generated build artifacts removed; final ISO/checksum retained."
 }
 docker_image_in_use(){
-  local image="$1"
-  docker ps -aq --filter "ancestor=$image" | grep -q .
+  local image_id="$1"
+  [[ -n "$image_id" ]] || return 1
+  docker ps -aq --filter "ancestor=$image_id" | grep -q .
 }
 cleanup_generated_docker_image(){
-  local image="$1" image_id="$2" tagged=""
+  [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || { log_info "Build-owned Docker image cleanup disabled by CHIMERA_DOCKER_CLEANUP=0"; return 0; }
+  local image="$1" image_id="$2" ref target target_tag
   [[ -n "$image_id" ]] || return 0
-  if docker_image_in_use "$image"; then
-    log_warning "Keeping Docker image $image because a container still references it."
+  if docker_image_in_use "$image_id"; then
+    log_warning "Keeping build image $image ($image_id): a container still references it."
     return 0
   fi
-  # Remove every local tag that points at the image created by this build.
-  while read -r tagged; do
-    [[ -n "$tagged" ]] || continue
-    docker image rm -f "$tagged" >/dev/null 2>&1 || true
-  done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk -v id="$image_id" '$2==id{print $1}')
+  # Remove only tags this invocation assigned; never erase other repositories'
+  # references even if their content happens to have the same immutable image ID.
+  local refs=("$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest")
+  if [[ "${CHIMERA_PUSH:-0}" == 1 ]]; then
+    target="${CHIMERA_DOCKERHUB_IMAGE:-docker.io/amerhwitat/chimeraiios}"
+    target_tag="${CHIMERA_DOCKERHUB_TAG:-$DOCKER_TAG}"
+    refs+=("$target:$target_tag")
+    [[ "$target_tag" == "latest" || "${CHIMERA_DOCKERHUB_PUSH_LATEST:-0}" != 1 ]] || refs+=("$target:latest")
+  fi
+  for ref in "${refs[@]}"; do
+    if [[ "$(docker image inspect -f '{{.Id}}' "$ref" 2>/dev/null || true)" == "$image_id" ]]; then
+      docker image rm -f "$ref" >/dev/null 2>&1 || true
+    fi
+  done
   if docker image inspect "$image_id" >/dev/null 2>&1; then
-    log_warning "Docker image layers remain because another local reference uses $image_id."
+    log_warning "Image layers remain because another local tag/reference still uses $image_id."
   else
-    log_success "Unused generated Docker image removed: $image_id"
+    log_success "Unused generated Docker image tags removed: $image_id"
   fi
 }
 
-# Docker storage cleanup is intentionally global for stopped containers,
-# unused images, and build cache: these are precisely the objects requested
-# for reclamation. Running containers and images referenced by any container
-# are retained by Docker. Volumes are never pruned.
+# Never prune global Docker state by default: the daemon may be shared with
+# unrelated projects. Remove only the image created by this invocation.
 docker_cleanup_unused(){
-  local reason="${1:-between build stages}"
+  local reason="${1:-after successful Chimera export/publish}"
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || {
     log_info "Docker storage cleanup disabled by CHIMERA_DOCKER_CLEANUP=0 ($reason)"
     return 0
   }
   command -v docker >/dev/null 2>&1 || { log_warning "Docker CLI unavailable; cannot reclaim Docker storage ($reason)"; return 0; }
   docker info >/dev/null 2>&1 || { log_warning "Docker daemon unavailable; cannot reclaim Docker storage ($reason)"; return 0; }
-  log_info "Reclaiming unused Docker storage ($reason): stopped containers, unused images, and build cache"
   docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
-  docker container prune --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
-  docker image prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
-  docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  if [[ "${CHIMERA_DOCKER_PRUNE_GLOBAL:-0}" == 1 ]]; then
+    log_warning "Explicit global Docker prune enabled; unrelated unused objects may be removed."
+    docker container prune --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+    docker image prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+    docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  fi
   docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
 }
 
+cleanup_generated_docker_containers(){
+  [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
+  command -v docker >/dev/null 2>&1 || return 0
+  docker info >/dev/null 2>&1 || return 0
+  local container_id
+  while IFS= read -r container_id; do
+    [[ -n "$container_id" ]] || continue
+    docker rm -f "$container_id" >/dev/null 2>&1 || true
+    log_info "Removed build-owned Docker export container: $container_id"
+  done < <(docker ps -aq --filter "label=chimera.build.run=$BASHPID")
+}
 cleanup_docker_after_rootfs(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
-  # Rootfs has now been exported and the optional registry push has completed;
-  # the local build image is no longer needed by subsequent ISO stages.
-  local ref
-  for ref in "$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_IMAGE:latest"; do
-    docker image rm "$ref" >/dev/null 2>&1 || true
-  done
-  docker_cleanup_unused "after rootfs export and Docker publish"
+  [[ "${CHIMERA_ROOTFS_EXPORTED:-0}" == 1 ]] || { log_warning "Docker cleanup skipped: rootfs export has not completed successfully."; return 0; }
+  [[ "${CHIMERA_PUSH:-0}" == 1 && "${CHIMERA_DOCKERHUB_PUSHED:-0}" == 1 ]] || { log_info "Docker cleanup skipped: a successful Docker Hub push was not completed in this invocation."; return 0; }
+  command -v docker >/dev/null 2>&1 || { log_warning "Docker CLI unavailable; cannot clear local Docker state."; return 0; }
+  docker info >/dev/null 2>&1 || { log_warning "Docker daemon unavailable; cannot clear local Docker state."; return 0; }
+  log_warning "GLOBAL DOCKER CLEANUP: removing every local container, image and build cache. This affects all projects using this Docker daemon."
+  docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  local ids
+  ids="$(docker ps -aq 2>/dev/null || true)"
+  if [[ -n "$ids" ]]; then
+    while IFS= read -r id; do
+      [[ -n "$id" ]] || continue
+      docker rm -f "$id" 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    done <<< "$ids"
+  fi
+  ids="$(docker image ls -aq --no-trunc 2>/dev/null | sort -u || true)"
+  if [[ -n "$ids" ]]; then
+    while IFS= read -r id; do
+      [[ -n "$id" ]] || continue
+      docker image rm -f "$id" 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    done <<< "$ids"
+  fi
+  docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+  if docker buildx version >/dev/null 2>&1; then
+    local builders builder
+    builders="$(docker buildx ls --format '{{.Name}}' 2>/dev/null | sort -u || true)"
+    while IFS= read -r builder; do
+      [[ -n "$builder" ]] || continue
+      docker buildx prune --builder "$builder" --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    done <<< "$builders"
+  fi
+  docker system prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+  docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  log_success "All local Docker containers, images, and build caches have been removed. Docker volumes were preserved."
 }
 push_docker_image(){
   [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
@@ -394,6 +470,8 @@ push_docker_image(){
     docker push "$target:latest"
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
+  CHIMERA_DOCKERHUB_PUSHED=1
+  export CHIMERA_DOCKERHUB_PUSHED
   cleanup_generated_docker_image "$source" "$image_id"
 }
 
@@ -438,6 +516,10 @@ choose_storage(){
 }
 preflight(){
   header 'CAPABILITY STATUS / EVIDENCE PREFLIGHT'
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 && -n "$ROOTFS_INPUT_DIR" ]]; then
+    ROOTFS_DIR="$ROOTFS_INPUT_DIR"
+    export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR"
+  fi
   python3 "$SCRIPT_DIR/tools/validation/validate_capability_status.py" || { log_error 'Capability evidence registry validation failed'; return 1; }
   header 'CPU / MEDIA PROFILE'
   log_info "Detected build-host CPU: $HOST_ARCH"
@@ -445,15 +527,22 @@ preflight(){
   log_info "Media filesystem profile: $MEDIA_FS_PROFILE (ISO9660/El Torito + SquashFS rootfs)"
   log_info "SquashFS worker count: ${CHIMERA_SQUASHFS_PROCESSORS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2)}"
   header 'LARGE ISO / STORAGE PREFLIGHT'
-  local rg="$(free_gib "$ROOTFS_DIR")" og="$(free_gib "$ISO_OUTPUT_DIR")"
+  local rg=20 og="$(free_gib "$ISO_OUTPUT_DIR")"
+  if [[ "$SKIP_DOCKER_PIPELINE" == 0 ]]; then rg="$(free_gib "$ROOTFS_DIR")"; fi
   log_info "Rootfs filesystem free: ${rg} GiB"; log_info "ISO output filesystem free: ${og} GiB"
-  if ((rg<20 || og<20)); then
+  if (( (SKIP_DOCKER_PIPELINE == 0 && rg<20) || og<20 )); then
     if [[ "$STORAGE_AUTO" == 1 ]]; then choose_storage 20 || { log_error 'No suitable writable storage with enough free space found'; log_error 'A read-only /mnt drive is never selected automatically.'; exit 1; }
     elif [[ "$STORAGE_PROMPT" == 1 && -t 0 ]]; then
       read -r -p 'Storage path for large Chimera build: ' p
       [[ -d "$p" ]] || { log_error 'No storage selected'; exit 1; }
       export CHIMERA_BUILD_STORAGE_ROOT="$p"; root="${p%/}"; BUILD_DIR="$root/chimera-build"; ISO_DIR="$BUILD_DIR/iso"; ROOTFS_DIR="$BUILD_DIR/rootfs"; ISO_OUTPUT_DIR="$root/chimera-output"; ISO_TMP_DIR="$BUILD_DIR/logs/chimera-iso-build"; STATE_FILE="$BUILD_DIR/.chimera-build-state"; FAILED_FILE="$BUILD_DIR/.chimera-failed-stage"; mkdir -p "$BUILD_DIR" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/boot/live" "$ROOTFS_DIR" "$ISO_OUTPUT_DIR" "$ISO_TMP_DIR"; export CHIMERA_BUILD_DIR="$BUILD_DIR" CHIMERA_ROOTFS_DIR="$ROOTFS_DIR" CHIMERA_ISO_OUTPUT_DIR="$ISO_OUTPUT_DIR" TMPDIR="$HOST_TMP_DIR"
     else log_error 'Insufficient storage; use --storage /mnt/d or --storage-auto'; exit 1; fi
+  fi
+  # Storage selection can change ROOTFS_DIR; restore an explicit prepared-rootfs
+  # path afterwards so --storage-auto only relocates build outputs, not inputs.
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 && -n "$ROOTFS_INPUT_DIR" ]]; then
+    ROOTFS_DIR="$ROOTFS_INPUT_DIR"
+    export CHIMERA_ROOTFS_DIR="$ROOTFS_DIR"
   fi
   # Architecture/ISA discovery is metadata-only and defaults to offline mode.
   # Network research is opt-in; failures do not silently promote support claims.
@@ -488,20 +577,28 @@ run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
-  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
+  local required_tools=(cpio grub-mkrescue xorriso mksquashfs)
+  if [[ "$SKIP_DOCKER_PIPELINE" == 0 ]]; then required_tools+=(docker); fi
+  local missing_tools=()
+  local tool
+  for tool in "${required_tools[@]}"; do
+    command -v "$tool" >/dev/null 2>&1 || missing_tools+=("$tool")
+  done
+  if (( ${#missing_tools[@]} > 0 )); then
     if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
       bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
     else
-      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso and mksquashfs; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
+      log_error "Required build tools are missing: ${missing_tools[*]}. Install them or opt in with --install-build-deps."
       exit 2
     fi
   fi
-  command -v docker >/dev/null || { log_error 'Docker is required'; exit 2; }
-  command -v cpio >/dev/null || { log_error 'cpio is required'; exit 2; }
-  command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
-  command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
-  command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
+  for tool in "${required_tools[@]}"; do
+    command -v "$tool" >/dev/null 2>&1 || { log_error "Required build tool is still missing: $tool"; exit 2; }
+  done
   command -v busybox >/dev/null || log_warning 'busybox unavailable on host; create_installer currently requires host BusyBox. Install busybox-static (Debian/Ubuntu) before the installer stage.'
+  # In --no-docker mode the existing rootfs is the input artifact. Do not
+  # inspect, start, create, export, prune, or otherwise contact Docker.
+  [[ "$SKIP_DOCKER_PIPELINE" == 1 ]] && { log_info "Docker checks skipped by --no-docker; using the supplied rootfs."; return 0; }
   # Docker CLI presence does not imply that a daemon is running. Diagnose the
   # endpoint and optionally start a local Linux daemon when explicitly enabled.
   if ! docker info >/dev/null 2>&1; then
@@ -555,16 +652,19 @@ check_deps(){
 build_docker(){
   header 'STEP 1: BUILD DOCKER IMAGE'
   [[ -f "$SCRIPT_DIR/Dockerfile.comprehensive" ]] || { log_error 'Dockerfile.comprehensive not found'; exit 1; }
-  # Reclaim stale Docker storage before allocating space for a fresh image.
   docker_cleanup_unused "before Docker image build"
   start_watchdog "Docker BuildKit image build"; set +e
   local build_opts=()
   docker buildx version >/dev/null 2>&1 && build_opts=(--progress=plain)
   [[ "${CHIMERA_DOCKER_NO_CACHE:-0}" == 1 ]] && build_opts+=(--no-cache)
   BUILDKIT_PROGRESS=plain docker build "${build_opts[@]}" --build-arg "CHIMERA_STRICT_COMMAND_PROVIDERS=${CHIMERA_STRICT_COMMAND_PROVIDERS:-0}" --build-arg "CHIMERA_STRICT_ISA_SMOKES=${CHIMERA_STRICT_ISA_SMOKES:-0}" -f "$SCRIPT_DIR/Dockerfile.comprehensive" -t "$DOCKER_IMAGE:$DOCKER_TAG" -t "$DOCKER_IMAGE:latest" "$SCRIPT_DIR" 2>&1 | tee "$LOG_DIR/docker-build.log"
-  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog; ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  local rc="${PIPESTATUS[0]}"; set -e; stop_watchdog
+  ((rc==0)) || { log_error "Docker build failed; full log: $LOG_DIR/docker-build.log"; exit "$rc"; }
+  CHIMERA_BUILT_IMAGE_ID="$(docker image inspect -f '{{.Id}}' "$DOCKER_IMAGE:$DOCKER_TAG")"
+  [[ -n "$CHIMERA_BUILT_IMAGE_ID" ]] || { log_error "Docker build succeeded but its image ID could not be recorded"; return 1; }
+  export CHIMERA_BUILT_IMAGE_ID
+  log_info "Recorded build-owned Docker image ID: $CHIMERA_BUILT_IMAGE_ID"
 }
-
 export_rootfs(){
   header 'STEP 2: EXPORT DOCKER ROOTFS'
   cleanup_generated_build_artifacts
@@ -587,7 +687,7 @@ export_rootfs(){
     exit 1
   fi
   docker rm -f "$cname" >/dev/null 2>&1 || true
-  docker create --name "$cname" "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
+  docker create --name "$cname" --label chimera.build.owner=build-chimera-iso --label "chimera.build.run=$BASHPID" --label chimera.build.role=rootfs-export "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null
   start_watchdog "Docker rootfs export / tar extraction"
   set +e
 
@@ -647,6 +747,8 @@ export_rootfs(){
     log_error 'Rootfs export is incomplete'
     exit 1
   }
+  CHIMERA_ROOTFS_EXPORTED=1
+  export CHIMERA_ROOTFS_EXPORTED
 }
 
 create_boot_menu(){
@@ -1614,17 +1716,33 @@ stage_terminal_shell_suite(){
 }
 
 main(){
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 && "$BUILD_ISO" == 0 ]]; then
+    log_error "--no-docker cannot be combined with --docker-only."
+    return 2
+  fi
   # --docker-only is a true Docker pipeline, not a full ISO build with a flag ignored.
   if [[ "$BUILD_ISO" == 0 ]]; then
     command -v docker >/dev/null 2>&1 || { log_error "Docker CLI is required for --docker-only"; return 2; }
     run_stage docker build_docker
     run_stage docker-publish push_docker_image
-    cleanup_docker_after_rootfs
+    if [[ "${CHIMERA_PUSH:-0}" == 1 ]]; then
+      log_info "Docker-only mode has no rootfs export; global post-export cleanup is intentionally skipped."
+    else
+      log_warning "--docker-only did not export a rootfs or push to Docker Hub; retaining the local image."
+    fi
     BUILD_SUCCEEDED=1
     log_success "Docker-only pipeline completed."
     return 0
   fi
-  if [[ "$BUILD_DOCKER" == 0 ]]; then
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 ]]; then
+    if [[ ! -d "$ROOTFS_DIR/etc" || ( ! -d "$ROOTFS_DIR/bin" && ! -d "$ROOTFS_DIR/usr/bin" ) ]]; then
+      log_error "--no-docker requires an existing populated rootfs with /etc and /bin or /usr/bin: $ROOTFS_DIR"
+      log_error "Set CHIMERA_ROOTFS_DIR to the prepared rootfs directory, or use the default $BUILD_DIR/rootfs."
+      return 2
+    fi
+    log_info "Docker image build, Docker container creation/export, and Docker publish are all disabled."
+    log_info "Using prebuilt rootfs: $ROOTFS_DIR"
+  elif [[ "$BUILD_DOCKER" == 0 ]]; then
     docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 || {
       log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
       return 2
@@ -1655,6 +1773,10 @@ main(){
   CURRENT_STAGE=""
   local completed="$(state_get)"
   for stage in docker rootfs docker-publish commands terminals-shells boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+    if [[ "$SKIP_DOCKER_PIPELINE" == 1 && ( "$stage" == docker || "$stage" == rootfs || "$stage" == docker-publish ) ]]; then
+      log_info "Skipping Docker stage '$stage' by --no-docker; retaining supplied rootfs."
+      continue
+    fi
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
