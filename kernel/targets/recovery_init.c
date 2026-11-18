@@ -16,5 +16,6 @@ __attribute__((noreturn, used)) void _start(void) {
     init_yield();
     init_writestr("RECOVERY: scheduler yield returned\n");
 
-    init_exit(0);
+    /* PID 1 must remain resident; do not tear down its address space. */
+    init_pid1_wait();
 }
