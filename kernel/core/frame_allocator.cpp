@@ -68,12 +68,29 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
     uint64_t first = (start + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
     const uint64_t last = end / KORONOS_FRAME_SIZE;
     if (first < FIRST_ALLOCATABLE_PAGE) first = FIRST_ALLOCATABLE_PAGE;
-    for (uint64_t p = first; p < last; ++p) {
-        const uint32_t i = static_cast<uint32_t>(p);
-        if (!bit(free_bitmap, i) && !bit(allocated_bitmap, i)) {
-            set_bit(free_bitmap, i);
-            ++free_pages;
-        }
+    if (first >= last) return true;
+
+    /*
+     * Populate complete bitmap words instead of touching every 4-KiB page.
+     * A 4-GiB bootstrap window contains 1,048,576 pages; doing this work
+     * page-by-page for every Multiboot memory-map entry needlessly stalls
+     * early boot. Preserve any frames already reserved or allocated.
+     */
+    const uint64_t first_word = first / WORD_BITS;
+    const uint64_t end_word = (last + WORD_BITS - 1u) / WORD_BITS;
+    for (uint64_t word = first_word; word < end_word; ++word) {
+        const uint32_t low = (word == first_word)
+            ? static_cast<uint32_t>(first % WORD_BITS) : 0u;
+        const uint32_t high = (word == ((last - 1u) / WORD_BITS))
+            ? static_cast<uint32_t>(((last - 1u) % WORD_BITS) + 1u) : WORD_BITS;
+        const uint32_t low_mask = 0xffffffffu << low;
+        const uint32_t high_mask = (high == WORD_BITS)
+            ? 0xffffffffu : ((1u << high) - 1u);
+        const uint32_t mask = low_mask & high_mask;
+        const uint32_t index = static_cast<uint32_t>(word);
+        const uint32_t newly_free = mask & ~(free_bitmap[index] | allocated_bitmap[index]);
+        free_bitmap[index] |= newly_free;
+        free_pages += static_cast<uint64_t>(__builtin_popcount(newly_free));
     }
     return true;
 }
