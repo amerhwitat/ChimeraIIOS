@@ -4,6 +4,18 @@
 #include "chimera/multiboot_modules.h"
 
 namespace {
+static void frame_trace(const char *message) {
+#if defined(__x86_64__)
+    if (!message) return;
+    while (*message) {
+        const uint8_t value = static_cast<uint8_t>(*message++);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(value));
+    }
+    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\\n'));
+#else
+    (void)message;
+#endif
+}
 constexpr uint32_t PAGE_COUNT = static_cast<uint32_t>(KORONOS_FRAME_PHYS_LIMIT / KORONOS_FRAME_SIZE);
 constexpr uint32_t WORD_BITS = 32u;
 constexpr uint32_t BITMAP_WORDS = PAGE_COUNT / WORD_BITS;
@@ -92,7 +104,14 @@ static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
                 const MmapEntry *entry = reinterpret_cast<const MmapEntry *>(base + off + pos);
                 uint64_t end = 0;
                 if (!range_end(entry->address, entry->length, &end)) return false;
-                if (entry->type == 1u && !add_usable_range(entry->address, entry->length)) return false;
+                if (entry->type == 1u) {
+                    frame_trace("FA:usable-range-enter");
+                    if (!add_usable_range(entry->address, entry->length)) {
+                        frame_trace("FA:usable-range-reject");
+                        return false;
+                    }
+                    frame_trace("FA:usable-range-done");
+                }
             }
             found_map = true;
         } else if (tag->type == MB2_TAG_FRAMEBUFFER) {
@@ -144,22 +163,31 @@ static bool reserve_multiboot_modules(uint64_t info, uint32_t total) {
 }
 
 extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base, uint64_t kernel_end) {
-    if (initialized) return -1;
+    frame_trace("FA:init-enter");
+    if (initialized) { frame_trace("FA:already-initialized"); return -1; }
     for (uint32_t i = 0; i < BITMAP_WORDS; ++i) {
         free_bitmap[i] = 0;
         allocated_bitmap[i] = 0;
     }
     free_pages = 0;
     allocator_lock = 0;
+    frame_trace("FA:bitmaps-cleared");
     uint32_t info_size = 0;
-    if (!parse_multiboot(info, &info_size)) return -2;
+    frame_trace("FA:parse-multiboot-enter");
+    if (!parse_multiboot(info, &info_size)) { frame_trace("FA:parse-multiboot-failed"); return -2; }
+    frame_trace("FA:parse-multiboot-done");
     if (kernel_base < 0x100000u || kernel_end <= kernel_base ||
         kernel_end > KORONOS_FRAME_PHYS_LIMIT) return -3;
 
+    frame_trace("FA:reserve-low-memory");
     reserve_range(0, 0x100000u);
+    frame_trace("FA:reserve-kernel");
     reserve_range(kernel_base, kernel_end - kernel_base);
+    frame_trace("FA:reserve-boot-info");
     reserve_range(info, info_size);
-    if (!reserve_multiboot_modules(info, info_size)) return -5;
+    frame_trace("FA:reserve-modules-enter");
+    if (!reserve_multiboot_modules(info, info_size)) { frame_trace("FA:reserve-modules-failed"); return -5; }
+    frame_trace("FA:reserve-modules-done");
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
         if (!module || !module->size) continue;
@@ -167,6 +195,7 @@ extern "C" int koronos_frame_allocator_init(uint64_t info, uint64_t kernel_base,
     }
     if (!free_pages) return -4;
     initialized = true;
+    frame_trace("FA:init-complete");
     return 0;
 }
 
