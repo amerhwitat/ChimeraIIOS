@@ -21,9 +21,10 @@ Options:
   --push                      Publish the generated image to Docker Hub before build-owned image cleanup.
 
 Cleanup controls:
-  CHIMERA_DOCKER_CLEANUP=0       Preserve build-owned local Docker images and containers.
-  CHIMERA_DOCKER_PRUNE_GLOBAL=1  Also prune unused Docker objects/cache globally (shared-daemon impact).
-  Default cleanup removes only this build image/container and generated ISO staging; volumes are never pruned.
+  CHIMERA_DOCKER_CLEANUP=0       Disable the post-export/push global Docker cleanup.
+  Default after successful rootfs export AND --push: remove ALL local containers,
+  ALL local images, and Docker BuildKit/buildx caches across this shared daemon.
+  This is destructive to other projects using the same Docker daemon. Volumes are preserved.
 
 Notes:
   This help entry is provided consistently across Chimera II OS shell tools.
@@ -387,14 +388,34 @@ cleanup_generated_docker_containers(){
 }
 cleanup_docker_after_rootfs(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
-  cleanup_generated_docker_containers
-  local image_id="${CHIMERA_BUILT_IMAGE_ID:-}"
-  [[ -n "$image_id" ]] || {
-    log_info "No image was built by this invocation (for example iso-only); preserving the caller's Docker image."
-    return 0
-  }
-  cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$image_id"
-  docker_cleanup_unused "after successful rootfs export and optional Docker Hub publish"
+  [[ "${CHIMERA_ROOTFS_EXPORTED:-0}" == 1 ]] || { log_warning "Docker cleanup skipped: rootfs export has not completed successfully."; return 0; }
+  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || { log_info "Docker cleanup skipped: Docker Hub push was not requested; local Docker state is retained."; return 0; }
+  command -v docker >/dev/null 2>&1 || { log_warning "Docker CLI unavailable; cannot clear local Docker state."; return 0; }
+  docker info >/dev/null 2>&1 || { log_warning "Docker daemon unavailable; cannot clear local Docker state."; return 0; }
+  log_warning "GLOBAL DOCKER CLEANUP: removing every local container, image and build cache. This affects all projects using this Docker daemon."
+  docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  local ids
+  ids="$(docker ps -aq 2>/dev/null || true)"
+  if [[ -n "$ids" ]]; then
+    while IFS= read -r id; do
+      [[ -n "$id" ]] || continue
+      docker rm -f "$id" 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    done <<< "$ids"
+  fi
+  ids="$(docker image ls -aq --no-trunc 2>/dev/null | sort -u || true)"
+  if [[ -n "$ids" ]]; then
+    while IFS= read -r id; do
+      [[ -n "$id" ]] || continue
+      docker image rm -f "$id" 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+    done <<< "$ids"
+  fi
+  docker builder prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+  if docker buildx version >/dev/null 2>&1; then
+    docker buildx prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+  fi
+  docker system prune --all --force 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || return 1
+  docker system df 2>&1 | tee -a "$LOG_DIR/docker-cleanup.log" || true
+  log_success "All local Docker containers, images, and build caches have been removed. Docker volumes were preserved."
 }
 push_docker_image(){
   [[ "${CHIMERA_PUSH:-0}" == 1 ]] || return 0
@@ -679,6 +700,8 @@ export_rootfs(){
     log_error 'Rootfs export is incomplete'
     exit 1
   }
+  CHIMERA_ROOTFS_EXPORTED=1
+  export CHIMERA_ROOTFS_EXPORTED
 }
 
 create_boot_menu(){
@@ -1652,9 +1675,7 @@ main(){
     run_stage docker build_docker
     run_stage docker-publish push_docker_image
     if [[ "${CHIMERA_PUSH:-0}" == 1 ]]; then
-      cleanup_generated_docker_containers
-      cleanup_generated_docker_image "$DOCKER_IMAGE:$DOCKER_TAG" "$CHIMERA_BUILT_IMAGE_ID"
-      docker_cleanup_unused "after successful Docker Hub publish"
+      log_info "Docker-only mode has no rootfs export; global post-export cleanup is intentionally skipped."
     else
       log_warning "--docker-only did not export a rootfs or push to Docker Hub; retaining the local image."
     fi
