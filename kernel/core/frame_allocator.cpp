@@ -40,6 +40,14 @@ static bool bit(const uint32_t *map, uint32_t i) {
 }
 static void set_bit(uint32_t *map, uint32_t i) { map[i / WORD_BITS] |= 1u << (i % WORD_BITS); }
 static void clear_bit(uint32_t *map, uint32_t i) { map[i / WORD_BITS] &= ~(1u << (i % WORD_BITS)); }
+static uint32_t popcount32(uint32_t value) {
+    value -= (value >> 1u) & 0x55555555u;
+    value = (value & 0x33333333u) + ((value >> 2u) & 0x33333333u);
+    value = (value + (value >> 4u)) & 0x0f0f0f0fu;
+    value += value >> 8u;
+    value += value >> 16u;
+    return value & 0x3fu;
+}
 
 static bool range_end(uint64_t start, uint64_t length, uint64_t *end) {
     if (!length || start > UINT64_MAX - length) return false;
@@ -90,7 +98,7 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
         const uint32_t index = static_cast<uint32_t>(word);
         const uint32_t newly_free = mask & ~(free_bitmap[index] | allocated_bitmap[index]);
         free_bitmap[index] |= newly_free;
-        free_pages += static_cast<uint64_t>(__builtin_popcount(newly_free));
+        free_pages += static_cast<uint64_t>(popcount32(newly_free));
     }
     return true;
 }
