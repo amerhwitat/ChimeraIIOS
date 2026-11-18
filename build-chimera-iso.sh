@@ -18,7 +18,7 @@ Options:
   --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
-  --push                      Publish the generated image to Docker Hub before build-owned image cleanup.
+  --push                      Push to Docker Hub; after rootfs export, clear all local Docker containers, images and caches.
 
 Cleanup controls:
   CHIMERA_DOCKER_CLEANUP=0       Disable the post-export/push global Docker cleanup.
@@ -291,8 +291,9 @@ free_bytes(){
 free_gib(){ local n="$(free_bytes "$1")"; [[ "$n" =~ ^[0-9]+$ ]] && echo $((n/1024/1024/1024)) || echo 0; }
 docker_image_bytes(){ docker image inspect "$1" --format '{{.Size}}' 2>/dev/null | awk 'NR==1{print $1+0}'; }
 cleanup_generated_build_artifacts(){
-  # Run only after ISO creation and structural verification. Preserve source
-  # assets, user media, logs, final ISO/checksum, and reusable Koronos products.
+  # Clear generated staging/intermediates from prior runs (also called after
+  # final ISO verification). Preserve source assets, user media, logs, final ISO,
+  # checksum, and reusable Koronos build products.
   local path
   if [[ "$ROOTFS_DIR" == "$BUILD_DIR/"* || "$ROOTFS_DIR" == "$ISO_DIR/"* ]]; then
     rm -rf -- "$ROOTFS_DIR" 2>/dev/null || true
