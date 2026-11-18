@@ -144,6 +144,8 @@ STORAGE_PROMPT="${CHIMERA_STORAGE_PROMPT:-1}"
 CURRENT_STAGE=""
 BUILD_SUCCEEDED=0
 CHIMERA_PUSH="${CHIMERA_PUSH:-0}"
+CHIMERA_DOCKERHUB_PUSHED=0
+CHIMERA_ROOTFS_EXPORTED=0
 BUILD_DOCKER=1
 BUILD_ISO=1
 
@@ -391,7 +393,7 @@ cleanup_generated_docker_containers(){
 cleanup_docker_after_rootfs(){
   [[ "${CHIMERA_DOCKER_CLEANUP:-1}" == 1 ]] || return 0
   [[ "${CHIMERA_ROOTFS_EXPORTED:-0}" == 1 ]] || { log_warning "Docker cleanup skipped: rootfs export has not completed successfully."; return 0; }
-  [[ "${CHIMERA_PUSH:-0}" == 1 ]] || { log_info "Docker cleanup skipped: Docker Hub push was not requested; local Docker state is retained."; return 0; }
+  [[ "${CHIMERA_PUSH:-0}" == 1 && "${CHIMERA_DOCKERHUB_PUSHED:-0}" == 1 ]] || { log_info "Docker cleanup skipped: a successful Docker Hub push was not completed in this invocation."; return 0; }
   command -v docker >/dev/null 2>&1 || { log_warning "Docker CLI unavailable; cannot clear local Docker state."; return 0; }
   docker info >/dev/null 2>&1 || { log_warning "Docker daemon unavailable; cannot clear local Docker state."; return 0; }
   log_warning "GLOBAL DOCKER CLEANUP: removing every local container, image and build cache. This affects all projects using this Docker daemon."
@@ -446,6 +448,8 @@ push_docker_image(){
     docker push "$target:latest"
   fi
   log_success "Docker Hub push completed: $target:$target_tag"
+  CHIMERA_DOCKERHUB_PUSHED=1
+  export CHIMERA_DOCKERHUB_PUSHED
   cleanup_generated_docker_image "$source" "$image_id"
 }
 
