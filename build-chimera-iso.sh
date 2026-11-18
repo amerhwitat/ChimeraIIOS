@@ -130,6 +130,7 @@ BUILD_DIR="${CHIMERA_BUILD_DIR:-$SCRIPT_DIR/build}"
 ISO_DIR="$BUILD_DIR/iso"
 ROOTFS_DIR="${CHIMERA_ROOTFS_DIR:-$ISO_DIR/rootfs}"
 ROOTFS_INPUT_DIR="${CHIMERA_ROOTFS_DIR:-}"
+ROOTFS_OPTION_SET=0
 ISO_OUTPUT_DIR="${CHIMERA_ISO_OUTPUT_DIR:-$SCRIPT_DIR}"
 ISO_TMP_DIR="${CHIMERA_ISO_TMPDIR:-$BUILD_DIR/logs/chimera-iso-build}"
 # Compiler/linker scratch files belong on WSL's Linux filesystem, not /mnt/<drive> (DrvFs).
@@ -244,7 +245,7 @@ while [[ $# -gt 0 ]]; do
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
     --no-docker) BUILD_DOCKER=0; SKIP_DOCKER_PIPELINE=1; shift;;
-    --rootfs) [[ -n "${2:-}" ]] || { log_error "--rootfs requires a path"; exit 2; }; ROOTFS_INPUT_DIR="$2"; shift 2;;
+    --rootfs) [[ -n "${2:-}" ]] || { log_error "--rootfs requires a path"; exit 2; }; ROOTFS_INPUT_DIR="$2"; ROOTFS_OPTION_SET=1; shift 2;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
     --full) FULL_BUILD=1; shift;;
@@ -263,6 +264,13 @@ while [[ $# -gt 0 ]]; do
     *) log_error "Unknown option: $1"; exit 2;;
   esac
 done
+
+# The explicit --rootfs option is an input contract for --no-docker; the
+# CHIMERA_ROOTFS_DIR environment variable retains its existing Docker-build meaning.
+if [[ "$ROOTFS_OPTION_SET" == 1 && "$SKIP_DOCKER_PIPELINE" != 1 ]]; then
+  log_error "--rootfs is intended for --no-docker; use CHIMERA_ROOTFS_DIR to override the Docker-export destination."
+  exit 2
+fi
 
 # Apply full-build invariants after parsing so option order cannot re-enable resume.
 if [[ "$FULL_BUILD" == 1 ]]; then
