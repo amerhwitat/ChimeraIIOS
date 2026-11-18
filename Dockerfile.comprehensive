@@ -68,6 +68,22 @@ RUN set -eux; \
         echo "[Chimera][WARN] valgrind/libc6-dbg is not resolvable; skipped."; \
       fi; \
     fi; \
+    # Install real distro terminal providers into the exported target rootfs.
+    # Packages unavailable in Ubuntu 24.04 are left for the verified source/provider
+    # path; the Aurora importer remains the authoritative 20-binary release gate.
+    terminal_packages="xterm gnome-terminal konsole xfce4-terminal foot kitty alacritty wezterm ghostty contour ptyxis terminator gnome-console tilix mate-terminal qterminal sakura terminology lxterminal blackbox-terminal"; \
+    for pkg in $terminal_packages; do \
+      candidate="$(apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"; \
+      if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then \
+        if apt-get install -y --no-install-recommends "$pkg"; then \
+          echo "[Chimera][TERMINALS] installed target provider package: $pkg"; \
+        else \
+          echo "[Chimera][TERMINALS][WARN] package install failed; provider must be supplied by source build: $pkg"; \
+        fi; \
+      else \
+        echo "[Chimera][TERMINALS][INFO] no Ubuntu package candidate; source/provider build required: $pkg"; \
+      fi; \
+    done; \
     rm -rf /var/lib/apt/lists/*
 
 # Optional repository-specific packages are never allowed to turn the image
