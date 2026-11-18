@@ -5,7 +5,7 @@
 
 namespace {
 static void frame_trace(const char *message) {
-#if defined(__x86_64__)
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
     if (!message) return;
     while (*message) {
         const uint8_t value = static_cast<uint8_t>(*message++);
