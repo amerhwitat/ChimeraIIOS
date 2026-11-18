@@ -16,6 +16,7 @@ Options:
   --storage-auto              Automatically select a writable build-storage location when needed.
   --storage PATH              Place build intermediates and ISO output under PATH.
   --full                      Clean state, disable resume, refresh catalogs, and rebuild Docker without cache.
+  --no-docker                 Skip Docker entirely; use an already-populated rootfs at CHIMERA_ROOTFS_DIR (or the default build rootfs path).
   --skip-native-iso           Skip the additional boot/iso/build-iso.sh native ISO pipeline.
   --install-build-deps        Opt in to host build-tool installation; tries alternate available package managers if one fails.
   --push                      Push to Docker Hub; after rootfs export, clear all local Docker containers, images and caches.
@@ -148,6 +149,7 @@ CHIMERA_DOCKERHUB_PUSHED=0
 CHIMERA_ROOTFS_EXPORTED=0
 BUILD_DOCKER=1
 BUILD_ISO=1
+SKIP_DOCKER_PIPELINE=0
 
 # Architecture-aware media profile. Current boot artifacts are x86_64-only.
 detect_cpu_arch() {
@@ -239,6 +241,7 @@ while [[ $# -gt 0 ]]; do
     --sync-dos-payloads) DOS_FETCH_ON_BUILD=1; shift;;
     --docker-only) BUILD_ISO=0; shift;;
     --iso-only) BUILD_DOCKER=0; shift;;
+    --no-docker) BUILD_DOCKER=0; SKIP_DOCKER_PIPELINE=1; shift;;
     --resume) RESUME_BUILD=1; shift;;
     --clean-state) CLEAN_STATE=1; shift;;
     --full) FULL_BUILD=1; shift;;
@@ -550,20 +553,28 @@ run_stage(){ CURRENT_STAGE="$1"; log_info "Starting stage: $1"; "$2"; state_mark
 
 check_deps(){
   header 'BUILD DEPENDENCIES'
-  if ! command -v docker >/dev/null || ! command -v cpio >/dev/null || ! command -v grub-mkrescue >/dev/null || ! command -v xorriso >/dev/null || ! command -v mksquashfs >/dev/null; then
+  local required_tools=(cpio grub-mkrescue xorriso mksquashfs)
+  if [[ "$SKIP_DOCKER_PIPELINE" == 0 ]]; then required_tools+=(docker); fi
+  local missing_tools=()
+  local tool
+  for tool in "${required_tools[@]}"; do
+    command -v "$tool" >/dev/null 2>&1 || missing_tools+=("$tool")
+  done
+  if (( ${#missing_tools[@]} > 0 )); then
     if [[ "${CHIMERA_INSTALL_BUILD_DEPS:-0}" == 1 ]]; then
       bash "$SCRIPT_DIR/tools/chimera-build-deps.sh" || { log_error 'Build dependency fallback installer failed'; exit 2; }
     else
-      log_error 'Required build tools are missing. Install Docker, cpio, grub-mkrescue, xorriso and mksquashfs; optional fallback: CHIMERA_INSTALL_BUILD_DEPS=1.'
+      log_error "Required build tools are missing: ${missing_tools[*]}. Install them or opt in with --install-build-deps."
       exit 2
     fi
   fi
-  command -v docker >/dev/null || { log_error 'Docker is required'; exit 2; }
-  command -v cpio >/dev/null || { log_error 'cpio is required'; exit 2; }
-  command -v grub-mkrescue >/dev/null || { log_error 'grub-mkrescue is required'; exit 2; }
-  command -v xorriso >/dev/null || { log_error 'xorriso is required'; exit 2; }
-  command -v mksquashfs >/dev/null || { log_error 'mksquashfs is required'; exit 2; }
+  for tool in "${required_tools[@]}"; do
+    command -v "$tool" >/dev/null 2>&1 || { log_error "Required build tool is still missing: $tool"; exit 2; }
+  done
   command -v busybox >/dev/null || log_warning 'busybox unavailable on host; create_installer currently requires host BusyBox. Install busybox-static (Debian/Ubuntu) before the installer stage.'
+  # In --no-docker mode the existing rootfs is the input artifact. Do not
+  # inspect, start, create, export, prune, or otherwise contact Docker.
+  [[ "$SKIP_DOCKER_PIPELINE" == 1 ]] && { log_info "Docker checks skipped by --no-docker; using the supplied rootfs."; return 0; }
   # Docker CLI presence does not imply that a daemon is running. Diagnose the
   # endpoint and optionally start a local Linux daemon when explicitly enabled.
   if ! docker info >/dev/null 2>&1; then
@@ -1695,7 +1706,19 @@ main(){
     log_success "Docker-only pipeline completed."
     return 0
   fi
-  if [[ "$BUILD_DOCKER" == 0 ]]; then
+  if [[ "$SKIP_DOCKER_PIPELINE" == 1 ]]; then
+    if [[ "$BUILD_ISO" == 0 ]]; then
+      log_error "--no-docker cannot be combined with --docker-only."
+      return 2
+    fi
+    if [[ ! -d "$ROOTFS_DIR/etc" || ( ! -d "$ROOTFS_DIR/bin" && ! -d "$ROOTFS_DIR/usr/bin" ) ]]; then
+      log_error "--no-docker requires an existing populated rootfs with /etc and /bin or /usr/bin: $ROOTFS_DIR"
+      log_error "Set CHIMERA_ROOTFS_DIR to the prepared rootfs directory, or use the default $BUILD_DIR/rootfs."
+      return 2
+    fi
+    log_info "Docker image build, Docker container creation/export, and Docker publish are all disabled."
+    log_info "Using prebuilt rootfs: $ROOTFS_DIR"
+  elif [[ "$BUILD_DOCKER" == 0 ]]; then
     docker image inspect "$DOCKER_IMAGE:$DOCKER_TAG" >/dev/null 2>&1 || {
       log_error "--iso-only requires an existing Docker image: $DOCKER_IMAGE:$DOCKER_TAG"
       return 2
@@ -1726,6 +1749,10 @@ main(){
   CURRENT_STAGE=""
   local completed="$(state_get)"
   for stage in docker rootfs docker-publish commands terminals-shells boot installer branding apache features package-managers games sdk squashfs iso verify native-iso report; do
+    if [[ "$SKIP_DOCKER_PIPELINE" == 1 && ( "$stage" == docker || "$stage" == rootfs || "$stage" == docker-publish ) ]]; then
+      log_info "Skipping Docker stage '$stage' by --no-docker; retaining supplied rootfs."
+      continue
+    fi
     if [[ "$stage" == docker && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker build for --iso-only"; continue; fi
     if [[ "$stage" == docker-publish && "$BUILD_DOCKER" == 0 ]]; then log_info "Skipping Docker publish for --iso-only"; continue; fi
     if [[ "$RESUME_BUILD" == 1 && -n "$completed" ]] && state_done "$completed" "$stage"; then log_info "Skipping completed stage: $stage"; continue; fi
