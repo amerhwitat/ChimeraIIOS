@@ -86,12 +86,34 @@ require_native_build_arch() {
   [[ "$host" == "$target" ]] || { log "Refusing host-native source build for target $TARGET_ARCH (build host $(uname -m)); use a real cross toolchain or target provider package"; return 1; }
 }
 install_existing(){ local b="$1"; local p; for p in "$PREFIX/bin/$b" "$DEST/bin/$b" "$DEST/usr/local/bin/$b"; do if [[ -x "$p" ]] && verify_target_binary "$p"; then log "Verified target-rootfs provider: $p"; return 0; fi; done; log "$b has no verified target-rootfs provider"; return 1; }
+ensure_terminal_build_dependencies() {
+  local -a packages=(pkg-config libfontconfig1-dev libfreetype6-dev gettext)
+  local -a missing=()
+  local package
+  if ! have apt-get; then
+    log "apt-get unavailable; cannot provision Alacritty fontconfig/freetype or Ghostty gettext build dependencies"
+    return 1
+  fi
+  for package in "${packages[@]}"; do
+    case "$package" in
+      pkg-config) have pkg-config || missing+=("$package") ;;
+      libfontconfig1-dev) pkg-config --exists fontconfig 2>/dev/null || missing+=("$package") ;;
+      libfreetype6-dev) pkg-config --exists freetype2 2>/dev/null || missing+=("$package") ;;
+      gettext) have msgfmt || missing+=("$package") ;;
+    esac
+  done
+  (("${#missing[@]}" == 0)) && return 0
+  [[ "$(id -u)" == 0 ]] || { log "Missing terminal build dependencies require root: ${missing[*]}"; return 1; }
+  log "Installing missing terminal source-build dependencies: ${missing[*]}"
+  apt-get update -o Acquire::Retries=5
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"
+}
 source_build(){
   require_native_build_arch || return 1;
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
-    alacritty) (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
+    alacritty) ensure_terminal_build_dependencies || return 1; (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
     wezterm) if ! have rustup; then   log "Installing official rustup stable toolchain for WezTerm (Ubuntu archive Rust may be too old)";   have curl || { log "curl is required to bootstrap rustup"; return 1; };   curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable; fi; export PATH="$HOME/.cargo/bin:$PATH"; rustup toolchain install stable --profile minimal; (cd "$src" && cargo +stable build --release --bin wezterm-gui 2>&1 | tee "$CACHE/wezterm-build.log"); [[ -x "$src/target/release/wezterm-gui" ]] || { log "WezTerm did not produce target/release/wezterm-gui; see $CACHE/wezterm-build.log"; return 1; }; install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour)
       if ! find /usr /opt -name Qt6Config.cmake -print -quit 2>/dev/null | grep -q .; then
