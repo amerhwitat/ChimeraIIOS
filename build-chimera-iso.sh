@@ -709,7 +709,7 @@ create_boot_menu(){
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.cpio.sha256" "$ISO_DIR/boot/live/chimera-live-initramfs.cpio.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/live-manifest.json"
   mkdir -p "$ISO_DIR/boot/recovery" "$ISO_DIR/recovery"
-  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img.sha256"
