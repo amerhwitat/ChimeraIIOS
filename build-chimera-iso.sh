@@ -1340,7 +1340,8 @@ EOF
   (
     cd "$p"
     find . -print0 | cpio --null --format=newc --create --quiet
-  ) | gzip -9 > "$ISO_DIR/install/installer/installation.img"
+  ) > "$ISO_DIR/install/installer/installation.cpio"
+  gzip -9 -c "$ISO_DIR/install/installer/installation.cpio" > "$ISO_DIR/install/installer/installation.img"
 
   cp -f "$SCRIPT_DIR/install/installation-manifest.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
   cp -f "$SCRIPT_DIR/install/installer-contract.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
