@@ -54,6 +54,24 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2)
         self.assertEqual(run("recovery", trace).returncode, 0)
 
+    def test_rejects_init_that_exits_after_readiness(self):
+        trace = (
+            KERNEL + ENTRY.format(target="live", pid=1)
+            + READY.format(target="live", pid=1)
+            + "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly\\n"
+        )
+        result = run("live", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("persistent PID 1 is not established", result.stdout)
+
+    def test_rejects_runtime_error_after_readiness(self):
+        trace = (
+            KERNEL + ENTRY.format(target="installer", pid=1)
+            + READY.format(target="installer", pid=1)
+            + "[RUN ] ERROR: scheduler failure\\n"
+        )
+        self.assertEqual(run("installer", trace).returncode, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
