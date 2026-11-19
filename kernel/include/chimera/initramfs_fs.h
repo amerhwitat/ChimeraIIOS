@@ -21,6 +21,10 @@ int koronos_initramfs_stat_node(uint32_t node_id, koronos_initramfs_stat *out);
 int koronos_initramfs_read(uint32_t node_id, uint64_t offset, void *buffer,
                            uint64_t length, uint64_t *bytes_read);
 uint32_t koronos_initramfs_node_count(void);
+/* Bounded writable RAM tmpfs: files are restricted to direct children of /tmp. */
+int koronos_tmpfs_create(const char *path, uint32_t *node_id);
+int koronos_tmpfs_write(uint32_t node_id, uint64_t offset, const void *buffer,
+                        uint64_t length, uint64_t *bytes_written);
 void koronos_initramfs_unmount(void);
 
 #ifdef __cplusplus
