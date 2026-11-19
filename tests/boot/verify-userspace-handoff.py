@@ -41,6 +41,15 @@ def main() -> int:
     if missing:
         print("FAIL: missing " + ", ".join(missing))
         return 1
+    # Readiness from a short-lived probe is not a persistent PID 1. The target
+    # QEMU run must remain alive through its timeout and the init must not have
+    # returned to the kernel after printing the readiness marker.
+    if EXIT_MARKER in trace:
+        print("FAIL: target init reported readiness but then exited; persistent PID 1 is not established")
+        return 1
+    if "[RUN ] ERROR:" in trace:
+        print("FAIL: target runtime reported an error after or during userspace handoff")
+        return 1
     for entry in entries:
         if entry.group(1) != target or kernel_at >= entry.start():
             continue
