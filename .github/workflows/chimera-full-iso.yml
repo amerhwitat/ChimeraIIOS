@@ -262,6 +262,13 @@ jobs:
             timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             qemu_rc=$?
             set -e
+            # The target init must remain alive after readiness. QEMU is
+            # intentionally bounded by timeout; any earlier exit means the
+            # target did not demonstrate a persistent PID 1 runtime.
+            if [[ "$qemu_rc" -ne 124 ]]; then
+              echo "::warning::$target QEMU ended before the 12s persistence observation window (exit $qemu_rc)"
+              accepted=false
+            fi
             if [[ ! -s "$trace" ]]; then
               echo "::warning::$target QEMU emitted no debugcon trace (exit $qemu_rc)"
               accepted=false
