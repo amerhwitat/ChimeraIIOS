@@ -124,13 +124,14 @@ static int open_initramfs_file(uint64_t path_address,uint64_t flags,uint64_t roo
        allocate a writable RAM file; no disk formatting or writes are possible. */
     constexpr uint64_t O_ACCMODE=3u, O_CREAT=0x40u, O_EXCL=0x80u, O_CLOEXEC=0x80000u;
     if ((flags&~(O_ACCMODE|O_CREAT|O_EXCL|O_CLOEXEC))!=0u) return -30;
+    if ((flags&O_CREAT) && !(flags&O_EXCL)) return -30;
     const uint64_t access=flags&O_ACCMODE;
     char path[256];
     if (!copy_user_path(path_address,root,path,sizeof(path))) return -14;
     uint32_t node=0;
     bool writable=false;
     if (flags&O_CREAT) {
-        if ((access!=1u && access!=2u) || path[0]!='/' || path[1]!='t' ||
+        if (access!=1u || path[0]!='/' || path[1]!='t' ||
             path[2]!='m' || path[3]!='p' || path[4]!='/') return -30;
         if (koronos_tmpfs_create(path,&node)!=0) return -17;
         writable=true;
@@ -154,7 +155,7 @@ static int64_t read_initramfs_file(uint64_t fd,uint64_t buffer,uint64_t length,u
     if (fd<3u || fd>=16u || length>65536u) return -22;
     reset_initramfs_fds(pid);
     InitramfsFd &entry=initramfs_fds[fd];
-    if (!entry.used) return -9;
+    if (!entry.used || entry.writable) return -9;
     if (!length) return 0;
     if (!buffer || !root ||
         koronos_address_space_validate_user_range(root,buffer,length,1u)!=0) return -14;
