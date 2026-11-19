@@ -16,6 +16,27 @@ static void frame_trace(const char *message) {
     (void)message;
 #endif
 }
+static void frame_trace_u64(const char *label, uint64_t value) {
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+    /*
+     * Keep this early-boot diagnostic independent of .rodata lookups and
+     * compiler-generated lookup tables: the allocator runs before the
+     * general memory subsystem has finished initializing.
+     */
+    frame_trace("FA:trace-u64-begin");
+    frame_trace(label);
+    for (int shift = 60; shift >= 0; shift -= 4) {
+        const uint8_t nibble = static_cast<uint8_t>((value >> shift) & 0x0full);
+        const uint8_t ch = static_cast<uint8_t>(
+            nibble < 10u ? ('0' + nibble) : ('a' + nibble - 10u));
+        __asm__ volatile("outb %0, $0xE9" : : "a"(ch));
+    }
+    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\n'));
+    frame_trace("FA:trace-u64-end");
+#else
+    (void)label; (void)value;
+#endif
+}
 constexpr uint32_t PAGE_COUNT = static_cast<uint32_t>(KORONOS_FRAME_PHYS_LIMIT / KORONOS_FRAME_SIZE);
 constexpr uint32_t WORD_BITS = 32u;
 constexpr uint32_t BITMAP_WORDS = PAGE_COUNT / WORD_BITS;
@@ -68,15 +89,19 @@ static void reserve_range(uint64_t start, uint64_t length) {
 }
 static bool add_usable_range(uint64_t start, uint64_t length) {
     uint64_t end = 0;
-    if (!range_end(start, length, &end)) return false;
+    if (!range_end(start, length, &end)) { frame_trace("FA:range-invalid"); return false; }
+    frame_trace_u64("FA:range-start=", start);
+    frame_trace_u64("FA:range-end=", end);
     /* Explicitly reject rather than silently discard RAM the allocator cannot
        address under the current bootstrap mapping contract. */
-    if (end > KORONOS_FRAME_PHYS_LIMIT) return false;
-    if (start >= KORONOS_FRAME_PHYS_LIMIT) return false;
+    if (end > KORONOS_FRAME_PHYS_LIMIT) { frame_trace("FA:range-over-limit"); return false; }
+    if (start >= KORONOS_FRAME_PHYS_LIMIT) { frame_trace("FA:range-start-over-limit"); return false; }
     uint64_t first = (start + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
     const uint64_t last = end / KORONOS_FRAME_SIZE;
     if (first < FIRST_ALLOCATABLE_PAGE) first = FIRST_ALLOCATABLE_PAGE;
-    if (first >= last) return true;
+    frame_trace_u64("FA:range-first-page=", first);
+    frame_trace_u64("FA:range-last-page=", last);
+    if (first >= last) { frame_trace("FA:range-empty"); return true; }
 
     /*
      * Populate complete bitmap words instead of touching every 4-KiB page.
@@ -86,7 +111,10 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
      */
     const uint64_t first_word = first / WORD_BITS;
     const uint64_t end_word = (last + WORD_BITS - 1u) / WORD_BITS;
+    frame_trace_u64("FA:range-first-word=", first_word);
+    frame_trace_u64("FA:range-end-word=", end_word);
     for (uint64_t word = first_word; word < end_word; ++word) {
+        if ((word & 0x3ffu) == 0u) frame_trace_u64("FA:bitmap-word=", word);
         const uint32_t low = (word == first_word)
             ? static_cast<uint32_t>(first % WORD_BITS) : 0u;
         const uint32_t high = (word == ((last - 1u) / WORD_BITS))
@@ -100,6 +128,7 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
         free_bitmap[index] |= newly_free;
         free_pages += static_cast<uint64_t>(popcount32(newly_free));
     }
+    frame_trace("FA:range-bitmap-done");
     return true;
 }
 static bool parse_multiboot(uint64_t info, uint32_t *total_out) {
