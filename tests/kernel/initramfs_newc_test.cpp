@@ -76,6 +76,8 @@ int main() {
     assert(bytes_read == 5 && memcmp(contents, "tmpfs", 5) == 0);
     assert(koronos_tmpfs_write(init_node, 0, "no", 2, &bytes_written) != 0);
     assert(koronos_tmpfs_create("/etc/forbidden", &log_node) != 0);
+    assert(koronos_tmpfs_create("/tmp/.", &log_node) != 0);
+    assert(koronos_tmpfs_create("/tmp/..", &log_node) != 0);
     koronos_initramfs_unmount();
 
     std::vector<uint8_t> badpath;
