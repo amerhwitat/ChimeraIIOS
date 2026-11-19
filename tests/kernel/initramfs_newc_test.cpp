@@ -45,7 +45,7 @@ int main() {
     std::vector<uint8_t> badpath;
     append(badpath,"../escape","x",KORONOS_NEWC_REG);
     append(badpath,"TRAILER!!!",nullptr,KORONOS_NEWC_REG);
-    assert(koronos_newc_walk(badpath.data(),badpath.size(),nullptr,(void*)1,&result)==-6);
+    assert(koronos_newc_walk(badpath.data(),badpath.size(),nullptr,(void*)1,&result)==-6);\n\n    std::vector<uint8_t> badlink;\n    append(badlink,"./escape","../etc/passwd",KORONOS_NEWC_SYMLINK);\n    append(badlink,"TRAILER!!!",nullptr,KORONOS_NEWC_REG);\n    assert(koronos_newc_walk(badlink.data(),badlink.size(),nullptr,(void*)1,&result)==-14);
 
     archive.pop_back();
     assert(koronos_newc_walk(archive.data(),archive.size(),nullptr,nullptr,&result)!=0);
