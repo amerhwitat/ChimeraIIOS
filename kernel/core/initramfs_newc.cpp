@@ -88,7 +88,7 @@ extern "C" int koronos_newc_walk(const void *archive, uint64_t archive_size,
             if (bytes[data_at] == '/') return -14;
             uint32_t part = 0;
             for (uint32_t i = 0; i <= file_size; ++i) {
-                if (i < file_size && bytes[data_at + i] == '\\\\') return -14;
+                if (i < file_size && bytes[data_at + i] == '\\') return -14;
                 if (i == file_size || bytes[data_at + i] == '/') {
                     if (part == 2u && bytes[data_at + i - 2u] == '.' && bytes[data_at + i - 1u] == '.') return -14;
                     part = 0;
