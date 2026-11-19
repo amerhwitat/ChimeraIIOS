@@ -38,7 +38,9 @@ mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t tmpfs tmpfs /run 2>/dev/null || true
 mount -t tmpfs tmpfs /tmp 2>/dev/null || true
-echo "[INSTALL] Chimera II OS installer environment"
+mkdir -p /mnt/chimera-installed /run/chimera
+if [ -x /bin/chimera-root-discovery.sh ]; then /bin/chimera-root-discovery.sh installer || echo "[INSTALL] Installed-root discovery failed; installer remains on RAM root"; fi
+echo "[INSTALL] Chimera II OS installer environment (RAM-backed initramfs root)"
 if [ -x /bin/chimera-installer-runtime.sh ]; then /bin/chimera-installer-runtime.sh || echo "[INSTALL] Runtime initialization returned a nonzero status"; fi
 echo "[INSTALL] Interactive recovery shell ready; disk operations remain disabled until an explicit install backend is configured."
 exec /bin/sh
