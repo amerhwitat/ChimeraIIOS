@@ -7,7 +7,9 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 MENU_PATHS = (
     "boot/iso/grub.cfg",
+    "boot/loader-menu.cfg",
     "boot/installation/menu.cfg",
+    "boot/installation/services.cfg",
     "boot/jasper/jasper.cfg",
     "boot/jasper/live.cfg",
     "boot/jasper/install.cfg",
