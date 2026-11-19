@@ -37,12 +37,12 @@ class IsoTargetRoutingTests(unittest.TestCase):
         end = GRUB.index('\n}', start)
         entry = GRUB[start:end]
         self.assertIn("multiboot2 /boot/koronos/koronos.elf", entry)
-        self.assertIn("module2 /install/installer/installation.img chimera-installation-image", entry)
+        self.assertIn("module2 /install/installer/installation.cpio chimera-installation-image", entry)
         self.assertIn("module2 /install/installer/installation-manifest.json chimera-installation-manifest", entry)
         self.assertIn("module2 /install/installer/installer-contract.json chimera-installer-contract", entry)
         self.assertNotIn("chimera-live-initramfs.img", entry)
         self.assertIn("--id installer", INSTALL)
-        self.assertIn("/install/installer/installation.img", INSTALL)
+        self.assertIn("/install/installer/installation.cpio", INSTALL)
 
 
     def test_full_iso_builder_stages_all_target_init_elf_modules(self):
@@ -70,7 +70,7 @@ class IsoTargetRoutingTests(unittest.TestCase):
         end = GRUB.index('\n}', start)
         entry = GRUB[start:end]
         self.assertIn("configfile /boot/jasper/recovery.cfg", entry)
-        self.assertIn("/boot/recovery/chimera-recovery-initramfs.img", RECOVERY)
+        self.assertIn("/boot/recovery/chimera-recovery-initramfs.cpio", RECOVERY)
 
 
     def test_ring3_init_elf_is_dispatched_by_matching_target_service(self):
