@@ -20,7 +20,7 @@ static void clear_nodes() {
     mounted = false;
 }
 static uint32_t find_child(uint32_t parent,const char *name,uint32_t length) {
-    for(uint32_t i=1;i<node_count;i++) {
+    for(uint32_t i=1;i<=node_count;i++) {
         if(!nodes[i].used || nodes[i].parent!=parent) continue;
         uint32_t n=0; while(n<=KORONOS_INITRAMFS_NAME_MAX && nodes[i].name[n]) ++n;
         if(n!=length) continue;
@@ -43,7 +43,7 @@ static uint32_t add_node(uint32_t parent,const char *name,uint32_t length,uint32
         n.mode=mode; n.uid=uid; n.gid=gid; n.data=data; n.size=size;
         return existing;
     }
-    if(node_count>=KORONOS_INITRAMFS_MAX_NODES) return 0;
+    if(node_count+1u>=KORONOS_INITRAMFS_MAX_NODES) return 0;
     const uint32_t id=++node_count;
     Node &n=nodes[id]; n={};
     for(uint32_t i=0;i<length;i++) n.name[i]=name[i];
@@ -56,10 +56,13 @@ static int add_entry(void *,const koronos_newc_entry *entry) {
     const char *path=entry->name;
     uint32_t length=entry->name_size;
     uint32_t pos=0;
+    if(length==1u && path[0]=='.') return 0;
+    if(length==2u && path[0]=='.' && path[1]=='/') return 0;
     if(length>=2 && path[0]=='.' && path[1]=='/') pos=2;
     if(pos==length) return 0; // archive root directory entry
     uint32_t parent=0;
     while(pos<length) {
+        if(parent!=0 && nodes[parent].type!=NODE_DIR) return -5;
         uint32_t end=pos;
         while(end<length && path[end]!='/') ++end;
         if(end==pos) return -2;
