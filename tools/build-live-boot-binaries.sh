@@ -60,7 +60,7 @@ BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
-for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
+for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-root-discovery.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/recovery/chimera-recovery-targets.json" ]] && cp -f "$ROOT/config/recovery/chimera-recovery-targets.json" "$INIT/etc/chimera/"
