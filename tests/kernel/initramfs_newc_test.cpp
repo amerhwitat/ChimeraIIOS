@@ -37,7 +37,8 @@ static int visit(void* context, const koronos_newc_entry* entry) {
 int main() {
     koronos_newc_result result{};
     std::vector<uint8_t> archive;
-    append(archive, ".", "", KORONOS_NEWC_DIR);\n    append(archive, "./etc", "", KORONOS_NEWC_DIR);
+    append(archive, ".", "", KORONOS_NEWC_DIR);
+    append(archive, "./etc", "", KORONOS_NEWC_DIR);
     append(archive, "./init", "hello", KORONOS_NEWC_REG, true);
     append(archive, "TRAILER!!!", nullptr, KORONOS_NEWC_REG);
     uint32_t visited = 0;
