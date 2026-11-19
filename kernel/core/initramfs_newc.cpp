@@ -87,11 +87,11 @@ extern "C" int koronos_newc_walk(const void *archive, uint64_t archive_size,
         const uint32_t type = mode & KORONOS_NEWC_TYPE_MASK;
         if (type != KORONOS_NEWC_REG && type != KORONOS_NEWC_DIR &&
             type != KORONOS_NEWC_SYMLINK) return -10;
-        if (type == KORONOS_NEWC_SYMLINK && file_size != 0) {
-            if (bytes[data_at] == '/') return -14;
+        if (type == KORONOS_NEWC_SYMLINK) {
+            if (file_size == 0) return -14;
             uint32_t part = 0;
             for (uint32_t i = 0; i <= file_size; ++i) {
-                if (i < file_size && bytes[data_at + i] == '\\') return -14;
+                if (i < file_size && (bytes[data_at + i] == '\\' || bytes[data_at + i] == 0)) return -14;
                 if (i == file_size || bytes[data_at + i] == '/') {
                     if (part == 2u && bytes[data_at + i - 2u] == '.' && bytes[data_at + i - 1u] == '.') return -14;
                     part = 0;
