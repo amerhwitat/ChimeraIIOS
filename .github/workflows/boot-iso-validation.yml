@@ -11,6 +11,7 @@ on:
       - 'tools/branding/**'
       - 'tests/boot/**'
       - 'tools/boot/**'
+      - 'tools/tests/test_boot_menu_policy.py'
       - 'tools/catalogs/**'
       - 'data/isa/online-source-catalog.json'
       - 'isa/isa_database.json'
@@ -19,6 +20,7 @@ on:
       - 'system/commands/online-command-catalog.json'
       - 'data/isa/online-isa-index.json'
       - 'tools/tests/test-iso-resume-and-aurora.sh'
+      - 'tools/tests/test_boot_menu_policy.py'
       - 'build-chimera-iso.sh'
       - '.github/workflows/boot-iso-validation.yml'
   pull_request:
@@ -57,6 +59,7 @@ jobs:
       - name: Shell syntax and regression tests
         run: |
           bash -n build-chimera-iso.sh
+          python3 tools/tests/test_boot_menu_policy.py
           bash tests/build/test_cpu_aware_iso.sh
           bash -n tools/branding/stage-aurora-image.sh
           bash -n tools/branding/chimera-set-desktop-background.sh
