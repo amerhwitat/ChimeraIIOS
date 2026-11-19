@@ -40,11 +40,13 @@ int main() {
     append(archive, ".", "", KORONOS_NEWC_DIR);
     append(archive, "./etc", "", KORONOS_NEWC_DIR);
     append(archive, "./init", "hello", KORONOS_NEWC_REG, true);
+    append(archive, "./tmp", "", KORONOS_NEWC_DIR);
+    append(archive, "./tmp/old.log", "archive-stale", KORONOS_NEWC_REG);
     append(archive, "TRAILER!!!", nullptr, KORONOS_NEWC_REG);
     uint32_t visited = 0;
     assert(koronos_newc_walk(archive.data(), archive.size(), visit, &visited, &result) == 0);
-    assert(visited == 3 && result.entries == 3 && result.directories == 2);
-    assert(result.regular_files == 1 && result.payload_bytes == 5);
+    assert(visited == 5 && result.entries == 5 && result.directories == 3);
+    assert(result.regular_files == 2 && result.payload_bytes == 18);
     assert(koronos_initramfs_mount(archive.data(), archive.size()) == 0);
     uint32_t init_node = 0, etc_node = 0;
     assert(koronos_initramfs_lookup("/init", &init_node) == 0);
@@ -58,6 +60,8 @@ int main() {
     assert(bytes_read == 5 && memcmp(contents, "hello", 5) == 0);
     assert(koronos_initramfs_read(etc_node, 0, contents, 5, &bytes_read) != 0);
     assert(koronos_initramfs_node_count() == 4); // root, etc, init, and RAM-backed /tmp
+    uint32_t stale_tmp_node = 0;
+    assert(koronos_initramfs_lookup("/tmp/old.log", &stale_tmp_node) != 0); // archive /tmp is masked
     uint32_t tmp_node = 0;
     assert(koronos_initramfs_lookup("/tmp", &tmp_node) == 0);
     koronos_initramfs_stat tmp_stat{};
