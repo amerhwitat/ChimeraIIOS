@@ -1283,13 +1283,17 @@ create_installer(){
   local bb="$(command -v busybox || true)"
   [[ -n "$bb" ]] || { log_error "busybox is required to build the native installer initramfs"; rm -rf "$p"; exit 1; }
   cp -f "$bb" "$p/bin/busybox"
-  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio ip udhcpc nslookup; do
+  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio ip udhcpc nslookup blkid; do
     ln -sf busybox "$p/bin/$x"
   done
 
   if [[ -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" ]]; then
     cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh"
     chmod +x "$p/bin/chimera-installer-runtime.sh"
+  fi
+  if [[ -f "$SCRIPT_DIR/tools/boot/chimera-root-discovery.sh" ]]; then
+    cp -f "$SCRIPT_DIR/tools/boot/chimera-root-discovery.sh" "$p/bin/chimera-root-discovery.sh"
+    chmod +x "$p/bin/chimera-root-discovery.sh"
   fi
   for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do
     if [[ -f "$SCRIPT_DIR/$f" ]]; then
@@ -1322,11 +1326,12 @@ create_installer(){
 #!/bin/sh
 set -eu
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
-mkdir -p /proc /sys /dev /run /tmp /mnt /target
+mkdir -p /proc /sys /dev /run /tmp /mnt /target /mnt/chimera-installed
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-echo "CHIMERA II OS — NATIVE INSTALLER"
+if [ -x /bin/chimera-root-discovery.sh ]; then /bin/chimera-root-discovery.sh installer || echo "[INST] Installed-root discovery failed; retaining RAM-backed installer root"; fi
+echo "CHIMERA II OS — NATIVE INSTALLER (RAM-backed initramfs root)"
 echo "[INST] Koronos installer environment online"
 echo "[INST] Aurora installation contracts loaded"
 if [ -x /bin/chimera-installer-runtime.sh ]; then

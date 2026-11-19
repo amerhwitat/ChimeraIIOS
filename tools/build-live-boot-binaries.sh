@@ -60,7 +60,7 @@ BUSYBOX="$(command -v busybox || true)"
 [[ -n "$BUSYBOX" ]] || { echo "ERROR: busybox is required to build the live/recovery initramfs." >&2; exit 2; }
 cp -f "$BUSYBOX" "$INIT/bin/busybox"
 for x in sh mount umount switch_root echo printf ps top tail date clear sed awk head cat ls grep find sleep uname dmesg blkid fsck ip route reboot poweroff gzip mkdir ln; do ln -sf busybox "$INIT/bin/$x"; done
-for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
+for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/chimera-root-discovery.sh tools/boot/chimera-recovery-console.sh tools/boot/chimera-recovery-targets.sh; do [[ -f "$ROOT/$f" ]] && cp -f "$ROOT/$f" "$INIT/bin/"; done
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/recovery/chimera-recovery-targets.json" ]] && cp -f "$ROOT/config/recovery/chimera-recovery-targets.json" "$INIT/etc/chimera/"
@@ -92,6 +92,7 @@ progress 35 "Runtime" "temporary runtime filesystem mount attempt complete"
 if [ -x /bin/chimera-driver-manager.sh ]; then
   /bin/chimera-driver-manager.sh inventory || progress 45 "Drivers" "inventory command returned an error; continuing in recovery mode"
 fi
+if [ -x /bin/chimera-root-discovery.sh ]; then /bin/chimera-root-discovery.sh live || progress 45 "Root discovery" "scan failed; RAM Live remains available"; fi
 progress 50 "Media discovery" "probing available boot media"
 mounted=0
 i=0
@@ -155,6 +156,7 @@ recovery_progress() {
 recovery_progress 0 "Initramfs" "Starting Jasper recovery userspace"
 recovery_progress 20 "Proc/sysfs/devices" "early filesystem mount attempts complete"
 recovery_progress 40 "Runtime" "recovery directories and logs ready"
+if [ -x /bin/chimera-root-discovery.sh ]; then /bin/chimera-root-discovery.sh recovery || recovery_progress 45 "Root discovery" "scan failed; RAM recovery remains available"; fi
 export CHIMERA_RECOVERY_INITRAMFS=1
 if [ -x /bin/chimera-driver-manager.sh ]; then
   /bin/chimera-driver-manager.sh inventory || recovery_progress 50 "Drivers" "inventory returned an error; repair shell remains available"
