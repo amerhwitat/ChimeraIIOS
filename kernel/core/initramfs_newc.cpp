@@ -24,6 +24,8 @@ static uint64_t align4(uint64_t value, bool *ok) {
 static bool safe_name(const char *name, uint32_t size) {
     if (!name || size < 2 || name[size - 1u] != 0) return false;
     for (uint32_t i = 0; i + 1u < size; ++i) if (name[i] == 0) return false;
+    if ((size == 2u && name[0] == '.') ||
+        (size == 3u && name[0] == '.' && name[1] == '/')) return true;
     uint32_t start = 0;
     if (size >= 3 && name[0] == '.' && name[1] == '/') start = 2;
     if (start >= size - 1u || name[start] == '/') return false;
@@ -81,6 +83,7 @@ extern "C" int koronos_newc_walk(const void *archive, uint64_t archive_size,
             result->archive_bytes = next;
             break;
         }
+        if (result->entries >= 65536u) return -15;
         const uint32_t type = mode & KORONOS_NEWC_TYPE_MASK;
         if (type != KORONOS_NEWC_REG && type != KORONOS_NEWC_DIR &&
             type != KORONOS_NEWC_SYMLINK) return -10;
