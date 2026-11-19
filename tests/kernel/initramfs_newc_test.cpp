@@ -57,7 +57,21 @@ int main() {
     assert(koronos_initramfs_read(init_node, 0, contents, 5, &bytes_read) == 0);
     assert(bytes_read == 5 && memcmp(contents, "hello", 5) == 0);
     assert(koronos_initramfs_read(etc_node, 0, contents, 5, &bytes_read) != 0);
-    assert(koronos_initramfs_node_count() == 3);
+    assert(koronos_initramfs_node_count() == 4); // root, etc, init, and RAM-backed /tmp
+    uint32_t tmp_node = 0;
+    assert(koronos_initramfs_lookup("/tmp", &tmp_node) == 0);
+    koronos_initramfs_stat tmp_stat{};
+    assert(koronos_initramfs_stat_node(tmp_node, &tmp_stat) == 0 && tmp_stat.type == 1);
+    uint32_t log_node = 0;
+    assert(koronos_tmpfs_create("/tmp/session.log", &log_node) == 0);
+    uint64_t bytes_written = 0;
+    assert(koronos_tmpfs_write(log_node, 0, "tmpfs", 5, &bytes_written) == 0);
+    assert(bytes_written == 5);
+    memset(contents, 0, sizeof(contents));
+    assert(koronos_initramfs_read(log_node, 0, contents, 5, &bytes_read) == 0);
+    assert(bytes_read == 5 && memcmp(contents, "tmpfs", 5) == 0);
+    assert(koronos_tmpfs_write(init_node, 0, "no", 2, &bytes_written) != 0);
+    assert(koronos_tmpfs_create("/etc/forbidden", &log_node) != 0);
     koronos_initramfs_unmount();
 
     std::vector<uint8_t> badpath;
