@@ -1,4 +1,5 @@
 #include "chimera/initramfs_newc.h"
+#include "chimera/initramfs_fs.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -43,6 +44,20 @@ int main() {
     assert(koronos_newc_walk(archive.data(), archive.size(), visit, &visited, &result) == 0);
     assert(visited == 3 && result.entries == 3 && result.directories == 2);
     assert(result.regular_files == 1 && result.payload_bytes == 5);
+    assert(koronos_initramfs_mount(archive.data(), archive.size()) == 0);
+    uint32_t init_node = 0, etc_node = 0;
+    assert(koronos_initramfs_lookup("/init", &init_node) == 0);
+    assert(koronos_initramfs_lookup("/etc", &etc_node) == 0);
+    koronos_initramfs_stat init_stat{};
+    assert(koronos_initramfs_stat_node(init_node, &init_stat) == 0);
+    assert(init_stat.type == 2 && init_stat.size == 5);
+    char contents[8] = {};
+    uint64_t bytes_read = 0;
+    assert(koronos_initramfs_read(init_node, 0, contents, 5, &bytes_read) == 0);
+    assert(bytes_read == 5 && memcmp(contents, "hello", 5) == 0);
+    assert(koronos_initramfs_read(etc_node, 0, contents, 5, &bytes_read) != 0);
+    assert(koronos_initramfs_node_count() == 3);
+    koronos_initramfs_unmount();
 
     std::vector<uint8_t> badpath;
     append(badpath, "../escape", "x", KORONOS_NEWC_REG);
