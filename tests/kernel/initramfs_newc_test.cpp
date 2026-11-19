@@ -69,6 +69,11 @@ int main() {
     append(badlink, "TRAILER!!!", nullptr, KORONOS_NEWC_REG);
     assert(koronos_newc_walk(badlink.data(), badlink.size(), nullptr, nullptr, &result) == -14);
 
+    std::vector<uint8_t> absolute_link;
+    append(absolute_link, "./messages", "/var/log/messages", KORONOS_NEWC_SYMLINK);
+    append(absolute_link, "TRAILER!!!", nullptr, KORONOS_NEWC_REG);
+    assert(koronos_newc_walk(absolute_link.data(), absolute_link.size(), nullptr, nullptr, &result) == 0);
+
     archive.pop_back();
     assert(koronos_newc_walk(archive.data(), archive.size(), nullptr, nullptr, &result) != 0);
     puts("Koronos newc initramfs parser tests: OK");
