@@ -19,12 +19,15 @@ static void frame_trace(const char *message) {
 static void frame_trace_hex64(const char *label, uint64_t value) {
 #if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
     static const char digits[] = "0123456789ABCDEF";
-    frame_trace(label);
+    if (label) while (*label) {
+        const uint8_t ch = static_cast<uint8_t>(*label++);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(ch));
+    }
     for (int shift = 60; shift >= 0; shift -= 4) {
         const uint8_t digit = static_cast<uint8_t>(digits[(value >> shift) & 0x0fu]);
         __asm__ volatile("outb %0, $0xE9" : : "a"(digit));
     }
-    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\\n'));
+    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\n'));
 #else
     (void)label; (void)value;
 #endif
