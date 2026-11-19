@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include "chimera/target_launch.h"
 #include "chimera/multiboot_modules.h"
+#include "chimera/initramfs_fs.h"
 #include "chimera/process_loader.h"
 #include "chimera/process.h"
 #include "chimera/user_entry.h"
@@ -178,6 +179,31 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: user init module must select exactly one target=live|installer|recovery");
         return -2;
     }
+
+    const uint32_t root_kind = target==TARGET_LIVE ? CHIMERA_MODULE_LIVE_INITRAMFS :
+                               (target==TARGET_RECOVERY ? CHIMERA_MODULE_RECOVERY_INITRAMFS :
+                                CHIMERA_MODULE_INSTALL_IMAGE);
+    const chimera_boot_module *root_module = chimera_multiboot_find(root_kind);
+    if (!root_module || !root_module->base || root_module->size==0 ||
+        root_module->base>=KORONOS_FRAME_PHYS_LIMIT ||
+        root_module->size>KORONOS_FRAME_PHYS_LIMIT-root_module->base) {
+        koronos_target_log("[RUN ] ERROR: selected target has no bounded uncompressed initramfs module");
+        return -16;
+    }
+    const void *root_archive = koronos_phys_to_virt(root_module->base,root_module->size);
+    if (!root_archive || koronos_initramfs_mount(root_archive,root_module->size)!=0) {
+        koronos_target_log("[RUN ] ERROR: target initramfs failed newc validation or RAM namespace mount");
+        return -17;
+    }
+    uint32_t init_node = 0;
+    koronos_initramfs_stat init_stat{};
+    if (koronos_initramfs_lookup("/init",&init_node)!=0 ||
+        koronos_initramfs_stat_node(init_node,&init_stat)!=0 || init_stat.type!=2u) {
+        koronos_initramfs_unmount();
+        koronos_target_log("[RUN ] ERROR: target initramfs has no regular /init entry");
+        return -18;
+    }
+    koronos_target_log("[VFS] target initramfs mounted as read-only RAM namespace; /init validated");
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
