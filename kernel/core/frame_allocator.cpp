@@ -18,13 +18,21 @@ static void frame_trace(const char *message) {
 }
 static void frame_trace_u64(const char *label, uint64_t value) {
 #if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
-    static const char digits[] = "0123456789abcdef";
+    /*
+     * Keep this early-boot diagnostic independent of .rodata lookups and
+     * compiler-generated lookup tables: the allocator runs before the
+     * general memory subsystem has finished initializing.
+     */
+    frame_trace("FA:trace-u64-begin");
     frame_trace(label);
     for (int shift = 60; shift >= 0; shift -= 4) {
-        const uint8_t ch = static_cast<uint8_t>(digits[(value >> shift) & 0xfull]);
+        const uint8_t nibble = static_cast<uint8_t>((value >> shift) & 0x0full);
+        const uint8_t ch = static_cast<uint8_t>(
+            nibble < 10u ? ('0' + nibble) : ('a' + nibble - 10u));
         __asm__ volatile("outb %0, $0xE9" : : "a"(ch));
     }
     __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\n'));
+    frame_trace("FA:trace-u64-end");
 #else
     (void)label; (void)value;
 #endif
