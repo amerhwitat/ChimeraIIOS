@@ -25,7 +25,10 @@ mkdir -p "$BUILD"
 bash "$ROOT/tests/kernel/run-initramfs-newc-tests.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
-CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
+# Koronos boot code must run on the architectural x86-64 baseline used by
+# generic BIOS/UEFI machines and QEMU's default CPU. Do not inherit the build
+# runner ISA (which can silently introduce BMI/BMI2/AVX instructions).
+CXXFLAGS=(-march=x86-64 -mtune=generic -mno-bmi -mno-bmi2 -mno-avx -mno-avx2 -ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"
 
 sources=(koronos initramfs_newc initramfs_fs elf64 module relocate arch_init runtime runtime_loop scheduler process process_loader thread sync timer apc dpc hardware nbit firmware device multiboot_modules parallel driver learning microkernel service object utf8 platform_features compat interrupt syscall isa_registry ai_model frame_allocator physmap address_space target_launch)
@@ -57,6 +60,15 @@ if command -v nm >/dev/null 2>&1; then
 fi
 
 "$LD" -nostdlib -z max-page-size=0x1000 --build-id=none -T "$ROOT/kernel/arch/x86_64/koronos.ld" "${link_objects[@]}" -o "$BUILD/koronos.elf"
+# Reject accidental use of non-baseline BMI/BMI2 instructions in the boot kernel.
+# This is a runtime-compatibility contract, not merely a compiler preference.
+if command -v objdump >/dev/null 2>&1; then
+  if objdump -d "$BUILD/koronos.elf" | grep -Eiq "[[:space:]](andn|bextr|blsi|blsmsk|blsr|bzhi|mulx|pdep|pext|rorx|sarx|shlx|shrx)[[:space:]]"; then
+    echo "ERROR: Koronos ELF contains non-baseline BMI/BMI2 instructions" >&2
+    objdump -d "$BUILD/koronos.elf" | grep -Ei "[[:space:]](andn|bextr|blsi|blsmsk|blsr|bzhi|mulx|pdep|pext|rorx|sarx|shlx|shrx)[[:space:]]" >&2 || true
+    exit 1
+  fi
+fi
 if command -v readelf >/dev/null 2>&1; then
   readelf -h "$BUILD/koronos.elf" | grep -Eq 'Class:[[:space:]]+ELF64' || { echo "ERROR: Koronos is not ELF64" >&2; exit 1; }
 fi
