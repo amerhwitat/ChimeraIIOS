@@ -123,6 +123,7 @@ static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
         case 60: return 1;
         case 61: return 14;
         case 158: return 15;
+        case 257: return 5; // openat (AT_FDCWD only in bootstrap VFS)
         case 231: return 16;
         default: return 0xFFFFFFFFu;
     }
