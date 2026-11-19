@@ -122,7 +122,8 @@ printf 'USERSPACE READY: target=live init_pid=%s\n' "$$" > /dev/console 2>/dev/n
 exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
-(cd "$INIT" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
+(cd "$INIT" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/live/chimera-live-initramfs.cpio"
+gzip -9 -c "$OUT/boot/live/chimera-live-initramfs.cpio" > "$OUT/boot/live/chimera-live-initramfs.img"
 sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
 
 # Dedicated recovery image: same hardware/filesystem utilities as Live, but
@@ -166,7 +167,8 @@ printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$" > /dev/console 2>/d
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
-(cd "$REC" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
+(cd "$REC" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/recovery/chimera-recovery-initramfs.cpio"
+gzip -9 -c "$OUT/boot/recovery/chimera-recovery-initramfs.cpio" > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
 sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recovery/chimera-recovery-initramfs.img.sha256"
 
 for arch in arm64 armv7 x86_64; do
