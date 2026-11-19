@@ -1,3 +1,86 @@
+# Current source audit — 2026-11-17 (supersedes older status bullets below)
+
+This update is based on the current `main` source files at the time of review.
+It is a source audit, not a fresh kernel build or QEMU runtime result.
+
+## What has advanced since the older diagnosis
+
+The x86-64 path now has more than a placeholder privilege transition:
+
+- `kernel/arch/x86_64/user_entry.asm` installs user selectors, a 64-bit TSS/RSP0,
+  configures the SYSCALL MSRs, saves a kernel continuation and CR3, switches to
+  the selected address space, and enters ring 3 with `iretq`.
+- Its syscall entry saves the user register frame, switches to a dedicated
+  kernel syscall stack, dispatches the syscall, and returns to userspace with
+  an `iretq` frame. The native exit sentinel restores the saved kernel CR3 and
+  original kernel continuation.
+- `kernel/core/interrupt.cpp` configures the DPL3 INT 0x80 gate and validates
+  the CPU-saved CS RPL before recording the first CPL3-origin syscall.
+- `kernel/core/target_launch.cpp` admits the target ELF, invokes the ELF
+  address-space loader, sets the active root/PID, enters ring 3 and requires
+  the syscall acknowledgement plus a target/PID readiness marker.
+
+These are meaningful x86-64 single-process handoff components. They should not
+be described using the older diagnosis that said the TSS, user selectors, ring-3
+entry and syscall-origin check were wholly absent.
+
+## What still prevents a production userspace
+
+The decisive limitation remains the lifecycle after entry:
+
+- `process.h` still declares `CHIMERA_PROCESS_LOAD_PLAN_ONLY`; `process.cpp`
+  is a metadata/admission table, not an owner of a saved, resumable CPU context,
+  kernel stack, parent/child relationship, wait status or address-space lifetime.
+- `scheduler.cpp` schedules callbacks. Its callback is run to completion;
+  yield/block/exit update callback state but do not switch to another saved
+  user register frame. `chimera_sched_run_parallel()` returns zero.
+- `target_launch.cpp` calls `koronos_arch_enter_user()` synchronously. When
+  the probe exits or the PIT deadline aborts it, the launcher disarms the timer,
+  destroys the address space and marks the process exited/faulted. This is a
+  bounded one-shot execution, not persistent PID 1.
+- The current three target init ELFs are readiness probes. Live does not yet
+  provide a production shell/desktop, Installer does not write/install to a
+  selected disk, and Recovery does not perform filesystem/boot repairs.
+- The initramfs modules are not yet unpacked into a mounted production rootfs
+  with VFS-backed filesystems and the required `/dev`, `/proc`, `/sys`, and
+  writable `/tmp` semantics.
+
+## Correct Linux reference and implementation order
+
+Linux `init/main.c` separates early kernel initialization from persistent
+userspace: `rest_init()` creates PID 1 and `kthreadd`, starts scheduling,
+and `kernel_init()` completes initramfs/rootfs setup before executing init.
+PID 1 remains a schedulable task. Koronos should follow the architecture, not
+copy Linux internals blindly:
+
+1. Replace the callback-only task abstraction for user processes with
+   architecture-owned saved interrupt/register frames, kernel stacks,
+   address-space ownership, process states and synchronization.
+2. Implement a timer/interrupt-safe context switch that can suspend and resume
+   a CPL3 process without unwinding the original launcher's C stack.
+3. Start PID 1 as a normal schedulable process; keep it alive after readiness.
+   Treat PID 1 exit as a target failure.
+4. Add initramfs unpacking, rootfs/VFS and process syscalls before claiming a
+   general userspace.
+5. Implement and test the separate Live, Installer and Recovery behaviors.
+6. Add AP startup and real per-CPU scheduling before claiming SMP.
+
+Do not try to fix the lifecycle by removing address-space teardown, increasing
+the PIT deadline, faking process states, or relaxing the handoff verifier. Those
+changes would mask missing ownership/context-switch semantics.
+
+## Verification boundary
+
+No current-source audit can substitute for the canonical build and fresh
+runtime traces. The release gate must still run Live, Installer and Recovery
+under BIOS and UEFI from one immutable ISO SHA, require the same nonzero PID
+through the CPL3 syscall and readiness events, and independently test desktop
+startup, installer persistence, recovery postconditions and real AP overlap.
+The readiness-probe manifests must remain `production_ready=false` until those
+tests pass with production target implementations.
+
+---
+
 # Koronos userspace handoff: zero process-context diagnosis
 
 ## Observed boot output

@@ -20,13 +20,13 @@ reference model* — the same boot contract, the same build ergonomics, the same
 | Syscall entry | `MSR_LSTAR`/`syscall`, `swapgs` | `syscall` with STAR/LSTAR set up in `user_entry.asm`; `syscall.cpp` dispatcher; `INT 0x80` DPL3 gate for the CPL-3 proof | Linux uses `syscall` as the fast path and `int3`/`int 0x80` only for compat. Koronos keeps `INT 0x80` as the *audit* gate so the kernel can prove `CS.RPL == 3` before it acknowledges anything. |
 | PID namespace | `struct pid`, `task_pid_nr` | kernel-owned per-process id, returned by `CHM_SYS_GETPID` | Payloads never embed PID 1; the verifier requires the PID the kernel assigned. |
 | Signals / waits | `signal_struct`, wait queues | APC/DPC queues, `chimera_wait_one` | Not POSIX. |
-| Scheduler | CFS/EEVDF, per-CPU runqueues | priority queues, `chimera_sched_run_parallel`, per-CPU snapshots | SMP is scheduled but AP bring-up is not proven; `-smp 2` alone is not evidence. |
+| Scheduler | CFS/EEVDF, per-CPU runqueues and preemptive task contexts | callback task queue (`chimera_sched_run_once`); `chimera_sched_run_parallel` returns zero | **Not process scheduling.** There is no saved user register context, timer-driven process preemption, AP startup, or per-CPU runqueue dispatch. |
 | Block layer | `bio`, request queues, `blk-mq` | none exposed to ring 3 | **Installer payload must stay a dry-run report** until a block backend exists. Do not advertise installation. |
 | VFS | `struct super_block`, `dentry` | none (filesystem code exists in `filesystems/` for research, not wired to syscalls) | No `open/read/write` on files; `write` targets fd 1 only. |
 | Console | `tty`, `printk` → serial/VT | `console_write` → debugcon/serial, `pc-display` driver | Userspace writes go through `CHM_SYS_WRITE` to the same console. |
 | Build system | Kbuild/Kconfig, `make defconfig`, `-j`, modules | `kernel/Kbuild` + `Kconfig` + `scripts/kconfig`, `make -C kernel defconfig && make -C kernel -j`, `make modules`, `make install` | **Aligned**: Linux-style targets and per-directory `Kbuild` fragments; the legacy `build-koronos.sh` recipe is retained as `make legacy`. |
 | Module model | `insmod`, ELF relocations, vermagic | Multiboot2 modules (`module2`), typed by name (`chimera-live-initramfs`, `chimera-installer-contract`, `chimera-user-init-elf`, …) | Modules are staged by the ISO, not loaded at runtime. |
-| Init contract | `/sbin/init`, PID 1, `execve` | one `chimera-user-init-elf` per boot with `target=live|installer|recovery` | **Aligned in spirit**: init is a userspace ELF at a high address that emits its own readiness. |
+| Init contract | `/sbin/init`, persistent PID 1, `execve` | one target-specific `chimera-user-init-elf` probe per boot | **Probe only.** Current target launcher enters ring 3 synchronously, waits for return, destroys the address space, and marks the process exited. It is not a persistent PID 1 or service manager. |
 | Initramfs | cpio + gzip/zstd, unpacked by the kernel | cpio+gzip image staged as a Multiboot2 module, surfaced to the target | The initramfs is *payload data* today, not an unpacked rootfs. |
 | Verification | boot selftests, `kselftest`, CI | fail-closed trace verifier (`tests/*/verify-userspace-handoff.py`), QEMU BIOS+UEFI matrix | Kept intentionally stricter than the kernel it validates: marker must come from user code after a CPL-3 syscall. |
 
@@ -48,20 +48,31 @@ reference model* — the same boot contract, the same build ergonomics, the same
    `[KRN ]/[RUN ]/[SCH ]/[MM  ]` tag prefixes give the same "read the boot log" workflow
    `dmesg` gives on Linux.
 
-## 3. Evidence produced by this build
+## 3. Evidence status — source audit, not production acceptance
 
-| Case | Result |
+The current source contains a real x86-64 ring-3 entry path and a target/PID-specific
+readiness-probe contract. That is useful progress, but it must not be conflated with
+a production userspace runtime.
+
+| Capability | Current source status |
 | --- | --- |
-| Live / BIOS | PASS — `USER INIT SYSCALL: target=live init_pid=1`, then `USERSPACE READY: target=live init_pid=1` |
-| Live / UEFI | PASS |
-| Installer / BIOS | PASS |
-| Installer / UEFI | PASS |
-| Recovery / BIOS | PASS |
-| Recovery / UEFI | PASS |
+| ELF validation and PT_LOAD mapping callbacks | Implemented; hardware permission enforcement and full lifecycle still require independent verification |
+| CR3 activation and ring-3 entry | Synchronous x86-64 entry path exists |
+| CPL3-originated syscall acknowledgement | Implemented in the probe path; must be confirmed in fresh QEMU traces |
+| Target/PID readiness marker | Probe contract exists; a marker is not proof of a persistent init |
+| Persistent PID 1 and process-aware scheduler | NOT IMPLEMENTED |
+| Initramfs unpacking and mounted rootfs/VFS | NOT IMPLEMENTED |
+| Live shell and native desktop startup | NOT IMPLEMENTED on the freestanding Koronos path |
+| Installer disk writes and reboot persistence | NOT IMPLEMENTED |
+| Recovery repair operations and postcondition checks | NOT IMPLEMENTED |
+| AP startup and real parallel SMP | NOT IMPLEMENTED |
 
-Verifier: `tests/migration/verify-userspace-handoff.py` (OctavianOS) and
-`tests/boot/verify-userspace-handoff.py` (Chimera II OS), unchanged, fail-closed.
-Traces: `docs/releases/<tag>/traces/*.log`.
+Do not reuse historical six-case PASS statements as current release evidence. A valid
+release claim requires fresh traces from the exact immutable ISO SHA, with the
+unchanged fail-closed verifier, plus separate Live desktop, installer persistence,
+Recovery repair, and AP-concurrency acceptance tests. The current readiness ELF
+manifests explicitly identify their payloads as probes and set
+`production_ready=false`.
 
 ## 4. Deliberate non-goals
 
