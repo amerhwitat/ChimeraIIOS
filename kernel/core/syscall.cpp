@@ -126,7 +126,7 @@ static int open_initramfs_file(uint64_t path_address,uint64_t flags,uint64_t roo
     if ((flags&~(O_ACCMODE|O_CREAT|O_EXCL|O_CLOEXEC))!=0u) return -30;
     if ((flags&O_CREAT) && !(flags&O_EXCL)) return -30;
     const uint64_t access=flags&O_ACCMODE;
-    char path[256];
+    char path[256] = {};
     if (!copy_user_path(path_address,root,path,sizeof(path))) return -14;
     uint32_t node=0;
     bool writable=false;
@@ -260,6 +260,7 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
                 return static_cast<uint64_t>(koronos_console_write_user(address,length));
             }
             if (fd>=16u || length>4096u) return static_cast<uint64_t>(-22ll);
+            if (!length) return 0;
             reset_initramfs_fds(pid);
             InitramfsFd &entry=initramfs_fds[fd];
             const uint64_t root=active_cr3_root();
