@@ -36,12 +36,12 @@ static int visit(void* context, const koronos_newc_entry* entry) {
 int main() {
     koronos_newc_result result{};
     std::vector<uint8_t> archive;
-    append(archive, "./etc", "", KORONOS_NEWC_DIR);
+    append(archive, ".", "", KORONOS_NEWC_DIR);\n    append(archive, "./etc", "", KORONOS_NEWC_DIR);
     append(archive, "./init", "hello", KORONOS_NEWC_REG, true);
     append(archive, "TRAILER!!!", nullptr, KORONOS_NEWC_REG);
     uint32_t visited = 0;
     assert(koronos_newc_walk(archive.data(), archive.size(), visit, &visited, &result) == 0);
-    assert(visited == 2 && result.entries == 2 && result.directories == 1);
+    assert(visited == 3 && result.entries == 3 && result.directories == 2);
     assert(result.regular_files == 1 && result.payload_bytes == 5);
 
     std::vector<uint8_t> badpath;
