@@ -154,6 +154,7 @@ fi
 LIVE_BOOT="$ROOT/build/live-boot"
 for required in \
   "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" \
+  "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio" \
   "$LIVE_BOOT/boot/live/live-manifest.json" \
   "$LIVE_BOOT/boot/koronos/koronos.elf"; do
   [[ -s "$required" ]] || { echo "ERROR: missing live-boot artifact: $required" >&2; exit 2; }
@@ -162,6 +163,7 @@ done
 # Stage the live artifacts explicitly at the paths consumed by Jasper/GRUB.
 mkdir -p "$STAGE/boot/live" "$STAGE/boot/koronos"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$STAGE/boot/live/"
+cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio" "$STAGE/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$STAGE/boot/live/"
     chimera_copy_if_distinct "$LIVE_BOOT/boot/koronos/koronos.elf" "$STAGE/boot/koronos/koronos.elf"
 
@@ -197,6 +199,7 @@ fi
 bash "$ROOT/tools/chimera-stage-installer-media.sh" "$STAGE"
 for required in \
   "$STAGE/install/installer/installation.img" \
+  "$STAGE/install/installer/installation.cpio" \
   "$STAGE/install/installer/installation-manifest.json" \
   "$STAGE/install/installer/installer-contract.json" \
   "$STAGE/install/installer/installation_phases.json" \
