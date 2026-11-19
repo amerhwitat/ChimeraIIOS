@@ -203,7 +203,7 @@ extern "C" int koronos_launch_selected_userspace(void) {
         koronos_target_log("[RUN ] ERROR: target initramfs has no regular /init entry");
         return -18;
     }
-    koronos_target_log("[VFS] target initramfs mounted as read-only RAM namespace; /init validated");
+    koronos_target_log("[RAM ] / mounted from validated read-only CPIO; bounded writable /tmp tmpfs reserved; /init validated (not yet a general VFS mount)");
     if (!koronos_address_space_ready()) {
         koronos_target_log("[RUN ] ERROR: address-space/ring-3 backend unavailable");
         return -3;
