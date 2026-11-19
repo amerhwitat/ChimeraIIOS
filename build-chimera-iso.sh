@@ -706,10 +706,12 @@ create_boot_menu(){
   bash "$SCRIPT_DIR/tools/build-live-boot-binaries.sh"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/chimera-live-initramfs.img"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.cpio" "$ISO_DIR/boot/live/chimera-live-initramfs.cpio"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.cpio.sha256" "$ISO_DIR/boot/live/chimera-live-initramfs.cpio.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/live-manifest.json"
   mkdir -p "$ISO_DIR/boot/recovery" "$ISO_DIR/recovery"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/recovery-manifest.json" "$ISO_DIR/boot/recovery/recovery-manifest.json"
   cp "$SCRIPT_DIR/config/recovery/chimera-recovery-targets.json" "$ISO_DIR/recovery/"
@@ -1480,9 +1482,11 @@ verify_iso(){
     /boot/targets/target-init-recovery.elf
     /boot/targets/target-init-recovery.manifest.json
     /boot/live/chimera-live-initramfs.cpio
+    /boot/live/chimera-live-initramfs.cpio.sha256
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
     /boot/recovery/chimera-recovery-initramfs.cpio
+    /boot/recovery/chimera-recovery-initramfs.cpio.sha256
     /boot/recovery/chimera-recovery-initramfs.img
     /boot/recovery/recovery-manifest.json
     /boot/grub/aurora-theme.txt
