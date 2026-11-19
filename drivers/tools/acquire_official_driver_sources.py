@@ -22,7 +22,7 @@ for name,url in SOURCES:
             info=os.path.join(git_dir,"info")
             os.makedirs(info,exist_ok=True)
             with open(os.path.join(info,"attributes"),"w",encoding="utf-8") as f:
-                f.write("network/netadaptercx/netvadapter/km/netvadapter.inf -working-tree-encoding\\n")
+                f.write("network/netadaptercx/netvadapter/km/netvadapter.inf -working-tree-encoding\n")
         subprocess.run(["git","-C",dst,"fetch","--depth=1","origin"],check=False)
         subprocess.run(["git","-C",dst,"reset","--hard","origin/HEAD"],check=False)
     else:
@@ -35,7 +35,7 @@ for name,url in SOURCES:
             info=os.path.join(git_dir,"info")
             os.makedirs(info,exist_ok=True)
             with open(os.path.join(info,"attributes"),"w",encoding="utf-8") as f:
-                f.write("network/netadaptercx/netvadapter/km/netvadapter.inf -working-tree-encoding\\n")
+                f.write("network/netadaptercx/netvadapter/km/netvadapter.inf -working-tree-encoding\n")
             subprocess.run(["git","-C",dst,"checkout","-f","HEAD"],check=False)
     if os.path.isdir(git_dir):
         rev=subprocess.check_output(["git","-C",dst,"rev-parse","HEAD"],text=True).strip()
