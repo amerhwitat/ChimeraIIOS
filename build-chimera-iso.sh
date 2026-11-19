@@ -1291,6 +1291,10 @@ create_installer(){
     cp -f "$SCRIPT_DIR/tools/chimera-installer-runtime.sh" "$p/bin/chimera-installer-runtime.sh"
     chmod +x "$p/bin/chimera-installer-runtime.sh"
   fi
+  if [[ -f "$SCRIPT_DIR/tools/boot/chimera-root-discovery.sh" ]]; then
+    cp -f "$SCRIPT_DIR/tools/boot/chimera-root-discovery.sh" "$p/bin/chimera-root-discovery.sh"
+    chmod +x "$p/bin/chimera-root-discovery.sh"
+  fi
   for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh; do
     if [[ -f "$SCRIPT_DIR/$f" ]]; then
       cp -f "$SCRIPT_DIR/$f" "$p/bin/"
@@ -1326,7 +1330,8 @@ mkdir -p /proc /sys /dev /run /tmp /mnt /target /mnt/chimera-installed
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-echo "CHIMERA II OS — NATIVE INSTALLER"
+if [ -x /bin/chimera-root-discovery.sh ]; then /bin/chimera-root-discovery.sh installer || echo "[INST] Installed-root discovery failed; retaining RAM-backed installer root"; fi
+echo "CHIMERA II OS — NATIVE INSTALLER (RAM-backed initramfs root)"
 echo "[INST] Koronos installer environment online"
 echo "[INST] Aurora installation contracts loaded"
 if [ -x /bin/chimera-installer-runtime.sh ]; then
