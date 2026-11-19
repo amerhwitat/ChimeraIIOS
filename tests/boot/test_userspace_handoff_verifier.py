@@ -58,7 +58,7 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = (
             KERNEL + ENTRY.format(target="live", pid=1)
             + READY.format(target="live", pid=1)
-            + "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly\\n"
+            + "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly\n"
         )
         result = run("live", trace)
         self.assertEqual(result.returncode, 1)
@@ -68,7 +68,7 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
         trace = (
             KERNEL + ENTRY.format(target="installer", pid=1)
             + READY.format(target="installer", pid=1)
-            + "[RUN ] ERROR: scheduler failure\\n"
+            + "[RUN ] ERROR: scheduler failure\n"
         )
         self.assertEqual(run("installer", trace).returncode, 1)
 
