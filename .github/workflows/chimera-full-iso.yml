@@ -318,6 +318,14 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      - name: Fail the build when any native userspace handoff is unverified
+        if: steps.userspace_gate.outputs.accepted != 'true'
+        shell: bash
+        run: |
+          echo "::error::Live, Installer, and Recovery must each pass the real CPL3 init/PID readiness gate before this ISO build can be green."
+          echo "::error::Diagnostic ISO and target traces were uploaded for investigation; no release was published."
+          exit 1
+
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
