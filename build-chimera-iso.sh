@@ -1283,7 +1283,7 @@ create_installer(){
   local bb="$(command -v busybox || true)"
   [[ -n "$bb" ]] || { log_error "busybox is required to build the native installer initramfs"; rm -rf "$p"; exit 1; }
   cp -f "$bb" "$p/bin/busybox"
-  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio ip udhcpc nslookup; do
+  for x in sh mount umount switch_root mkdir cat echo ls cp mv rm sleep sync ps top tail date clear sed awk head find grep gzip cpio ip udhcpc nslookup blkid; do
     ln -sf busybox "$p/bin/$x"
   done
 
@@ -1322,7 +1322,7 @@ create_installer(){
 #!/bin/sh
 set -eu
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
-mkdir -p /proc /sys /dev /run /tmp /mnt /target
+mkdir -p /proc /sys /dev /run /tmp /mnt /target /mnt/chimera-installed
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
