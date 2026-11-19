@@ -52,6 +52,9 @@ chimera_export_docker_rootfs() {
     [[ -n "$dest" ]] || { log_error "Rootfs destination is not set; use CHIMERA_ROOTFS_DIR."; return 1; }
     command -v docker >/dev/null || { log_error "Docker CLI not found."; return 1; }
     command -v tar >/dev/null || { log_error "tar not found."; return 1; }
+    command -v gzip >/dev/null || { log_error "gzip not found; compressed rootfs export requires gzip."; return 1; }
+    local compression_level="${CHIMERA_ROOTFS_COMPRESSION_LEVEL:-1}"
+    [[ "$compression_level" =~ ^[1-9]$ ]] || { log_error "CHIMERA_ROOTFS_COMPRESSION_LEVEL must be 1..9 (got: $compression_level)"; return 1; }
     docker image inspect "$image" >/dev/null 2>&1 || { log_error "Docker image does not exist: $image"; return 1; }
     mkdir -p "$work" "$dest"; chmod 0700 "$work"
     [[ -w "$dest" ]] || { log_error "Rootfs destination is not writable: $dest"; return 1; }
@@ -63,16 +66,20 @@ chimera_export_docker_rootfs() {
     mkdir -p "$work/export" "$work/rootfs"
     while read -r old; do [[ -z "$old" ]] || docker rm -f "$old" >/dev/null 2>&1 || true; done < <(docker ps -aq --filter 'label=chimera.rootfs.export=true')
     cid="$(docker create --label chimera.rootfs.export=true "$image")" || { log_error "docker create failed: $image"; return 1; }
-    tarball="$work/export/rootfs.tar"
-    log_info "Exporting $image -> $tarball"
-    if ! docker export "$cid" -o "$tarball"; then
+    tarball="$work/export/rootfs.tar.gz"
+    log_info "Exporting $image as a streaming gzip-compressed rootfs archive (level $compression_level) -> $tarball"
+    # Stream Docker's tar export directly into gzip: never create a second,
+    # uncompressed tarball on disk. pipefail makes either side's failure fatal.
+    if ! docker export "$cid" | gzip "-$compression_level" > "$tarball"; then
         docker logs "$cid" 2>&1 || true; docker rm -f "$cid" >/dev/null 2>&1 || true
-        log_error "docker export failed"; return 1
+        log_error "Docker export/compression failed"; return 1
     fi
     docker rm -f "$cid" >/dev/null 2>&1 || true; cid=''
-    [[ -s "$tarball" ]] || { log_error "Docker export archive is empty: $tarball"; return 1; }
-    log_info "Extracting rootfs on Linux-native WSL storage"
-    tar --numeric-owner --xattrs --xattrs-include='*' --acls --same-permissions -xf "$tarball" -C "$work/rootfs" || { log_error "tar extraction failed; archive retained at $tarball"; return 1; }
+    [[ -s "$tarball" ]] || { log_error "Compressed Docker export archive is empty: $tarball"; return 1; }
+    gzip -t "$tarball" || { log_error "Compressed rootfs archive failed gzip integrity verification: $tarball"; return 1; }
+    log_info "Compressed rootfs archive size: $(du -h "$tarball" | awk '{print $1}')"
+    log_info "Decompressing rootfs archive directly into the Linux-native WSL staging directory"
+    gzip -dc "$tarball" | tar --numeric-owner --xattrs --xattrs-include='*' --acls --same-permissions -xf - -C "$work/rootfs" || { log_error "Rootfs decompression/extraction failed; archive retained at $tarball"; return 1; }
     [[ -d "$work/rootfs/etc" ]] || { log_error "Invalid exported rootfs: /etc missing"; return 1; }
     stage="${dest}.chimera-new.$$"; rm -rf -- "$stage"; mkdir -p "$stage"
     cp -a -- "$work/rootfs/." "$stage/"
