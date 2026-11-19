@@ -28,8 +28,8 @@ mkdir -p "$P"/{bin,dev,proc,sys,run,tmp,mnt,target,etc,chimera/installer,var/log
 BB="$(command -v busybox || true)"
 if [[ -z "$BB" ]]; then echo "ERROR: busybox is required to build installation.img" >&2; exit 2; fi
 cp "$BB" "$P/bin/busybox"
-for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head ip udhcpc nslookup gzip; do ln -sf busybox "$P/bin/$x"; done
-if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/chimera-installer-runtime.sh" "$P/bin/"; chmod +x "$P/bin/chimera-installer-runtime.sh"; fi
+for x in sh mount umount switch_root mkdir cat echo ls cp mv sleep sync ps top tail date clear sed awk head ip udhcpc nslookup gzip blkid; do ln -sf busybox "$P/bin/$x"; done
+if [[ -f "$ROOT/tools/chimera-installer-runtime.sh" ]]; then cp -f "$ROOT/tools/chimera-installer-runtime.sh" "$P/bin/"; chmod +x "$P/bin/chimera-installer-runtime.sh"; fi\nif [[ -f "$ROOT/tools/boot/chimera-root-discovery.sh" ]]; then cp -f "$ROOT/tools/boot/chimera-root-discovery.sh" "$P/bin/"; chmod +x "$P/bin/chimera-root-discovery.sh"; fi
 for f in "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$P/chimera/installer/"; done
 cat > "$P/init" <<'EOF'
 #!/bin/sh
