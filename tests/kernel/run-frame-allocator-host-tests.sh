@@ -9,6 +9,7 @@ trap 'rm -f "$OUT"' EXIT
   "$ROOT/kernel/core/frame_allocator.cpp" \
   -o "$OUT"
 "$OUT"
+"$OUT" large
 "$OUT" above4g
 
 OUT_PHYSMAP="${TMPDIR:-/tmp}/koronos-physmap-test.$$"
