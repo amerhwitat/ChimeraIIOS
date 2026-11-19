@@ -180,6 +180,8 @@ extern "C" int koronos_tmpfs_create(const char *path,uint32_t *out) {
     if (prefix[i] || i!=5u) return -2;
     uint32_t length=0; while(path[i+length]) ++length;
     if (!length || length>KORONOS_INITRAMFS_NAME_MAX || tmpfs_used+TMPFS_FILE_CAPACITY>sizeof(tmpfs_data)) return -3;
+    if ((length==1u && path[i]=='.') ||
+        (length==2u && path[i]=='.' && path[i+1u]=='.')) return -4;
     for(uint32_t j=0;j<length;j++) if(path[i+j]=='/' || path[i+j]=='\\') return -4;
     if(find_child(tmpfs_root,path+i,length)) return -5;
     const uint32_t id=add_node(tmpfs_root,path+i,length,NODE_FILE, KORONOS_NEWC_REG|0666u,
