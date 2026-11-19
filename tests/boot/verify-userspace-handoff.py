@@ -9,6 +9,8 @@ from pathlib import Path
 import re
 import sys
 
+EXIT_MARKER = "Target userspace init emitted its own readiness handshake and exited cleanly"
+
 TARGETS = {"live", "installer", "recovery"}
 KERNEL_MARKER = "[KRN ] KORONOS READY"
 ENTRY_RE = re.compile(
