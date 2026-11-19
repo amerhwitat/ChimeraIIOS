@@ -114,6 +114,22 @@ extern "C" int koronos_initramfs_mount(const void *archive,uint64_t size) {
     if (tmp && nodes[tmp].type != NODE_DIR) { clear_nodes(); return -2; }
     if (!tmp) tmp = add_node(0,"tmp",3u,NODE_DIR,KORONOS_NEWC_DIR|01777u,0,0,nullptr,0);
     if (!tmp) { clear_nodes(); return -3; }
+
+    /* /tmp is a RAM mount, not a writable view of the archive. Mask every
+       archive-provided child so stale or attacker-controlled initramfs files
+       cannot leak into the volatile namespace. Descendants become unreachable
+       when their direct parent is detached. */
+    for (uint32_t i=1;i<=node_count;i++) {
+        if (nodes[i].used && nodes[i].parent==tmp) {
+            nodes[i].used=0;
+            nodes[i].data=nullptr;
+            nodes[i].size=0;
+            nodes[i].writable=0;
+        }
+    }
+    nodes[tmp].mode=KORONOS_NEWC_DIR|01777u;
+    nodes[tmp].data=nullptr;
+    nodes[tmp].size=0;
     tmpfs_root = tmp;
     mounted=true; return 0;
 }
@@ -151,7 +167,12 @@ extern "C" int koronos_initramfs_read(uint32_t id,uint64_t offset,void *buffer,
     for(uint64_t i=0;i<count;i++) dst[i]=n.data[offset+i];
     *read_count=count; return 0;
 }
-extern "C" uint32_t koronos_initramfs_node_count(void) { return mounted?node_count+1u:0u; }
+extern "C" uint32_t koronos_initramfs_node_count(void) {
+    if (!mounted) return 0;
+    uint32_t count=0;
+    for (uint32_t i=0;i<=node_count;i++) if (nodes[i].used) ++count;
+    return count;
+}
 extern "C" int koronos_tmpfs_create(const char *path,uint32_t *out) {
     if (!mounted || !path || !out || !tmpfs_root) return -1;
     const char prefix[]="/tmp/";
