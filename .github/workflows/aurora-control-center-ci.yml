@@ -74,4 +74,18 @@ jobs:
           test -s web/chimera-hub.css
           test ! -e web/amiga-core
           test ! -e web/local-core
-          ! grep -R -E 'puae_libretro|\.so|\.dll|\.dylib' web --include='*.html' --include='*.js' --include='*.css'
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          forbidden = re.compile(r"""puae_libretro|\.(?:so|dll|dylib)(?:\.\d+)?(?=$|["'/?#\s])""")
+          matches = []
+          for path in Path("web").rglob("*"):
+              if path.suffix not in {".html", ".js", ".css"}:
+                  continue
+              for number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+                  if forbidden.search(line):
+                      matches.append(f"{path}:{number}:{line}")
+          if matches:
+              raise SystemExit("Native binary references are not allowed in Pages assets:\n" + "\n".join(matches))
+          print("GitHub Pages native-binary boundary: PASS")
+          PY
