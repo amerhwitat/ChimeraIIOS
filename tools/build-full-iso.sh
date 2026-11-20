@@ -153,6 +153,24 @@ rm -rf "$STAGE"
 mkdir -p "$STAGE/boot" "$STAGE/install" "$STAGE/system" "$STAGE/sdk" "$STAGE/desktop"
 [[ -n "$KERNEL" && -f "$KERNEL" ]] && cp "$KERNEL" "$STAGE/boot/koronos.elf"
 if [[ -d "$ROOT/build/live-boot/boot" ]]; then cp -a "$ROOT/build/live-boot/boot/." "$STAGE/boot/"; fi
+
+# Stage the exact target init ELFs referenced by the canonical GRUB entries.
+# Missing target modules must stop ISO mastering rather than leave a menu entry
+# that cannot dispatch its selected Live/Installer/Recovery userspace.
+TARGET_INIT_DIR="$ROOT/build/koronos/x86_64"
+mkdir -p "$STAGE/boot/targets" "$STAGE/boot/grub"
+for target in live installer recovery; do
+  target_elf="$TARGET_INIT_DIR/target-init-$target.elf"
+  test -s "$target_elf" || { echo "ERROR: missing $target native init ELF: $target_elf" >&2; exit 2; }
+  readelf -h "$target_elf" | grep -Eq 'Type:[[:space:]]+EXEC' || {
+    echo "ERROR: $target_elf is not an executable ELF" >&2; exit 2;
+  }
+  cp -f "$target_elf" "$STAGE/boot/targets/"
+done
+# Never inherit a stale GRUB menu from a supplied base ISO.
+cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"
+cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"
+
 mkdir -p "$STAGE/boot/jasper" "$STAGE/boot/spitfire" "$STAGE/boot/installation" "$STAGE/boot/recovery" "$STAGE/boot/diagnostics"
 cp -a "$ROOT/boot/jasper/." "$STAGE/boot/jasper/"
 cp -a "$ROOT/boot/spitfire/spitfire-menu.cfg" "$STAGE/boot/spitfire/"
