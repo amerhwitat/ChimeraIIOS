@@ -8,7 +8,7 @@ SCRIPT = Path(__file__).with_name("verify-userspace-handoff.py")
 KERNEL = "[KRN ] KORONOS READY\n"
 ENTRY = "USER INIT SYSCALL: target={target} init_pid={pid}\n"
 READY = "USERSPACE READY: target={target} init_pid={pid}\n"
-
+ACTIVE = "KORONOS PID1 ACTIVE: target={target} init_pid={pid}\n"
 
 def run(target, trace):
     with tempfile.TemporaryDirectory() as td:
@@ -16,62 +16,59 @@ def run(target, trace):
         log.write_text(trace, encoding="utf-8")
         return subprocess.run([sys.executable, str(SCRIPT), target, str(log)], capture_output=True, text=True)
 
-
 class UserspaceHandoffVerifierTests(unittest.TestCase):
     def test_kernel_ready_alone_is_not_userspace_ready(self):
         result = run("live", KERNEL)
         self.assertEqual(result.returncode, 1)
         self.assertIn("user-originated init syscall acknowledgement", result.stdout)
 
-    def test_readiness_marker_without_user_entry_ack_is_rejected(self):
+    def test_readiness_without_cpl3_ack_is_rejected(self):
         result = run("live", KERNEL + READY.format(target="live", pid=1))
         self.assertEqual(result.returncode, 1)
         self.assertIn("user-originated init syscall acknowledgement", result.stdout)
 
     def test_requires_matching_target(self):
-        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
-        result = run("installer", trace)
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("ordered kernel-ready -> user-originated init syscall", result.stdout)
-
-    def test_requires_same_pid_for_entry_and_ready(self):
-        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=2)
-        self.assertEqual(run("live", trace).returncode, 1)
-
-    def test_requires_ordered_markers(self):
-        trace = READY.format(target="live", pid=1) + ENTRY.format(target="live", pid=1) + KERNEL
-        self.assertEqual(run("live", trace).returncode, 1)
-
-    def test_accepts_live_with_user_originated_syscall_and_matching_pid(self):
-        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
-        self.assertEqual(run("live", trace).returncode, 0)
-
-    def test_rejects_zero_or_mismatched_pid(self):
-        self.assertEqual(run("recovery", KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)).returncode, 1)
-        self.assertEqual(run("recovery", KERNEL + ENTRY.format(target="recovery", pid=0) + READY.format(target="recovery", pid=0)).returncode, 1)
-
-    def test_accepts_recovery_with_nonzero_pid(self):
-        trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2)
-        self.assertEqual(run("recovery", trace).returncode, 0)
-
-    def test_rejects_init_that_exits_after_readiness(self):
-        trace = (
-            KERNEL + ENTRY.format(target="live", pid=1)
-            + READY.format(target="live", pid=1)
-            + "[RUN ] Target userspace init emitted its own readiness handshake and exited cleanly\n"
-        )
-        result = run("live", trace)
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("persistent PID 1 is not established", result.stdout)
-
-    def test_rejects_runtime_error_after_readiness(self):
-        trace = (
-            KERNEL + ENTRY.format(target="installer", pid=1)
-            + READY.format(target="installer", pid=1)
-            + "[RUN ] ERROR: scheduler failure\n"
-        )
+        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1) + ACTIVE.format(target="live", pid=1)
         self.assertEqual(run("installer", trace).returncode, 1)
 
+    def test_requires_same_pid_across_all_markers(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=2) + ACTIVE.format(target="live", pid=1)
+        self.assertEqual(run("live", trace).returncode, 1)
+
+    def test_requires_marker_order(self):
+        trace = ACTIVE.format(target="live", pid=1) + READY.format(target="live", pid=1) + ENTRY.format(target="live", pid=1) + KERNEL
+        self.assertEqual(run("live", trace).returncode, 1)
+
+    def test_accepts_persistent_live_pid1(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1) + ACTIVE.format(target="live", pid=1)
+        result = run("live", trace)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_rejects_readiness_without_active_marker(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1)
+        self.assertEqual(run("live", trace).returncode, 1)
+
+    def test_accepts_persistent_recovery_pid1(self):
+        trace = KERNEL + ENTRY.format(target="recovery", pid=2) + READY.format(target="recovery", pid=2) + ACTIVE.format(target="recovery", pid=2)
+        self.assertEqual(run("recovery", trace).returncode, 0)
+
+    def test_rejects_exit_after_active_marker(self):
+        trace = KERNEL + ENTRY.format(target="live", pid=1) + READY.format(target="live", pid=1) + ACTIVE.format(target="live", pid=1) + "Target userspace init emitted its own readiness handshake and exited cleanly\n"
+        result = run("live", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("terminated or was aborted", result.stdout)
+
+    def test_rejects_runtime_error_after_active_marker(self):
+        trace = KERNEL + ENTRY.format(target="installer", pid=1) + READY.format(target="installer", pid=1) + ACTIVE.format(target="installer", pid=1) + "[RUN ] ERROR: scheduler failure\n"
+        self.assertEqual(run("installer", trace).returncode, 1)
+
+    def test_all_target_init_sources_wait_instead_of_exiting(self):
+        root = Path(__file__).resolve().parents[2]
+        for target in ("live", "installer", "recovery"):
+            with self.subTest(target=target):
+                source = (root / "kernel/targets" / (target + "_init.c")).read_text(encoding="utf-8")
+                self.assertIn("init_pid1_wait();", source)
+                self.assertNotIn("init_exit(0);", source)
 
 if __name__ == "__main__":
     unittest.main()
