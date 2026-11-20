@@ -325,6 +325,51 @@ jobs:
             build/iso/chimera-ii-os.iso.zst.sha256
             build/iso/chimera-ii-os.iso.sha256
 
+      - name: Check production target manifests before release
+        id: production_gate
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          ready=true
+          for target in live installer recovery; do
+            manifest="$tmp/target-init-$target.manifest.json"
+            if ! xorriso -osirrox on -indev build/iso/chimera-ii-os.iso \
+                -extract "/boot/targets/target-init-$target.manifest.json" "$manifest" >/dev/null 2>&1; then
+              echo "::warning::$target production manifest is missing"
+              ready=false
+              continue
+            fi
+            if ! python3 - "$manifest" "$target" <<'PY'
+          import json, pathlib, sys
+          path, target = pathlib.Path(sys.argv[1]), sys.argv[2]
+          try:
+              data = json.loads(path.read_text())
+          except (OSError, ValueError):
+              raise SystemExit(1)
+          ok = (
+              data.get("schema") == "CHM-NATIVE-TARGET-INIT-1"
+              and data.get("target") == target
+              and data.get("production_ready") is True
+              and data.get("payload_kind") != "ring3-readiness-probe"
+              and not data.get("limitations")
+          )
+          if not ok:
+              print(f"{target}: manifest is probe-only or has unresolved limitations")
+              raise SystemExit(1)
+          print(f"{target}: production manifest accepted")
+          PY
+            then
+              ready=false
+            fi
+          done
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          if [[ "$ready" != true ]]; then
+            echo "Production release blocked: all three target manifests must identify production-ready payloads."
+          fi
+
       - name: Fail the build when any native userspace handoff is unverified
         if: steps.userspace_gate.outputs.accepted != 'true'
         shell: bash
@@ -336,7 +381,7 @@ jobs:
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.production_gate.outputs.ready == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
