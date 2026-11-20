@@ -31,5 +31,29 @@ extern "C" int chimera_process_admit_elf(const void*image,uint64_t size,uint16_t
  return -10;
 }
 extern "C" int chimera_process_get(uint32_t pid,chimera_process_image*out){if(!out||!pid)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){*out=slots[i].image;return 0;}return -2;}
-extern "C" int chimera_process_set_state(uint32_t pid,chimera_process_state state){if(!pid||state<CHIMERA_PROCESS_ADMITTED||state>CHIMERA_PROCESS_FAULTED)return -1;for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){slots[i].image.state=state;return 0;}return -2;}
+static bool valid_transition(chimera_process_state from,chimera_process_state to){
+ if(from==to)return true;
+ switch(from){
+  case CHIMERA_PROCESS_ADMITTED:
+   return to==CHIMERA_PROCESS_READY||to==CHIMERA_PROCESS_RUNNING||to==CHIMERA_PROCESS_FAULTED;
+  case CHIMERA_PROCESS_READY:
+   return to==CHIMERA_PROCESS_RUNNING||to==CHIMERA_PROCESS_FAULTED;
+  case CHIMERA_PROCESS_RUNNING:
+   return to==CHIMERA_PROCESS_READY||to==CHIMERA_PROCESS_BLOCKED||to==CHIMERA_PROCESS_EXITED||to==CHIMERA_PROCESS_FAULTED;
+  case CHIMERA_PROCESS_BLOCKED:
+   return to==CHIMERA_PROCESS_READY||to==CHIMERA_PROCESS_EXITED||to==CHIMERA_PROCESS_FAULTED;
+  case CHIMERA_PROCESS_EXITED:
+  case CHIMERA_PROCESS_FAULTED:
+  case CHIMERA_PROCESS_EMPTY:
+  default:return false;
+ }
+}
+extern "C" int chimera_process_set_state(uint32_t pid,chimera_process_state state){
+ if(!pid||state<CHIMERA_PROCESS_ADMITTED||state>CHIMERA_PROCESS_FAULTED)return -1;
+ for(uint32_t i=0;i<CHIMERA_PROCESS_MAX;i++)if(slots[i].used&&slots[i].image.pid==pid){
+  if(!valid_transition(static_cast<chimera_process_state>(slots[i].image.state),state))return -3;
+  slots[i].image.state=state;return 0;
+ }
+ return -2;
+}
 extern "C" uint32_t chimera_process_count(void){return count;}
