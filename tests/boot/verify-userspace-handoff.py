@@ -15,7 +15,8 @@ ACTIVE_RE = re.compile(
 TERMINAL_RE = re.compile(
     r"(?:Target userspace init emitted its own readiness handshake and exited cleanly|"
     r"in-kernel PIT deadline expired|userspace init exited nonzero|"
-    r"userspace init exited before its target-specific USERSPACE READY handshake)"
+    r"userspace init exited before its target-specific USERSPACE READY handshake|"
+    r"\\[RUN\\s*\\]\\s*(?:ERROR|FATAL):|KORONOS PANIC:|kernel panic:)"
 )
 
 TARGETS = {"live", "installer", "recovery"}
