@@ -189,27 +189,16 @@ cp "$ROOT/boot/jasper/diagnostics.cfg" "$DIST/boot/jasper/diagnostics.cfg"
 cp "$ROOT/boot/spitfire/spitfire-menu.cfg" "$DIST/boot/spitfire/spitfire-menu.cfg"
 mkdir -p "$DIST/boot/installation" "$DIST/boot/recovery" "$DIST/boot/diagnostics"
 cp "$ROOT/boot/installation/menu.cfg" "$DIST/boot/installation/menu.cfg"
+cp "$ROOT/boot/installation/services.cfg" "$DIST/boot/installation/services.cfg"
 cp "$ROOT/boot/recovery/recovery-manifest.json" "$DIST/boot/recovery/recovery-manifest.json"
 cp "$ROOT/boot/diagnostics/diagnostics-manifest.json" "$DIST/boot/diagnostics/diagnostics-manifest.json"
 cp "$ROOT/boot/boot-menu-contract.json" "$DIST/boot/boot-menu-contract.json"
 cp "$ROOT/boot/livecd/live-manifest.json" "$DIST/boot/live-manifest.json"
 if [[ -d "$ROOT/build/live-boot/boot/live" ]]; then cp -a "$ROOT/build/live-boot/boot/live" "$DIST/boot/"; fi
 
-cat > "$DIST/boot/jasper/recovery.cfg" <<'EOF'
-set timeout=5
-set default=0
-insmod normal
-insmod gfxterm
-insmod png
-insmod search
-if [ -f /boot/jasper/background.png ]; then background_image /boot/jasper/background.png; fi
-menuentry "Jasper Recovery — Koronos Rescue" { multiboot2 /boot/koronos/koronos.elf
-  module2 /boot/recovery/recovery-manifest.json chimera-recovery-manifest }
-menuentry "Jasper Recovery — Safe Graphics" { multiboot2 /boot/koronos/koronos.elf }
-menuentry "Jasper Recovery — GRUB Command Line" { commandline }
-menuentry "Jasper Recovery — Reboot" { reboot }
-menuentry "Jasper Recovery — Power Off" { halt }
-EOF
+# Preserve the canonical Jasper recovery menu staged above. Do not
+# replace it with a short countdown or a hidden menu.
+cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/boot/jasper/recovery.cfg"
 
 [[ -f "$ROOT/boot/boot-artwork-manifest.json" ]] && cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/"
 cp "$ROOT/boot/boot-artwork-manifest.json" "$DIST/boot/spitfire/"
