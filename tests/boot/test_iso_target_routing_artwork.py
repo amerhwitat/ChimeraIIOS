@@ -10,6 +10,7 @@ INSTALL_MENU = (ROOT / "boot/installation/menu.cfg").read_text()
 INSTALL_SERVICES = (ROOT / "boot/installation/services.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
 PREPARE_LAYOUT = (ROOT / "boot/iso/prepare-layout.sh").read_text()
+NATIVE_BUILDER = (ROOT / "boot/iso/build-iso.sh").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
@@ -120,6 +121,16 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn("exec /bin/chimera-recovery-console.sh", builder)
         # A shell handoff is not evidence that the Aurora desktop is ready.
         self.assertIn("Aurora desktop readiness is separate", builder)
+
+
+    def test_prepare_layout_stages_jasper_retro_submenu(self):
+        self.assertIn("configfile /boot/jasper/retro.cfg", GRUB)
+        self.assertTrue((ROOT / "boot/jasper/retro.cfg").is_file())
+        self.assertIn('bash "$ISO_ROOT/prepare-layout.sh"', NATIVE_BUILDER)
+        self.assertIn(
+            'cp "$ROOT/boot/jasper/retro.cfg" "$DIST/boot/jasper/retro.cfg"',
+            PREPARE_LAYOUT,
+        )
 
 
 if __name__ == "__main__":
