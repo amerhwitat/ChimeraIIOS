@@ -9,8 +9,8 @@ class DesktopGalleryArtworkTests(unittest.TestCase):
     def test_gallery_profiles_have_artwork_and_controls(self):
         page = (ROOT / "web/desktop-showcase/index.html").read_text(encoding="utf-8")
         for profile in ("aurora", "marine", "freexp", "freewin11"):
-            self.assertIn(f"data-style=\"{profile}\"", page)
-            self.assertIn(f"data-select=\"{profile}\"", page)
+            self.assertIn(f'data-style="{profile}"', page)
+            self.assertIn(f'data-select="{profile}"', page)
             artwork = ROOT / "web/desktop-showcase/artwork" / f"{profile}.svg"
             self.assertTrue(artwork.is_file(), str(artwork))
             ET.parse(artwork)
@@ -22,7 +22,7 @@ class DesktopGalleryArtworkTests(unittest.TestCase):
         self.assertIn('id="settingsApply"', page)
         self.assertIn("renderer.setPixelRatio", script)
         self.assertIn("backend required", script)
-        self.assertNotIn("map((x,i)=>'<div class=\"runtime-row\"><span>'+esc(x)+'</span><b class=\"ready\">ready", script)
+        self.assertNotIn("ready</b>", script)
 
     def test_service_catalog_and_registry_parse(self):
         catalog = json.loads((ROOT / "services/linux/service-catalog.json").read_text(encoding="utf-8"))
