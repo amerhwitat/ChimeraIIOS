@@ -74,6 +74,14 @@ static void init_writestr(const char *s) {
     (void)init_write(1, s, init_strlen(s));
 }
 
+/* PID 1 must remain resident after the readiness handshake. This bounded
+ * bootstrap idle loop prevents the old one-shot probe from returning to the
+ * kernel and having its address space reclaimed. It is NOT a scheduler or a
+ * child-process supervisor; those require resumable process contexts. */
+__attribute__((noreturn)) static void init_pid1_wait(void) {
+    for (;;) __asm__ volatile("pause" ::: "memory");
+}
+
 static void init_emit_readiness(long pid) {
     char message[96];
     long used = 0;
