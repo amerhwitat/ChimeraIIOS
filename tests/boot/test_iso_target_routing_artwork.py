@@ -6,7 +6,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 GRUB = (ROOT / "boot/iso/grub.cfg").read_text()
 INSTALL = (ROOT / "boot/jasper/install.cfg").read_text()
+INSTALL_MENU = (ROOT / "boot/installation/menu.cfg").read_text()
+INSTALL_SERVICES = (ROOT / "boot/installation/services.cfg").read_text()
 RECOVERY = (ROOT / "boot/jasper/recovery.cfg").read_text()
+PREPARE_LAYOUT = (ROOT / "boot/iso/prepare-layout.sh").read_text()
 FULL_BUILDER = (ROOT / "tools/build-full-iso.sh").read_text()
 LIVE_BUILDER = (ROOT / "iso/chimera-live-iso.sh").read_text()
 
@@ -32,6 +35,43 @@ class IsoTargetRoutingTests(unittest.TestCase):
         self.assertIn('cp -f "$target_elf" "$STAGE/boot/targets/"', FULL_BUILDER)
         self.assertIn('cp -f "$ROOT/boot/iso/grub.cfg" "$STAGE/boot/grub/grub.cfg"', FULL_BUILDER)
         self.assertIn('cp -f "$ROOT/boot/loader-menu.cfg" "$STAGE/boot/loader-menu.cfg"', FULL_BUILDER)
+
+
+    def test_nested_target_menus_are_available_in_bios_and_uefi(self):
+        firmware_branch = GRUB.rindex('if [ "$grub_platform" = efi ]; then')
+        for entry in (
+            'menuentry "Chimera II OS — Jasper Boot Manager / All Modes"',
+            'menuentry "Chimera II OS — Installation Menu"',
+            'menuentry "Chimera II OS — Recovery Menu"',
+            'menuentry "Chimera II OS — Diagnostics Menu"',
+            'menuentry "Chimera II OS — Retro / Emulator Center"',
+            'menuentry "Chimera II OS — Spit Fire Native Menu"',
+        ):
+            self.assertLess(GRUB.index(entry), firmware_branch)
+
+    def test_installer_services_submenu_is_reachable_staged_and_native(self):
+        self.assertIn("configfile /boot/installation/services.cfg", INSTALL_MENU)
+        self.assertIn("set timeout=120", INSTALL_SERVICES)
+        self.assertIn("set timeout_style=menu", INSTALL_SERVICES)
+        self.assertIn(
+            "module2 /boot/targets/target-init-installer.elf chimera-user-init-elf target=installer firmware=$grub_platform",
+            INSTALL_SERVICES,
+        )
+        self.assertIn(
+            "module2 /install/installer/services/service-selection.json chimera-installer-services-contract",
+            INSTALL_SERVICES,
+        )
+        self.assertTrue((ROOT / "installer/services/service-selection.json").is_file())
+        self.assertIn('cp -a "$ROOT/boot/installation/services.cfg" "$STAGE/boot/installation/"', FULL_BUILDER)
+        self.assertIn('cp -a "$ROOT/boot/installation/services.cfg" "$STAGE/boot/installation/"', LIVE_BUILDER)
+        self.assertIn('cp "$ROOT/boot/installation/services.cfg" "$DIST/boot/installation/services.cfg"', PREPARE_LAYOUT)
+
+    def test_prepared_recovery_menu_preserves_visible_canonical_policy(self):
+        self.assertIn('cp -f "$ROOT/boot/jasper/recovery.cfg" "$DIST/boot/jasper/recovery.cfg"', PREPARE_LAYOUT)
+        self.assertNotIn('cat > "$DIST/boot/jasper/recovery.cfg"', PREPARE_LAYOUT)
+        self.assertNotIn("set timeout=5", PREPARE_LAYOUT)
+        self.assertIn("set timeout=120", RECOVERY)
+        self.assertIn("set timeout_style=menu", RECOVERY)
 
 
     def test_recovery_menu_routes_to_recovery_config(self):
