@@ -144,15 +144,41 @@ extern "C" uint32_t koronos_target_note_user_syscall(uint64_t user_rip, uint64_t
     }
     return pid;
 }
+static void log_pid1_active(Target target, uint32_t pid) {
+    char message[96];
+    const char prefix[] = "KORONOS PID1 ACTIVE: target=";
+    size_t used = 0;
+    for (size_t i = 0; i < sizeof(prefix) - 1u; ++i) message[used++] = prefix[i];
+    const char *name = target_name(target);
+    while (*name) message[used++] = *name++;
+    const char middle[] = " init_pid=";
+    for (size_t i = 0; i < sizeof(middle) - 1u; ++i) message[used++] = middle[i];
+    char reversed[10]; size_t digits = 0;
+    do { reversed[digits++] = (char)('0' + (pid % 10u)); pid /= 10u; }
+    while (pid && digits < sizeof(reversed));
+    while (digits) message[used++] = reversed[--digits];
+    message[used] = 0;
+    koronos_target_log(message);
+}
+
 extern "C" int koronos_target_note_user_write(const char *bytes, uint64_t length) {
     if (!bytes || !length || active_target==TARGET_NONE || !active_pid) return 0;
-    /* Readiness is valid only after this active process has already
-       issued a syscall through the DPL3 gate and the kernel verified its
-       saved CS.RPL, RIP and CR3. A write that arrives first cannot satisfy
-       the readiness half of the acceptance handshake. */
-    if (syscall_ack_seen && active_pid &&
+    /* The syscall dispatcher validated this caller's RIP and CR3. Require
+       the prior DPL3 acknowledgement and the same PID in RUNNING state. */
+    if (!ready_seen && syscall_ack_seen &&
         target_marker(bytes,length,static_cast<Target>(active_target),active_pid)) {
+        chimera_process_image current{};
+        if (chimera_process_get(active_pid, &current) != 0 ||
+            current.pid != active_pid || current.state != CHIMERA_PROCESS_RUNNING) {
+            koronos_target_log("[RUN ] ERROR: readiness rejected; PID 1 is not kernel-state RUNNING");
+            return 0;
+        }
         ready_seen=1;
+        /* The startup deadline ends only after kernel-verified readiness.
+           The current synchronous entry remains occupied by PID 1; this does
+           not yet provide scheduling or child supervision. */
+        koronos_user_timeout_disarm();
+        log_pid1_active(static_cast<Target>(active_target), active_pid);
         return 1;
     }
     return 0;
