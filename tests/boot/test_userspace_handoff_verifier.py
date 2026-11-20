@@ -60,7 +60,13 @@ class UserspaceHandoffVerifierTests(unittest.TestCase):
 
     def test_rejects_runtime_error_after_active_marker(self):
         trace = KERNEL + ENTRY.format(target="installer", pid=1) + READY.format(target="installer", pid=1) + ACTIVE.format(target="installer", pid=1) + "[RUN ] ERROR: scheduler failure\n"
-        self.assertEqual(run("installer", trace).returncode, 1)
+        result = run("installer", trace)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("terminated or was aborted", result.stdout)
+
+    def test_rejects_kernel_panic_after_active_marker(self):
+        trace = KERNEL + ENTRY.format(target="recovery", pid=3) + READY.format(target="recovery", pid=3) + ACTIVE.format(target="recovery", pid=3) + "KORONOS PANIC: page fault\n"
+        self.assertEqual(run("recovery", trace).returncode, 1)
 
     def test_all_target_init_sources_wait_instead_of_exiting(self):
         root = Path(__file__).resolve().parents[2]
