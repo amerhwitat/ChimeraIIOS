@@ -23,6 +23,13 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
 
+    def test_release_requires_production_ready_manifests_for_all_targets(self):
+        self.assertIn("id: production_gate", self.text)
+        self.assertIn("steps.production_gate.outputs.ready == 'true'", self.text)
+        self.assertIn('data.get("production_ready") is True', self.text)
+        self.assertIn('data.get("payload_kind") != "ring3-readiness-probe"', self.text)
+        self.assertIn('not data.get("limitations")', self.text)
+
     def test_unverified_handoff_keeps_build_reviewable_but_blocks_release(self):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
         self.assertIn("no release will be published", self.text)
