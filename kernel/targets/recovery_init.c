@@ -16,5 +16,6 @@ __attribute__((noreturn, used)) void _start(void) {
     init_yield();
     init_writestr("RECOVERY: scheduler yield returned\n");
 
-    init_exit(0);
+    /* Remain resident as PID 1; do not tear down this process after readiness. */
+    init_pid1_wait();
 }
