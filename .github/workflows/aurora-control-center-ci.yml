@@ -77,7 +77,7 @@ jobs:
           python3 - <<'PY'
           import re
           from pathlib import Path
-          forbidden = re.compile(r"""puae_libretro|\.(?:so|dll|dylib)(?:\.\d+)?(?=$|["'/?#\s])""")
+          forbidden = re.compile(r"""puae_libretro|\.(?:so|dll|dylib)(?:\.\d+)?(?=$|[^A-Za-z0-9_])""")
           matches = []
           for path in Path("web").rglob("*"):
               if path.suffix not in {".html", ".js", ".css"}:
