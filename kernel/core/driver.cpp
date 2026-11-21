@@ -20,7 +20,16 @@ extern "C" int chimera_driver_register(const chimera_driver_descriptor* d){
 extern "C" const chimera_driver_registry* chimera_driver_registry_snapshot(){
  static chimera_driver_registry r{0,256,g_drivers}; r.count=g_count; return &r;
 }
-extern "C" int chimera_driver_start_all(){ int started=0; for(uint32_t i=0;i<g_count;i++){ chimera_driver_descriptor *d=&g_drivers[i]; if(d->state==2 || d->state==1){ if(d->probe && d->probe(0)!=0){d->state=5;continue;} d->state=3; started++; }} return started; }
+extern "C" int chimera_driver_start_all(){
+ int started=0;
+ for(uint32_t i=0;i<g_count;i++){
+   chimera_driver_descriptor *d=&g_drivers[i];
+   /* Only transition a device-matched, successfully probed entry. A second
+      probe with nullptr is invalid: probe callbacks require the real device. */
+   if(d->state==2){ d->state=3; started++; }
+ }
+ return started;
+}
 extern "C" int chimera_driver_probe_all(){
  chimera_device_inventory inv{}; int n=chimera_hardware_enumerate_devices(&inv); if(n<0)return n;
  g_last_probe_count=0;
@@ -28,7 +37,13 @@ extern "C" int chimera_driver_probe_all(){
    const chimera_device *x=&inv.devices[i]; int bound=0;
    for(uint32_t j=0;j<g_count;j++){
      chimera_driver_descriptor *d=&g_drivers[j];
-     if(match(d,x)){ d->state=2; bound=1; g_last_probe_count++; if(d->probe)d->probe(x); break; }
+     if(match(d,x)){
+       /* A matching PCI ID is only a candidate. Do not count it as bound if
+          its probe callback rejects the actual device. Try later matching
+          descriptors instead of letting a failed candidate mask them. */
+       if(d->probe && d->probe(x)!=0){ d->state=5; continue; }
+       d->state=2; bound=1; g_last_probe_count++; break;
+     }
    }
    if(!bound){
      static chimera_driver_descriptor compat[256]; static uint32_t cc=0;

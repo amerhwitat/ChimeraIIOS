@@ -12,6 +12,8 @@ typedef struct chimera_firmware_profile {
   char vendor[64], version_string[64], board[96];
 } chimera_firmware_profile;
 int chimera_firmware_probe(const void *boot_context, chimera_firmware_profile *out);
+/* Persistent boot-firmware/table snapshot, valid after a successful probe. */
+const chimera_firmware_profile *chimera_firmware_profile_snapshot(void);
 int chimera_firmware_validate_tables(const chimera_firmware_profile *p);
 #ifdef __cplusplus
 }
