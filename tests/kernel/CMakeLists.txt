@@ -64,6 +64,20 @@ endif()
 add_test(NAME chimera_platform_features COMMAND chimera_platform_features_test)
 
 
+add_executable(chimera_service_state_test
+  service_state_test.cpp
+  ../../kernel/core/service.cpp
+)
+target_include_directories(chimera_service_state_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/kernel/include
+)
+target_compile_features(chimera_service_state_test PRIVATE cxx_std_20)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chimera_service_state_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME chimera_service_state COMMAND chimera_service_state_test)
+
+
 add_executable(chimera_scheduler_runtime_test
   scheduler_runtime_test.cpp
   ../../kernel/core/scheduler.cpp
