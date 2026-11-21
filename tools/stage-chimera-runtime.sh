@@ -42,7 +42,7 @@ done
 [ -f "$SRC/config/drivers/driver-repositories.json" ] && cp -f "$SRC/config/drivers/driver-repositories.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/config/drivers/driver-policy.json" ] && cp -f "$SRC/config/drivers/driver-policy.json" "$DEST/etc/chimera/drivers/"
 [ -f "$SRC/system/boot/chimera-logging.conf" ] && cp -f "$SRC/system/boot/chimera-logging.conf" "$DEST/etc/chimera/logging.conf"
-for f in aurora-session.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh aurora-event-sound.sh aurora-init-splash.sh; do
+for f in aurora-session.sh aurora-session-select.sh aurora-start.sh aurora-desktop-init.sh aurora-progress.sh aurora-event-sound.sh aurora-init-splash.sh; do
   if [ -f "$SRC/desktop/aurora/$f" ]; then
     cp -f "$SRC/desktop/aurora/$f" "$DEST/usr/share/chimera/aurora/$f"
     chmod +x "$DEST/usr/share/chimera/aurora/$f"

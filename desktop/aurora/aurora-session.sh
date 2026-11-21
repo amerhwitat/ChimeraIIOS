@@ -51,6 +51,24 @@ if [ ! -s "$CHIMERA_BOOT_VIDEO" ] && [ -s "$CHIMERA_BOOT_ASSET_DIR/init.mp4" ]; 
 fi
 export CHIMERA_BOOT_LOG="${CHIMERA_BOOT_LOG:-/run/chimera/boot.log}"
 
+# Offer installed desktop sessions before starting the compositor. The chooser
+# never lists a session unless its launch command is present on this image.
+SELECTOR="$SCRIPT_DIR/aurora-session-select.sh"
+if [ -r "$SELECTOR" ]; then
+  # shellcheck source=aurora-session-select.sh
+  . "$SELECTOR"
+  chimera_select_desktop_profile
+  case "$CHIMERA_SELECTED_DESKTOP" in
+    marine) exec marine-session ;;
+    gnome) exec gnome-session ;;
+    plasma) exec startplasma-wayland ;;
+    xfce) exec startxfce4 ;;
+    cinnamon) exec cinnamon-session ;;
+    aurora) export CHIMERA_AURORA_SESSION_PROFILE="chimera-modern" ;;
+    *) export CHIMERA_AURORA_SESSION_PROFILE="chimera-modern" ;;
+  esac
+fi
+
 # Preserve the existing N-bit/neural status hooks when they are present, but
 # never make the graphical session depend on research-only helpers.
 if [ -x "$ROOT/desktop/aurora/aurora-nbit-top-panel.sh" ] && [ "${CHIMERA_AURORA_NBIT_PANEL:-1}" = "1" ]; then
