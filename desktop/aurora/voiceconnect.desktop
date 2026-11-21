@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VoiceConnect
+Comment=Peer-to-peer voice, video and secure file transfer
+Exec=/usr/share/chimera/aurora/voiceconnect-launcher.sh
+Icon=audio-headset
+Categories=Network;AudioVideo;Communication;
+Terminal=false
