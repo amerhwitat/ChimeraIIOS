@@ -31,6 +31,20 @@ jobs:
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
           /tmp/chimera-process-admission
+      - name: Test native service lifecycle transitions
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/service.cpp tests/kernel/service_state_test.cpp \
+            -o /tmp/chimera-service-state
+          /tmp/chimera-service-state
+      - name: Test fail-closed platform capability reporting
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            tests/kernel/platform_features_test.cpp \
+            tests/kernel/platform_features_abi_stubs.cpp \
+            kernel/core/platform_features.cpp kernel/core/compat.cpp \
+            -o /tmp/chimera-platform-features
+          /tmp/chimera-platform-features
       - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
       - name: Assert no unresolved symbols
