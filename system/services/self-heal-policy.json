@@ -1,0 +1,41 @@
+{
+  "schema": "KORONOS-SELF-HEAL-1",
+  "heartbeat_timeout_seconds": 30,
+  "failure_window_seconds": 300,
+  "max_restarts_per_window": 2,
+  "restart_allowlist": [
+    "kore.service",
+    "console.service",
+    "timer.service",
+    "module-manager.service",
+    "storage.service",
+    "security.service"
+  ],
+  "critical_services": [
+    "kore.service",
+    "console.service",
+    "timer.service",
+    "module-manager.service",
+    "storage.service",
+    "security.service"
+  ],
+  "recovery_rules": {
+    "restart_requires": [
+      "allowlist",
+      "explicit_apply",
+      "configured_adapter"
+    ],
+    "max_restarts_per_window": 2,
+    "on_repeated_failure": "quarantine-and-report",
+    "kernel_fault": "never-auto-patch-or-reboot",
+    "verification_required": "subsequent-heartbeat-or-korectl-status"
+  },
+  "learning": {
+    "event_history": "jsonl",
+    "rnn": "future-pluggable-temporal-anomaly-scorer",
+    "llm": "future-pluggable-explanation-and-patch-proposal-only",
+    "reinforcement_learning": "future-pluggable-recovery-ranking-with-offline-evaluation",
+    "allow_online_policy_mutation": false,
+    "allow_model_to_execute_commands": false
+  }
+}

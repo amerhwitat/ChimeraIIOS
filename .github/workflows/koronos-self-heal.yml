@@ -1,0 +1,28 @@
+name: Koronos self-healing and ISA learning context
+on:
+  pull_request:
+    paths: ['tools/runtime/koronos-self-heal.py', 'tools/runtime/koronos-learning-context.py', 'system/services/self-heal-policy.json', 'system/commands/chimera-command-list.json', 'isa/isa_database.json', 'tests/test_koronos_*.py', 'docs/koronos-self-healing-runtime.md', '.github/workflows/koronos-self-heal.yml']
+  push:
+    paths: ['tools/runtime/koronos-self-heal.py', 'tools/runtime/koronos-learning-context.py', 'system/services/self-heal-policy.json', 'system/commands/chimera-command-list.json', 'isa/isa_database.json', 'tests/test_koronos_*.py', 'docs/koronos-self-healing-runtime.md', '.github/workflows/koronos-self-heal.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  controller-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Validate syntax and policy
+        run: |
+          python -m json.tool system/services/self-heal-policy.json >/dev/null
+          python -m py_compile tools/runtime/koronos-self-heal.py tools/runtime/koronos-learning-context.py tests/test_koronos_self_heal.py tests/test_koronos_learning_context.py
+      - name: Run regression tests
+        run: python -m unittest discover -s tests -p 'test_koronos_*.py' -v
+      - name: Verify ISA-aware context output
+        run: |
+          python tools/runtime/koronos-learning-context.py --mode both --output /tmp/learning-context.json
+          python -m json.tool /tmp/learning-context.json >/dev/null
+          python -c "import json; r=json.load(open('/tmp/learning-context.json')); assert {p['mode'] for p in r['profiles']} == {'native','compatibility'}; assert not r['safety']['catalog_presence_implies_execution']"
