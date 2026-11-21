@@ -6,6 +6,7 @@ on:
       - "kernel/core/service.cpp"
       - "kernel/include/chimera/service.h"
       - "kernel/tests/service_bootstrap_test.cpp"
+      - "tests/kernel/service_state_test.cpp"
       - ".github/workflows/service-bootstrap-contract.yml"
   pull_request:
     paths:
@@ -29,3 +30,9 @@ jobs:
             kernel/core/service.cpp kernel/tests/service_bootstrap_test.cpp \
             -o /tmp/service-bootstrap-contract
           /tmp/service-bootstrap-contract
+      - name: Compile and run service lifecycle transition tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            kernel/core/service.cpp tests/kernel/service_state_test.cpp \
+            -o /tmp/service-state-test
+          /tmp/service-state-test
