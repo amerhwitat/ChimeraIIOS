@@ -27,7 +27,7 @@ REPORT="${CHIMERA_COMMAND_PROVIDER_REPORT:-/var/log/chimera-command-provider-rep
 PACKAGES=(
   coreutils util-linux findutils grep sed gawk mawk diffutils file
   procps psmisc iproute2 iputils-ping net-tools dnsutils traceroute
-  openssh-client openssh-server rsync curl wget ca-certificates
+  openssh-client openssh-server nginx apache2 vsftpd tftpd-hpa rsync curl wget ca-certificates
   openssl gnupg jq ripgrep fd-find tree less most nano vim-tiny
   bzip2 gzip xz-utils zip unzip zstd tar cpio pax
   acl attr e2fsprogs dos2unix time bc dc
