@@ -23,6 +23,30 @@ class ChimeraIsoReleaseGateTests(unittest.TestCase):
         self.assertIn("steps.userspace_gate.outputs.accepted == 'true'", condition)
         self.assertIn("vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'", condition)
 
+    def test_all_three_targets_are_checked_under_bios_and_uefi(self):
+        self.assertIn("for target in live installer recovery; do", self.text)
+        self.assertIn("for firmware in bios uefi; do", self.text)
+        self.assertIn("dosfstools ovmf qemu-system-x86", self.text)
+        self.assertIn('if [[ "$firmware" == "uefi" ]]; then', self.text)
+        self.assertIn('"$ovmf"', self.text)
+        self.assertIn('"$ovmf_vars"', self.text)
+        self.assertIn('if=pflash,format=raw,unit=0,readonly=on,file=$ovmf', self.text)
+        self.assertIn('if=pflash,format=raw,unit=1,file=$vars_copy', self.text)
+        self.assertIn('cp "$ovmf_vars" "$vars_copy"', self.text)
+        self.assertIn('trace="$base/$target-$firmware-debugcon.log"', self.text)
+
+    def test_unverified_handoff_fails_workflow_after_candidate_artifacts_are_uploaded(self):
+        gate = self.text.split(
+            "      - name: Fail workflow when production userspace handoff is unverified", 1
+        )[1].split("      - name: Publish validated ISO candidate to GitHub Releases", 1)[0]
+        self.assertIn("if: steps.userspace_gate.outputs.accepted != 'true'", gate)
+        self.assertIn("exit 1", gate)
+        self.assertIn("Upload ISO artifacts", self.text)
+        self.assertLess(
+            self.text.index("      - name: Upload ISO artifacts"),
+            self.text.index("      - name: Fail workflow when production userspace handoff is unverified"),
+        )
+
     def test_unverified_handoff_keeps_build_reviewable_but_blocks_release(self):
         self.assertIn('echo "accepted=$accepted" >> "$GITHUB_OUTPUT"', self.text)
         self.assertIn("no release will be published", self.text)
