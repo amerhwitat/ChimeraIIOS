@@ -1,0 +1,1 @@
+Kore is the native Koronos target/service manager. Targets group services; Wants/Requires describe dependency relationships and After describes ordering. Independent services are submitted to the Koronos scheduler without artificial serialization. Boot modes are koronos.target, live.target, installer.target, and complete.target.

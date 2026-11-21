@@ -1,0 +1,10 @@
+# Add these C++ translation units to the Koronos kernel link:
+kernel/core/kore.cpp
+kernel/core/kore_boot.cpp
+
+# Add headers:
+kernel/include/chimera/kore.h
+kernel/include/chimera/kore_boot.h
+
+# Boot integration:
+# call koronos_kore_init(cpu_count, installer_mode) after scheduler/driver initialization and before koronos_idle_loop().
