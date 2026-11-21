@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install headless browser for app launch smoke tests
+        run: |
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps chromium
+      - name: Launch and exercise browser application prototypes
+        run: node appcenter/tests/browser-smoke.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -23,6 +29,20 @@ jobs:
         run: python -m pip install pytest
       - name: Validate application catalog
         run: python appcenter/cli/chimera-appctl.py validate
+      - name: Validate native package schema and explicit runtime support states
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          schema = json.loads(Path("appcenter/package-manifest.schema.json").read_text(encoding="utf-8"))
+          assert schema["$schema"].endswith("2020-12/schema")
+          assert schema["properties"]["signature"]["required"] == ["algorithm", "key_id", "value"]
+          assert set(schema["properties"]["lifecycle"]["required"]) == {"install", "update", "rollback", "uninstall"}
+          runtime = json.loads(Path("appcenter/runtime-support-manifest.json").read_text(encoding="utf-8"))
+          assert runtime["lifecycle_contract"]["install"] == "not-implemented-for-native-apps"
+          assert all(not app["native_package"]["available"] for app in runtime["apps"])
+          print("native package contract is defined; no unverified native package is claimed")
+          PY
       - name: Check ISO application manifest matches catalog IDs
         run: |
           python - <<'PY'
@@ -32,14 +52,19 @@ jobs:
           manifest = Path('iso/manifests/application-catalog.txt').read_text(encoding='utf-8').splitlines()
           ids = [app['id'] for app in apps]
           assert manifest == ids, 'ISO application manifest must exactly match catalog IDs in order'
-          print(f'validated {len(manifest)} ISO catalog IDs')
+          runtime = json.loads(Path('appcenter/runtime-support-manifest.json').read_text(encoding='utf-8'))
+          assert [item['id'] for item in runtime['apps']] == ids, 'runtime support manifest must match catalog order'
+          required = {'install', 'update', 'rollback', 'uninstall'}
+          assert all(required <= set(item['lifecycle']) for item in runtime['apps'])
+          assert all(item['native_package']['available'] is False for item in runtime['apps'])
+          print(f'validated {len(manifest)} ISO IDs and explicit runtime lifecycle gates')
           PY
       - name: Syntax-check standalone browser app scripts
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
-          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html"), Path("appcenter/document-desk.html"), Path("appcenter/snake-arcade.html")):
+          for path in (Path("appcenter/paint-studio.html"), Path("appcenter/media-deck.html"), Path("appcenter/document-desk.html"), Path("appcenter/snake-arcade.html"), Path("appcenter/vector-studio.html"), Path("appcenter/sheet-desk.html"), Path("appcenter/file-toolkit.html"), Path("appcenter/code-workbench.html")):
               text = path.read_text(encoding="utf-8")
               scripts = re.findall(r"<script>(.*?)</script>", text, re.S)
               assert scripts, f"missing inline script: {path}"
@@ -49,5 +74,9 @@ jobs:
           node --check /tmp/media-deck.js
           node --check /tmp/document-desk.js
           node --check /tmp/snake-arcade.js
+          node --check /tmp/vector-studio.js
+          node --check /tmp/sheet-desk.js
+          node --check /tmp/file-toolkit.js
+          node --check /tmp/code-workbench.js
       - name: Test Application Center discovery and safe plans
         run: python -m pytest -q appcenter/tests
