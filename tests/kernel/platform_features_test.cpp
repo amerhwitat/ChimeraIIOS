@@ -7,10 +7,15 @@ int main() {
     assert(chimera_platform_probe() == 0);
     assert(chimera_platform_state_get() == CHM_PLATFORM_READY);
     assert(chimera_platform_has(CHM_FEAT_VMEM));
-    assert(chimera_platform_has(CHM_FEAT_VFS));
-    assert(chimera_platform_has(CHM_FEAT_NET_SOCKETS));
-    assert(chimera_platform_has(CHM_FEAT_SECURITY));
-    assert(chimera_platform_has(CHM_FEAT_AURORA_COMP));
+    assert(!chimera_platform_has(CHM_FEAT_PROCESSES));
+    assert(!chimera_platform_has(CHM_FEAT_THREADS));
+    assert(!chimera_platform_has(CHM_FEAT_VFS));
+    assert(!chimera_platform_has(CHM_FEAT_BLOCK_IO));
+    assert(!chimera_platform_has(CHM_FEAT_NET_SOCKETS));
+    assert(!chimera_platform_has(CHM_FEAT_SECURITY));
+    assert(!chimera_platform_has(CHM_FEAT_DRM_KMS));
+    assert(!chimera_platform_has(CHM_FEAT_AURORA_COMP));
+    assert(!chimera_platform_has(CHM_FEAT_COMPAT_POSIX));
 
     assert(chimera_memory_register_region(0x100000, 0x400000, 1, 3) == 0);
     assert(chimera_memory_region_count() == 1);
