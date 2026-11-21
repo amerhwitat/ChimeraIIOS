@@ -8,6 +8,8 @@ static void blocker_task(void*){++blocker_runs;if(blocker_runs==1)chimera_sched_
 static void fair_high(void*){++fair_runs[0];}
 static void fair_mid(void*){++fair_runs[1];}
 static void fair_low(void*){++fair_runs[2];}
+static int reentrant_runs=0,reentrant_nested_runs=0;
+static void reentrant_task(void*){++reentrant_runs;reentrant_nested_runs+=(int)chimera_sched_run_once(0);}
 int main(){
     chimera_sched_init(1);
     int low=chimera_sched_submit(low_task,nullptr,10);
@@ -65,5 +67,15 @@ int main(){
     assert(chimera_sched_submit(serial_task,&serial_runs,10)>0);
     assert(chimera_sched_run_parallel(0,2)==0 && serial_runs==0);
     assert(chimera_sched_run_serial_range(0,2)==2 && serial_runs==2);
+
+    // A callback must retain ownership of its CPU until it returns. A nested
+    // run_once on that CPU must not overwrite current_index or dispatch a
+    // second callback on the same execution stack.
+    chimera_sched_init(1); reentrant_runs=0; reentrant_nested_runs=0;
+    assert(chimera_sched_submit(reentrant_task,nullptr,10)>0);
+    assert(chimera_sched_run_once(0)==1);
+    assert(reentrant_runs==1 && reentrant_nested_runs==0);
+    assert(chimera_sched_run_once(0)==1);
+    assert(reentrant_runs==2 && reentrant_nested_runs==0);
     puts("Koronos scheduler runtime: PASS"); return 0;
 }
