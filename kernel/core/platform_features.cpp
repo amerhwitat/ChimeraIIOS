@@ -28,16 +28,15 @@ static void zero(void *p, size_t n) {
 }
 
 static uint64_t native_features() {
-    return CHM_FEAT_OBJECTS | CHM_FEAT_PROCESSES | CHM_FEAT_THREADS |
-           CHM_FEAT_VMEM | CHM_FEAT_PAGECACHE | CHM_FEAT_VFS |
-           CHM_FEAT_BLOCK_IO | CHM_FEAT_DMA_IOMMU | CHM_FEAT_PNP |
-           CHM_FEAT_HOTPLUG | CHM_FEAT_NET_IP | CHM_FEAT_NET_SOCKETS |
-           CHM_FEAT_NET_ZEROCOPY | CHM_FEAT_SECURITY | CHM_FEAT_TPM |
-           CHM_FEAT_DRM_KMS | CHM_FEAT_USB_HID | CHM_FEAT_AUDIO |
-           CHM_FEAT_POWER | CHM_FEAT_VIRTUALIZATION | CHM_FEAT_DIAGNOSTICS |
-           CHM_FEAT_AURORA_COMP | CHM_FEAT_AURORA_WM | CHM_FEAT_AURORA_CLIP |
-           CHM_FEAT_AURORA_ACCESS | CHM_FEAT_COMPAT_POSIX |
-           CHM_FEAT_COMPAT_NT | CHM_FEAT_COMPAT_DARWIN | CHM_FEAT_COMPAT_DOS;
+    /*
+     * Report only a capability with a concrete native implementation and
+     * kernel tests. The current tree has address-space/page-table primitives,
+     * but process scheduling, persistent storage, network sockets, DRM,
+     * desktop composition and the advertised compatibility environments are
+     * not complete runtime facilities. Do not turn ABI declarations or
+     * registries into claims that those subsystems are operational.
+     */
+    return CHM_FEAT_VMEM;
 }
 
 static void early_log(const char *s) {
