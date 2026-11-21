@@ -84,6 +84,10 @@ extern "C" int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priori
 extern "C" int chimera_sched_set_affinity(uint32_t task_id,uint64_t mask){
     if(mask==0)return -1;
     lock();
+    /* Affinity bits name logical CPUs. Reject masks that cannot match any
+       configured CPU instead of accepting a task that can never be dispatched. */
+    const uint64_t online_mask = cpus >= 64u ? UINT64_MAX : ((1ull << cpus) - 1ull);
+    if ((mask & ~online_mask) != 0) { unlock(); return -3; }
     for(uint32_t i=0;i<count;i++) if(tasks[i].info.id==task_id&&tasks[i].info.state!=CHIMERA_TASK_EXITED){
         tasks[i].info.affinity_mask=mask;unlock();return 0;
     }

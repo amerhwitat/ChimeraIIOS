@@ -26,6 +26,16 @@ int main(){
   assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
   chimera_process_image q{};
   assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_READY);
+  /* Process state changes follow a lifecycle; invalid and terminal transitions
+     must be rejected rather than silently resurrecting a dead process. */
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_EXITED)==-3);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_RUNNING)==0);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_BLOCKED)==0);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==0);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_RUNNING)==0);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_EXITED)==0);
+  assert(chimera_process_set_state(pid,CHIMERA_PROCESS_READY)==-3);
+  assert(chimera_process_get(pid,&q)==0 && q.state==CHIMERA_PROCESS_EXITED);
   make_elf(image,true);
   assert(chimera_process_admit_elf(image,sizeof(image),KORONOS_EM_X86_64,0x800000,&q)<0);
   return 0;

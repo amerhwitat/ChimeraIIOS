@@ -20,17 +20,17 @@
         <h2>${profile.title}</h2>
         <p>${profile.description}</p>
         <p><small>${profile.family} · ${profile.mode}</small></p>
-        <button data-profile="${profile.id}">${profile.id === current ? 'Current desktop' : 'Switch to this desktop'}</button>
+        <button type="button" data-profile="${profile.id}" aria-pressed="${profile.id === current}">${profile.id === current ? 'Selected profile' : 'Select profile'}</button>
       </article>
     `).join('');
     const selected = catalog.profiles.find(profile => profile.id === current);
-    status.textContent = `Current: ${selected ? selected.title : current}`;
+    status.textContent = `Selected preview: ${selected ? selected.title : current}. Native sessions require an installed and authorized backend.`;
   }
 
   profiles.addEventListener('click', event => {
     const button = event.target.closest('[data-profile]');
     if (!button || !catalog) return;
-    localStorage.setItem(STORAGE_KEY, button.dataset.profile);
+    try { localStorage.setItem(STORAGE_KEY, button.dataset.profile); } catch (error) { status.textContent = `Could not save selection: ${error.message}`; return; }
     window.dispatchEvent(new CustomEvent('chimera-desktop-change', {
       detail: { id: button.dataset.profile }
     }));

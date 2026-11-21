@@ -16,6 +16,22 @@ static void frame_trace(const char *message) {
     (void)message;
 #endif
 }
+static void frame_trace_hex64(const char *label, uint64_t value) {
+#if defined(__x86_64__) && defined(__STDC_HOSTED__) && (__STDC_HOSTED__ == 0)
+    static const char digits[] = "0123456789ABCDEF";
+    if (label) while (*label) {
+        const uint8_t ch = static_cast<uint8_t>(*label++);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(ch));
+    }
+    for (int shift = 60; shift >= 0; shift -= 4) {
+        const uint8_t digit = static_cast<uint8_t>(digits[(value >> shift) & 0x0fu]);
+        __asm__ volatile("outb %0, $0xE9" : : "a"(digit));
+    }
+    __asm__ volatile("outb %0, $0xE9" : : "a"((uint8_t)'\n'));
+#else
+    (void)label; (void)value;
+#endif
+}
 constexpr uint32_t PAGE_COUNT = static_cast<uint32_t>(KORONOS_FRAME_PHYS_LIMIT / KORONOS_FRAME_SIZE);
 constexpr uint32_t WORD_BITS = 32u;
 constexpr uint32_t BITMAP_WORDS = PAGE_COUNT / WORD_BITS;
@@ -71,12 +87,28 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
     if (!range_end(start, length, &end)) return false;
     /* Explicitly reject rather than silently discard RAM the allocator cannot
        address under the current bootstrap mapping contract. */
-    if (end > KORONOS_FRAME_PHYS_LIMIT) return false;
-    if (start >= KORONOS_FRAME_PHYS_LIMIT) return false;
+    if (end > KORONOS_FRAME_PHYS_LIMIT) {
+        frame_trace_hex64("FA:usable-end-over-limit=", end);
+        return false;
+    }
+    if (start >= KORONOS_FRAME_PHYS_LIMIT) {
+        frame_trace_hex64("FA:usable-start-over-limit=", start);
+        return false;
+    }
     uint64_t first = (start + KORONOS_FRAME_SIZE - 1u) / KORONOS_FRAME_SIZE;
     const uint64_t last = end / KORONOS_FRAME_SIZE;
     if (first < FIRST_ALLOCATABLE_PAGE) first = FIRST_ALLOCATABLE_PAGE;
     if (first >= last) return true;
+    const uint64_t first_word = first / WORD_BITS;
+    const uint64_t end_word = (last + WORD_BITS - 1u) / WORD_BITS;
+    frame_trace_hex64("FA:first-page=", first);
+    frame_trace_hex64("FA:last-page=", last);
+    frame_trace_hex64("FA:first-word=", first_word);
+    frame_trace_hex64("FA:end-word=", end_word);
+    if (end_word > BITMAP_WORDS || first_word >= end_word) {
+        frame_trace("FA:usable-bitmap-range-invalid");
+        return false;
+    }
 
     /*
      * Populate complete bitmap words instead of touching every 4-KiB page.
@@ -84,9 +116,8 @@ static bool add_usable_range(uint64_t start, uint64_t length) {
      * page-by-page for every Multiboot memory-map entry needlessly stalls
      * early boot. Preserve any frames already reserved or allocated.
      */
-    const uint64_t first_word = first / WORD_BITS;
-    const uint64_t end_word = (last + WORD_BITS - 1u) / WORD_BITS;
     for (uint64_t word = first_word; word < end_word; ++word) {
+        if ((word & 0x0fffu) == 0u) frame_trace_hex64("FA:bitmap-word=", word);
         const uint32_t low = (word == first_word)
             ? static_cast<uint32_t>(first % WORD_BITS) : 0u;
         const uint32_t high = (word == ((last - 1u) / WORD_BITS))

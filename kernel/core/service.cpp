@@ -14,6 +14,32 @@ static int find(const chimera_service_manifest*s,uint32_t n,const char*id){
         if(same(s[i].id,id))return (int)i;
     return -1;
 }
+static bool valid_state(uint32_t state) {
+    return state <= CHM_SVC_RECOVERING;
+}
+static bool valid_transition(uint32_t from,uint32_t to) {
+    if (from == to) return true;
+    switch (from) {
+        case CHM_SVC_DECLARED:
+            return to == CHM_SVC_BLOCKED || to == CHM_SVC_STARTING || to == CHM_SVC_FAILED;
+        case CHM_SVC_BLOCKED:
+            return to == CHM_SVC_STARTING || to == CHM_SVC_FAILED;
+        case CHM_SVC_STARTING:
+            return to == CHM_SVC_RUNNING || to == CHM_SVC_BLOCKED || to == CHM_SVC_FAILED;
+        case CHM_SVC_RUNNING:
+            return to == CHM_SVC_STOPPING || to == CHM_SVC_FAILED;
+        case CHM_SVC_STOPPING:
+            return to == CHM_SVC_STOPPED || to == CHM_SVC_FAILED;
+        case CHM_SVC_STOPPED:
+            return to == CHM_SVC_STARTING || to == CHM_SVC_FAILED;
+        case CHM_SVC_FAILED:
+            return to == CHM_SVC_RECOVERING;
+        case CHM_SVC_RECOVERING:
+            return to == CHM_SVC_STARTING || to == CHM_SVC_STOPPED || to == CHM_SVC_FAILED;
+        default:
+            return false;
+    }
+}
 }
 extern "C" int chimera_service_validate(const chimera_service_manifest*s,uint32_t n){
     if(!s||!n)return -1;
@@ -53,13 +79,16 @@ extern "C" int chimera_service_resolve(const chimera_service_manifest*s,uint32_t
     return 0;
 }
 extern "C" int chimera_service_set_state(const char*id,uint32_t state){
-    if(!id)return -1;
+    if(!id || !*id || !valid_state(state))return -1;
     for(uint32_t i=0;i<g_state_count;++i){
         if(same(g_states[i].id,id)){
+            if(!valid_transition(g_states[i].state,state))return -3;
             g_states[i].state=state;
             return 0;
         }
     }
+    /* A service must be registered as DECLARED before a manager may start it. */
+    if(state!=CHM_SVC_DECLARED)return -4;
     if(g_state_count>=64)return -2;
     g_states[g_state_count++]={id,state};
     return 0;

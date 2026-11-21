@@ -36,7 +36,8 @@
       "systemd-logind",
       "polkit",
       "rsyslog",
-      "chrony"
+      "chrony",
+      "systemd-oomd"
     ],
     "desktop": [
       "udisks2",
@@ -52,7 +53,13 @@
       "acpid",
       "colord",
       "geoclue-2.0",
-      "power-profiles-daemon"
+      "power-profiles-daemon",
+      "wireplumber",
+      "greetd",
+      "seatd",
+      "xdg-desktop-portal",
+      "libinput",
+      "weston"
     ],
     "network": [
       "NetworkManager",
@@ -65,7 +72,8 @@
       "systemd-networkd",
       "openvpn",
       "xrdp",
-      "frr"
+      "frr",
+      "wpa_supplicant"
     ],
     "server": [
       "openssh-server",
@@ -548,6 +556,90 @@
       "unit": "frr.service",
       "class": "network",
       "default_enabled": false
+    },
+    {
+      "id": "wireplumber",
+      "label": "PipeWire Session and Policy Manager",
+      "package": "wireplumber",
+      "unit": "wireplumber.service",
+      "class": "desktop",
+      "default_enabled": false,
+      "dependencies": [
+        "pipewire"
+      ]
+    },
+    {
+      "id": "greetd",
+      "label": "Greeter and Login Manager",
+      "package": "greetd",
+      "unit": "greetd.service",
+      "class": "desktop",
+      "default_enabled": false,
+      "dependencies": [
+        "dbus",
+        "systemd-logind"
+      ]
+    },
+    {
+      "id": "seatd",
+      "label": "Seat and Device Access Manager",
+      "package": "seatd",
+      "unit": "seatd.service",
+      "class": "desktop",
+      "default_enabled": false,
+      "dependencies": []
+    },
+    {
+      "id": "xdg-desktop-portal",
+      "label": "Desktop Portal Broker",
+      "package": "xdg-desktop-portal",
+      "unit": "xdg-desktop-portal.service",
+      "class": "desktop",
+      "default_enabled": false,
+      "dependencies": [
+        "dbus"
+      ]
+    },
+    {
+      "id": "wpa_supplicant",
+      "label": "Wi-Fi Authentication",
+      "package": "wpasupplicant",
+      "unit": "wpa_supplicant.service",
+      "class": "network",
+      "default_enabled": false,
+      "dependencies": []
+    },
+    {
+      "id": "libinput",
+      "label": "Input Device Stack",
+      "package": "libinput-bin",
+      "unit": "libinput.service",
+      "class": "desktop",
+      "default_enabled": false,
+      "dependencies": [
+        "systemd-udevd"
+      ]
+    },
+    {
+      "id": "weston",
+      "label": "Wayland Reference Compositor",
+      "package": "weston",
+      "unit": "weston.service",
+      "class": "desktop",
+      "default_enabled": false,
+      "dependencies": [
+        "seatd",
+        "dbus"
+      ]
+    },
+    {
+      "id": "systemd-oomd",
+      "label": "Out-of-Memory Policy Manager",
+      "package": "systemd-oomd",
+      "unit": "systemd-oomd.service",
+      "class": "base",
+      "default_enabled": false,
+      "dependencies": []
     }
   ]
 }

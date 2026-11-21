@@ -42,7 +42,7 @@ jobs:
           grep -q 'multiboot2 /boot/koronos/koronos.elf' boot/iso/grub.cfg
           grep -q 'set gfxpayload=keep' boot/iso/grub.cfg
           grep -q 'efi_gop' boot/iso/grub.cfg
-          grep -q 'module2 /boot/live/chimera-live-initramfs.img' boot/iso/grub.cfg
+          grep -q 'module2 /boot/live/chimera-live-initramfs.cpio' boot/iso/grub.cfg
           grep -q 'module2 /boot/live/live-manifest.json' boot/iso/grub.cfg
 
   windows-hyperv-helper-validation:

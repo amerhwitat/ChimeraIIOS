@@ -205,7 +205,7 @@ grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" "$DIST
 }
 grep -q '/boot/live/chimera-live-initramfs.img' "$ROOT/boot/jasper/live.cfg"
 grep -q '/boot/live/live-manifest.json' "$ROOT/boot/jasper/live.cfg"
-grep -q '/boot/recovery/chimera-recovery-initramfs.img' "$ROOT/boot/jasper/recovery.cfg"
+grep -q '/boot/recovery/chimera-recovery-initramfs.cpio' "$ROOT/boot/jasper/recovery.cfg"
 grep -q 'Recovery Terminal' "$ROOT/boot/jasper/recovery.cfg"
 
 for contract in \
