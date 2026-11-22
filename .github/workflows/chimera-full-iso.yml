@@ -73,6 +73,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests/boot -p "test_userspace_handoff_verifier.py" -v
           python3 -m unittest discover -s tests/boot -p "test_chimera_iso_release_gate.py" -v
+          python3 -m unittest discover -s tests/boot -p "test_verify_production_release.py" -v
 
       - name: Build ASM/C/C++ and compose ISO
         env:
@@ -370,6 +371,24 @@ jobs:
             echo "Production release blocked: all three target manifests must identify production-ready payloads."
           fi
 
+      - name: Verify six-case production release evidence
+        id: six_case_gate
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest=.github/release/production-acceptance.json
+          if [[ ! -s "$manifest" ]]; then
+            echo "certified=false" >> "$GITHUB_OUTPUT"
+            echo "Production certification evidence is absent; release publication remains blocked."
+            exit 0
+          fi
+          if python3 tools/boot/verify-production-release.py "$manifest" --iso build/iso/chimera-ii-os.iso; then
+            echo "certified=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "certified=false" >> "$GITHUB_OUTPUT"
+            echo "Production certification evidence is invalid; release publication remains blocked."
+          fi
       - name: Fail the build when any native userspace handoff is unverified
         if: steps.userspace_gate.outputs.accepted != 'true'
         shell: bash
@@ -381,7 +400,7 @@ jobs:
       - name: Publish validated ISO candidate to GitHub Releases
         # Fail closed by default: a BIOS entry-marker smoke test is not userspace/release acceptance.
         # Enable this repository variable only after Live, Installer, Recovery, installed-disk and SMP gates pass.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.production_gate.outputs.ready == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.userspace_gate.outputs.accepted == 'true' && steps.production_gate.outputs.ready == 'true' && steps.six_case_gate.outputs.certified == 'true' && vars.CHIMERA_RELEASE_ACCEPTANCE_APPROVED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
