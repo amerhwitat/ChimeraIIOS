@@ -11,7 +11,7 @@ on:
     paths:
       - 'neural/**'
       - 'voice/**'
-      - 'drivers/**'
+      - 'drivers/printer/**'
       - 'rust/ChimeraIIOS/**'
 
   workflow_dispatch:
