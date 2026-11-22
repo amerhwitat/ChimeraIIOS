@@ -567,8 +567,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[VM  ] Hypervisor detected: ");
     console_hex32(f->hypervisor);
 
-    console_write("[SCH ] Initializing scheduler...");
-    chimera_sched_init(f->logical_cpus);
+    console_write("[SCH ] Initializing scheduler on bootstrap processor only");
+    /* CPUID reports hardware capacity, not online scheduler workers. Until
+       AP startup, per-CPU stacks and cross-CPU dispatch are implemented and
+       acknowledged, expose only the BSP as schedulable. This prevents affinity
+       and diagnostics from implying that unstarted APs can run tasks. */
+    chimera_sched_init(1);
+    console_write("[SCH ] Online scheduler CPUs: 1 (AP startup not implemented)");
     chimera_learning_init(f->logical_cpus);
     console_progress(35, "Scheduler and learning runtime initialized");
 
