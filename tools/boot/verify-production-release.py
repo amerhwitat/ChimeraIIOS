@@ -2,8 +2,9 @@
 """Fail-closed verifier for the six-case Chimera production release evidence.
 
 This verifies declarations, candidate ISO bytes, and the bytes of every
-locally staged evidence artifact. It does not create evidence, boot an image,
-or replace review of the underlying CI traces.
+locally staged evidence artifact. Firmware traces are parsed for ordered,
+target-matched kernel, CPL3, userspace-ready and resident-PID1 markers. It
+does not create evidence, boot an image, or authenticate trace provenance.
 """
 from __future__ import annotations
 
@@ -17,6 +18,25 @@ SCHEMA = "CHIMERA-PRODUCTION-ACCEPTANCE-1"
 TARGETS = ("live", "installer", "recovery")
 FIRMWARE = ("bios", "uefi")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
+
+KERNEL_MARKER = "[KRN ] KORONOS READY"
+ENTRY_RE = re.compile(
+    r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+)
+READY_RE = re.compile(
+    r"USERSPACE READY: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+)
+ACTIVE_RE = re.compile(
+    r"KORONOS PID1 ACTIVE: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+)
+TERMINAL_RE = re.compile(
+    r"(?:Target userspace init emitted its own readiness handshake and exited cleanly|"
+    r"in-kernel PIT deadline expired|userspace init exited nonzero|"
+    r"userspace init exited before its target-specific USERSPACE READY handshake|"
+    r"\\[\\s*RUN\\s*\\]\\s*(?:ERROR|FATAL)\\s*:|"
+    r"KORONOS\\s+PANIC\\s*:|kernel\\s+panic\\s*:)",
+    re.IGNORECASE,
+)
 
 REQUIRED_SYSTEM_GATES = {
     "scheduler": ("preemptive_context_switching", "two_cpu_overlap"),
@@ -64,6 +84,32 @@ def resolve_evidence(root: Path, relative: object, label: str) -> Path:
     return artifact
 
 
+def verify_firmware_trace(trace_path: Path, target: str, key: tuple) -> None:
+    trace = trace_path.read_text(encoding="utf-8", errors="replace")
+    kernel_at = trace.find(KERNEL_MARKER)
+    require(kernel_at >= 0, f"{key}: firmware trace lacks Koronos kernel-ready marker")
+    entries = list(ENTRY_RE.finditer(trace))
+    ready = list(READY_RE.finditer(trace))
+    active = list(ACTIVE_RE.finditer(trace))
+    for entry in entries:
+        if entry.group(1) != target or kernel_at >= entry.start():
+            continue
+        for marker in ready:
+            if (marker.group(1) != target or marker.group(2) != entry.group(2)
+                    or entry.start() >= marker.start()):
+                continue
+            for pid1 in active:
+                if (pid1.group(1) == target and pid1.group(2) == entry.group(2)
+                        and marker.start() < pid1.start()):
+                    require(TERMINAL_RE.search(trace, pid1.end()) is None,
+                            f"{key}: terminal runtime failure follows PID 1 activation")
+                    return
+    raise AcceptanceError(
+        f"{key}: firmware trace lacks ordered kernel-ready -> CPL3 init syscall -> "
+        "matching userspace-ready -> resident PID1 markers for the target"
+    )
+
+
 def verify(document: object, iso_path: Path | None = None,
            evidence_root: Path | None = None) -> dict:
     require(isinstance(document, dict), "acceptance manifest must be a JSON object")
@@ -90,6 +136,7 @@ def verify(document: object, iso_path: Path | None = None,
         key = (case.get("target"), case.get("firmware"))
         require(key not in indexed, f"duplicate target/firmware case: {key}")
         indexed[key] = case
+        target, firmware = key
         require(case.get("iso_sha256") == iso_sha,
                 f"{key}: ISO SHA-256 differs from the release ISO")
         trace_sha = case.get("firmware_trace_sha256")
@@ -102,6 +149,7 @@ def verify(document: object, iso_path: Path | None = None,
         trace_paths.add(trace_path)
         require(sha256_file(trace_file) == trace_sha,
                 f"{key}: firmware trace SHA-256 does not match its artifact")
+        verify_firmware_trace(trace_file, target, key)
         for field in ("kernel_ready", "cpl3_init_ack", "matching_nonzero_pid1",
                       "persistent_runtime", "target_postcondition"):
             require(case.get(field) is True, f"{key}: {field} is not verified")
