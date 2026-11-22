@@ -21,20 +21,20 @@ HEX64 = re.compile(r"^[0-9a-f]{64}$")
 
 KERNEL_MARKER = "[KRN ] KORONOS READY"
 ENTRY_RE = re.compile(
-    r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+    r"USER INIT SYSCALL: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 READY_RE = re.compile(
-    r"USERSPACE READY: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+    r"USERSPACE READY: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 ACTIVE_RE = re.compile(
-    r"KORONOS PID1 ACTIVE: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\\b"
+    r"KORONOS PID1 ACTIVE: target=(live|installer|recovery) init_pid=([1-9][0-9]*)\b"
 )
 TERMINAL_RE = re.compile(
     r"(?:Target userspace init emitted its own readiness handshake and exited cleanly|"
     r"in-kernel PIT deadline expired|userspace init exited nonzero|"
     r"userspace init exited before its target-specific USERSPACE READY handshake|"
-    r"\\[\\s*RUN\\s*\\]\\s*(?:ERROR|FATAL)\\s*:|"
-    r"KORONOS\\s+PANIC\\s*:|kernel\\s+panic\\s*:)",
+    r"\[\s*RUN\s*\]\s*(?:ERROR|FATAL)\s*:|"
+    r"KORONOS\s+PANIC\s*:|kernel\s+panic\s*:)",
     re.IGNORECASE,
 )
 
