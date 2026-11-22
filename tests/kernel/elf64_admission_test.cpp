@@ -40,9 +40,19 @@ int main() {
     build_elf(elf, sizeof(elf));
     assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 1);
 
-    // Attacker-controlled offsets and counts must never wrap the bounds check.
-    put64(elf + 32, UINT64_MAX - 7);
+    // Reject invalid ELF version and an empty program-header table.
+    put32(elf + 20, 0);
     assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
+    build_elf(elf, sizeof(elf));
+    put16(elf + 56, 0);
+    assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
+
+    // Attacker-controlled offsets and counts must never wrap the bounds check.
+    // A large advertised image size exercises addition overflow without
+    // requiring an allocation anywhere near UINT64_MAX.
+    build_elf(elf, sizeof(elf));
+    put64(elf + 32, UINT64_MAX - 7);
+    assert(koronos_elf64_validate(elf, UINT64_MAX, KORONOS_EM_X86_64) == 0);
     build_elf(elf, sizeof(elf));
     put16(elf + 56, UINT16_MAX);
     assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
@@ -69,6 +79,6 @@ int main() {
     chimera_process_image rejected{};
     assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
                                      0x100700000, &rejected) < 0);
-    puts("ELF64 validation/admission: bounds and executable-entry checks passed");
+    puts("ELF64 validation/admission: overflow, version, empty-table and executable-entry checks passed");
     return 0;
 }
