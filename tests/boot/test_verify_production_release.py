@@ -16,22 +16,25 @@ SCHEMA = VERIFIER.SCHEMA
 verify = VERIFIER.verify
 
 DIGEST = "a" * 64
-TRACE = "b" * 64
-EVIDENCE_BYTES = b"retained CI trace bytes for verifier unit test"
+EVIDENCE_BYTES = b"retained build evidence bytes for verifier unit test"
 
 
-def valid_manifest(evidence_path: Path):
-    evidence_path.write_bytes(EVIDENCE_BYTES)
-    evidence_digest = hashlib.sha256(EVIDENCE_BYTES).hexdigest()
+def valid_manifest(root: Path):
     cases = []
     for target in ("live", "installer", "recovery"):
         for firmware in ("bios", "uefi"):
+            trace_name = f"{target}-{firmware}.log"
+            trace_bytes = f"firmware trace: {target}/{firmware}".encode()
+            (root / trace_name).write_bytes(trace_bytes)
             cases.append({
                 "target": target, "firmware": firmware, "iso_sha256": DIGEST,
-                "firmware_trace_sha256": TRACE, "kernel_ready": True,
+                "firmware_trace_sha256": hashlib.sha256(trace_bytes).hexdigest(),
+                "firmware_trace_path": trace_name, "kernel_ready": True,
                 "cpl3_init_ack": True, "matching_nonzero_pid1": True,
                 "persistent_runtime": True, "target_postcondition": True,
             })
+    evidence_name = "build-evidence.log"
+    (root / evidence_name).write_bytes(EVIDENCE_BYTES)
     groups = {
         "scheduler": ["preemptive_context_switching", "two_cpu_overlap"],
         "storage": ["block_device_io", "persistent_vfs"],
@@ -49,7 +52,7 @@ def valid_manifest(evidence_path: Path):
                          for group, fields in groups.items()},
         "evidence": [{
             "uri": "https://github.com/example/project/actions/runs/123",
-            "path": evidence_path.name, "sha256": evidence_digest,
+            "path": evidence_name, "sha256": hashlib.sha256(EVIDENCE_BYTES).hexdigest(),
         }],
     }
 
@@ -58,8 +61,7 @@ class ProductionReleaseVerifierTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
-        self.evidence = self.root / "ci-trace.log"
-        self.manifest = valid_manifest(self.evidence)
+        self.manifest = valid_manifest(self.root)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -74,7 +76,7 @@ class ProductionReleaseVerifierTests(unittest.TestCase):
             verify(self.manifest, evidence_root=self.root)
 
     def test_rejects_mixed_iso_hashes(self):
-        self.manifest["cases"][0]["iso_sha256"] = TRACE
+        self.manifest["cases"][0]["iso_sha256"] = "b" * 64
         with self.assertRaisesRegex(AcceptanceError, "differs"):
             verify(self.manifest, evidence_root=self.root)
 
@@ -87,24 +89,34 @@ class ProductionReleaseVerifierTests(unittest.TestCase):
         for group, field in (("scheduler", "preemptive_context_switching"),
                              ("storage", "persistent_vfs"),
                              ("desktops", "aurora_native_session")):
-            manifest = valid_manifest(self.evidence)
+            manifest = valid_manifest(self.root)
             manifest["system_gates"][group][field] = False
             with self.subTest(group=group, field=field):
                 with self.assertRaises(AcceptanceError):
                     verify(manifest, evidence_root=self.root)
 
+    def test_rejects_missing_firmware_trace(self):
+        (self.root / "live-bios.log").unlink()
+        with self.assertRaisesRegex(AcceptanceError, "firmware trace artifact is missing"):
+            verify(self.manifest, evidence_root=self.root)
+
+    def test_rejects_firmware_trace_hash_mismatch(self):
+        (self.root / "live-bios.log").write_bytes(b"altered trace")
+        with self.assertRaisesRegex(AcceptanceError, "firmware trace SHA-256 does not match"):
+            verify(self.manifest, evidence_root=self.root)
+
     def test_rejects_missing_evidence_artifact(self):
-        self.evidence.unlink()
+        (self.root / "build-evidence.log").unlink()
         with self.assertRaisesRegex(AcceptanceError, "evidence artifact is missing"):
             verify(self.manifest, evidence_root=self.root)
 
     def test_rejects_evidence_hash_mismatch(self):
-        self.evidence.write_bytes(b"altered trace")
-        with self.assertRaisesRegex(AcceptanceError, "SHA-256 does not match"):
+        (self.root / "build-evidence.log").write_bytes(b"altered evidence")
+        with self.assertRaisesRegex(AcceptanceError, "evidence artifact SHA-256 does not match"):
             verify(self.manifest, evidence_root=self.root)
 
     def test_rejects_path_traversal(self):
-        self.manifest["evidence"][0]["path"] = "../outside.log"
+        self.manifest["cases"][0]["firmware_trace_path"] = "../outside.log"
         with self.assertRaisesRegex(AcceptanceError, "cannot traverse"):
             verify(self.manifest, evidence_root=self.root)
 
