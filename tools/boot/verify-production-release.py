@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Fail-closed verifier for the six-case Chimera production release evidence.
 
-This checks declarations and SHA-256 linkage in a signed-off evidence manifest.
-It does not create evidence, boot an image, or replace the underlying CI traces.
+This verifies declarations, the candidate ISO bytes, and the bytes of every
+locally staged evidence artifact. It does not create evidence, boot an image,
+or replace review of the underlying CI traces.
 """
 from __future__ import annotations
 
@@ -39,7 +40,16 @@ def require(condition: bool, message: str) -> None:
         raise AcceptanceError(message)
 
 
-def verify(document: object, iso_path: Path | None = None) -> dict:
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def verify(document: object, iso_path: Path | None = None,
+           evidence_root: Path | None = None) -> dict:
     require(isinstance(document, dict), "acceptance manifest must be a JSON object")
     require(document.get("schema") == SCHEMA, f"schema must be {SCHEMA}")
     iso_sha = document.get("iso_sha256")
@@ -47,12 +57,8 @@ def verify(document: object, iso_path: Path | None = None) -> dict:
             "iso_sha256 must be a lowercase 64-character SHA-256")
     if iso_path is not None:
         require(iso_path.is_file(), f"ISO file does not exist: {iso_path}")
-        digest = hashlib.sha256()
-        with iso_path.open("rb") as stream:
-            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                digest.update(chunk)
-        actual = digest.hexdigest()
-        require(actual == iso_sha, "acceptance ISO SHA-256 does not match the release ISO")
+        require(sha256_file(iso_path) == iso_sha,
+                "acceptance ISO SHA-256 does not match the release ISO")
 
     cases = document.get("cases")
     require(isinstance(cases, list) and len(cases) == 6,
@@ -87,13 +93,32 @@ def verify(document: object, iso_path: Path | None = None) -> dict:
     evidence = document.get("evidence")
     require(isinstance(evidence, list) and evidence,
             "at least one trace/build evidence reference is required")
+    require(evidence_root is not None and evidence_root.is_dir(),
+            "evidence_root must be an existing directory containing staged evidence files")
+    root = evidence_root.resolve()
     for item in evidence:
         require(isinstance(item, dict), "each evidence reference must be an object")
-        require(isinstance(item.get("uri"), str) and item["uri"].strip(),
+        uri = item.get("uri")
+        require(isinstance(uri, str) and uri.strip(),
                 "each evidence reference needs a non-empty uri")
+        relative = item.get("path")
+        require(isinstance(relative, str) and relative.strip(),
+                "each evidence reference needs a relative local path")
+        relpath = Path(relative)
+        require(not relpath.is_absolute() and ".." not in relpath.parts,
+                "evidence path must be relative and cannot traverse parent directories")
+        try:
+            artifact = (root / relpath).resolve(strict=True)
+        except OSError as exc:
+            raise AcceptanceError(f"evidence artifact is missing: {relative}") from exc
+        require(artifact.is_relative_to(root),
+                "evidence artifact resolves outside the evidence root")
+        require(artifact.is_file(), f"evidence artifact is not a file: {relative}")
         digest = item.get("sha256")
         require(isinstance(digest, str) and HEX64.fullmatch(digest) is not None,
                 "each evidence reference needs a lowercase SHA-256")
+        require(sha256_file(artifact) == digest,
+                f"evidence artifact SHA-256 does not match: {relative}")
     return {"iso_sha256": iso_sha, "cases": 6, "evidence_items": len(evidence)}
 
 
@@ -104,7 +129,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         doc = json.loads(args.manifest.read_text(encoding="utf-8"))
-        result = verify(doc, args.iso)
+        result = verify(doc, args.iso, args.manifest.resolve().parent)
     except (OSError, json.JSONDecodeError, AcceptanceError) as exc:
         print(f"FAIL: production release acceptance: {exc}")
         return 1
