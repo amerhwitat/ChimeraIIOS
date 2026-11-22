@@ -13,7 +13,7 @@ extern "C" int chimera_elf_load_user_image(const void*image,uint64_t image_size,
  if(!image||!out||!ops||!ops->create_address_space||!ops->map_pages||!ops->destroy_address_space)return -1;
  if(image_size<sizeof(koronos_elf64_ehdr))return -2;
  koronos_elf64_ehdr h{};__builtin_memcpy(&h,image,sizeof(h));
- if(!koronos_elf64_valid(&h)||h.e_ehsize<sizeof(h)||h.e_machine!=machine||h.e_type!=KORONOS_ET_EXEC||
+ if(!koronos_elf64_valid(&h)||h.e_version!=1||h.e_ehsize<sizeof(h)||h.e_machine!=machine||h.e_type!=KORONOS_ET_EXEC||
     h.e_phentsize!=sizeof(koronos_elf64_phdr)||h.e_phnum==0||h.e_phnum>CHIMERA_ELF_LOADER_MAX_SEGMENTS)return -3;
  const uint64_t phbytes=(uint64_t)h.e_phnum*h.e_phentsize;
  if(!inside(h.e_phoff,phbytes,image_size))return -4;
