@@ -57,9 +57,15 @@ int main() {
     put16(elf + 56, UINT16_MAX);
     assert(koronos_elf64_validate(elf, sizeof(elf), KORONOS_EM_X86_64) == 0);
 
+    assert(chimera_process_init() == 0);
+    build_elf(elf, sizeof(elf));
+    put32(elf + 20, 0);
+    chimera_process_image invalid_version{};
+    assert(chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
+                                     0x100700000, &invalid_version) < 0);
+
     build_elf(elf, sizeof(elf));
     chimera_process_image admitted{};
-    assert(chimera_process_init() == 0);
     int pid = chimera_process_admit_elf(elf, sizeof(elf), KORONOS_EM_X86_64,
                                         0x100700000, &admitted);
     assert(pid > 0 && admitted.pid == static_cast<uint32_t>(pid));
