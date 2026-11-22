@@ -47,7 +47,11 @@ def verify(document: object, iso_path: Path | None = None) -> dict:
             "iso_sha256 must be a lowercase 64-character SHA-256")
     if iso_path is not None:
         require(iso_path.is_file(), f"ISO file does not exist: {iso_path}")
-        actual = hashlib.sha256(iso_path.read_bytes()).hexdigest()
+        digest = hashlib.sha256()
+        with iso_path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        actual = digest.hexdigest()
         require(actual == iso_sha, "acceptance ISO SHA-256 does not match the release ISO")
 
     cases = document.get("cases")
