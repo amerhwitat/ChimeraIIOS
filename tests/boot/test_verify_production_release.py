@@ -1,7 +1,10 @@
 import hashlib
+import sys
 import unittest
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT / "tools" / "boot"))
 from verify_production_release import AcceptanceError, SCHEMA, verify
 
 DIGEST = "a" * 64
