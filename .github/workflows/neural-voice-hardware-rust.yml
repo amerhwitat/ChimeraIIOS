@@ -5,16 +5,16 @@ on:
     paths:
       - 'neural/**'
       - 'voice/**'
-      - 'drivers/**'
+      - 'drivers/printer/**'
       - 'rust/ChimeraIIOS/**'
-      - '.github/workflows/neural-voice-hardware-rust.yml'
   pull_request:
     paths:
       - 'neural/**'
       - 'voice/**'
       - 'drivers/**'
       - 'rust/ChimeraIIOS/**'
-      - '.github/workflows/neural-voice-hardware-rust.yml'
+
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
