@@ -53,8 +53,11 @@ static int request_action(uint32_t cpu, uint8_t action) {
         unlock();return -2;
     }
     Task &t=tasks[(uint32_t)i];
-    /* A terminal/block request must not be overwritten by a later yield. */
-    if(t.pending_action==ACTION_EXIT || t.pending_action==ACTION_BLOCK) {unlock();return -3;}
+    /* EXIT is terminal and may supersede an earlier cooperative BLOCK or
+       YIELD request. Once EXIT is pending, no later action may undo it.
+       BLOCK must not be undone by a later YIELD. */
+    if(t.pending_action==ACTION_EXIT) {unlock();return -3;}
+    if(t.pending_action==ACTION_BLOCK && action==ACTION_YIELD) {unlock();return -3;}
     if(action==ACTION_EXIT || action==ACTION_BLOCK || t.pending_action==ACTION_NONE)
         t.pending_action=action;
     unlock();return 0;
