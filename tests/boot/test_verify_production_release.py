@@ -1,11 +1,18 @@
 import hashlib
-import sys
+import importlib.util
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO_ROOT / "tools" / "boot"))
-from verify_production_release import AcceptanceError, SCHEMA, verify
+VERIFIER_PATH = REPO_ROOT / "tools" / "boot" / "verify-production-release.py"
+SPEC = importlib.util.spec_from_file_location("verify_production_release", VERIFIER_PATH)
+if SPEC is None or SPEC.loader is None:
+    raise ImportError(f"cannot load production verifier: {VERIFIER_PATH}")
+VERIFIER = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(VERIFIER)
+AcceptanceError = VERIFIER.AcceptanceError
+SCHEMA = VERIFIER.SCHEMA
+verify = VERIFIER.verify
 
 DIGEST = "a" * 64
 TRACE = "b" * 64
