@@ -23,7 +23,11 @@ static void build_elf(uint8_t*b,size_t n){
  b[0x100]=0x90;b[0x101]=0x90;b[0x102]=0x90;b[0x103]=0xc3;
 }
 int main(){
- uint8_t elf[512];build_elf(elf,sizeof(elf));chimera_elf_load_ops ops{create_as,map_pages,destroy_as};Mock m{};chimera_loaded_elf loaded{};
+ uint8_t elf[512];build_elf(elf,sizeof(elf));chimera_elf_load_ops ops{create_as,map_pages,destroy_as};
+ put32(elf+20,0);Mock invalid_version{};chimera_loaded_elf rejected_version{};
+ assert(chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x100700000,8192,&ops,&invalid_version,&rejected_version)<0);
+ assert(invalid_version.count==0);
+ build_elf(elf,sizeof(elf));Mock m{};chimera_loaded_elf loaded{};
  int rc=chimera_elf_load_user_image(elf,sizeof(elf),KORONOS_EM_X86_64,0x100700000,8192,&ops,&m,&loaded);
  assert(rc==0&&loaded.entry==0x100400100&&loaded.segment_count==1&&loaded.loaded_file_bytes==4);
  assert(m.count==2&&!m.destroyed&&m.regions[0].base==0x100400000&&m.regions[0].flags==5);
