@@ -18,6 +18,7 @@ on:
     branches:
       - main
       - "fix/elf-admission-validation-acceptance"
+      - "feature/ai-workspace-release-payload-20261104"
 
 permissions:
   contents: read
