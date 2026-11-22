@@ -19,16 +19,26 @@ DIGEST = "a" * 64
 EVIDENCE_BYTES = b"retained build evidence bytes for verifier unit test"
 
 
+def trace_bytes(target, firmware):
+    return (
+        "[KRN ] KORONOS READY\n"
+        f"USER INIT SYSCALL: target={target} init_pid=42\n"
+        f"USERSPACE READY: target={target} init_pid=42\n"
+        f"KORONOS PID1 ACTIVE: target={target} init_pid=42\n"
+        f"firmware={firmware}; resident runtime continues\n"
+    ).encode()
+
+
 def valid_manifest(root: Path):
     cases = []
     for target in ("live", "installer", "recovery"):
         for firmware in ("bios", "uefi"):
             trace_name = f"{target}-{firmware}.log"
-            trace_bytes = f"firmware trace: {target}/{firmware}".encode()
-            (root / trace_name).write_bytes(trace_bytes)
+            data = trace_bytes(target, firmware)
+            (root / trace_name).write_bytes(data)
             cases.append({
                 "target": target, "firmware": firmware, "iso_sha256": DIGEST,
-                "firmware_trace_sha256": hashlib.sha256(trace_bytes).hexdigest(),
+                "firmware_trace_sha256": hashlib.sha256(data).hexdigest(),
                 "firmware_trace_path": trace_name, "kernel_ready": True,
                 "cpl3_init_ack": True, "matching_nonzero_pid1": True,
                 "persistent_runtime": True, "target_postcondition": True,
@@ -103,6 +113,27 @@ class ProductionReleaseVerifierTests(unittest.TestCase):
     def test_rejects_firmware_trace_hash_mismatch(self):
         (self.root / "live-bios.log").write_bytes(b"altered trace")
         with self.assertRaisesRegex(AcceptanceError, "firmware trace SHA-256 does not match"):
+            verify(self.manifest, evidence_root=self.root)
+
+    def test_rejects_trace_without_cpl3_origin_marker(self):
+        data = b"[KRN ] KORONOS READY\nUSERSPACE READY: target=live init_pid=42\nKORONOS PID1 ACTIVE: target=live init_pid=42\n"
+        (self.root / "live-bios.log").write_bytes(data)
+        self.manifest["cases"][0]["firmware_trace_sha256"] = hashlib.sha256(data).hexdigest()
+        with self.assertRaisesRegex(AcceptanceError, "ordered kernel-ready"):
+            verify(self.manifest, evidence_root=self.root)
+
+    def test_rejects_mismatched_pid_in_trace(self):
+        data = trace_bytes("live", "bios").replace(b"USERSPACE READY: target=live init_pid=42", b"USERSPACE READY: target=live init_pid=43")
+        (self.root / "live-bios.log").write_bytes(data)
+        self.manifest["cases"][0]["firmware_trace_sha256"] = hashlib.sha256(data).hexdigest()
+        with self.assertRaisesRegex(AcceptanceError, "ordered kernel-ready"):
+            verify(self.manifest, evidence_root=self.root)
+
+    def test_rejects_terminal_failure_after_pid1_activation(self):
+        data = trace_bytes("live", "bios") + b"[RUN ] ERROR: process exited\n"
+        (self.root / "live-bios.log").write_bytes(data)
+        self.manifest["cases"][0]["firmware_trace_sha256"] = hashlib.sha256(data).hexdigest()
+        with self.assertRaisesRegex(AcceptanceError, "terminal runtime failure"):
             verify(self.manifest, evidence_root=self.root)
 
     def test_rejects_missing_evidence_artifact(self):
