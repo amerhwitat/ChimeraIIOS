@@ -16,7 +16,7 @@ extern "C" int chimera_process_admit_elf(const void *image, uint64_t size,
 
     koronos_elf64_ehdr h{};
     __builtin_memcpy(&h, image, sizeof(h));
-    if (!koronos_elf64_valid(&h) || h.e_ehsize < sizeof(h) ||
+    if (!koronos_elf64_valid(&h) || h.e_version != 1 || h.e_ehsize < sizeof(h) ||
         h.e_type != KORONOS_ET_EXEC || h.e_machine != machine ||
         h.e_phentsize != sizeof(koronos_elf64_phdr) || h.e_phnum == 0 ||
         h.e_phnum > MAX_SEGMENTS) return -2;
