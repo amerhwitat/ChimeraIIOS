@@ -458,6 +458,7 @@ extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" int koronos_preemptive_selftest(void);
 extern "C" int koronos_smp_selftest(void);
+extern "C" int koronos_native_stack_selftest(void);
 
 extern "C" void koronos_syscall_trace(const char *message) {
     /* Syscall-context diagnostics must not touch VGA or UART console paths. */
@@ -637,13 +638,22 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write(preempt_rc == 0
         ? "[PMT ] Native x86_64 context-save/timer-preemption gate passed"
         : "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED");
+    int smp_rc = -1;
     if (preempt_rc == 0) {
-        const int smp_rc = koronos_smp_selftest();
+        smp_rc = koronos_smp_selftest();
         console_write(smp_rc == 0
             ? "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed"
             : "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED");
     } else {
         console_write("[SMP ] gate not started: preemption gate failed");
+    }
+    if (preempt_rc == 0 && smp_rc == 0) {
+        const int native_rc = koronos_native_stack_selftest();
+        console_write(native_rc == 0
+            ? "[NST ] Native block/VFS/PID1 gate passed"
+            : "[NST ] Native block/VFS/PID1 gate FAILED");
+    } else {
+        console_write("[NST ] gate not started: CPU gates did not pass");
     }
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
