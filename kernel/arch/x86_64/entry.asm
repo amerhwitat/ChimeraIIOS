@@ -26,6 +26,7 @@ extern __kernel_end
 global _start
 
 global __koronos_multiboot2_entry
+global koronos_bootstrap_gdt_ptr
 __koronos_multiboot2_entry:
 _start:
     cli
@@ -150,6 +151,7 @@ gdt64:
     dq 0x00AF9A000000FFFF
     dq 0x00AF92000000FFFF
 gdt_ptr:
+koronos_bootstrap_gdt_ptr:
     dw gdt64_end - gdt64 - 1
     dq gdt64
 gdt64_end:
