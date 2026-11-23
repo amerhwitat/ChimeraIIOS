@@ -15,19 +15,86 @@ chimera_isr_%+v:
     push qword v
 %if v = 32
     jmp koronos_timer_irq_common
+%elif v = 33
+    jmp koronos_preempt_yield_common
 %else
     jmp chimera_interrupt_common
 %endif
 %assign v v+1
 %endrep
 
+extern koronos_preempt_irq_handler
+extern koronos_preempt_current_ctx
+extern koronos_user_timeout_irq
+extern koronos_user_timeout_abort
+
+; Vector 32 is both the relocatable PIT IRQ0 and the kernel timer-preemption
+; gate. Kernel-mode entries save the full GPR set and may switch stacks before
+; IRETQ; CPL3 entries retain the userspace timeout path below.
+koronos_timer_irq_common:
+    test qword [rsp + 16], 3          ; CPU-saved CS.RPL
+    jnz koronos_timer_user_path
+    mov rdi, 32
+    jmp koronos_preempt_common
+
+; Dedicated supervisor software gate used by a task to yield or exit. It uses
+; the same save/switch/IRETQ epilogue but does not send a PIC EOI.
+koronos_preempt_yield_common:
+    mov rdi, 33
+    jmp koronos_preempt_common
+
+koronos_preempt_common:
+    push rax
+    push rcx
+    push rdx
+    push rbx
+    push rbp
+    push rsi
+    push rdi
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    mov rbx, rsp
+    and rsp, -16
+    call koronos_preempt_irq_handler
+    mov rsp, rbx
+    test rax, rax
+    jz koronos_preempt_restore
+    ; RSP still points at the outgoing task's saved-frame top. Store it before
+    ; replacing the global context pointer with the handler's selected context.
+    mov rdx, [rel koronos_preempt_current_ctx]
+    mov [rdx], rsp
+    mov [rel koronos_preempt_current_ctx], rax
+    mov rsp, [rax]
+koronos_preempt_restore:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdi
+    pop rsi
+    pop rbp
+    pop rbx
+    pop rdx
+    pop rcx
+    pop rax
+    add rsp, 8                        ; discard stub vector
+    iretq
+
 ; IRQ0 is the only interrupt enabled while a userspace image runs. The TSS
 ; switches to RSP0 before this stub; swapgs establishes the kernel GS state.
 ; A timeout aborts the user continuation and returns to the saved kernel call
 ; frame instead of IRETQ'ing back into the expired user process.
-extern koronos_user_timeout_irq
-extern koronos_user_timeout_abort
-koronos_timer_irq_common:
+koronos_timer_user_path:
     swapgs
     push rax
     push rcx
