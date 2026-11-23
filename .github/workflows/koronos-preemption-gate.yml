@@ -7,6 +7,7 @@ on:
       - "kernel/**"
       - "tools/runtime/check-koronos-preemption.sh"
       - "tools/runtime/check-koronos-smp.sh"
+      - "tools/runtime/check-koronos-native-stack.sh"
       - ".github/workflows/koronos-preemption-gate.yml"
   push:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - "kernel/**"
       - "tools/runtime/check-koronos-preemption.sh"
       - "tools/runtime/check-koronos-smp.sh"
+      - "tools/runtime/check-koronos-native-stack.sh"
       - ".github/workflows/koronos-preemption-gate.yml"
 
 concurrency:
@@ -74,4 +76,32 @@ jobs:
             build/koronos-smp/qemu.stdout
             build/koronos-smp/qemu.stderr
             build/koronos-smp/koronos-smp-gate.iso
+            build/koronos/x86_64/koronos.elf
+
+  x86_64-native-stack:
+    needs: x86_64-smp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run native block/VFS/PID1 gate
+        run: |
+          chmod +x tools/runtime/check-koronos-native-stack.sh
+          tools/runtime/check-koronos-native-stack.sh
+      - name: Upload native stack diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-native-stack-diagnostics
+          path: |
+            build/koronos-native-stack/result.txt
+            build/koronos-native-stack/iso.sha256
+            build/koronos-native-stack/debugcon-write.log
+            build/koronos-native-stack/debugcon-read.log
+            build/koronos-native-stack/serial-write.log
+            build/koronos-native-stack/serial-read.log
+            build/koronos-native-stack/koronos-native-stack-gate.iso
             build/koronos/x86_64/koronos.elf
