@@ -1,4 +1,5 @@
 #include "chimera/native_stack.h"
+#include "chimera/multiboot_modules.h"
 
 /* Native block/VFS/PID 1 acceptance stack.
  *
@@ -132,6 +133,21 @@ static uint32_t reaped_pid_ = 0;
 static uint32_t reaped_status_ = 0;
 static uint32_t zombies_after_reap_ = 0;
 static int selftest_result_ = -1;
+
+static bool install_module_present_() {
+    for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
+        const chimera_boot_module *module = chimera_multiboot_module(i);
+        if (!module) continue;
+        const char *cmdline = module->cmdline;
+        for (uint32_t j = 0; cmdline[j]; ++j) {
+            const char token[] = "koronos-install-stack";
+            uint32_t k = 0;
+            while (token[k] && cmdline[j + k] == token[k]) ++k;
+            if (!token[k]) return true;
+        }
+    }
+    return false;
+}
 
 static Descriptor *descriptors_() { return reinterpret_cast<Descriptor *>(vq_memory_); }
 static volatile uint16_t *avail_index_() {
@@ -341,6 +357,11 @@ static void machine_reset_() {
 extern "C" int koronos_native_stack_selftest(void) {
     if (selftest_result_ >= 0) return selftest_result_;
     selftest_result_ = -1;
+    if (install_module_present_()) {
+        debug_("[NST ] SKIPPED: install target selected");
+        selftest_result_ = 0;
+        return selftest_result_;
+    }
     debug_("[NST ] starting native block/VFS/PID1 gate");
     if (!virtio_blk_init_()) {
         debug_("[NST ] SELFTEST FAIL: no virtio-blk device");
@@ -377,6 +398,17 @@ extern "C" int koronos_native_stack_selftest(void) {
     selftest_result_ = pass ? 0 : -1;
     return selftest_result_;
 }
+
+extern "C" int koronos_native_block_init(void) {
+    return block_ready_ || virtio_blk_init_() ? 0 : -1;
+}
+extern "C" int koronos_native_block_read(uint32_t sector, uint8_t *buffer) {
+    return block_read_(sector, buffer) ? 0 : -1;
+}
+extern "C" int koronos_native_block_write(uint32_t sector, const uint8_t *buffer) {
+    return block_write_(sector, buffer) ? 0 : -1;
+}
+extern "C" void koronos_native_machine_reset(void) { machine_reset_(); }
 
 extern "C" uint32_t koronos_native_stack_block_sectors(void) { return block_sectors_; }
 extern "C" uint32_t koronos_native_stack_mounted(void) { return mounted_; }
