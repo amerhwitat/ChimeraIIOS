@@ -202,6 +202,19 @@ NATIVE_COMMANDS=(
     date
     true
     false
+    basename
+    dirname
+    head
+    tail
+    wc
+    seq
+    sleep
+    uname
+    readlink
+    rmdir
+    ln
+    printenv
+    env
 )
 
 for command in "${NATIVE_COMMANDS[@]}"; do

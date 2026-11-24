@@ -1,0 +1,50 @@
+name: Native desktop session evidence
+
+on:
+  push:
+    paths:
+      - 'desktop/sessions/**'
+      - 'tools/runtime/chimera-native-session.py'
+      - 'tools/runtime/test_chimera_native_session.py'
+      - 'docs/runtime/NATIVE_DESKTOP_SESSION_EVIDENCE.md'
+      - '.github/workflows/native-session-evidence.yml'
+  pull_request:
+    paths:
+      - 'desktop/sessions/**'
+      - 'tools/runtime/chimera-native-session.py'
+      - 'tools/runtime/test_chimera_native_session.py'
+      - 'docs/runtime/NATIVE_DESKTOP_SESSION_EVIDENCE.md'
+      - '.github/workflows/native-session-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run session launcher tests
+        run: python3 tools/runtime/test_chimera_native_session.py
+      - name: Record preflight evidence for all four sessions
+        run: |
+          set +e
+          for session in aurora marine freexp freewin11; do
+            python3 tools/runtime/chimera-native-session.py \
+              --session "$session" --preflight-only \
+              --output "build/native-sessions/$session/preflight.json"
+            rc=$?
+            echo "session=$session exit=$rc"
+          done
+      - name: Upload measured preflight evidence (blocked status is expected without full stack)
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-session-preflight-evidence
+          path: build/native-sessions/
+          if-no-files-found: error
+          retention-days: 30

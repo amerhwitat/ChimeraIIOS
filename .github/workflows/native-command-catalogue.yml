@@ -1,0 +1,64 @@
+name: Native command catalogue and format evidence
+
+on:
+  push:
+    paths:
+      - 'src/chimera-command-compat/chimera-cmd.c'
+      - 'system/commands/**'
+      - 'tools/commands/**'
+      - 'tools/build-chimera-command-compat.sh'
+      - 'docs/commands/**'
+      - '.github/workflows/native-command-catalogue.yml'
+  pull_request:
+    paths:
+      - 'src/chimera-command-compat/chimera-cmd.c'
+      - 'system/commands/**'
+      - 'tools/commands/**'
+      - 'tools/build-chimera-command-compat.sh'
+      - 'docs/commands/**'
+      - '.github/workflows/native-command-catalogue.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalogue-and-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run catalogue, format and conformance tests
+        run: python3 tools/commands/test_native_command_catalog.py
+      - name: Generate normalized native command catalogue
+        run: python3 tools/commands/generate_native_command_catalog.py
+      - name: Build CHMCMD v1 records and validate them
+        run: |
+          python3 tools/commands/build_native_command_format.py
+          python3 tools/commands/validate_native_command_format.py
+      - name: Build cross-ISA multicall providers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-riscv64-linux-gnu binutils
+          python3 tools/commands/build_native_command_matrix.py \
+            --source src/chimera-command-compat/chimera-cmd.c \
+            --policy system/commands/compatibility-binary-policy.json \
+            --providers system/commands/native-provider-engineering.json \
+            --output build/native-command-isa \
+            --require-all
+      - name: Run measured host conformance cases
+        run: python3 tools/commands/run_command_conformance.py --output build/command-conformance/evidence.json
+      - name: Upload engineering evidence (no release promotion)
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-command-engineering-evidence
+          path: |
+            system/commands/native-command-catalog.json
+            build/native-command-format/
+            build/native-command-isa/
+            build/command-conformance/
+          if-no-files-found: error
+          retention-days: 30

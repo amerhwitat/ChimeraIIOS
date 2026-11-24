@@ -4,12 +4,14 @@ on:
     paths:
       - 'src/chimera-command-compat/chimera-cmd.c'
       - 'system/commands/compatibility-binary-policy.json'
+      - 'system/commands/native-provider-engineering.json'
       - 'tools/commands/build_native_command_matrix.py'
       - '.github/workflows/command-isa-matrix.yml'
   pull_request:
     paths:
       - 'src/chimera-command-compat/chimera-cmd.c'
       - 'system/commands/compatibility-binary-policy.json'
+      - 'system/commands/native-provider-engineering.json'
       - 'tools/commands/build_native_command_matrix.py'
       - '.github/workflows/command-isa-matrix.yml'
   workflow_dispatch:
@@ -32,6 +34,7 @@ jobs:
           python3 tools/commands/build_native_command_matrix.py \
             --source src/chimera-command-compat/chimera-cmd.c \
             --policy system/commands/compatibility-binary-policy.json \
+            --providers system/commands/native-provider-engineering.json \
             --output build/native-command-isa \
             --require-all
       - name: Upload target command binaries and machine-verification manifest
