@@ -38,6 +38,7 @@ obj-y += address_space.o
 obj-y += target_launch.o
 obj-y += preemptive_sched.o
 obj-y += smp.o
+obj-y += supervisor.o
 obj-y += native_stack.o
 obj-y += install_recovery.o
 

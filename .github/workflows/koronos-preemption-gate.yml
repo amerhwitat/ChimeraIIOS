@@ -9,6 +9,7 @@ on:
       - "tools/runtime/check-koronos-smp.sh"
       - "tools/runtime/check-koronos-native-stack.sh"
       - "tools/runtime/check-koronos-install-recovery.sh"
+      - "tools/runtime/check-koronos-supervisor.sh"
       - ".github/workflows/koronos-preemption-gate.yml"
   push:
     branches: [main]
@@ -18,6 +19,7 @@ on:
       - "tools/runtime/check-koronos-smp.sh"
       - "tools/runtime/check-koronos-native-stack.sh"
       - "tools/runtime/check-koronos-install-recovery.sh"
+      - "tools/runtime/check-koronos-supervisor.sh"
       - ".github/workflows/koronos-preemption-gate.yml"
 
 concurrency:
@@ -132,4 +134,32 @@ jobs:
             build/koronos-install-recovery/debugcon-*.log
             build/koronos-install-recovery/serial-*.log
             build/koronos-install-recovery/*.iso
+            build/koronos/x86_64/koronos.elf
+
+  x86_64-supervisor:
+    needs: x86_64-install-recovery
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run kernel-owned PID1 supervisor gate
+        run: |
+          chmod +x tools/runtime/check-koronos-supervisor.sh
+          tools/runtime/check-koronos-supervisor.sh
+      - name: Upload supervisor diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-supervisor-diagnostics
+          path: |
+            build/koronos-supervisor/result.txt
+            build/koronos-supervisor/iso.sha256
+            build/koronos-supervisor/debugcon.log
+            build/koronos-supervisor/serial.log
+            build/koronos-supervisor/qemu.stdout
+            build/koronos-supervisor/qemu.stderr
+            build/koronos-supervisor/koronos-supervisor-gate.iso
             build/koronos/x86_64/koronos.elf

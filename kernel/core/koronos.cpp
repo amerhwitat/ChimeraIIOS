@@ -15,6 +15,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/supervisor.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
@@ -626,6 +627,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_elf64_init();
     chimera_process_init();
     console_write("[PROC] Protected-process admission layer ready (load-plan mode)");
+    const int supervisor_init = chimera_supervisor_init();
+    console_write(supervisor_init == 0
+        ? "[SUP ] Kernel-owned PID1 supervisor resident"
+        : "[SUP ] ERROR: kernel-owned PID1 supervisor initialization failed");
     console_progress(75, "Process admission and module registries initialized");
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
@@ -664,6 +669,12 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
             : "[INS ] Native installer/installed-root/recovery gate FAILED");
     } else {
         console_write("[INS ] gate not started: earlier native gates did not pass");
+    }
+    if (supervisor_init == 0 && chimera_supervisor_gate_requested()) {
+        const int supervisor_rc = chimera_supervisor_selftest();
+        console_write(supervisor_rc == 0
+            ? "[SUP ] Koronos PID1 supervisor gate passed"
+            : "[SUP ] Koronos PID1 supervisor gate FAILED");
     }
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");

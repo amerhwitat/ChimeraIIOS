@@ -105,7 +105,7 @@ all:
 	@$(MAKE) -s autoconf
 	@$(MAKE) -s __build
 
-$(OBJ_MK): $(CONFIG_FILE)
+$(OBJ_MK): $(CONFIG_FILE) $(ROOT)/kernel/Kbuild $(wildcard $(ROOT)/kernel/*/Kbuild)
 	@$(PYTHON) $(ROOT)/scripts/kbuild/obj2mk.py --root $(ROOT) --build $(BUILD) \
 		--config $(CONFIG_FILE) --out $(OBJ_MK) --json $(BUILD)/kor-obj.json
 
