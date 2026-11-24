@@ -62,6 +62,7 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
    if(module_count<MAX_MODULES){
     const uint32_t start=*(const uint32_t*)(base+off+8);
     const uint32_t end=*(const uint32_t*)(base+off+12);
+    if(end<=start){module_count=0;return 0;}
     chimera_boot_module&m=modules[module_count++];
     m.base=start;
     m.size=end>=start?(uint64_t)end-start:0;
