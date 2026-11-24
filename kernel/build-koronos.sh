@@ -23,6 +23,11 @@ BUILD="$ROOT/build/koronos/x86_64"
 mkdir -p "$BUILD"
 "$ROOT/tests/kernel/run-frame-allocator-host-tests.sh"
 python3 "$ROOT/tools/isa/generate_registry.py"
+# Derived Chimera-native ISA catalogue, format descriptors and conformance
+# evidence are engineering checks only; they never alter the official catalog.
+if [[ "${CHIMERA_SKIP_NATIVE_ISA_CHECK:-0}" != "1" && -f "$ROOT/tools/isa/rebuild_native_isa.sh" ]]; then
+  "$ROOT/tools/isa/rebuild_native_isa.sh" --check
+fi
 CXX="${CXX:-g++}"; NASM="${NASM:-nasm}"; LD="${LD:-ld}"
 CXXFLAGS=(-ffreestanding -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic -fno-pie -mcmodel=kernel -mno-red-zone -mno-sse -mno-mmx -nostdinc++ -Wall -Wextra -I"$ROOT/kernel/include")
 rm -f "$BUILD"/*.o "$BUILD/koronos.elf"

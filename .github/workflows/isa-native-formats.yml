@@ -1,0 +1,64 @@
+name: ISA Native Formats
+on:
+  push:
+    paths:
+      - 'tools/isa/chimera_native_isa.py'
+      - 'tools/isa/build_native_isa_catalog.py'
+      - 'tools/isa/run_native_isa_conformance.py'
+      - 'tools/isa/rebuild_native_isa.sh'
+      - 'tools/chimera-asm/chimera_isa.json'
+      - 'tools/chimera-asm/chimera_native_formats.json'
+      - 'isa/generated/universal-instruction-catalog.json'
+      - 'isa/generated/chimera-native-isa-catalog.json'
+      - 'isa/generated/native-isa-conformance-evidence.json'
+      - 'isa/isa_database.json'
+      - 'tests/isa/test_native_isa_formats.py'
+      - 'docs/architecture/chimera-native-isa-formats.md'
+      - 'kernel/build-koronos.sh'
+      - '.github/workflows/isa-native-formats.yml'
+  pull_request:
+    paths:
+      - 'tools/isa/chimera_native_isa.py'
+      - 'tools/isa/build_native_isa_catalog.py'
+      - 'tools/isa/run_native_isa_conformance.py'
+      - 'tools/isa/rebuild_native_isa.sh'
+      - 'tools/chimera-asm/chimera_isa.json'
+      - 'tools/chimera-asm/chimera_native_formats.json'
+      - 'isa/generated/universal-instruction-catalog.json'
+      - 'isa/generated/chimera-native-isa-catalog.json'
+      - 'isa/generated/native-isa-conformance-evidence.json'
+      - 'isa/isa_database.json'
+      - 'tests/isa/test_native_isa_formats.py'
+      - 'docs/architecture/chimera-native-isa-formats.md'
+      - 'kernel/build-koronos.sh'
+      - '.github/workflows/isa-native-formats.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-formats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install test dependencies
+        run: python -m pip install pytest
+      - name: Verify generated native ISA outputs are current
+        run: bash tools/isa/rebuild_native_isa.sh --check
+      - name: Run native ISA unit tests
+        run: python -m pytest tests/isa/test_native_isa_formats.py -q
+      - name: Assert official catalogue baseline is unchanged
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('isa/generated/universal-instruction-catalog.json').read_text())
+          assert d['record_count'] == 1613, d['record_count']
+          assert d['coverage']['conformance_tested'] == 0, d['coverage']
+          assert d['coverage']['not_implemented'] == 1613, d['coverage']
+          print('official baseline intact: conformance_tested=0, not_implemented=1613')
+          PY

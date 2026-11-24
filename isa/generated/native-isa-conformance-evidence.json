@@ -1,0 +1,2325 @@
+{
+  "schema": "CHM-ISA-NATIVE-CONFORMANCE-EVIDENCE-1",
+  "status": "partial-engineering-evidence-only",
+  "disclaimer": "This is a bounded vertical-slice run, not full catalogue conformance. Official counts are copied unchanged from the universal catalogue and are not upgraded by these engineering checks.",
+  "official_catalog": {
+    "path": "isa/generated/universal-instruction-catalog.json",
+    "record_count": 1613,
+    "coverage": {
+      "sourced_encoding_masks": 1613,
+      "encoding_unspecified": 0,
+      "conformance_tested": 0,
+      "implemented_unverified": 0,
+      "not_implemented": 1613
+    }
+  },
+  "derived_catalog": {
+    "path": "isa/generated/chimera-native-isa-catalog.json",
+    "architecture_inventory_count": 104,
+    "instruction_record_count": 1613,
+    "real_backend_instruction_rows": 59,
+    "descriptors_only_or_not_implemented_instruction_rows": 1554
+  },
+  "counts": {
+    "roundtrip": {
+      "total": 59,
+      "passed": 59,
+      "failed": 0
+    },
+    "execution": {
+      "total": 29,
+      "passed": 29,
+      "failed": 0
+    },
+    "illegal": {
+      "total": 12,
+      "passed": 12,
+      "failed": 0
+    },
+    "emulator": {
+      "total": 17,
+      "passed": 17,
+      "failed": 0
+    },
+    "object": {
+      "total": 11,
+      "passed": 11,
+      "failed": 0
+    }
+  },
+  "total_checks": 128,
+  "passed_checks": 128,
+  "failed_checks": 0,
+  "results": {
+    "roundtrip": [
+      {
+        "arch": "aarch64",
+        "mnemonic": "ADD",
+        "form": "imm",
+        "text": "ADD X0,X1,#1",
+        "passed": true,
+        "bytes": "20040091",
+        "disassembled": "ADD X0, X1, #1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "ADD",
+        "form": "rrr",
+        "text": "ADD X0,X1,X2",
+        "passed": true,
+        "bytes": "2000028b",
+        "disassembled": "ADD X0, X1, X2",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1",
+            "X2"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "AND",
+        "form": "rrr",
+        "text": "AND X0,X1,X2",
+        "passed": true,
+        "bytes": "2000028a",
+        "disassembled": "AND X0, X1, X2",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1",
+            "X2"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "B",
+        "form": "imm",
+        "text": "B 0",
+        "passed": true,
+        "bytes": "00000014",
+        "disassembled": "B 0x0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "BL",
+        "form": "imm",
+        "text": "BL 0",
+        "passed": true,
+        "bytes": "00000094",
+        "disassembled": "BL 0x0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [
+            "X30"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "BLR",
+        "form": "reg",
+        "text": "BLR X0",
+        "passed": true,
+        "bytes": "00003fd6",
+        "disassembled": "BLR X0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X0"
+          ],
+          "registers_written": [
+            "X30"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "BR",
+        "form": "reg",
+        "text": "BR X0",
+        "passed": true,
+        "bytes": "00001fd6",
+        "disassembled": "BR X0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X0"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "EOR",
+        "form": "rrr",
+        "text": "EOR X0,X1,X2",
+        "passed": true,
+        "bytes": "200002ca",
+        "disassembled": "EOR X0, X1, X2",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1",
+            "X2"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "LDR",
+        "form": "unsigned",
+        "text": "LDR X0,[X1,#0]",
+        "passed": true,
+        "bytes": "200040f9",
+        "disassembled": "LDR X0, [X1,#0]",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "NOP",
+        "form": "none",
+        "text": "NOP",
+        "passed": true,
+        "bytes": "1f2003d5",
+        "disassembled": "NOP",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "ORR",
+        "form": "rrr",
+        "text": "ORR X0,X1,X2",
+        "passed": true,
+        "bytes": "200002aa",
+        "disassembled": "ORR X0, X1, X2",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1",
+            "X2"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "RET",
+        "form": "reg",
+        "text": "RET X30",
+        "passed": true,
+        "bytes": "c0035fd6",
+        "disassembled": "RET X30",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X30"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "STR",
+        "form": "unsigned",
+        "text": "STR X0,[X1,#0]",
+        "passed": true,
+        "bytes": "200000f9",
+        "disassembled": "STR X0, [X1,#0]",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X0",
+            "X1"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "SUB",
+        "form": "imm",
+        "text": "SUB X0,X1,#1",
+        "passed": true,
+        "bytes": "200400d1",
+        "disassembled": "SUB X0, X1, #1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "SUB",
+        "form": "rrr",
+        "text": "SUB X0,X1,X2",
+        "passed": true,
+        "bytes": "200002cb",
+        "disassembled": "SUB X0, X1, X2",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "X1",
+            "X2"
+          ],
+          "registers_written": [
+            "X0"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "aarch64",
+        "mnemonic": "SVC",
+        "form": "imm",
+        "text": "SVC #0",
+        "passed": true,
+        "bytes": "010000d4",
+        "disassembled": "SVC #0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user (SVC traps to supervisor)"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "ADD",
+        "form": "rrr",
+        "text": "ADD x1,x2,x3",
+        "passed": true,
+        "bytes": "b3003100",
+        "disassembled": "ADD x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "ADDI",
+        "form": "ri",
+        "text": "ADDI x1,x2,5",
+        "passed": true,
+        "bytes": "93005100",
+        "disassembled": "ADDI x1,x2,5",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "AND",
+        "form": "rrr",
+        "text": "AND x1,x2,x3",
+        "passed": true,
+        "bytes": "b3703100",
+        "disassembled": "AND x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "ANDI",
+        "form": "ri",
+        "text": "ANDI x1,x2,1",
+        "passed": true,
+        "bytes": "93701100",
+        "disassembled": "ANDI x1,x2,1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "AUIPC",
+        "form": "u",
+        "text": "AUIPC x1,0x1",
+        "passed": true,
+        "bytes": "97100000",
+        "disassembled": "AUIPC x1,0x1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "BEQ",
+        "form": "branch",
+        "text": "BEQ x1,x2,8",
+        "passed": true,
+        "bytes": "63842000",
+        "disassembled": "BEQ x1,x2,8",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x1",
+            "x2"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "EBREAK",
+        "form": "system",
+        "text": "EBREAK",
+        "passed": true,
+        "bytes": "73001000",
+        "disassembled": "EBREAK",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "ECALL",
+        "form": "system",
+        "text": "ECALL",
+        "passed": true,
+        "bytes": "73000000",
+        "disassembled": "ECALL",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "FENCE",
+        "form": "fence",
+        "text": "FENCE",
+        "passed": true,
+        "bytes": "0f00f00f",
+        "disassembled": "FENCE",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "ordering barrier",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "JAL",
+        "form": "jal",
+        "text": "JAL x1,8",
+        "passed": true,
+        "bytes": "ef008000",
+        "disassembled": "JAL x1,8",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "JALR",
+        "form": "jalr",
+        "text": "JALR x1,0(x2)",
+        "passed": true,
+        "bytes": "e7000100",
+        "disassembled": "JALR x1,0(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "LBU",
+        "form": "load",
+        "text": "LBU x1,8(x2)",
+        "passed": true,
+        "bytes": "83408100",
+        "disassembled": "LBU x1,8(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "LH",
+        "form": "load",
+        "text": "LH x1,8(x2)",
+        "passed": true,
+        "bytes": "83108100",
+        "disassembled": "LH x1,8(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "LUI",
+        "form": "u",
+        "text": "LUI x1,0x1",
+        "passed": true,
+        "bytes": "b7100000",
+        "disassembled": "LUI x1,0x1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "LW",
+        "form": "load",
+        "text": "LW x1,8(x2)",
+        "passed": true,
+        "bytes": "83208100",
+        "disassembled": "LW x1,8(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "MRET",
+        "form": "system",
+        "text": "MRET",
+        "passed": true,
+        "bytes": "73002030",
+        "disassembled": "MRET",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "supervisor (MRET/SVC-class)"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "OR",
+        "form": "rrr",
+        "text": "OR x1,x2,x3",
+        "passed": true,
+        "bytes": "b3603100",
+        "disassembled": "OR x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "ORI",
+        "form": "ri",
+        "text": "ORI x1,x2,1",
+        "passed": true,
+        "bytes": "93601100",
+        "disassembled": "ORI x1,x2,1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SB",
+        "form": "store",
+        "text": "SB x3,8(x2)",
+        "passed": true,
+        "bytes": "23043100",
+        "disassembled": "SB x3,8(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x3",
+            "x2"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SH",
+        "form": "store",
+        "text": "SH x3,8(x2)",
+        "passed": true,
+        "bytes": "23143100",
+        "disassembled": "SH x3,8(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x3",
+            "x2"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SLL",
+        "form": "rrr",
+        "text": "SLL x1,x2,x3",
+        "passed": true,
+        "bytes": "b3103100",
+        "disassembled": "SLL x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SLT",
+        "form": "rrr",
+        "text": "SLT x1,x2,x3",
+        "passed": true,
+        "bytes": "b3203100",
+        "disassembled": "SLT x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SLTI",
+        "form": "ri",
+        "text": "SLTI x1,x2,1",
+        "passed": true,
+        "bytes": "93201100",
+        "disassembled": "SLTI x1,x2,1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SLTU",
+        "form": "rrr",
+        "text": "SLTU x1,x2,x3",
+        "passed": true,
+        "bytes": "b3303100",
+        "disassembled": "SLTU x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SRA",
+        "form": "rrr",
+        "text": "SRA x1,x2,x3",
+        "passed": true,
+        "bytes": "b3503140",
+        "disassembled": "SRA x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SRL",
+        "form": "rrr",
+        "text": "SRL x1,x2,x3",
+        "passed": true,
+        "bytes": "b3503100",
+        "disassembled": "SRL x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SUB",
+        "form": "rrr",
+        "text": "SUB x1,x2,x3",
+        "passed": true,
+        "bytes": "b3003140",
+        "disassembled": "SUB x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "SW",
+        "form": "store",
+        "text": "SW x3,8(x2)",
+        "passed": true,
+        "bytes": "23243100",
+        "disassembled": "SW x3,8(x2)",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x3",
+            "x2"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "XOR",
+        "form": "rrr",
+        "text": "XOR x1,x2,x3",
+        "passed": true,
+        "bytes": "b3403100",
+        "disassembled": "XOR x1,x2,x3",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2",
+            "x3"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "riscv64",
+        "mnemonic": "XORI",
+        "form": "ri",
+        "text": "XORI x1,x2,1",
+        "passed": true,
+        "bytes": "93401100",
+        "disassembled": "XORI x1,x2,1",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "x2"
+          ],
+          "registers_written": [
+            "x1"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "ADD",
+        "form": "rm64_r64",
+        "text": "ADD [RAX],RAX",
+        "passed": true,
+        "bytes": "480100",
+        "disassembled": "ADD [RAX], RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [
+            "CF",
+            "PF",
+            "AF",
+            "ZF",
+            "SF",
+            "OF"
+          ],
+          "memory_effects": "read-modify-write",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "AND",
+        "form": "rm64_r64",
+        "text": "AND [RAX],RAX",
+        "passed": true,
+        "bytes": "482100",
+        "disassembled": "AND [RAX], RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [
+            "CF",
+            "PF",
+            "AF",
+            "ZF",
+            "SF",
+            "OF"
+          ],
+          "memory_effects": "read",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "CALL",
+        "form": "rel32",
+        "text": "CALL 0",
+        "passed": true,
+        "bytes": "e800000000",
+        "disassembled": "CALL 0x0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RSP"
+          ],
+          "registers_written": [
+            "RSP"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write stack",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "JMP",
+        "form": "rel32",
+        "text": "JMP 0",
+        "passed": true,
+        "bytes": "e900000000",
+        "disassembled": "JMP 0x0",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "MOV",
+        "form": "r64_rm64",
+        "text": "MOV RAX,[RAX]",
+        "passed": true,
+        "bytes": "488b00",
+        "disassembled": "MOV RAX, [RAX]",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [
+            "RAX"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "MOV",
+        "form": "rm64_r64",
+        "text": "MOV [RAX],RAX",
+        "passed": true,
+        "bytes": "488900",
+        "disassembled": "MOV [RAX], RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "NOP",
+        "form": "fixed",
+        "text": "NOP",
+        "passed": true,
+        "bytes": "90",
+        "disassembled": "NOP",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "none",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "OR",
+        "form": "rm64_r64",
+        "text": "OR [RAX],RAX",
+        "passed": true,
+        "bytes": "480900",
+        "disassembled": "OR [RAX], RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [
+            "CF",
+            "PF",
+            "AF",
+            "ZF",
+            "SF",
+            "OF"
+          ],
+          "memory_effects": "read",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "POP",
+        "form": "r64",
+        "text": "POP RAX",
+        "passed": true,
+        "bytes": "58",
+        "disassembled": "POP RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RSP"
+          ],
+          "registers_written": [
+            "RAX",
+            "RSP"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read stack",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "PUSH",
+        "form": "r64",
+        "text": "PUSH RAX",
+        "passed": true,
+        "bytes": "50",
+        "disassembled": "PUSH RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX",
+            "RSP"
+          ],
+          "registers_written": [
+            "RSP"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "write stack",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "RET",
+        "form": "fixed",
+        "text": "RET",
+        "passed": true,
+        "bytes": "c3",
+        "disassembled": "RET",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RSP"
+          ],
+          "registers_written": [
+            "RSP"
+          ],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [],
+          "memory_effects": "read stack",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "SUB",
+        "form": "rm64_r64",
+        "text": "SUB [RAX],RAX",
+        "passed": true,
+        "bytes": "482900",
+        "disassembled": "SUB [RAX], RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [
+            "CF",
+            "PF",
+            "AF",
+            "ZF",
+            "SF",
+            "OF"
+          ],
+          "memory_effects": "read-modify-write",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      },
+      {
+        "arch": "x86-64",
+        "mnemonic": "XOR",
+        "form": "rm64_r64",
+        "text": "XOR [RAX],RAX",
+        "passed": true,
+        "bytes": "483100",
+        "disassembled": "XOR [RAX], RAX",
+        "fixed_mask_match": true,
+        "roundtrip_match": true,
+        "effects": {
+          "registers_read": [
+            "RAX"
+          ],
+          "registers_written": [],
+          "registers_clobbered": [],
+          "flags_read": [],
+          "flags_written": [
+            "CF",
+            "PF",
+            "AF",
+            "ZF",
+            "SF",
+            "OF"
+          ],
+          "memory_effects": "read",
+          "privilege": "user/supervisor (form-dependent)"
+        }
+      }
+    ],
+    "execution": [
+      {
+        "name": "x86-add-register-flags",
+        "arch": "x86-64",
+        "lines": [
+          "ADD RAX,RBX"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 3,
+        "final_registers": {
+          "RAX": 12,
+          "RBX": 7
+        },
+        "final_flags": {
+          "ZF": 0,
+          "SF": 0,
+          "PF": 1,
+          "CF": 0,
+          "OF": 0,
+          "AF": 0
+        },
+        "final_pc": 3,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-sub-borrow",
+        "arch": "x86-64",
+        "lines": [
+          "SUB RAX,RBX"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 3,
+        "final_registers": {
+          "RAX": 18446744073709551614
+        },
+        "final_flags": {
+          "ZF": 0,
+          "SF": 1,
+          "PF": 0,
+          "CF": 1,
+          "OF": 0,
+          "AF": 1
+        },
+        "final_pc": 3,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-cmp-equal-zero-flag",
+        "arch": "x86-64",
+        "lines": [
+          "CMP RAX,RBX"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 3,
+        "final_registers": {
+          "RAX": 7,
+          "RBX": 7
+        },
+        "final_flags": {
+          "ZF": 1,
+          "SF": 0,
+          "PF": 1,
+          "CF": 0,
+          "OF": 0,
+          "AF": 0
+        },
+        "final_pc": 3,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-bitwise-and",
+        "arch": "x86-64",
+        "lines": [
+          "AND RAX,RBX"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 3,
+        "final_registers": {
+          "RAX": 48
+        },
+        "final_flags": {
+          "ZF": 0,
+          "SF": 0,
+          "PF": 1,
+          "CF": 0,
+          "OF": 0,
+          "AF": 0
+        },
+        "final_pc": 3,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-bitwise-or-xor",
+        "arch": "x86-64",
+        "lines": [
+          "OR RAX,RBX",
+          "XOR RAX,RBX"
+        ],
+        "passed": true,
+        "steps": 2,
+        "program_bytes": 6,
+        "final_registers": {
+          "RAX": 192
+        },
+        "final_flags": {
+          "ZF": 0,
+          "SF": 0,
+          "PF": 1,
+          "CF": 0,
+          "OF": 0,
+          "AF": 0
+        },
+        "final_pc": 6,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-mov-load",
+        "arch": "x86-64",
+        "lines": [
+          "MOV RAX,[RBX]"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 3,
+        "final_registers": {
+          "RAX": 1234605616436508552
+        },
+        "final_flags": {},
+        "final_pc": 3,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-mov-store",
+        "arch": "x86-64",
+        "lines": [
+          "MOV [RBX],RAX"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 3,
+        "final_registers": {},
+        "final_flags": {},
+        "final_pc": 3,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-push-pop",
+        "arch": "x86-64",
+        "lines": [
+          "PUSH RAX",
+          "POP RCX"
+        ],
+        "passed": true,
+        "steps": 2,
+        "program_bytes": 2,
+        "final_registers": {
+          "RCX": 66,
+          "RSP": 2048
+        },
+        "final_flags": {},
+        "final_pc": 2,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-call-stack",
+        "arch": "x86-64",
+        "lines": [
+          "CALL 0"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 5,
+        "final_registers": {
+          "RSP": 2040
+        },
+        "final_flags": {},
+        "final_pc": 5,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-ret-stack",
+        "arch": "x86-64",
+        "lines": [
+          "RET"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 1,
+        "final_registers": {
+          "RSP": 2056
+        },
+        "final_flags": {},
+        "final_pc": 16,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "x86-jmp-relative",
+        "arch": "x86-64",
+        "lines": [
+          "JMP 4",
+          "NOP"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 6,
+        "final_registers": {},
+        "final_flags": {},
+        "final_pc": 9,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-add-register",
+        "arch": "aarch64",
+        "lines": [
+          "ADD X0,X1,X2"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "X0": 12
+        },
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-sub-immediate",
+        "arch": "aarch64",
+        "lines": [
+          "SUB X0,X1,#1"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "X0": 9
+        },
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-logical",
+        "arch": "aarch64",
+        "lines": [
+          "AND X0,X1,X2",
+          "ORR X3,X1,X2",
+          "EOR X4,X1,X2"
+        ],
+        "passed": true,
+        "steps": 3,
+        "program_bytes": 12,
+        "final_registers": {
+          "X0": 48,
+          "X3": 252,
+          "X4": 204
+        },
+        "final_flags": {},
+        "final_pc": 12,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-load-store",
+        "arch": "aarch64",
+        "lines": [
+          "LDR X0,[X1,#0]",
+          "STR X0,[X1,#8]"
+        ],
+        "passed": true,
+        "steps": 2,
+        "program_bytes": 8,
+        "final_registers": {
+          "X0": 1234605616436508552
+        },
+        "final_flags": {},
+        "final_pc": 8,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-bl-link",
+        "arch": "aarch64",
+        "lines": [
+          "BL 4"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "X30": 4
+        },
+        "final_flags": {},
+        "final_pc": 8,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-br-register",
+        "arch": "aarch64",
+        "lines": [
+          "BR X1"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {},
+        "final_flags": {},
+        "final_pc": 64,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-ret-register",
+        "arch": "aarch64",
+        "lines": [
+          "RET X30"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {},
+        "final_flags": {},
+        "final_pc": 48,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "a64-svc-trap",
+        "arch": "aarch64",
+        "lines": [
+          "SVC #7"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {},
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": "SVC #7",
+        "mismatches": []
+      },
+      {
+        "name": "rv64-add-register",
+        "arch": "riscv64",
+        "lines": [
+          "ADD x1,x2,x3"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "x1": 12
+        },
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-sub-register",
+        "arch": "riscv64",
+        "lines": [
+          "SUB x1,x2,x3"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "x1": 18446744073709551614
+        },
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-add-immediate",
+        "arch": "riscv64",
+        "lines": [
+          "ADDI x1,x2,5"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "x1": 15
+        },
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-logical",
+        "arch": "riscv64",
+        "lines": [
+          "AND x1,x2,x3",
+          "OR x4,x2,x3",
+          "XOR x5,x2,x3"
+        ],
+        "passed": true,
+        "steps": 3,
+        "program_bytes": 12,
+        "final_registers": {
+          "x1": 48,
+          "x4": 252,
+          "x5": 204
+        },
+        "final_flags": {},
+        "final_pc": 12,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-load-store",
+        "arch": "riscv64",
+        "lines": [
+          "LW x1,0(x2)",
+          "SW x1,8(x2)"
+        ],
+        "passed": true,
+        "steps": 2,
+        "program_bytes": 8,
+        "final_registers": {
+          "x1": 287454020
+        },
+        "final_flags": {},
+        "final_pc": 8,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-beq-taken",
+        "arch": "riscv64",
+        "lines": [
+          "BEQ x1,x2,4",
+          "ADDI x3,x0,1",
+          "ADDI x4,x0,2"
+        ],
+        "passed": true,
+        "steps": 2,
+        "program_bytes": 12,
+        "final_registers": {
+          "x3": 0,
+          "x4": 2
+        },
+        "final_flags": {},
+        "final_pc": 12,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-beq-not-taken",
+        "arch": "riscv64",
+        "lines": [
+          "BEQ x1,x2,8",
+          "ADDI x3,x0,1",
+          "ADDI x4,x0,2"
+        ],
+        "passed": true,
+        "steps": 3,
+        "program_bytes": 12,
+        "final_registers": {
+          "x3": 1,
+          "x4": 2
+        },
+        "final_flags": {},
+        "final_pc": 12,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-jal-link",
+        "arch": "riscv64",
+        "lines": [
+          "JAL x1,4",
+          "ADDI x2,x0,1",
+          "ADDI x3,x0,2"
+        ],
+        "passed": true,
+        "steps": 2,
+        "program_bytes": 12,
+        "final_registers": {
+          "x1": 4,
+          "x2": 0,
+          "x3": 2
+        },
+        "final_flags": {},
+        "final_pc": 12,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-lui-upper",
+        "arch": "riscv64",
+        "lines": [
+          "LUI x1,0x1"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {
+          "x1": 4096
+        },
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": null,
+        "mismatches": []
+      },
+      {
+        "name": "rv64-ecall-trap",
+        "arch": "riscv64",
+        "lines": [
+          "ECALL"
+        ],
+        "passed": true,
+        "steps": 1,
+        "program_bytes": 4,
+        "final_registers": {},
+        "final_flags": {},
+        "final_pc": 4,
+        "trap": "ECALL",
+        "mismatches": []
+      }
+    ],
+    "illegal": [
+      {
+        "arch": "x86-64",
+        "name": "push-es-invalid-in-64-bit",
+        "bytes": "06",
+        "passed": true,
+        "reason": "unimplemented or illegal x86-64 opcode 0x06"
+      },
+      {
+        "arch": "x86-64",
+        "name": "pusha-invalid-in-64-bit",
+        "bytes": "60",
+        "passed": true,
+        "reason": "unimplemented or illegal x86-64 opcode 0x60"
+      },
+      {
+        "arch": "x86-64",
+        "name": "truncated-rex",
+        "bytes": "48",
+        "passed": true,
+        "reason": "truncated REX prefix"
+      },
+      {
+        "arch": "x86-64",
+        "name": "missing-modrm",
+        "bytes": "488b",
+        "passed": true,
+        "reason": "missing ModRM byte"
+      },
+      {
+        "arch": "aarch64",
+        "name": "all-zero-reserved",
+        "bytes": "00000000",
+        "passed": true,
+        "reason": "unimplemented or illegal AArch64 encoding 0x00000000"
+      },
+      {
+        "arch": "aarch64",
+        "name": "all-ones-reserved",
+        "bytes": "ffffffff",
+        "passed": true,
+        "reason": "unsupported 64-bit load/store opc"
+      },
+      {
+        "arch": "aarch64",
+        "name": "truncated-word",
+        "bytes": "00",
+        "passed": true,
+        "reason": "AArch64 instructions are exactly 4 bytes"
+      },
+      {
+        "arch": "riscv64",
+        "name": "zero-word-illegal",
+        "bytes": "00000000",
+        "passed": true,
+        "reason": "unimplemented or illegal RV64I encoding 0x00000000"
+      },
+      {
+        "arch": "riscv64",
+        "name": "reserved-opcode-0x2f",
+        "bytes": "2f00000f",
+        "passed": true,
+        "reason": "unimplemented or illegal RV64I encoding 0x0f00002f"
+      },
+      {
+        "arch": "riscv64",
+        "name": "reserved-r-type-funct7",
+        "bytes": "33000002",
+        "passed": true,
+        "reason": "reserved RV64 R-type encoding 0x02000033"
+      },
+      {
+        "arch": "riscv64",
+        "name": "reserved-opcode-0x1f",
+        "bytes": "1f00000f",
+        "passed": true,
+        "reason": "unimplemented or illegal RV64I encoding 0x0f00001f"
+      },
+      {
+        "arch": "riscv64",
+        "name": "truncated-word",
+        "bytes": "00",
+        "passed": true,
+        "reason": "RV64I instructions are exactly 4 bytes"
+      }
+    ],
+    "emulator": [
+      {
+        "kind": "encoding",
+        "text": "ADD x1,x2,x3",
+        "passed": true,
+        "ours": "b3003100",
+        "reference": "0x003100b3"
+      },
+      {
+        "kind": "encoding",
+        "text": "SUB x1,x2,x3",
+        "passed": true,
+        "ours": "b3003140",
+        "reference": "0x403100b3"
+      },
+      {
+        "kind": "encoding",
+        "text": "AND x1,x2,x3",
+        "passed": true,
+        "ours": "b3703100",
+        "reference": "0x003170b3"
+      },
+      {
+        "kind": "encoding",
+        "text": "OR x1,x2,x3",
+        "passed": true,
+        "ours": "b3603100",
+        "reference": "0x003160b3"
+      },
+      {
+        "kind": "encoding",
+        "text": "XOR x1,x2,x3",
+        "passed": true,
+        "ours": "b3403100",
+        "reference": "0x003140b3"
+      },
+      {
+        "kind": "encoding",
+        "text": "ADDI x1,x2,5",
+        "passed": true,
+        "ours": "93005100",
+        "reference": "0x00510093"
+      },
+      {
+        "kind": "encoding",
+        "text": "ANDI x1,x2,1",
+        "passed": true,
+        "ours": "93701100",
+        "reference": "0x00117093"
+      },
+      {
+        "kind": "encoding",
+        "text": "ORI x1,x2,2",
+        "passed": true,
+        "ours": "93602100",
+        "reference": "0x00216093"
+      },
+      {
+        "kind": "encoding",
+        "text": "XORI x1,x2,3",
+        "passed": true,
+        "ours": "93403100",
+        "reference": "0x00314093"
+      },
+      {
+        "kind": "encoding",
+        "text": "SLTI x1,x2,1",
+        "passed": true,
+        "ours": "93201100",
+        "reference": "0x00112093"
+      },
+      {
+        "kind": "encoding",
+        "text": "LW x1,8(x2)",
+        "passed": true,
+        "ours": "83208100",
+        "reference": "0x00812083"
+      },
+      {
+        "kind": "encoding",
+        "text": "SW x3,8(x2)",
+        "passed": true,
+        "ours": "23243100",
+        "reference": "0x00312423"
+      },
+      {
+        "kind": "encoding",
+        "text": "BEQ x1,x2,8",
+        "passed": true,
+        "ours": "63842000",
+        "reference": "0x00208463"
+      },
+      {
+        "kind": "encoding",
+        "text": "JAL x1,8",
+        "passed": true,
+        "ours": "ef008000",
+        "reference": "0x008000ef"
+      },
+      {
+        "kind": "encoding",
+        "text": "LUI x1,0x1",
+        "passed": true,
+        "ours": "b7100000",
+        "reference": "0x000010b7"
+      },
+      {
+        "kind": "encoding",
+        "text": "AUIPC x1,0x1",
+        "passed": true,
+        "ours": "97100000",
+        "reference": "0x00001097"
+      },
+      {
+        "kind": "execution",
+        "program": [
+          "ADDI x2,x0,7",
+          "ADDI x1,x2,5",
+          "ADD x1,x1,x2"
+        ],
+        "passed": true,
+        "ours_r1_low32": 19,
+        "reference_r1_low32": 19,
+        "note": "Reference model is RV32I; comparison is restricted to low 32 bits of the shared base subset."
+      }
+    ],
+    "object": [
+      {
+        "arch": "aarch64",
+        "kind": "valid-object",
+        "passed": true,
+        "sections": [
+          "",
+          ".text",
+          ".strtab",
+          ".symtab",
+          ".relatab"
+        ],
+        "symbols": [
+          "",
+          "entry"
+        ],
+        "relocations": 1
+      },
+      {
+        "arch": "chimera-c8192",
+        "kind": "valid-object",
+        "passed": true,
+        "sections": [
+          "",
+          ".text",
+          ".strtab"
+        ],
+        "symbols": [
+          ""
+        ],
+        "relocations": 0
+      },
+      {
+        "arch": "riscv64",
+        "kind": "valid-object",
+        "passed": true,
+        "sections": [
+          "",
+          ".text",
+          ".strtab",
+          ".symtab",
+          ".relatab"
+        ],
+        "symbols": [
+          "",
+          "entry"
+        ],
+        "relocations": 1
+      },
+      {
+        "arch": "x86-64",
+        "kind": "valid-object",
+        "passed": true,
+        "sections": [
+          "",
+          ".text",
+          ".strtab",
+          ".symtab",
+          ".relatab"
+        ],
+        "symbols": [
+          "",
+          "entry"
+        ],
+        "relocations": 0
+      },
+      {
+        "kind": "malformed-object",
+        "name": "bad-magic",
+        "passed": true,
+        "reason": "bad magic"
+      },
+      {
+        "kind": "malformed-object",
+        "name": "bad-version",
+        "passed": true,
+        "reason": "unsupported object version"
+      },
+      {
+        "kind": "malformed-object",
+        "name": "bad-digest",
+        "passed": true,
+        "reason": "object digest mismatch"
+      },
+      {
+        "kind": "malformed-object",
+        "name": "truncated",
+        "passed": true,
+        "reason": "object digest mismatch"
+      },
+      {
+        "kind": "malformed-object",
+        "name": "bad-arch-id",
+        "passed": true,
+        "reason": "unknown architecture id"
+      },
+      {
+        "kind": "malformed-object",
+        "name": "bad-section-align",
+        "passed": true,
+        "reason": "section 1 alignment is not a power of two"
+      },
+      {
+        "kind": "malformed-object",
+        "name": "bad-reloc-offset",
+        "passed": true,
+        "reason": "declared size does not match file"
+      }
+    ]
+  }
+}

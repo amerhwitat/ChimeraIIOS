@@ -1,0 +1,3174 @@
+{
+  "schema": "CHM-ISA-NATIVE-FORMATS-1",
+  "generated_by": "tools/isa/build_native_isa_catalog.py",
+  "extends": {
+    "path": "tools/chimera-asm/chimera_isa.json",
+    "format": "CHM-ISA-1",
+    "machine": "CHIMERA-BIT",
+    "version": "1.1",
+    "register_model": "RegisterN",
+    "canonical_uop_bytes": 16,
+    "note": "Extends the CHM-ISA-1 canonical uop definition with architecture-native instruction encodings. Source ISA bytes remain source-ISA bytes; no flattened Chimera opcode is invented."
+  },
+  "object_format": {
+    "magic": "CHMOBJ1",
+    "version": 1,
+    "abi_version": 1,
+    "header_bytes": 64,
+    "digest": "sha256-over-body",
+    "footer_bytes": 32,
+    "sections": [
+      "NULL",
+      "PROGBITS",
+      "NOBITS",
+      "STRTAB",
+      "SYMTAB",
+      "RELATAB",
+      "NOTE"
+    ],
+    "permissions": [
+      "R",
+      "W",
+      "X"
+    ],
+    "relocations": [
+      "ABS64",
+      "ABS32",
+      "REL32"
+    ],
+    "implementation": "tools/isa/chimera_native_isa.py"
+  },
+  "backends": {
+    "aarch64": {
+      "family": "RISC aarch64",
+      "endian": "little",
+      "formats": [
+        {
+          "mnemonic": "ADD",
+          "form": "imm",
+          "format_class": "A64 add/subtract immediate",
+          "opcode": "0x91000000",
+          "bit_fields": [
+            {
+              "name": "op",
+              "bits": "30:29",
+              "role": "ADD/SUB"
+            },
+            {
+              "name": "imm12",
+              "bits": "21:10",
+              "role": "unsigned immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination"
+            }
+          ],
+          "options": [
+            "optional 12-bit shift by 12"
+          ],
+          "semantic_class": "arith"
+        },
+        {
+          "mnemonic": "ADD",
+          "form": "rrr",
+          "format_class": "A64 data-processing (shifted register)",
+          "opcode": "0x8B000000",
+          "bit_fields": [
+            {
+              "name": "sf/op",
+              "bits": "31:29",
+              "role": "64-bit opcode class"
+            },
+            {
+              "name": "shift",
+              "bits": "23:22",
+              "role": "shift kind (0=LSL)"
+            },
+            {
+              "name": "Rm",
+              "bits": "20:16",
+              "role": "source register"
+            },
+            {
+              "name": "imm6",
+              "bits": "15:10",
+              "role": "shift amount / immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source register"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination register"
+            }
+          ],
+          "options": [
+            "LSL shift 0..63"
+          ],
+          "semantic_class": "arith"
+        },
+        {
+          "mnemonic": "AND",
+          "form": "rrr",
+          "format_class": "A64 logical (shifted register)",
+          "opcode": "0x8A000000",
+          "bit_fields": [
+            {
+              "name": "sf/op",
+              "bits": "31:29",
+              "role": "64-bit opcode class"
+            },
+            {
+              "name": "shift",
+              "bits": "23:22",
+              "role": "shift kind (0=LSL)"
+            },
+            {
+              "name": "Rm",
+              "bits": "20:16",
+              "role": "source register"
+            },
+            {
+              "name": "imm6",
+              "bits": "15:10",
+              "role": "shift amount / immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source register"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination register"
+            }
+          ],
+          "semantic_class": "logic"
+        },
+        {
+          "mnemonic": "B",
+          "form": "imm",
+          "format_class": "A64 unconditional branch immediate",
+          "opcode": "0x14000000",
+          "bit_fields": [
+            {
+              "name": "op",
+              "bits": "31:24",
+              "role": "B/BL"
+            },
+            {
+              "name": "imm26",
+              "bits": "25:0",
+              "role": "signed word offset"
+            }
+          ],
+          "semantic_class": "branch"
+        },
+        {
+          "mnemonic": "BL",
+          "form": "imm",
+          "format_class": "A64 unconditional branch immediate",
+          "opcode": "0x94000000",
+          "bit_fields": [
+            {
+              "name": "op",
+              "bits": "31:24",
+              "role": "B/BL"
+            },
+            {
+              "name": "imm26",
+              "bits": "25:0",
+              "role": "signed word offset"
+            }
+          ],
+          "semantic_class": "call"
+        },
+        {
+          "mnemonic": "BLR",
+          "form": "reg",
+          "format_class": "A64 branch register",
+          "opcode": "0xD63F0000",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:5",
+              "role": "BR/BLR/RET"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "target register"
+            }
+          ],
+          "semantic_class": "call"
+        },
+        {
+          "mnemonic": "BR",
+          "form": "reg",
+          "format_class": "A64 branch register",
+          "opcode": "0xD61F0000",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:5",
+              "role": "BR/BLR/RET"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "target register"
+            }
+          ],
+          "semantic_class": "branch"
+        },
+        {
+          "mnemonic": "EOR",
+          "form": "rrr",
+          "format_class": "A64 logical (shifted register)",
+          "opcode": "0xCA000000",
+          "bit_fields": [
+            {
+              "name": "sf/op",
+              "bits": "31:29",
+              "role": "64-bit opcode class"
+            },
+            {
+              "name": "shift",
+              "bits": "23:22",
+              "role": "shift kind (0=LSL)"
+            },
+            {
+              "name": "Rm",
+              "bits": "20:16",
+              "role": "source register"
+            },
+            {
+              "name": "imm6",
+              "bits": "15:10",
+              "role": "shift amount / immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source register"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination register"
+            }
+          ],
+          "semantic_class": "logic"
+        },
+        {
+          "mnemonic": "LDR",
+          "form": "unsigned",
+          "format_class": "A64 load/store unsigned offset",
+          "opcode": "0xF9400000",
+          "bit_fields": [
+            {
+              "name": "size/opc",
+              "bits": "31:22",
+              "role": "64-bit load"
+            },
+            {
+              "name": "imm12",
+              "bits": "21:10",
+              "role": "uimm scaled by 8"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "base"
+            },
+            {
+              "name": "Rt",
+              "bits": "4:0",
+              "role": "target"
+            }
+          ],
+          "options": [
+            "scale=8"
+          ],
+          "semantic_class": "load"
+        },
+        {
+          "mnemonic": "NOP",
+          "form": "none",
+          "format_class": "A64 hint",
+          "opcode": "0xD503201F",
+          "bit_fields": [],
+          "semantic_class": "nop"
+        },
+        {
+          "mnemonic": "ORR",
+          "form": "rrr",
+          "format_class": "A64 logical (shifted register)",
+          "opcode": "0xAA000000",
+          "bit_fields": [
+            {
+              "name": "sf/op",
+              "bits": "31:29",
+              "role": "64-bit opcode class"
+            },
+            {
+              "name": "shift",
+              "bits": "23:22",
+              "role": "shift kind (0=LSL)"
+            },
+            {
+              "name": "Rm",
+              "bits": "20:16",
+              "role": "source register"
+            },
+            {
+              "name": "imm6",
+              "bits": "15:10",
+              "role": "shift amount / immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source register"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination register"
+            }
+          ],
+          "semantic_class": "logic"
+        },
+        {
+          "mnemonic": "RET",
+          "form": "reg",
+          "format_class": "A64 branch register",
+          "opcode": "0xD65F0000",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:5",
+              "role": "BR/BLR/RET"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "return register"
+            }
+          ],
+          "semantic_class": "ret"
+        },
+        {
+          "mnemonic": "STR",
+          "form": "unsigned",
+          "format_class": "A64 load/store unsigned offset",
+          "opcode": "0xF9000000",
+          "bit_fields": [
+            {
+              "name": "size/opc",
+              "bits": "31:22",
+              "role": "64-bit store"
+            },
+            {
+              "name": "imm12",
+              "bits": "21:10",
+              "role": "uimm scaled by 8"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "base"
+            },
+            {
+              "name": "Rt",
+              "bits": "4:0",
+              "role": "source"
+            }
+          ],
+          "options": [
+            "scale=8"
+          ],
+          "semantic_class": "store"
+        },
+        {
+          "mnemonic": "SUB",
+          "form": "imm",
+          "format_class": "A64 add/subtract immediate",
+          "opcode": "0xD1000000",
+          "bit_fields": [
+            {
+              "name": "op",
+              "bits": "30:29",
+              "role": "ADD/SUB"
+            },
+            {
+              "name": "imm12",
+              "bits": "21:10",
+              "role": "unsigned immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination"
+            }
+          ],
+          "options": [
+            "optional 12-bit shift by 12"
+          ],
+          "semantic_class": "arith"
+        },
+        {
+          "mnemonic": "SUB",
+          "form": "rrr",
+          "format_class": "A64 data-processing (shifted register)",
+          "opcode": "0xCB000000",
+          "bit_fields": [
+            {
+              "name": "sf/op",
+              "bits": "31:29",
+              "role": "64-bit opcode class"
+            },
+            {
+              "name": "shift",
+              "bits": "23:22",
+              "role": "shift kind (0=LSL)"
+            },
+            {
+              "name": "Rm",
+              "bits": "20:16",
+              "role": "source register"
+            },
+            {
+              "name": "imm6",
+              "bits": "15:10",
+              "role": "shift amount / immediate"
+            },
+            {
+              "name": "Rn",
+              "bits": "9:5",
+              "role": "source register"
+            },
+            {
+              "name": "Rd",
+              "bits": "4:0",
+              "role": "destination register"
+            }
+          ],
+          "options": [
+            "LSL shift 0..63"
+          ],
+          "semantic_class": "arith"
+        },
+        {
+          "mnemonic": "SVC",
+          "form": "imm",
+          "format_class": "A64 exception generation",
+          "opcode": "0xD4000001",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:16",
+              "role": "SVC"
+            },
+            {
+              "name": "imm16",
+              "bits": "20:5",
+              "role": "supervisor call immediate"
+            },
+            {
+              "name": "LL",
+              "bits": "1:0",
+              "role": "must be 1"
+            }
+          ],
+          "semantic_class": "system"
+        }
+      ]
+    },
+    "riscv64": {
+      "family": "RISC riscv64",
+      "endian": "instruction-little",
+      "formats": [
+        {
+          "mnemonic": "ADD",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "ADDI",
+          "form": "ri",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x13",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "sign-extended immediate"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "AND",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "ANDI",
+          "form": "ri",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x13",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "sign-extended immediate"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "AUIPC",
+          "form": "u",
+          "semantic_class": "integer",
+          "format_class": "RV64 U-type",
+          "opcode": "0x17",
+          "bit_fields": [
+            {
+              "name": "imm[31:12]",
+              "bits": "31:12",
+              "role": "upper immediate"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "BEQ",
+          "form": "branch",
+          "semantic_class": "integer",
+          "format_class": "RV64 B-type",
+          "opcode": "0x63",
+          "bit_fields": [
+            {
+              "name": "imm[12|10:5]",
+              "bits": "31:25",
+              "role": "offset high"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "condition"
+            },
+            {
+              "name": "imm[4:1|11]",
+              "bits": "11:7",
+              "role": "offset low"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "EBREAK",
+          "form": "system",
+          "semantic_class": "system",
+          "format_class": "RV64 SYSTEM",
+          "opcode": "0x00100073",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:0",
+              "role": "system opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "ECALL",
+          "form": "system",
+          "semantic_class": "system",
+          "format_class": "RV64 SYSTEM",
+          "opcode": "0x00000073",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:0",
+              "role": "system opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "FENCE",
+          "form": "fence",
+          "semantic_class": "memory",
+          "format_class": "RV64 I-type fence",
+          "opcode": "0x0F",
+          "bit_fields": [
+            {
+              "name": "pred",
+              "bits": "27:24",
+              "role": "predecessor set"
+            },
+            {
+              "name": "succ",
+              "bits": "23:20",
+              "role": "successor set"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "JAL",
+          "form": "jal",
+          "semantic_class": "integer",
+          "format_class": "RV64 J-type",
+          "opcode": "0x6F",
+          "bit_fields": [
+            {
+              "name": "imm[20|10:1|11|19:12]",
+              "bits": "31:12",
+              "role": "jump offset"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "link register"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "JALR",
+          "form": "jalr",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x67",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "offset"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "must be 0"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "link register"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "LBU",
+          "form": "load",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type load",
+          "opcode": "0x03",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "offset"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "width/sign"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "LH",
+          "form": "load",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type load",
+          "opcode": "0x03",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "offset"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "width/sign"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "LUI",
+          "form": "u",
+          "semantic_class": "integer",
+          "format_class": "RV64 U-type",
+          "opcode": "0x37",
+          "bit_fields": [
+            {
+              "name": "imm[31:12]",
+              "bits": "31:12",
+              "role": "upper immediate"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "LW",
+          "form": "load",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type load",
+          "opcode": "0x03",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "offset"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "width/sign"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "MRET",
+          "form": "system",
+          "semantic_class": "system",
+          "format_class": "RV64 SYSTEM",
+          "opcode": "0x30200073",
+          "bit_fields": [
+            {
+              "name": "fixed",
+              "bits": "31:0",
+              "role": "system opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "OR",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "ORI",
+          "form": "ri",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x13",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "sign-extended immediate"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SB",
+          "form": "store",
+          "semantic_class": "integer",
+          "format_class": "RV64 S-type",
+          "opcode": "0x23",
+          "bit_fields": [
+            {
+              "name": "imm[11:5]",
+              "bits": "31:25",
+              "role": "offset high"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "width"
+            },
+            {
+              "name": "imm[4:0]",
+              "bits": "11:7",
+              "role": "offset low"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SH",
+          "form": "store",
+          "semantic_class": "integer",
+          "format_class": "RV64 S-type",
+          "opcode": "0x23",
+          "bit_fields": [
+            {
+              "name": "imm[11:5]",
+              "bits": "31:25",
+              "role": "offset high"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "width"
+            },
+            {
+              "name": "imm[4:0]",
+              "bits": "11:7",
+              "role": "offset low"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SLL",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SLT",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SLTI",
+          "form": "ri",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x13",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "sign-extended immediate"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SLTIU",
+          "form": "ri",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x13",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "sign-extended immediate"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SLTU",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SRA",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SRL",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SUB",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "SW",
+          "form": "store",
+          "semantic_class": "integer",
+          "format_class": "RV64 S-type",
+          "opcode": "0x23",
+          "bit_fields": [
+            {
+              "name": "imm[11:5]",
+              "bits": "31:25",
+              "role": "offset high"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "base"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "width"
+            },
+            {
+              "name": "imm[4:0]",
+              "bits": "11:7",
+              "role": "offset low"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "XOR",
+          "form": "rrr",
+          "semantic_class": "integer",
+          "format_class": "RV64 R-type",
+          "opcode": "0x33",
+          "bit_fields": [
+            {
+              "name": "funct7",
+              "bits": "31:25",
+              "role": "operation"
+            },
+            {
+              "name": "rs2",
+              "bits": "24:20",
+              "role": "source 2"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source 1"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        },
+        {
+          "mnemonic": "XORI",
+          "form": "ri",
+          "semantic_class": "integer",
+          "format_class": "RV64 I-type",
+          "opcode": "0x13",
+          "bit_fields": [
+            {
+              "name": "imm[11:0]",
+              "bits": "31:20",
+              "role": "sign-extended immediate"
+            },
+            {
+              "name": "rs1",
+              "bits": "19:15",
+              "role": "source"
+            },
+            {
+              "name": "funct3",
+              "bits": "14:12",
+              "role": "operation"
+            },
+            {
+              "name": "rd",
+              "bits": "11:7",
+              "role": "destination"
+            },
+            {
+              "name": "opcode",
+              "bits": "6:0",
+              "role": "opcode"
+            }
+          ]
+        }
+      ]
+    },
+    "x86-64": {
+      "family": "CISC x86-64",
+      "endian": "little",
+      "formats": [
+        {
+          "mnemonic": "ADD",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x01",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "arith"
+        },
+        {
+          "mnemonic": "AND",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x21",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "logic"
+        },
+        {
+          "mnemonic": "CALL",
+          "form": "rel32",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0xE8",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "call"
+        },
+        {
+          "mnemonic": "CMP",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x39",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "compare"
+        },
+        {
+          "mnemonic": "JMP",
+          "form": "rel32",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0xE9",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "jmp"
+        },
+        {
+          "mnemonic": "MOV",
+          "form": "r64_rm64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x8B",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "load"
+        },
+        {
+          "mnemonic": "MOV",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x89",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "store"
+        },
+        {
+          "mnemonic": "NOP",
+          "form": "fixed",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x90",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "nop"
+        },
+        {
+          "mnemonic": "OR",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x09",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "logic"
+        },
+        {
+          "mnemonic": "POP",
+          "form": "r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x58",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "pop"
+        },
+        {
+          "mnemonic": "PUSH",
+          "form": "r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x50",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "push"
+        },
+        {
+          "mnemonic": "RET",
+          "form": "fixed",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0xC3",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "ret"
+        },
+        {
+          "mnemonic": "SUB",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x29",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "arith"
+        },
+        {
+          "mnemonic": "XOR",
+          "form": "rm64_r64",
+          "format_class": "REX.W+opcode+ModRM/SIB+disp+imm",
+          "opcode": "0x31",
+          "prefixes": [
+            "REX.W mandatory for these 64-bit forms",
+            "REX.R/X/B encode register extensions"
+          ],
+          "bit_fields": [
+            {
+              "name": "REX",
+              "bits": "7:0",
+              "role": "prefix",
+              "value": "0x48|R<<2|X<<1|B"
+            },
+            {
+              "name": "opcode",
+              "bits": "7:0",
+              "role": "opcode"
+            },
+            {
+              "name": "ModRM.mod",
+              "bits": "7:6",
+              "role": "addressing mode"
+            },
+            {
+              "name": "ModRM.reg",
+              "bits": "5:3",
+              "role": "register operand / opcode extension"
+            },
+            {
+              "name": "ModRM.rm",
+              "bits": "2:0",
+              "role": "base or register operand"
+            },
+            {
+              "name": "SIB",
+              "bits": "7:0",
+              "role": "index/scale/base",
+              "optional": true
+            },
+            {
+              "name": "displacement",
+              "bits": "8 or 32",
+              "role": "address",
+              "optional": true
+            },
+            {
+              "name": "imm32/imm64",
+              "bits": "32 or 64",
+              "role": "immediate",
+              "optional": true
+            }
+          ],
+          "semantic_class": "logic"
+        }
+      ]
+    }
+  },
+  "inventory_architectures": [
+    {
+      "id": "6502",
+      "isa_class": "CISC",
+      "native_family": "CISC MOS 6502",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "8051",
+      "isa_class": "CISC",
+      "native_family": "CISC MCS-51",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "aarch64",
+      "isa_class": "RISC",
+      "native_family": "RISC aarch64",
+      "word_bits": 64,
+      "real_backend": true,
+      "status": "real_backend_slice"
+    },
+    {
+      "id": "alpha",
+      "isa_class": "RISC",
+      "native_family": "RISC DEC Alpha",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "alpha-ev6",
+      "isa_class": "RISC",
+      "native_family": "RISC DEC Alpha EV6",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "amd-gcn",
+      "isa_class": "GPU",
+      "native_family": "GPU AMD GCN/RDNA/CDNA",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "amd-gcn-rdna",
+      "isa_class": "GPU",
+      "native_family": "GPU AMD GCN/RDNA/CDNA families",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "andes-nds32",
+      "isa_class": "RISC",
+      "native_family": "RISC Andes NDS32",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "apple-gpu",
+      "isa_class": "GPU",
+      "native_family": "GPU Apple GPU ISA family",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "arc-compact",
+      "isa_class": "RISC",
+      "native_family": "RISC Synopsys ARC",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "arm-mve",
+      "isa_class": "RISC-extension",
+      "native_family": "RISC-extension Arm M-profile Vector Extension",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "arm-sme",
+      "isa_class": "RISC-extension",
+      "native_family": "RISC-extension Arm Scalable Matrix Extension",
+      "word_bits": 128,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "arm-sve",
+      "isa_class": "RISC-extension",
+      "native_family": "RISC-extension Arm Scalable Vector Extension",
+      "word_bits": 128,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "arm32",
+      "isa_class": "RISC",
+      "native_family": "RISC A32/T32",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "arm32-thumb",
+      "isa_class": "RISC",
+      "native_family": "RISC AArch32/T32",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "armv7-m",
+      "isa_class": "RISC",
+      "native_family": "RISC ARMv7-M",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "armv7-risc",
+      "isa_class": "RISC",
+      "native_family": "RISC ARMv7-A/R",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "armv8-a32",
+      "isa_class": "RISC",
+      "native_family": "RISC ARMv8-A AArch32",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "armv9-a64",
+      "isa_class": "RISC",
+      "native_family": "RISC Armv9-A AArch64",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "avr",
+      "isa_class": "RISC",
+      "native_family": "RISC AVR",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "avr8",
+      "isa_class": "RISC",
+      "native_family": "RISC Atmel AVR 8-bit",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "blackfin",
+      "isa_class": "RISC",
+      "native_family": "RISC Analog Devices Blackfin",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "bpf",
+      "isa_class": "VM",
+      "native_family": "VM Berkeley Packet Filter bytecode",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "c6000",
+      "isa_class": "VLIW",
+      "native_family": "VLIW TI C6000 DSP",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "chimera-c8192",
+      "isa_class": "custom",
+      "native_family": "custom Chimera",
+      "word_bits": 8192,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "chimera-r8192",
+      "isa_class": "custom",
+      "native_family": "custom Chimera",
+      "word_bits": 8192,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "dsPIC",
+      "isa_class": "DSP",
+      "native_family": "DSP Microchip dsPIC/PIC24",
+      "word_bits": 16,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "dspic33",
+      "isa_class": "RISC",
+      "native_family": "RISC Microchip dsPIC33",
+      "word_bits": 24,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "e2k",
+      "isa_class": "VLIW",
+      "native_family": "VLIW Elbrus E2K",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "ebpf",
+      "isa_class": "VM",
+      "native_family": "VM Linux eBPF virtual ISA",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "fr-v",
+      "isa_class": "RISC",
+      "native_family": "RISC Fujitsu FR-V",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "hexagon",
+      "isa_class": "DSP",
+      "native_family": "DSP Qualcomm Hexagon",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "hppa",
+      "isa_class": "RISC",
+      "native_family": "RISC PA-RISC",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "hppa-2",
+      "isa_class": "RISC",
+      "native_family": "RISC PA-RISC 2.0",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "i8080",
+      "isa_class": "CISC",
+      "native_family": "CISC Intel 8080/8085",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "ia-64",
+      "isa_class": "EPIC",
+      "native_family": "EPIC Intel Itanium IA-64",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "ia64",
+      "isa_class": "EPIC",
+      "native_family": "EPIC Itanium",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "ibm-s360",
+      "isa_class": "CISC",
+      "native_family": "CISC IBM System/360",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "ibm-z",
+      "isa_class": "CISC",
+      "native_family": "CISC IBM z/Architecture",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "intel-xe-gpu",
+      "isa_class": "GPU",
+      "native_family": "GPU Intel Xe GPU ISA",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "loongarch32",
+      "isa_class": "RISC",
+      "native_family": "RISC LoongArch32",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "loongarch64",
+      "isa_class": "RISC",
+      "native_family": "RISC LoongArch",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "m68000",
+      "isa_class": "CISC",
+      "native_family": "CISC Motorola 68000 family",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "m680x",
+      "isa_class": "CISC",
+      "native_family": "CISC Motorola 6800/6801/6803",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "m68k",
+      "isa_class": "CISC",
+      "native_family": "CISC Motorola 68000",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "m68k-coldfire",
+      "isa_class": "CISC",
+      "native_family": "CISC Motorola ColdFire",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "mcs51",
+      "isa_class": "CISC",
+      "native_family": "CISC Intel MCS-51 / 8051",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "microblaze",
+      "isa_class": "RISC",
+      "native_family": "RISC AMD/Xilinx MicroBlaze",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "microchip-pic16",
+      "isa_class": "RISC",
+      "native_family": "RISC Microchip PIC16",
+      "word_bits": 14,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "microchip-pic18",
+      "isa_class": "RISC",
+      "native_family": "RISC Microchip PIC18",
+      "word_bits": 16,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "microchip-pic24",
+      "isa_class": "RISC",
+      "native_family": "RISC Microchip PIC24",
+      "word_bits": 24,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "mips16",
+      "isa_class": "RISC",
+      "native_family": "RISC MIPS16",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "mips32",
+      "isa_class": "RISC",
+      "native_family": "RISC MIPS",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "mips64",
+      "isa_class": "RISC",
+      "native_family": "RISC MIPS",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "mips64r6",
+      "isa_class": "RISC",
+      "native_family": "RISC MIPS64 Release 6",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "mos6502",
+      "isa_class": "CISC",
+      "native_family": "CISC MOS 6502 family",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "motorola-6809",
+      "isa_class": "CISC",
+      "native_family": "CISC Motorola 6809",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "msp430",
+      "isa_class": "RISC",
+      "native_family": "RISC TI MSP430",
+      "word_bits": 16,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "msp430x",
+      "isa_class": "RISC",
+      "native_family": "RISC TI MSP430X",
+      "word_bits": 20,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "nios-ii",
+      "isa_class": "RISC",
+      "native_family": "RISC Intel Altera Nios II",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "nios2",
+      "isa_class": "RISC",
+      "native_family": "RISC Intel/Altera Nios II",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "nvidia-ptx",
+      "isa_class": "GPU-VM",
+      "native_family": "GPU-VM NVIDIA PTX virtual ISA",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "openrisc",
+      "isa_class": "RISC",
+      "native_family": "RISC OpenRISC 1000",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "or1k",
+      "isa_class": "RISC",
+      "native_family": "RISC OpenRISC ORBIS",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "pa-risc",
+      "isa_class": "RISC",
+      "native_family": "RISC HP PA-RISC",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "pdp11",
+      "isa_class": "CISC",
+      "native_family": "CISC DEC PDP-11",
+      "word_bits": 16,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "pic24-dspic",
+      "isa_class": "RISC",
+      "native_family": "RISC Microchip PIC24/dsPIC",
+      "word_bits": 24,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "pic8",
+      "isa_class": "CISC",
+      "native_family": "CISC Microchip PIC 8-bit",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "power10",
+      "isa_class": "RISC",
+      "native_family": "RISC IBM POWER10 / Power ISA",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "power10-mma",
+      "isa_class": "RISC-extension",
+      "native_family": "RISC-extension IBM Power10 MMA",
+      "word_bits": 128,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "powerpc",
+      "isa_class": "RISC",
+      "native_family": "RISC Power ISA",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "ppc64",
+      "isa_class": "RISC",
+      "native_family": "RISC Power ISA",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "qualcomm-adreno",
+      "isa_class": "GPU",
+      "native_family": "GPU Qualcomm Adreno GPU ISA",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "renesas-rx",
+      "isa_class": "CISC",
+      "native_family": "CISC Renesas RX",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "renesas-v850",
+      "isa_class": "RISC",
+      "native_family": "RISC Renesas V850",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv-crypto",
+      "isa_class": "RISC-extension",
+      "native_family": "RISC-extension RISC-V Cryptography Extensions",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv-vector",
+      "isa_class": "RISC-extension",
+      "native_family": "RISC-extension RISC-V Vector Extension",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv128",
+      "isa_class": "RISC",
+      "native_family": "RISC RISC-V RV128I proposal",
+      "word_bits": 128,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv32",
+      "isa_class": "RISC",
+      "native_family": "RISC RISC-V",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv32e",
+      "isa_class": "RISC",
+      "native_family": "RISC RISC-V RV32E",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv64",
+      "isa_class": "RISC",
+      "native_family": "RISC riscv64",
+      "word_bits": 64,
+      "real_backend": true,
+      "status": "real_backend_slice"
+    },
+    {
+      "id": "riscv64e",
+      "isa_class": "RISC",
+      "native_family": "RISC RISC-V RV64E",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "riscv64gc",
+      "isa_class": "RISC",
+      "native_family": "RISC RISC-V RV64GC profile",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "s390x",
+      "isa_class": "CISC",
+      "native_family": "CISC IBM z/Architecture",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "sh4",
+      "isa_class": "RISC",
+      "native_family": "RISC SuperH",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "sparc-v8",
+      "isa_class": "RISC",
+      "native_family": "RISC SPARC V8",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "sparc-v9",
+      "isa_class": "RISC",
+      "native_family": "RISC SPARC",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "spir-v",
+      "isa_class": "GPU-VM",
+      "native_family": "GPU-VM Khronos SPIR-V",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "superh-sh2",
+      "isa_class": "RISC",
+      "native_family": "RISC SuperH SH-2",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "superh-sh4",
+      "isa_class": "RISC",
+      "native_family": "RISC SuperH SH-4",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "superh-sh4a",
+      "isa_class": "RISC",
+      "native_family": "RISC SuperH SH-4A",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "tricore",
+      "isa_class": "RISC",
+      "native_family": "RISC Infineon TriCore",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "v850",
+      "isa_class": "RISC",
+      "native_family": "RISC Renesas V850",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "vax",
+      "isa_class": "CISC",
+      "native_family": "CISC VAX",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "wasm32",
+      "isa_class": "VM",
+      "native_family": "VM WebAssembly 32-bit virtual ISA",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "wasm64",
+      "isa_class": "VM",
+      "native_family": "VM WebAssembly 64-bit virtual ISA",
+      "word_bits": 64,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "wdc65c816",
+      "isa_class": "CISC",
+      "native_family": "CISC WDC 65C816",
+      "word_bits": 16,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "x86-16",
+      "isa_class": "CISC",
+      "native_family": "CISC x86 real mode",
+      "word_bits": 16,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "x86-32",
+      "isa_class": "CISC",
+      "native_family": "CISC x86",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "x86-64",
+      "isa_class": "CISC",
+      "native_family": "CISC x86-64",
+      "word_bits": 64,
+      "real_backend": true,
+      "status": "real_backend_slice"
+    },
+    {
+      "id": "x86-avx10",
+      "isa_class": "CISC-extension",
+      "native_family": "CISC-extension Intel AVX10",
+      "word_bits": 512,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "xtensa",
+      "isa_class": "RISC",
+      "native_family": "RISC Xtensa",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "xtensa-lx",
+      "isa_class": "RISC",
+      "native_family": "RISC Tensilica Xtensa LX",
+      "word_bits": 32,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    },
+    {
+      "id": "z80",
+      "isa_class": "CISC",
+      "native_family": "CISC Z80",
+      "word_bits": 8,
+      "real_backend": false,
+      "status": "descriptors_only_not_implemented"
+    }
+  ],
+  "policy": "Architecture-owned instruction semantics are preserved. A sourced fixed-bit mask is a descriptor, not a backend. Only forms with real round-trip vectors are marked real_backend; all other rows are explicitly not_implemented with a reason. Official conformance counts are copied unchanged from the universal catalog and never upgraded by this derived report."
+}
