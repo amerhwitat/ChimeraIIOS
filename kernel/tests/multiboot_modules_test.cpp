@@ -41,5 +41,37 @@ int main() {
     assert(chimera_multiboot_find(CHIMERA_MODULE_LIVE_INITRAMFS) != nullptr);
     assert(chimera_multiboot_find(CHIMERA_MODULE_INSTALL_IMAGE) == nullptr);
     assert(chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) != nullptr);
+
+    // A module command line must terminate inside its own tag. Bytes in the
+    // alignment padding must never extend a truncated command into a trusted
+    // USER_INIT_ELF classification.
+    std::memset(info, 0, sizeof(info));
+    total = 56;
+    const uint32_t module_type = 3u, truncated_size = 34u;
+    const uint32_t module_start = 0x200000u, module_end = 0x201000u;
+    std::memcpy(info, &total, 4);
+    std::memcpy(info + 8, &module_type, 4);
+    std::memcpy(info + 12, &truncated_size, 4);
+    std::memcpy(info + 16, &module_start, 4);
+    std::memcpy(info + 20, &module_end, 4);
+    std::memcpy(info + 24, "chimera-user-init-", sizeof("chimera-user-init-") - 1u);
+    std::memcpy(info + 42, "elf", sizeof("elf"));
+    std::memcpy(info + 48, &end_type, 4);
+    std::memcpy(info + 52, &end_size, 4);
+    assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 0);
+    assert(chimera_multiboot_module_count() == 0);
+    assert(chimera_multiboot_find(CHIMERA_MODULE_USER_INIT_ELF) == nullptr);
+
+    // Reject a tag whose 32-bit size wraps off + size. The previous parser
+    // accepted this value, parsed the malformed module, and wrapped its
+    // aligned cursor back to the start of the Multiboot information block.
+    std::memset(info, 0, sizeof(info));
+    total = 16;
+    const uint32_t overflowing_size = 0xfffffff8u;
+    std::memcpy(info, &total, 4);
+    std::memcpy(info + 8, &module_type, 4);
+    std::memcpy(info + 12, &overflowing_size, 4);
+    assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 0);
+    assert(chimera_multiboot_module_count() == 0);
     return 0;
 }
