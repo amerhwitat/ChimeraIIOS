@@ -3,11 +3,15 @@ namespace {
 constexpr uint32_t MAX_MODULES=64;
 chimera_boot_module modules[MAX_MODULES];
 uint32_t module_count=0;
-static void copy_cmd(char* dst,const char* src){
+static bool copy_cmd(char* dst,const char* src,uint32_t length){
+ if(!src){dst[0]=0;return false;}
  uint32_t i=0;
- if(!src){dst[0]=0;return;}
- for(;i<127&&src[i];++i) dst[i]=src[i];
- dst[i]=0;
+ while(i<length&&src[i])++i;
+ if(i==length){dst[0]=0;return false;}
+ const uint32_t copied=i<127u?i:127u;
+ for(uint32_t j=0;j<copied;++j)dst[j]=src[j];
+ dst[copied]=0;
+ return true;
 }
 static bool has(const char* s,const char* needle){
  if(!s||!needle)return false;
@@ -38,24 +42,40 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
  const uint8_t* base=(const uint8_t*)(uintptr_t)boot_info;
  uint32_t total=*(const uint32_t*)base;
  if(total<16||total>16u*1024u*1024u)return 0;
- for(uint32_t off=8;off+8<=total;){
+ uint32_t off=8;
+ while(off<=total&&total-off>=8u){
+  const uint32_t remaining=total-off;
   const uint32_t type=*(const uint32_t*)(base+off);
   const uint32_t size=*(const uint32_t*)(base+off+4);
-  if(size<8||off+size>total)break;
-  if(type==3&&size>=16&&module_count<MAX_MODULES){
-   const uint32_t start=*(const uint32_t*)(base+off+8);
-   const uint32_t end=*(const uint32_t*)(base+off+12);
-   chimera_boot_module&m=modules[module_count++];
-   m.base=start;
-   m.size=end>=start?(uint64_t)end-start:0;
-   m.cmdline[0]=0;
-   if(size>16)copy_cmd(m.cmdline,(const char*)(base+off+16));
-   m.kind=classify(m.cmdline);
+  if(size<8u||size>remaining){module_count=0;return 0;}
+  if(type==0u){
+   if(size!=8u){module_count=0;return 0;}
+   return module_count;
   }
-  if(type==0) break;
-  off=(off+size+7u)&~7u;
+  if(type==3u){
+   if(size<17u){module_count=0;return 0;}
+   char cmd[128];
+   if(!copy_cmd(cmd,(const char*)(base+off+16),size-16u)){
+    module_count=0;
+    return 0;
+   }
+   if(module_count<MAX_MODULES){
+    const uint32_t start=*(const uint32_t*)(base+off+8);
+    const uint32_t end=*(const uint32_t*)(base+off+12);
+    chimera_boot_module&m=modules[module_count++];
+    m.base=start;
+    m.size=end>=start?(uint64_t)end-start:0;
+    for(uint32_t i=0;i<128u;++i)m.cmdline[i]=cmd[i];
+    m.kind=classify(m.cmdline);
+   }
+  }
+  if(size>UINT32_MAX-7u){module_count=0;return 0;}
+  const uint32_t aligned=(size+7u)&~7u;
+  if(aligned>remaining){module_count=0;return 0;}
+  off+=aligned;
  }
- return module_count;
+ module_count=0;
+ return 0;
 }
 extern "C" uint32_t chimera_multiboot_module_count(void){return module_count;}
 extern "C" const chimera_boot_module* chimera_multiboot_module(uint32_t index){return index<module_count?&modules[index]:0;}
