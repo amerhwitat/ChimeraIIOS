@@ -10,6 +10,8 @@ extern "C" {
 int koronos_smp_selftest(void);
 uint32_t koronos_smp_ap_online(void);
 uint32_t koronos_smp_overlap_samples(void);
+uint32_t koronos_smp_online_cpu_count(void);
+void koronos_smp_dump_measurements(void);
 
 #ifdef __cplusplus
 }

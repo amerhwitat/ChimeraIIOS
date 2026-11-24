@@ -7,6 +7,7 @@ on:
       - "kernel/**"
       - "tools/runtime/check-koronos-preemption.sh"
       - "tools/runtime/check-koronos-smp.sh"
+      - "tools/runtime/check-koronos-preempt-smp-runtime.sh"
       - "tools/runtime/check-koronos-native-stack.sh"
       - "tools/runtime/check-koronos-install-recovery.sh"
       - "tools/runtime/check-koronos-supervisor.sh"
@@ -17,6 +18,7 @@ on:
       - "kernel/**"
       - "tools/runtime/check-koronos-preemption.sh"
       - "tools/runtime/check-koronos-smp.sh"
+      - "tools/runtime/check-koronos-preempt-smp-runtime.sh"
       - "tools/runtime/check-koronos-native-stack.sh"
       - "tools/runtime/check-koronos-install-recovery.sh"
       - "tools/runtime/check-koronos-supervisor.sh"
@@ -82,8 +84,36 @@ jobs:
             build/koronos-smp/koronos-smp-gate.iso
             build/koronos/x86_64/koronos.elf
 
-  x86_64-native-stack:
+  x86_64-preempt-smp-runtime:
     needs: x86_64-smp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run measured timer-preemption/per-CPU AP runtime gate
+        run: |
+          chmod +x tools/runtime/check-koronos-preempt-smp-runtime.sh
+          tools/runtime/check-koronos-preempt-smp-runtime.sh
+      - name: Upload preempt/SMP runtime diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-preempt-smp-runtime-diagnostics
+          path: |
+            build/koronos-preempt-smp-runtime/result.txt
+            build/koronos-preempt-smp-runtime/iso.sha256
+            build/koronos-preempt-smp-runtime/debugcon.log
+            build/koronos-preempt-smp-runtime/serial.log
+            build/koronos-preempt-smp-runtime/qemu.stdout
+            build/koronos-preempt-smp-runtime/qemu.stderr
+            build/koronos-preempt-smp-runtime/koronos-preempt-smp-runtime.iso
+            build/koronos/x86_64/koronos.elf
+
+  x86_64-native-stack:
+    needs: x86_64-preempt-smp-runtime
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

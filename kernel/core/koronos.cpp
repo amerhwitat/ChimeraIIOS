@@ -16,6 +16,8 @@
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
 #include "chimera/supervisor.h"
+#include "chimera/preemptive_sched.h"
+#include "chimera/smp.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
@@ -23,7 +25,9 @@ extern "C" void koronos_target_log(const char *message);
 /* Monitor task id, used by the idle loop to drive a periodic diagnostic tick.
    Without it every bootstrap service blocks and the scheduler has no runnable
    work, which reads as a stalled runtime. */
-extern "C" uint32_t koronos_monitor_task_id = 0;
+extern "C" {
+uint32_t koronos_monitor_task_id = 0;
+}
 
 namespace {
 volatile uint32_t koronos_state = 0;
@@ -573,8 +577,28 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
 
     console_write("[SCH ] Initializing scheduler...");
     chimera_sched_init(f->logical_cpus);
+    const int preempt_init = koronos_preemptive_init(f->logical_cpus);
+    console_write(preempt_init == 0
+        ? "[RTM ] Unified PIT/x2APIC tick owner active"
+        : "[RTM ] ERROR: unified timer initialization failed");
     chimera_learning_init(f->logical_cpus);
-    console_progress(35, "Scheduler and learning runtime initialized");
+
+    /* Run the hardware gates before any resident bootstrap/supervisor tasks
+     * are submitted so their measured workers own the scheduler task table. */
+    const int preempt_rc = koronos_preemptive_selftest();
+    console_write(preempt_rc == 0
+        ? "[PMT ] Native x86_64 context-save/timer-preemption gate passed"
+        : "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED");
+    int smp_rc = -1;
+    if (preempt_rc == 0) {
+        smp_rc = koronos_smp_selftest();
+        console_write(smp_rc == 0
+            ? "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed"
+            : "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED");
+    } else {
+        console_write("[SMP ] gate not started: preemption gate failed");
+    }
+    console_progress(35, "Scheduler, hardware gates and learning runtime initialized");
 
     console_write("[IO  ] Initializing virtual I/O drivers...");
     chimera_register_virtio_drivers();
@@ -635,24 +659,11 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     koronos_module_init();
     koronos_state = 0x4B4F524Fu;
     console_write("[PLT ] Native platform feature registry ready");
+    koronos_submit_bootstrap_tasks();
+    console_progress(90, "Bootstrap services registered");
     debugcon_write("[KRN ] KORONOS READY");
     console_write("[KRN ] KORONOS READY");
     console_write("[IO  ] Console: VGA text + COM1");
-    koronos_submit_bootstrap_tasks();
-    console_progress(90, "Bootstrap services registered");
-    const int preempt_rc = koronos_preemptive_selftest();
-    console_write(preempt_rc == 0
-        ? "[PMT ] Native x86_64 context-save/timer-preemption gate passed"
-        : "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED");
-    int smp_rc = -1;
-    if (preempt_rc == 0) {
-        smp_rc = koronos_smp_selftest();
-        console_write(smp_rc == 0
-            ? "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed"
-            : "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED");
-    } else {
-        console_write("[SMP ] gate not started: preemption gate failed");
-    }
     int native_rc = -1;
     if (preempt_rc == 0 && smp_rc == 0) {
         native_rc = koronos_native_stack_selftest();
@@ -676,8 +687,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
             ? "[SUP ] Koronos PID1 supervisor gate passed"
             : "[SUP ] Koronos PID1 supervisor gate FAILED");
     }
-    console_write("[RUN ] Starting cooperative scheduler runtime...");
+    koronos_preemptive_dump_measurements();
+    koronos_smp_dump_measurements();
+    console_write("[RUN ] Starting timer-preemptive scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
-    console_write("[RUN ] Entering Koronos scheduler loop");
+    console_write("[RUN ] Entering per-CPU Koronos scheduler loop");
     console_progress(100, "Kernel initialization complete; scheduler loop entered (not desktop readiness)");
 }

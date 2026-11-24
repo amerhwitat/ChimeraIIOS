@@ -27,6 +27,7 @@ typedef struct chimera_interrupt_snapshot {
 } chimera_interrupt_snapshot;
 
 int chimera_interrupt_init(void);
+int chimera_interrupt_init_cpu(uint32_t cpu);
 int chimera_interrupt_enable(void);
 int chimera_interrupt_disable(void);
 int chimera_interrupt_get_snapshot(chimera_interrupt_snapshot *out);

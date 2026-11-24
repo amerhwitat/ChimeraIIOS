@@ -12,12 +12,12 @@ static void vga_heartbeat(uint32_t sequence,uint32_t dispatched,uint32_t runnabl
 extern "C" void koronos_idle_loop(void){
     uint32_t spin=0;
     for(;;){
-        const uint32_t dispatched=chimera_sched_run_once(0);
+        /* Production path: timer-preemptive, per-CPU task execution. The
+         * cooperative run_once API remains available to explicit callers. */
+        const uint32_t dispatched = chimera_sched_preemptive_ready()
+            ? chimera_sched_run_preemptive(0)
+            : chimera_sched_run_once(0);
         ++spin;
-        /* Idle keep-alive: when every service is blocked there is no runnable
-           work, so wake the monitor task on a fixed spin cadence. It prints one
-           snapshot and blocks again, which makes runtime liveness observable
-           instead of looking like a stalled kernel. */
         if(dispatched==0 && koronos_monitor_task_id!=0 && (spin&0x00FFFFFFu)==0)
             chimera_sched_wake(koronos_monitor_task_id);
         if((spin&0x0000FFFFu)==0)vga_heartbeat(spin,dispatched,chimera_sched_runnable_count());

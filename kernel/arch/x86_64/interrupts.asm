@@ -4,6 +4,7 @@ section .text
 extern chimera_interrupt_dispatch
 global chimera_interrupt_common
 global chimera_isr_table
+global koronos_preempt_yield
 
 ; Every vector has a dedicated entry point so the vector number is preserved.
 ; Exceptions which push a CPU error code are identified by vector in the common
@@ -17,6 +18,10 @@ chimera_isr_%+v:
     jmp koronos_timer_irq_common
 %elif v = 33
     jmp koronos_preempt_yield_common
+%elif v = 49
+    jmp koronos_ap_tick_common
+%elif v = 50
+    jmp koronos_ap_work_common
 %else
     jmp chimera_interrupt_common
 %endif
@@ -36,6 +41,24 @@ koronos_timer_irq_common:
     jnz koronos_timer_user_path
     mov rdi, 32
     jmp koronos_preempt_common
+
+; x2APIC IPI vectors. Vector 49 is the PIT tick rebroadcast to APs, and 50 is
+; work-dispatch. The C handler sends the local APIC EOI for both.
+koronos_ap_tick_common:
+    mov rdi, 49
+    jmp koronos_preempt_common
+
+koronos_ap_work_common:
+    mov rdi, 50
+    jmp koronos_preempt_common
+
+; Software gate used by scheduler tasks to yield, block or exit. The IDT gate
+; is a software interrupt, so it preserves the full preemptible frame and
+; requires no PIC/APIC EOI.
+global koronos_preempt_yield
+koronos_preempt_yield:
+    int 33
+    ret
 
 ; Dedicated supervisor software gate used by a task to yield or exit. It uses
 ; the same save/switch/IRETQ epilogue but does not send a PIC EOI.
@@ -65,12 +88,21 @@ koronos_preempt_common:
     mov rsp, rbx
     test rax, rax
     jz koronos_preempt_restore
-    ; RSP still points at the outgoing task's saved-frame top. Store it before
-    ; replacing the global context pointer with the handler's selected context.
-    mov rdx, [rel koronos_preempt_current_ctx]
+    ; FS:0 still names the outgoing context: the C handler selects a target but
+    ; leaves the active-context pointer to this epilogue. Save the outgoing
+    ; interrupt frame there before installing the selected context and CR3.
+    mov rdx, [fs:0]
+    test rdx, rdx
+    jz .load_selected
     mov [rdx], rsp
-    mov [rel koronos_preempt_current_ctx], rax
-    mov rsp, [rax]
+.load_selected:
+    mov r8, [rax]                         ; selected Context*
+    mov r9, [rax + 8]                     ; selected CR3 (0 keeps current)
+    mov [fs:0], r8
+    mov rsp, [r8]
+    test r9, r9
+    jz koronos_preempt_restore
+    mov cr3, r9
 koronos_preempt_restore:
     pop r15
     pop r14
