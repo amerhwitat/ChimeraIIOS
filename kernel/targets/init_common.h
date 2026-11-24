@@ -108,5 +108,5 @@ static void init_emit_readiness(long pid) {
     (void)init_write(1, message, used);
     /* A second user-originated write proves the readiness syscall returned
        to CPL3; the acceptance workflow checks this exact marker. */
-    init_writestr("USERSPACE SYSCALL RETURNED TO RING3\\n");
+    init_writestr("USERSPACE SYSCALL RETURNED TO RING3\n");
 }
