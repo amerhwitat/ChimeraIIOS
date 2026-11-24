@@ -31,7 +31,7 @@ jobs:
       - name: Install ISO and firmware test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-x86 ovmf mtools xorriso \
+          sudo apt-get install -y qemu-system-x86 ovmf mtools xorriso nasm \
             grub-common grub-pc-bin grub-efi-amd64-bin
           OVMF_PATH=""
           for candidate in /usr/share/ovmf/OVMF.fd /usr/share/OVMF/OVMF.fd /usr/share/qemu/OVMF.fd; do
