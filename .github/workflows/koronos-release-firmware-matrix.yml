@@ -33,7 +33,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-system-x86 ovmf mtools xorriso \
             grub-common grub-pc-bin grub-efi-amd64-bin
-          test -s /usr/share/OVMF/OVMF.fd
+          OVMF_PATH=""
+          for candidate in /usr/share/ovmf/OVMF.fd /usr/share/OVMF/OVMF.fd /usr/share/qemu/OVMF.fd; do
+            if test -s "$candidate"; then OVMF_PATH="$candidate"; break; fi
+          done
+          test -n "$OVMF_PATH"
+          echo "OVMF_PATH=$OVMF_PATH" >> "$GITHUB_ENV"
+          dpkg-query -W -f='${Version}\n' ovmf
           qemu-system-x86_64 --version
 
       - name: Build Koronos kernel and target init ELFs
@@ -63,7 +69,7 @@ jobs:
           ovmf_version="$(dpkg-query -W -f='${Version}' ovmf)"
           python3 tools/runtime/check-release-firmware-matrix.py \
             --iso "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso" \
-            --ovmf /usr/share/OVMF/OVMF.fd \
+            --ovmf "$OVMF_PATH" \
             --work "$GITHUB_WORKSPACE/build/release-matrix" \
             --ovmf-version "$ovmf_version"
 
