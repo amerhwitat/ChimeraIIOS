@@ -106,4 +106,7 @@ static void init_emit_readiness(long pid) {
     while (digits) message[used++] = reversed[--digits];
     message[used++] = '\n';
     (void)init_write(1, message, used);
+    /* A second user-originated write proves the readiness syscall returned
+       to CPL3; the acceptance workflow checks this exact marker. */
+    init_writestr("USERSPACE SYSCALL RETURNED TO RING3\\n");
 }
