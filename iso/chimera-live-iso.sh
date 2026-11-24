@@ -45,6 +45,13 @@ OUT="${CHIMERA_OUTPUT_ISO:-$ROOT/build/iso/chimera-ii-os.iso}"
 # temporary FAT image on a native Linux filesystem (important for WSL /mnt/c).
 ISO_TMP="${CHIMERA_ISO_TMPDIR:-$(mktemp -d /tmp/chimera-iso.XXXXXX)}"
 ISO_TMP_CREATED=1
+# Reproducible builds: pin every timestamp that GRUB/xorriso or the staged
+# tree can embed. SOURCE_DATE_EPOCH may override the fixed release epoch.
+CHIMERA_BUILD_EPOCH="${SOURCE_DATE_EPOCH:-1795478400}"
+export SOURCE_DATE_EPOCH="$CHIMERA_BUILD_EPOCH"
+normalize_stage_mtimes() {
+  find "$1" -depth -exec touch -h -d "@${CHIMERA_BUILD_EPOCH}" {} + 2>/dev/null || true
+}
 cleanup() { if [[ "$ISO_TMP_CREATED" == "1" ]]; then rm -rf "$ISO_TMP"; fi; }
 trap cleanup EXIT
 mkdir -p "$ISO_TMP"
@@ -218,13 +225,35 @@ rm -f "$OUT"
 # Pass only xorriso-native options after grub-mkrescue's "--" separator.
 # "-iso-level" is a genisoimage/mkisofs compatibility option, not a native
 # xorriso command; native xorriso mastering handles large files by default.
+normalize_stage_mtimes "$STAGE"
 ISO_XORRISO_OPTS=(
   -joliet on
   -rockridge on
   -volid "CHIMERA_II_OS"
+  -volume_date all_file_dates 2026.11.24.000000
+  -volume_date uuid 2026112400000000
 )
 echo "[INFO] Mastering large-capacity BIOS+UEFI ISO (ISO9660 level 3)..."
+# grub-mkrescue derives a wall-clock UUID for /.disk and embeds it in the EFI
+# images without honouring SOURCE_DATE_EPOCH. Freeze that clock for this call.
+SHIM_SRC="$ROOT/tools/repro/fixed_time.c"
+SHIM_LIB="$ISO_TMP/libchimera-fixed-time.so"
+if [[ -f "$SHIM_SRC" ]]; then
+  gcc -shared -fPIC -O2 -DCHIMERA_FIXED_EPOCH="$CHIMERA_BUILD_EPOCH" \
+    -o "$SHIM_LIB" "$SHIM_SRC"
+  export LD_PRELOAD="${LD_PRELOAD:+${LD_PRELOAD}:}$SHIM_LIB"
+fi
+set +e
 grub-mkrescue -o "$OUT" "$STAGE" -- "${ISO_XORRISO_OPTS[@]}"
+grub_rc=$?
+set -e
+if [[ -n "${SHIM_LIB:-}" ]]; then
+  export LD_PRELOAD="${LD_PRELOAD//:$SHIM_LIB/}"
+  export LD_PRELOAD="${LD_PRELOAD#$SHIM_LIB}"
+  [[ -n "$LD_PRELOAD" ]] || unset LD_PRELOAD
+  rm -f "$SHIM_LIB"
+fi
+[[ "$grub_rc" -eq 0 ]] || exit "$grub_rc"
 test -s "$OUT"
 
 # Fail with an actionable message rather than a late xorriso media-space error.

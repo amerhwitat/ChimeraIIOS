@@ -20,6 +20,8 @@ fi
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="${1:?usage: chimera-stage-installer-media.sh <iso-tree>}"
+CHIMERA_BUILD_EPOCH="${SOURCE_DATE_EPOCH:-1795478400}"
+export SOURCE_DATE_EPOCH="$CHIMERA_BUILD_EPOCH"
 mkdir -p "$DEST/install/installer"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -44,7 +46,8 @@ echo "[INSTALL] Interactive recovery shell ready; disk operations remain disable
 exec /bin/sh
 EOF
 chmod +x "$P/init"
-( cd "$P" && find . -print0 | cpio --null -o -H newc 2>/dev/null | gzip -9 ) > "$DEST/install/installer/installation.img"
+find "$P" -depth -exec touch -h -d "@${CHIMERA_BUILD_EPOCH}" {} + 2>/dev/null || true
+( cd "$P" && find . -print0 | sort -z | cpio --null --renumber-inodes -o -H newc 2>/dev/null | gzip -n -9 ) > "$DEST/install/installer/installation.img"
 cp -f "$DEST/install/installer/installation.img" "$DEST/install/installer/installer-initrd.img"
 for f in "$ROOT/install/installation-manifest.json" "$ROOT/install/installer-contract.json" "$ROOT/installer/installation_phases.json" "$ROOT/installer/installer_profiles.json" "$ROOT/installer/profiles/chimera-installer-features.json" "$ROOT/installer/profiles/filesystem-support.json"; do [[ -f "$f" ]] && cp -f "$f" "$DEST/install/installer/"; done
 printf '[INFO] Installer media staged in %s/install/installer\n' "$DEST"

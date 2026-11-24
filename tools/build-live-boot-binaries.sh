@@ -50,6 +50,13 @@ KORONOS="${CHIMERA_KORONOS_KERNEL:-$BUILD_DIR/koronos/x86_64/koronos.elf}"
 [[ -f "$KORONOS" ]] || KORONOS="$(find "$BUILD_DIR" "$ROOT/kernel" -type f \( -name 'koronos*.elf' -o -name 'kernel.bin' \) 2>/dev/null | head -n1 || true)"
 if [[ -n "$KORONOS" && -f "$KORONOS" ]]; then chimera_copy_if_distinct "$KORONOS" "$OUT/boot/koronos/koronos.elf"; sha256sum "$OUT/boot/koronos/koronos.elf" > "$OUT/boot/koronos/koronos.elf.sha256"; else echo "ERROR: Koronos ELF64 kernel not found." >&2; exit 2; fi
 INIT="$OUT/initramfs/root"
+# Reproducible initramfs: fixed epoch, sorted entries, renumbered inodes and
+# gzip headers without a filename/timestamp.
+CHIMERA_BUILD_EPOCH="${SOURCE_DATE_EPOCH:-1795478400}"
+export SOURCE_DATE_EPOCH="$CHIMERA_BUILD_EPOCH"
+normalize_initramfs_tree() {
+  find "$1" -depth -exec touch -h -d "@${CHIMERA_BUILD_EPOCH}" {} + 2>/dev/null || true
+}
 # Initramfs packing needs cpio and gzip on the build host; fail loudly rather
 # than emitting a truncated image when either is missing (the cpio pipeline used
 # to hide "command not found" behind 2>/dev/null and still exit 127).
@@ -122,7 +129,8 @@ printf 'USERSPACE READY: target=live init_pid=%s\n' "$$" > /dev/console 2>/dev/n
 exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
-(cd "$INIT" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
+normalize_initramfs_tree "$INIT"
+(cd "$INIT" && find . -print0 | sort -z | cpio --null --renumber-inodes -o -H newc | gzip -n -9) > "$OUT/boot/live/chimera-live-initramfs.img"
 sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
 
 # Dedicated recovery image: same hardware/filesystem utilities as Live, but
@@ -166,7 +174,8 @@ printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$" > /dev/console 2>/d
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
-(cd "$REC" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
+normalize_initramfs_tree "$REC"
+(cd "$REC" && find . -print0 | sort -z | cpio --null --renumber-inodes -o -H newc | gzip -n -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
 sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recovery/chimera-recovery-initramfs.img.sha256"
 
 for arch in arm64 armv7 x86_64; do
