@@ -1,20 +1,21 @@
 """Chimera native command-object format (CHMCMD v1) codec.
 
 This module is the single definition of the binary layout used by the builder
-and validator. It carries metadata and honest implementation status; it is not
-an executable format and does not imply conformance.
+and validator. Each record now carries explicit descriptor sections for operands,
+options, register effects and register-effect status. Empty descriptor arrays
+are rejected at pack time and at parse time. This is a metadata/object format,
+not an executable format, and it implies no conformance.
 """
 from __future__ import annotations
 
+import json
 import struct
 
 FILE_MAGIC = b"CHMCMD01"
 FILE_VERSION = 1
 RECORD_MAGIC = b"RECD"
 FILE_HEADER = struct.Struct("<8sIII")
-RECORD_HEADER = struct.Struct("<4sIHBB" + "H" * 10)
-OPERAND_HEADER = struct.Struct("<BBHH")
-OPTION_HEADER = struct.Struct("<HH")
+RECORD_HEADER = struct.Struct("<4sIHBB" + "H" * 12)
 LEN = struct.Struct("<H")
 
 ARCH_IDS = {
@@ -40,24 +41,29 @@ def encode_text(value: str) -> bytes:
     return value.encode("utf-8")
 
 
-def pack_operand(operand: dict) -> bytes:
-    name = encode_text(str(operand.get("name", "")))
-    type_name = encode_text(str(operand.get("type", "")))
-    kind = KIND_IDS[str(operand.get("kind", "positional"))]
-    required = 1 if operand.get("required") else 0
-    return (OPERAND_HEADER.pack(kind, required, len(type_name), len(name))
-            + type_name + name)
+def _length_prefixed(raw: bytes) -> bytes:
+    if len(raw) > 0xFFFF:
+        raise FormatError("descriptor exceeds 16-bit length field")
+    return LEN.pack(len(raw)) + raw
 
 
-def pack_option(option: dict) -> bytes:
-    flag = encode_text(str(option.get("flag", "")))
-    description = encode_text(str(option.get("description", "")))
-    return OPTION_HEADER.pack(len(flag), len(description)) + flag + description
+def _json_bytes(value) -> bytes:
+    return json.dumps(value, sort_keys=True, ensure_ascii=False,
+                      separators=(",", ":")).encode("utf-8")
+
+
+def _descriptor_section(descriptors: list, label: str) -> tuple[bytes, int]:
+    if not isinstance(descriptors, list) or not descriptors:
+        raise FormatError(f"{label} must be a non-empty list")
+    for item in descriptors:
+        if not isinstance(item, dict):
+            raise FormatError(f"{label} entries must be objects")
+    return b"".join(_length_prefixed(_json_bytes(item)) for item in descriptors), len(descriptors)
 
 
 def pack_record(row: dict, reference_arch: str = "x86_64") -> bytes:
-    name = encode_text(row["name"])
-    namespace = encode_text(row["namespace"])
+    name = encode_text(str(row["name"]))
+    namespace = encode_text(str(row["namespace"]))
     implemented = row["implementation"] != "not_implemented"
     symbols = []
     reason = ""
@@ -74,8 +80,18 @@ def pack_record(row: dict, reference_arch: str = "x86_64") -> bytes:
         arch_id = ARCH_IDS["unbound"]
 
     isa_targets = [encode_text(str(target)) for target in row["isa_targets"]]
-    operands = [pack_operand(item) for item in row["operands"]]
-    options = [pack_option(item) for item in row["options"]]
+    operand_bytes, operand_count = _descriptor_section(row["operands"], "operands")
+    option_bytes, option_count = _descriptor_section(row["options"], "options")
+
+    effects = row["effects_on_registers"]
+    reg_status = row["register_effects_status"]
+    if not isinstance(effects, dict) or not effects:
+        raise FormatError("effects_on_registers must be a non-empty object")
+    if not isinstance(reg_status, dict) or not reg_status:
+        raise FormatError("register_effects_status must be a non-empty object")
+    effects_bytes = _json_bytes(effects)
+    reg_status_bytes = _json_bytes(reg_status)
+
     encoded_symbols = [encode_text(item) for item in symbols]
     exit_codes = encode_text(str(row["exit_codes"]))
     side_effects = encode_text(str(row["side_effects"]))
@@ -84,12 +100,13 @@ def pack_record(row: dict, reference_arch: str = "x86_64") -> bytes:
     payload = b""
     payload += name + namespace
     for item in isa_targets:
-        payload += LEN.pack(len(item)) + item
-    payload += b"".join(operands)
-    payload += b"".join(options)
+        payload += _length_prefixed(item)
+    payload += operand_bytes
+    payload += option_bytes
     for item in encoded_symbols:
-        payload += LEN.pack(len(item)) + item
+        payload += _length_prefixed(item)
     payload += exit_codes + side_effects + reason_bytes
+    payload += effects_bytes + reg_status_bytes
 
     header = RECORD_HEADER.pack(
         RECORD_MAGIC,
@@ -97,9 +114,9 @@ def pack_record(row: dict, reference_arch: str = "x86_64") -> bytes:
         arch_id,
         STATUS_NATIVE_PROVIDER if implemented else STATUS_NOT_IMPLEMENTED,
         int(row.get("permission_flags", 0)) & 0xFF,
-        len(name), len(namespace), len(isa_targets), len(operands),
-        len(options), len(encoded_symbols), len(exit_codes),
-        len(side_effects), len(reason_bytes), 0,
+        len(name), len(namespace), len(isa_targets), operand_count, option_count,
+        len(encoded_symbols), len(exit_codes), len(side_effects), len(reason_bytes),
+        len(effects_bytes), len(reg_status_bytes), 0,
     )
     return header + payload
 
@@ -122,6 +139,16 @@ def _text(raw: bytes) -> str:
         raise FormatError("record field is not valid UTF-8") from exc
 
 
+def _decoded_object(raw: bytes, label: str) -> dict:
+    try:
+        value = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise FormatError(f"invalid JSON in {label} section") from exc
+    if not isinstance(value, dict) or not value:
+        raise FormatError(f"{label} must be a non-empty object")
+    return value
+
+
 def unpack_record(data: bytes) -> dict:
     if len(data) < RECORD_HEADER.size:
         raise FormatError("truncated record header")
@@ -129,7 +156,7 @@ def unpack_record(data: bytes) -> dict:
     (magic, record_len, arch_id, impl_status, permission_flags,
      name_len, namespace_len, isa_count, operand_count, option_count,
      symbol_count, exit_code_len, side_effect_len, reason_len,
-     reserved) = RECORD_HEADER.unpack_from(data, 0)
+     effects_len, reg_status_len, reserved) = RECORD_HEADER.unpack_from(data, 0)
 
     if magic != RECORD_MAGIC:
         raise FormatError("bad record magic")
@@ -145,6 +172,10 @@ def unpack_record(data: bytes) -> dict:
         raise FormatError("implemented record must have symbols and no reason")
     if impl_status == STATUS_NOT_IMPLEMENTED and (symbol_count != 0 or reason_len == 0):
         raise FormatError("unimplemented record must have a reason and no symbols")
+    if operand_count == 0 or option_count == 0:
+        raise FormatError("record has empty operand or option descriptors")
+    if effects_len == 0 or reg_status_len == 0:
+        raise FormatError("record has no register effect descriptors")
 
     payload = data[RECORD_HEADER.size:]
     offset = 0
@@ -162,30 +193,23 @@ def unpack_record(data: bytes) -> dict:
 
     operands = []
     for _ in range(operand_count):
-        raw, offset = _take(payload, offset, OPERAND_HEADER.size)
-        kind, required, type_len, operand_name_len = OPERAND_HEADER.unpack(raw)
-        if kind not in KIND_NAMES:
-            raise FormatError(f"unknown operand kind: {kind}")
-        raw, offset = _take(payload, offset, type_len)
-        operand_type = _text(raw)
-        raw, offset = _take(payload, offset, operand_name_len)
-        operand_name = _text(raw)
-        operands.append({
-            "name": operand_name,
-            "type": operand_type,
-            "kind": KIND_NAMES[kind],
-            "required": bool(required),
-        })
+        raw, offset = _take(payload, offset, LEN.size)
+        (length,) = LEN.unpack(raw)
+        raw, offset = _take(payload, offset, length)
+        value = _decoded_object(raw, "operand")
+        if "name" not in value or "type" not in value:
+            raise FormatError("operand descriptor lacks name or type")
+        operands.append(value)
 
     options = []
     for _ in range(option_count):
-        raw, offset = _take(payload, offset, OPTION_HEADER.size)
-        flag_len, description_len = OPTION_HEADER.unpack(raw)
-        raw, offset = _take(payload, offset, flag_len)
-        flag = _text(raw)
-        raw, offset = _take(payload, offset, description_len)
-        description = _text(raw)
-        options.append({"flag": flag, "description": description})
+        raw, offset = _take(payload, offset, LEN.size)
+        (length,) = LEN.unpack(raw)
+        raw, offset = _take(payload, offset, length)
+        value = _decoded_object(raw, "option")
+        if "name" not in value or "form" not in value:
+            raise FormatError("option descriptor lacks name or form")
+        options.append(value)
 
     symbols = []
     for _ in range(symbol_count):
@@ -200,6 +224,11 @@ def unpack_record(data: bytes) -> dict:
     side_effects = _text(raw)
     raw, offset = _take(payload, offset, reason_len)
     reason = _text(raw)
+
+    raw, offset = _take(payload, offset, effects_len)
+    effects = _decoded_object(raw, "effects_on_registers")
+    raw, offset = _take(payload, offset, reg_status_len)
+    reg_status = _decoded_object(raw, "register_effects_status")
 
     if offset != len(payload):
         raise FormatError("record has trailing payload bytes")
@@ -216,7 +245,8 @@ def unpack_record(data: bytes) -> dict:
                            else "not_implemented"),
         "symbols": symbols,
         "implementation_reason": reason,
-        "effects_on_registers": [],
+        "effects_on_registers": effects,
+        "register_effects_status": reg_status,
         "exit_codes": exit_codes,
         "side_effects": side_effects,
         "permission_flags": permission_flags,

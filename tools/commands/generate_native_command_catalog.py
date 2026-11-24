@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Build a normalized native command catalogue from the real source catalogues.
 
-Every union entry is emitted. An entry is marked implemented only when a real
-provider function exists in src/chimera-command-compat/chimera-cmd.c, is listed
-in the multicall install script, and is declared in the engineering provider
-manifest. Catalog metadata such as "native-source-implemented" is never treated
-as proof of implementation. Official conformance counts are never modified.
+Every union entry is emitted. Every entry carries non-empty structured operand,
+option and register-effect descriptors. An entry is marked implemented only
+when a real provider function exists in src/chimera-command-compat/chimera-cmd.c,
+is listed in the multicall install script, and is declared in the engineering
+provider manifest. Catalog metadata such as "native-source-implemented" is never
+treated as proof of implementation. Official conformance counts are never
+modified.
 """
 from __future__ import annotations
 
@@ -40,6 +42,12 @@ NAMESPACE_PRECEDENCE = (
 NO_PROVIDER_REASON = (
     "no native provider in multicall source; catalog metadata is not implementation"
 )
+
+# Explicit descriptors used when a source catalogue has no argument/switch
+# metadata. These are NOT empty arrays and never claim invented semantics.
+UNKNOWN_OPERAND_SOURCE = "no operand metadata in source catalog"
+UNKNOWN_OPTION_SOURCE = "no option metadata in source catalog"
+NO_REGISTER_SOURCE = "command catalogues contain no ISA register-effect field"
 
 
 def load(path: Path):
@@ -175,6 +183,159 @@ def official_snapshot(path: Path) -> dict:
     }
 
 
+VALUE_CONSTRAINTS_BY_TYPE = {
+    "path": "filesystem path; resolved relative to the provider working directory",
+    "string": "arbitrary string; no catalogue-level value constraint",
+    "integer": "integer parsed by the provider; malformed values exit nonzero",
+    "duration": "non-negative numeric duration parsed by the provider",
+    "assignment": "NAME=VALUE environment assignment parsed by the provider",
+}
+NO_OPERAND = {
+    "kind": "none-declared",
+    "name": "<no-operands-in-provider-spec>",
+    "required": False,
+    "type": "none",
+    "value_constraints": "not-applicable",
+    "source_field": "native-provider-engineering.json:provider_specs.<name>.operands (empty)",
+    "evidence": "provider spec and cmd function declare no operands",
+}
+NO_OPTION = {
+    "kind": "none-declared",
+    "name": "<no-options-in-provider-spec>",
+    "flag": "<no-options-in-provider-spec>",
+    "form": "not-applicable",
+    "value_type": "none",
+    "default": None,
+    "source_field": "native-provider-engineering.json:provider_specs.<name>.options (empty)",
+    "evidence": "provider spec and cmd function declare no flags or switches",
+}
+
+
+def known_operands(name: str, spec: dict, function: str) -> list[dict]:
+    raw = spec.get("operands", [])
+    if not raw:
+        row = dict(NO_OPERAND)
+        row["source_field"] = (
+            f"native-provider-engineering.json:provider_specs.{name}.operands (empty)"
+        )
+        row["evidence"] = f"verified in src/chimera-command-compat/chimera-cmd.c:{function}"
+        return [row]
+
+    result = []
+    for index, item in enumerate(raw):
+        value_type = str(item.get("type", "unknown"))
+        result.append({
+            "kind": str(item.get("kind", "positional")),
+            "name": str(item.get("name", f"<operand-{index}>")),
+            "required": bool(item.get("required", False)),
+            "type": value_type,
+            "value_constraints": VALUE_CONSTRAINTS_BY_TYPE.get(
+                value_type, "enforced by provider argument parsing"
+            ),
+            "source_field": (
+                f"native-provider-engineering.json:provider_specs.{name}"
+                f".operands[{index}]"
+            ),
+            "evidence": (
+                f"verified in src/chimera-command-compat/chimera-cmd.c:{function}"
+            ),
+        })
+    return result
+
+
+def known_options(name: str, spec: dict, function: str) -> list[dict]:
+    raw = spec.get("options", [])
+    if not raw:
+        row = dict(NO_OPTION)
+        row["source_field"] = (
+            f"native-provider-engineering.json:provider_specs.{name}.options (empty)"
+        )
+        row["evidence"] = f"verified in src/chimera-command-compat/chimera-cmd.c:{function}"
+        return [row]
+
+    result = []
+    for index, item in enumerate(raw):
+        flag = str(item.get("flag", ""))
+        match = re.search(r"([A-Z]+)\s*$", flag)
+        marker = match.group(1).lower() if match else "none"
+        if marker in ("count", "seconds"):
+            value_type = "integer"
+        elif marker in ("path", "file", "name"):
+            value_type = "path"
+        elif marker == "value":
+            value_type = "string"
+        else:
+            value_type = "none"
+        result.append({
+            "kind": "parameter" if value_type != "none" else "switch",
+            "name": flag,
+            "flag": flag,
+            "form": "flag-with-value" if value_type != "none" else "standalone-flag",
+            "value_type": value_type,
+            "default": None,
+            "source_field": (
+                f"native-provider-engineering.json:provider_specs.{name}"
+                f".options[{index}]"
+            ),
+            "evidence": (
+                f"verified in src/chimera-command-compat/chimera-cmd.c:{function}; "
+                f"description: {item.get('description', '')}"
+            ),
+        })
+    return result
+
+
+def unknown_operand() -> list[dict]:
+    return [{
+        "kind": "unspecified",
+        "name": "<unknown-from-source>",
+        "required": None,
+        "type": "unknown",
+        "value_constraints": "unknown-from-source",
+        "source_field": "none (no operand/argument field in any source catalogue)",
+        "evidence": UNKNOWN_OPERAND_SOURCE,
+    }]
+
+
+def unknown_option() -> list[dict]:
+    return [{
+        "kind": "unspecified",
+        "name": "<unknown-from-source>",
+        "flag": "<unknown-from-source>",
+        "form": "unknown",
+        "value_type": "unknown",
+        "default": None,
+        "source_field": "none (no option/switch field in any source catalogue)",
+        "evidence": UNKNOWN_OPTION_SOURCE,
+    }]
+
+
+def register_effects() -> tuple[dict, dict]:
+    """No command catalogue row is ISA-visible; never invent machine effects."""
+    reason = "userspace command; ISA-visible instruction effects are tracked in the ISA catalogue"
+    effects = {
+        "visibility": "not-isa-visible",
+        "reads": [],
+        "writes": [],
+        "clobbers": [],
+        "status": "no-architectural-register-effects",
+        "reason": reason,
+        "source_field": "none (no register field in any command catalogue)",
+        "evidence": NO_REGISTER_SOURCE,
+        "isa_visible_detection": (
+            "no command catalogue source field marks a row as ISA-visible"
+        ),
+    }
+    status = {
+        "status": "no-architectural-register-effects",
+        "visibility": "not-isa-visible",
+        "source_field": "none (no register field in any command catalogue)",
+        "evidence": NO_REGISTER_SOURCE,
+        "reason": reason,
+    }
+    return effects, status
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     for key, path in DEFAULT_INPUTS.items():
@@ -201,6 +362,7 @@ def main() -> int:
         raw = collected["rows"][name]
         platform_list = raw["platforms"]
         provider = by_name.get(name)
+        effects, reg_status = register_effects()
 
         if provider:
             spec = provider["spec"]
@@ -209,8 +371,8 @@ def main() -> int:
                 "namespace": namespace_for(platform_list),
                 "isa_targets": list(build_targets),
                 "isa_target_status": "cross-build-targets-verified-by-build-matrix",
-                "operands": spec["operands"],
-                "options": spec["options"],
+                "operands": known_operands(name, spec, provider["function"]),
+                "options": known_options(name, spec, provider["function"]),
                 "implementation": provider["provider_id"],
                 "implementation_details": {
                     "status": "native_provider",
@@ -223,8 +385,8 @@ def main() -> int:
                     ),
                 },
                 "implementation_reason": None,
-                "effects_on_registers": [],
-                "register_effects_status": "not-isa-visible-userspace-command",
+                "effects_on_registers": effects,
+                "register_effects_status": reg_status,
                 "exit_codes": spec["exit_codes"],
                 "side_effects": spec["side_effects"],
                 "permission_flags": spec["permission_flags"],
@@ -241,13 +403,13 @@ def main() -> int:
                 "namespace": namespace_for(platform_list),
                 "isa_targets": [],
                 "isa_target_status": "no-per-command-isa-mapping-in-source-catalog",
-                "operands": [],
-                "options": [],
+                "operands": unknown_operand(),
+                "options": unknown_option(),
                 "implementation": "not_implemented",
                 "implementation_details": {"status": "not_implemented"},
                 "implementation_reason": reason,
-                "effects_on_registers": [],
-                "register_effects_status": "not-implemented-no-isa-backend",
+                "effects_on_registers": effects,
+                "register_effects_status": reg_status,
                 "exit_codes": "unknown-not-implemented",
                 "side_effects": "unknown-not-implemented",
                 "permission_flags": 0,
@@ -263,9 +425,13 @@ def main() -> int:
         "schema": "CHM-NATIVE-COMMAND-CATALOG-1",
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "status": "engineering-partial",
-        "policy": ("A row is implemented only with a verified native provider function "
-                   "in the multicall source and an installed alias. Catalog metadata "
-                   "never marks a row implemented."),
+        "policy": (
+            "A row is implemented only with a verified native provider function "
+            "in the multicall source and an installed alias. Catalog metadata "
+            "never marks a row implemented. Every row has non-empty structured "
+            "operand, option and register-effect descriptors; unknown evidence "
+            "is emitted explicitly, never as an empty array."
+        ),
         "full_conformance": False,
         "conformance_claim": False,
         "production_acceptance": False,
@@ -276,6 +442,16 @@ def main() -> int:
         "implemented_count": implemented,
         "not_implemented_count": len(records) - implemented,
         "record_count": len(records),
+        "descriptor_counts": {
+            "rows_with_operands": sum(1 for row in records if row["operands"]),
+            "rows_with_options": sum(1 for row in records if row["options"]),
+            "rows_with_effects_on_registers": sum(
+                1 for row in records if row["effects_on_registers"]
+            ),
+            "rows_with_register_effects_status_object": sum(
+                1 for row in records if isinstance(row["register_effects_status"], dict)
+            ),
+        },
         "records": records,
     }
 
@@ -292,6 +468,7 @@ def main() -> int:
         "candidate_records": collected["counts"]["native_command_candidates_records"],
         "providers": len(providers),
         "not_implemented": len(records) - implemented,
+        "descriptor_counts": doc["descriptor_counts"],
         "output": str(args.output),
     }, sort_keys=True))
     return 0

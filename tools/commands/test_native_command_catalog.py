@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Tests for the native command catalogue, CHMCMD format and conformance runner."""
+"""Tests for the native command catalogue, CHMCMD format and conformance runner.
+
+Fails if any row has empty operand/option/register-effect descriptors, if a
+metadata-only row is promoted to implemented, or if a malformed/empty record is
+accepted by the builder or validator.
+"""
 from __future__ import annotations
 
 import json
@@ -21,6 +26,13 @@ REAL_PROVIDERS = OFFICIAL_PROVIDERS | {
     "basename", "dirname", "head", "tail", "wc", "seq", "sleep", "uname",
     "readlink", "rmdir", "ln", "printenv", "env",
 }
+OPERAND_FIELDS = {"kind", "name", "required", "type", "value_constraints",
+                  "source_field", "evidence"}
+OPTION_FIELDS = {"kind", "name", "flag", "form", "value_type", "default",
+                 "source_field", "evidence"}
+EFFECTS_FIELDS = {"visibility", "reads", "writes", "clobbers", "status",
+                  "reason", "source_field", "evidence"}
+STATUS_FIELDS = {"status", "visibility", "source_field", "evidence", "reason"}
 
 
 def run(script: str, *args: str, expect: int = 0) -> dict:
@@ -43,8 +55,8 @@ def main() -> int:
         binary = work / "native-commands.chmcmd"
         evidence = work / "evidence.json"
 
-        # Forge metadata that claims a native implementation. The generator must
-        # not promote this row: only real source-backed providers count.
+        # Forge metadata that claims a native implementation. The generator
+        # must not promote this row: only real source-backed providers count.
         coverage = json.loads(
             (ROOT / "system/commands/command-isa-coverage.json").read_text(encoding="utf-8")
         )
@@ -76,6 +88,12 @@ def main() -> int:
         assert all(doc["official_status_snapshot"][key] == value
                    for key, value in EXPECTED_OFFICIAL.items())
 
+        counts = doc["descriptor_counts"]
+        assert counts["rows_with_operands"] == len(rows), counts
+        assert counts["rows_with_options"] == len(rows), counts
+        assert counts["rows_with_effects_on_registers"] == len(rows), counts
+        assert counts["rows_with_register_effects_status_object"] == len(rows), counts
+
         by_name = {row["name"]: row for row in rows}
         assert len(by_name) == len(rows), "duplicate catalogue rows"
         implemented = {name for name, row in by_name.items()
@@ -85,23 +103,40 @@ def main() -> int:
 
         source = SOURCE.read_text(encoding="utf-8")
         install = (ROOT / "tools/build-chimera-command-compat.sh").read_text(encoding="utf-8")
-        for name in implemented:
-            row = by_name[name]
-            function = row["implementation_details"]["function"]
-            assert f'strcmp(cmd, "{name}")' in source, f"no dispatch for {name}"
-            assert f"static int {function}(" in source, f"no function for {name}"
-            assert re.search(rf"^\s*{name}$", install, re.M), f"no alias for {name}"
-            assert row["operands"] or name in {"pwd", "true", "false", "clear",
-                                               "whoami", "hostname", "date", "uname"}
-            assert row["implementation_reason"] is None
-            assert row["effects_on_registers"] == []
-
         for name, row in by_name.items():
-            if name not in implemented:
+            # Every row, implemented or not, carries structured descriptors.
+            assert isinstance(row["operands"], list) and row["operands"]
+            assert isinstance(row["options"], list) and row["options"]
+            for operand in row["operands"]:
+                assert isinstance(operand, dict) and operand
+                assert OPERAND_FIELDS.issubset(operand), (name, operand)
+            for option in row["options"]:
+                assert isinstance(option, dict) and option
+                assert OPTION_FIELDS.issubset(option), (name, option)
+            effects = row["effects_on_registers"]
+            assert isinstance(effects, dict) and effects
+            assert EFFECTS_FIELDS.issubset(effects), (name, effects)
+            assert effects["visibility"] == "not-isa-visible"
+            assert effects["status"] == "no-architectural-register-effects"
+            status = row["register_effects_status"]
+            assert isinstance(status, dict) and status
+            assert STATUS_FIELDS.issubset(status), (name, status)
+
+            if name in implemented:
+                function = row["implementation_details"]["function"]
+                assert f'strcmp(cmd, "{name}")' in source, f"no dispatch for {name}"
+                assert f"static int {function}(" in source, f"no function for {name}"
+                assert re.search(rf"^\s*{name}$", install, re.M), f"no alias for {name}"
+                assert row["implementation_reason"] is None
+            else:
                 assert row["implementation"] == "not_implemented"
                 assert row["implementation_reason"], f"missing reason for {name}"
-                assert row["operands"] == [] and row["options"] == []
+                assert row["isa_targets"] == []
                 assert row["permission_flags"] == 0
+                assert all(item["evidence"] == "no operand metadata in source catalog"
+                           for item in row["operands"])
+                assert all(item["evidence"] == "no option metadata in source catalog"
+                           for item in row["options"])
 
         build_summary = run(
             "build_native_command_format.py",
@@ -110,6 +145,8 @@ def main() -> int:
         )
         assert build_summary["record_count"] == len(rows)
         assert build_summary["implemented"] == 28
+        assert all(value == len(rows)
+                   for value in build_summary["descriptor_counts"].values())
 
         validate_summary = run(
             "validate_native_command_format.py",
@@ -119,6 +156,29 @@ def main() -> int:
         assert validate_summary["valid"] is True
         assert validate_summary["record_count"] == len(rows)
         assert validate_summary["implemented"] == 28
+        assert all(validate_summary[key] == len(rows) for key in (
+            "rows_with_operands", "rows_with_options",
+            "rows_with_effects_on_registers",
+            "rows_with_register_effects_status_object",
+        ))
+
+        # A row with an empty descriptor array must be rejected by both the
+        # builder and the validator.
+        bad = json.loads(catalogue.read_text(encoding="utf-8"))
+        bad["records"][0]["operands"] = []
+        bad_catalogue = work / "bad-catalogue.json"
+        bad_catalogue.write_text(json.dumps(bad), encoding="utf-8")
+        run("build_native_command_format.py", "--catalogue", str(bad_catalogue),
+            "--output", str(work / "bad.chmcmd"), expect=1)
+        run("validate_native_command_format.py", "--binary", str(binary),
+            "--catalogue", str(bad_catalogue), expect=1)
+
+        bad_status = json.loads(catalogue.read_text(encoding="utf-8"))
+        bad_status["records"][1]["register_effects_status"] = "not-isa-visible"
+        bad_status_path = work / "bad-status.json"
+        bad_status_path.write_text(json.dumps(bad_status), encoding="utf-8")
+        run("validate_native_command_format.py", "--binary", str(binary),
+            "--catalogue", str(bad_status_path), expect=1)
 
         corrupted = work / "corrupted.chmcmd"
         data = bytearray(binary.read_bytes())

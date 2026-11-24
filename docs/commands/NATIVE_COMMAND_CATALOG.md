@@ -40,15 +40,39 @@ The 28 providers are the original 15 (`pwd`, `echo`, `ls`, `cp`, `mv`, `touch`,
 plus 13 new real implementations (`basename`, `dirname`, `head`, `tail`, `wc`,
 `seq`, `sleep`, `uname`, `readlink`, `rmdir`, `ln`, `printenv`, `env`).
 
-## Row fields
+### Populated descriptor counts (post-fix)
 
-Each row carries `name`, `namespace`, `isa_targets`, `operands`, `options`,
-`implementation`, `implementation_reason`, `effects_on_registers`,
-`register_effects_status`, `exit_codes`, `side_effects`, `permission_flags`,
-source catalogues, platforms and source URLs. Commands with no real provider
-have empty operand/option lists, empty ISA targets, no register effects, and an
-explicit reason. No register effect is invented: these are userspace commands,
-not ISA instruction backends.
+| Descriptor | Populated rows |
+| --- | ---: |
+| `operands` | 4503 / 4503 |
+| `options` | 4503 / 4503 |
+| `effects_on_registers` | 4503 / 4503 |
+| `register_effects_status` (object) | 4503 / 4503 |
+
+All source catalogues were inspected: they contain only command names,
+platforms, source URLs and translation labels. They have **no** operand,
+option/switch or register-effect fields. Consequently, unknown descriptors are
+emitted explicitly rather than inventing syntax:
+
+- For the 28 verified providers, operand and option descriptors are derived
+  from `native-provider-engineering.json:provider_specs` and verified against
+  the real C functions. Each descriptor carries `kind`, `name`/`flag`, `type`,
+  `required`, `value_constraints`, `form`, `value_type`, `default`,
+  `source_field` and `evidence`. A provider with no operands/options gets an
+  explicit `none-declared` descriptor, never an empty array.
+- For the other 4475 rows, descriptors are explicit structured unknowns with
+  `kind: "unspecified"`, `name: "<unknown-from-source>"`, `required: null`,
+  `type: "unknown"`, `value_constraints: "unknown-from-source"`,
+  `source_field: "none (no operand/argument field in any source catalogue)"`
+  and `evidence: "no operand metadata in source catalog"` (and the analogous
+  option fields).
+- `effects_on_registers` is a structured object for every row:
+  `visibility: "not-isa-visible"`, empty `reads`/`writes`/`clobbers` lists,
+  `status: "no-architectural-register-effects"`, a reason explaining that ISA
+  instruction effects live in the separate ISA catalogue, plus source-field and
+  evidence strings. No command row is a machine instruction, so no concrete
+  register effects are claimed. `register_effects_status` is an object with the
+  same evidence/status detail, not a bare string.
 
 ## CHMCMD v1 binary format
 
@@ -57,17 +81,19 @@ record per catalogue command:
 
 - file header: magic `CHMCMD01`, version `1`, record count, reserved;
 - record header: magic `RECD`, record length, architecture id, implementation
-  status, permission flags and ten length/count fields;
-- payload: name, namespace, ISA target strings, operand descriptors
-  (kind/required/type/name), option descriptors (flag/description), provider
-  symbol table, exit-code description, side-effect description and, for
-  unimplemented rows, a mandatory reason.
+  status, permission flags and twelve length/count fields;
+- payload: name, namespace, ISA target strings, **JSON operand descriptors**,
+  **JSON option descriptors**, provider symbol table, exit-code description,
+  side-effect description, reason (when unimplemented), **JSON
+  `effects_on_registers` object** and **JSON `register_effects_status` object**.
 
-`tools/commands/validate_native_command_format.py` rejects bad magic/version,
-length mismatches, unknown ids, duplicate names, trailing bytes, implemented
-records without symbols, unimplemented records without a reason, row-order or
-implementation mismatches against the catalogue, and any alteration of official
-status. A corrupted-record test is part of the test suite.
+The builder rejects any row with empty `operands`, `options`,
+`effects_on_registers` or `register_effects_status`. The validator rejects bad
+magic/version, length mismatches, unknown ids, duplicate names, trailing bytes,
+missing symbols/reasons, empty or non-object descriptor sections, row-order or
+implementation mismatches against the catalogue, descriptor mismatches, and any
+alteration of official status. Corrupted-record, empty-descriptor and
+string-instead-of-object status tests are part of the suite.
 
 ## Conformance boundary
 

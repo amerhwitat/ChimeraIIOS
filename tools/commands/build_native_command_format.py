@@ -3,6 +3,7 @@
 
 One binary record is emitted per catalogue command. Implementation status is
 copied from verified provider data only; catalog metadata cannot promote a row.
+Records with empty operand/option/register descriptors are rejected.
 """
 from __future__ import annotations
 
@@ -12,9 +13,7 @@ import json
 import time
 from pathlib import Path
 
-from chmcmd_format import (
-    ARCH_IDS, FILE_VERSION, FILE_MAGIC, pack_file,
-)
+from chmcmd_format import ARCH_IDS, FILE_MAGIC, FILE_VERSION, FormatError, pack_file
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CATALOGUE = ROOT / "system/commands/native-command-catalog.json"
@@ -41,7 +40,11 @@ def main() -> int:
     if len(rows) != document["record_count"]:
         raise SystemExit("catalogue record_count mismatch")
 
-    data = pack_file(rows, args.reference_arch)
+    try:
+        data = pack_file(rows, args.reference_arch)
+    except FormatError as exc:
+        raise SystemExit(f"cannot build CHMCMD record: {exc}")
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(data)
 
@@ -60,6 +63,14 @@ def main() -> int:
         "not_implemented_records": sum(
             1 for row in rows if row["implementation"] == "not_implemented"
         ),
+        "rows_with_operands": sum(1 for row in rows if row["operands"]),
+        "rows_with_options": sum(1 for row in rows if row["options"]),
+        "rows_with_effects_on_registers": sum(
+            1 for row in rows if row["effects_on_registers"]
+        ),
+        "rows_with_register_effects_status_object": sum(
+            1 for row in rows if isinstance(row["register_effects_status"], dict)
+        ),
         "binary": str(args.output.relative_to(args.output.parent.parent)
                       if args.output.is_relative_to(ROOT) else args.output),
         "byte_length": len(data),
@@ -76,6 +87,13 @@ def main() -> int:
         "record_count": len(rows),
         "implemented": manifest["implemented_records"],
         "not_implemented": manifest["not_implemented_records"],
+        "descriptor_counts": {
+            key: manifest[key] for key in (
+                "rows_with_operands", "rows_with_options",
+                "rows_with_effects_on_registers",
+                "rows_with_register_effects_status_object",
+            )
+        },
         "bytes": len(data),
         "output": str(args.output),
     }, sort_keys=True))
