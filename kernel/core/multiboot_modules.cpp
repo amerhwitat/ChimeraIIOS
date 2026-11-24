@@ -54,7 +54,7 @@ extern "C" __attribute__((used,noinline)) uint32_t chimera_multiboot_scan(uint64
   }
   if(type==3u){
    if(size<17u){module_count=0;return 0;}
-   char cmd[128];
+   char cmd[128]{};
    if(!copy_cmd(cmd,(const char*)(base+off+16),size-16u)){
     module_count=0;
     return 0;
