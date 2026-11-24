@@ -73,5 +73,20 @@ int main() {
     std::memcpy(info + 12, &overflowing_size, 4);
     assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 0);
     assert(chimera_multiboot_module_count() == 0);
+    // Reject empty and reversed module ranges instead of exposing a zero-sized
+    // or underflowed boot module to target selection.
+    const uint32_t invalid_ends[] = {0x2ffffu, 0x300000u};
+    for (const uint32_t invalid_end : invalid_ends) {
+        std::memset(info, 0, sizeof(info));
+        uint32_t invalid_off = 8;
+        invalid_off = append_module(invalid_off, 0x300000u, invalid_end, "invalid-module");
+        std::memcpy(info + invalid_off, &end_type, 4);
+        std::memcpy(info + invalid_off + 4, &end_size, 4);
+        invalid_off += 8;
+        total = invalid_off;
+        std::memcpy(info, &total, 4);
+        assert(chimera_multiboot_scan(reinterpret_cast<uint64_t>(info)) == 0);
+        assert(chimera_multiboot_module_count() == 0);
+    }
     return 0;
 }
