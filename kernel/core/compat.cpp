@@ -124,6 +124,7 @@ static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
         case 61: return 14;
         case 158: return 15;
         case 231: return 16;
+        case 511: return 17; /* Chimera: query installed-root VFS handoff */
         default: return 0xFFFFFFFFu;
     }
 }

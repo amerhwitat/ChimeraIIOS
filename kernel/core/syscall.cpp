@@ -1,4 +1,5 @@
 #include "chimera/syscall.h"
+#include "chimera/install.h"
 #include "chimera/user_entry.h"
 #include "chimera/address_space.h"
 #include "chimera/compat.h"
@@ -175,6 +176,15 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             const int64_t written = koronos_console_write_user(address, length);
             koronos_syscall_trace("[SYSC] WRITE console copy returned");
             return static_cast<uint64_t>(written);
+        }
+        case CHM_SYS_VFS_HANDOFF: {
+            /* Kernel mounts the installed root and returns a measured token to
+             * the ring-3 target; the token is never fabricated in userspace. */
+            const uint64_t address = frame->rdi;
+            const uint64_t length = frame->rsi;
+            koronos_syscall_trace("[SYSC] VFS handoff query");
+            return static_cast<uint64_t>(static_cast<int64_t>(
+                koronos_vfs_handoff_user(address, length)));
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:

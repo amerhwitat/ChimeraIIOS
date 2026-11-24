@@ -20,6 +20,8 @@
 #define LINUX_X86_64_SYS_GETPID 39
 #define LINUX_X86_64_SYS_YIELD 24
 #define LINUX_X86_64_SYS_EXIT 60
+/* Chimera extension translated by the kernel compatibility layer. */
+#define LINUX_X86_64_SYS_VFS_HANDOFF 511
 
 static void init_int80(void) {
     __asm__ volatile("int $0x80" ::: "memory");
@@ -62,6 +64,11 @@ __attribute__((noreturn)) static void init_exit(long code) {
     __asm__ volatile("syscall" : "+a"(rax) : "D"(rdi) : "rcx", "r11", "memory");
     /* The exit syscall must not return to ring 3. */
     for (;;) __asm__ volatile("pause" ::: "memory");
+}
+
+/* Ask the kernel to mount the installed root and copy back a measured token. */
+__attribute__((unused)) static long init_vfs_handoff(char *buffer, long length) {
+    return init_syscall3(LINUX_X86_64_SYS_VFS_HANDOFF, (long)buffer, length, 0);
 }
 
 static long init_strlen(const char *s) {

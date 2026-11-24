@@ -1,7 +1,8 @@
 #include "init_common.h"
 
-/* Native Live target: a ring-3 text console session. This is a freestanding
- * init payload, not a desktop shell; no graphical session is started. */
+/* Native Live target: a ring-3 text console session. Disk access stays in the
+ * kernel; the payload asks for a measured installed-root handoff token through
+ * the translated SYSCALL ABI and prints what the kernel returned. */
 __attribute__((noreturn, used)) void _start(void) {
     init_int80();
 
@@ -13,7 +14,17 @@ __attribute__((noreturn, used)) void _start(void) {
     init_writestr("LIVE: native console session banner\n");
     init_writestr("LIVE: ring-3 text console active (no graphical session)\n");
 
-    /* Exercise the mapped yield ABI without depending on preemption. */
+    char token[128];
+    long n = 0;
+    for (long i = 0; i < 128; ++i) token[i] = 0;
+    n = init_vfs_handoff(token, 128);
+    if (n > 0) {
+        init_writestr("[LIVE ] installed-root handoff from kernel: ");
+        (void)init_write(1, token, n);
+    } else {
+        init_writestr("LIVE: installed-root handoff unavailable\n");
+    }
+
     init_yield();
     init_writestr("LIVE: scheduler yield returned\n");
 

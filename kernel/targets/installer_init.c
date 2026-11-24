@@ -1,7 +1,8 @@
 #include "init_common.h"
 
-/* Native Installer target: a storage/plan dry-run report. This payload does
- * not touch any block device and does not perform a real installation. */
+/* Native Installer target readiness probe. The real partition/format/journal
+ * work runs in kernel mode when mode=installer is selected; this ring-3
+ * payload only proves the CPL3 syscall handshake for the selected target. */
 __attribute__((noreturn, used)) void _start(void) {
     init_int80();
 
@@ -10,9 +11,9 @@ __attribute__((noreturn, used)) void _start(void) {
 
     init_emit_readiness(pid);
 
-    init_writestr("INSTALLER: storage plan (dry run)\n");
-    init_writestr("INSTALLER: no block-device backend present\n");
-    init_writestr("INSTALLER: no disk will be written; this is a report-only dry run\n");
+    init_writestr("INSTALLER: ring-3 probe active\n");
+    init_writestr("INSTALLER: kernel-side GPT/KoronosFS installer selected by mode=installer\n");
+    init_writestr("INSTALLER: payload does not write disk directly\n");
 
     init_yield();
     init_writestr("INSTALLER: scheduler yield returned\n");
