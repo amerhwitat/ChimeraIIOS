@@ -108,12 +108,32 @@ ensure_terminal_build_dependencies() {
   apt-get update -o Acquire::Retries=5
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"
 }
+ensure_rust_toolchain() {
+  if ! have curl; then
+    log "curl is required to install the stable Rust toolchain"
+    return 1
+  fi
+  if ! have rustup; then
+    log "Installing the official stable Rust toolchain for Alacritty"
+    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+  fi
+  export PATH="$HOME/.cargo/bin:$PATH"
+  rustup toolchain install stable --profile minimal
+  rustup default stable
+  have cargo || { log "Rustup did not provide cargo on PATH"; return 1; }
+  have rustc || { log "Rustup did not provide rustc on PATH"; return 1; }
+}
 source_build(){
   require_native_build_arch || return 1;
   local id="$1" url="$2"; local src="$CACHE/src-$id"
   if [[ ! -d "$src" ]]; then log "Cloning $id from $url"; git clone --depth 1 "$url" "$src"; fi
   case "$id" in
-    alacritty) ensure_terminal_build_dependencies || return 1; (cd "$src" && cargo build --release); cp "$src/target/release/alacritty" "$PREFIX/bin/" ;;
+    alacritty)
+      ensure_terminal_build_dependencies || return 1
+      ensure_rust_toolchain || return 1
+      (cd "$src" && cargo +stable build --release)
+      [[ -x "$src/target/release/alacritty" ]] || { log "Alacritty build completed without producing target/release/alacritty"; return 1; }
+      install -m 0755 "$src/target/release/alacritty" "$PREFIX/bin/alacritty" ;;
     wezterm) if ! have rustup; then   log "Installing official rustup stable toolchain for WezTerm (Ubuntu archive Rust may be too old)";   have curl || { log "curl is required to bootstrap rustup"; return 1; };   curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable; fi; export PATH="$HOME/.cargo/bin:$PATH"; rustup toolchain install stable --profile minimal; (cd "$src" && cargo +stable build --release --bin wezterm-gui 2>&1 | tee "$CACHE/wezterm-build.log"); [[ -x "$src/target/release/wezterm-gui" ]] || { log "WezTerm did not produce target/release/wezterm-gui; see $CACHE/wezterm-build.log"; return 1; }; install -m 0755 "$src/target/release/wezterm-gui" "$PREFIX/bin/wezterm" ;;
     contour)
       if ! find /usr /opt -name Qt6Config.cmake -print -quit 2>/dev/null | grep -q .; then
@@ -129,6 +149,7 @@ source_build(){
       (cd "$src" && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCONTOUR_EXTENSIONS_BUNDLED=OFF && cmake --build build -j"$(nproc)")
       find "$src/build" -type f -name contour -perm -111 -exec cp {} "$PREFIX/bin/contour" \; -quit ;;
     ghostty)
+      ensure_terminal_build_dependencies || return 1
       have python3 || return 1
       local zigver venv
       if [[ -f "$src/.zig-version" ]]; then
