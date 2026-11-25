@@ -742,7 +742,7 @@
       "homepage": "https://vscodium.com/",
       "sandbox": "external",
       "install": "external-store",
-      "availability": "official-installer-script",
+      "availability": "catalog-only",
       "note": "Not bundled or redistributed. The helper prints a dry-run by default; explicit --install invokes Flathub Flatpak on Linux, Winget on Windows, or Homebrew cask on macOS. Review provider signatures and compatibility before installing.",
       "source": "https://github.com/VSCodium/vscodium",
       "formats": [
