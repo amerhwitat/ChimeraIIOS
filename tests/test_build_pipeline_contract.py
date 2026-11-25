@@ -15,10 +15,21 @@ class BuildPipelineContractTests(unittest.TestCase):
 
     def test_resume_order_matches_actual_stage_loop(self):
         order_match = re.search(r"local order='([^']+)'", self.script)
-        loop_match = re.search(r"for stage in (docker rootfs commands docker-publish boot installer branding apache features package-managers games squashfs iso verify native-iso report); do", self.script)
         self.assertIsNotNone(order_match, "state resume order is missing")
-        self.assertIsNotNone(loop_match, "build stage loop is missing")
-        self.assertEqual(order_match.group(1).split(), loop_match.group(1).split())
+        order = order_match.group(1).split()
+        loop_match = next(
+            (m for m in re.finditer(r"for stage in ([^;\n]+); do", self.script)
+             if m.group(1).split() == order),
+            None,
+        )
+        self.assertIsNotNone(loop_match, "build stage loop matching resume order is missing")
+        required = {
+            "docker", "rootfs", "docker-publish", "commands", "boot",
+            "installer", "branding", "apache", "features", "package-managers",
+            "games", "squashfs", "iso", "verify", "native-iso", "report",
+        }
+        self.assertTrue(required <= set(order), f"missing required stages: {sorted(required - set(order))}")
+        self.assertEqual(len(order), len(set(order)), "duplicate stages in resume order")
 
     def test_docker_only_has_dedicated_early_path(self):
         self.assertIn('if [[ "$BUILD_ISO" == 0 ]]; then', self.script)

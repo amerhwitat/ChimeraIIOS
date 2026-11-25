@@ -6,6 +6,7 @@ on:
       - "desktop/optional_apps_catalog.json"
       - "scripts/check_optional_apps_catalog.py"
       - "tests/test_optional_apps_catalog.py"
+      - "tests/test_build_pipeline_contract.py"
       - ".github/workflows/app-catalog-validation.yml"
   push:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - "desktop/optional_apps_catalog.json"
       - "scripts/check_optional_apps_catalog.py"
       - "tests/test_optional_apps_catalog.py"
+      - "tests/test_build_pipeline_contract.py"
       - ".github/workflows/app-catalog-validation.yml"
   workflow_dispatch:
 
