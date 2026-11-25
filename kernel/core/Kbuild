@@ -1,5 +1,7 @@
 # Koronos core objects (generated from the vendored build-koronos.sh source list)
 obj-y += koronos.o
+obj-y += initramfs_newc.o
+obj-y += initramfs_fs.o
 obj-y += elf64.o
 obj-y += module.o
 obj-y += relocate.o
