@@ -83,29 +83,7 @@ static void log_user_init_syscall(Target target, uint32_t pid) {
 static bool marker_prefix_matches(const char *bytes, uint64_t length,
                                   const char *prefix, uint64_t prefix_len,
                                   uint32_t pid) {
-    /* The canonical production contract is
-         USERSPACE READY: target=<t> init_pid=<pid>
-       The earlier acceptance probe used
-         USERSPACE READY: <t> init pid=<pid>
-       Accept both so a real payload is not reported as missing, while still
-       requiring the exact target and PID the kernel itself assigned. */
-    if (length < prefix_len + 2u) return false;
-    for (uint64_t i = 0; i + prefix_len < length; ++i) {
-        uint64_t j = 0;
-        while (j < prefix_len && bytes[i + j] == prefix[j]) ++j;
-        if (j != prefix_len) continue;
-        uint64_t k = i + prefix_len;
-        uint32_t parsed = 0, digits = 0;
-        while (k < length && bytes[k] >= '0' && bytes[k] <= '9') {
-            parsed = parsed * 10u + (uint32_t)(bytes[k] - '0');
-            ++k; ++digits;
-        }
-        if (digits && parsed == pid &&
-            (k == length || bytes[k] == '\n' || bytes[k] == '\r' || bytes[k] == ' ')) {
-            return true;
-        }
-    }
-    return false;
+    return chimera_target_marker_pid_matches(bytes, length, prefix, prefix_len, pid) != 0;
 }
 
 static bool target_marker(const char *bytes, uint64_t length, Target target, uint32_t pid) {
