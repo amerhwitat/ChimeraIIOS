@@ -56,8 +56,8 @@ static inline int chimera_target_marker_pid_matches(
         }
 
         if (!overflow && digits && parsed == pid &&
-            (k == length || bytes[k] == '\\n' ||
-             bytes[k] == '\\r' || bytes[k] == ' '))
+            (k == length || bytes[k] == '\n' ||
+             bytes[k] == '\r' || bytes[k] == ' '))
             return 1;
     }
     return 0;
