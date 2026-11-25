@@ -46,3 +46,11 @@ vscodium
 file-roller
 gnome-calculator
 virtualbox
+paint-studio
+media-deck
+document-desk
+snake-arcade
+vector-studio
+sheet-desk
+file-toolkit
+code-workbench
