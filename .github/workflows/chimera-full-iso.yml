@@ -195,7 +195,7 @@ jobs:
             exit 1
           fi
 
-      - name: Verify actual Live, Installer, and Recovery userspace handoff
+      - name: Verify Live, Installer, and Recovery ring-3 probes (not production userspace)
         id: userspace_gate
         shell: bash
         run: |
@@ -287,9 +287,9 @@ jobs:
           done
           echo "accepted=$accepted" >> "$GITHUB_OUTPUT"
           if [[ "$accepted" == true ]]; then
-            echo "All three targets proved ordered kernel-ready -> CPL3 init syscall -> matching nonzero PID readiness."
+            echo "All three ring-3 probes reached ordered kernel-ready -> CPL3 syscall -> matching nonzero PID readiness. This is NOT production userspace acceptance."
           else
-            echo "Userspace acceptance is NOT VERIFIED for every target. Build artifacts may be reviewed, but no release will be published."
+            echo "Production userspace acceptance is NOT VERIFIED. These probe results do not qualify as Live, Installer, or Recovery userspace; no release will be published."
           fi
 
       - name: Upload target-specific userspace acceptance traces
