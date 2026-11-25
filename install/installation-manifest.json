@@ -1,6 +1,8 @@
 {
   "schema":"CHM-INSTALLATION-MEDIA-2",
   "image":"/install/installer/installation.img",
+  "kernel_module":"/install/installer/installation.cpio",
+  "module_format":"svr4-newc-uncompressed",
   "legacy_image":"/install/installer/installer-initrd.img",
   "image_format":"gzip-compressed-cpio-newc",
   "kernel":"/boot/koronos/koronos.elf",

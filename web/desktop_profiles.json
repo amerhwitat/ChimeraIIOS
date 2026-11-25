@@ -197,6 +197,27 @@
       "family": "Retro",
       "mode": "webgl-wasm",
       "description": "Three.js WebGL workstation shell with EmulatorJS ColecoVision core."
+    },
+    {
+      "id": "marine-native",
+      "title": "Marine Blue",
+      "family": "Marine",
+      "mode": "native-or-web",
+      "description": "OctavianOS Marine desktop profile with a Windows-inspired taskbar and productivity shell."
+    },
+    {
+      "id": "freexp",
+      "title": "FreeXP",
+      "family": "Windows",
+      "mode": "web-profile-or-vm",
+      "description": "Classic Windows XP-inspired visual shell; real Windows requires an authorized VM backend."
+    },
+    {
+      "id": "freewin11",
+      "title": "FreeWin11",
+      "family": "Windows",
+      "mode": "web-profile-or-vm",
+      "description": "Modern Windows 11-inspired visual shell; real Windows requires an authorized VM backend."
     }
   ]
 }

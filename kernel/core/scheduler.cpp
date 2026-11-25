@@ -53,8 +53,11 @@ static int request_action(uint32_t cpu, uint8_t action) {
         unlock();return -2;
     }
     Task &t=tasks[(uint32_t)i];
-    /* A terminal/block request must not be overwritten by a later yield. */
-    if(t.pending_action==ACTION_EXIT || t.pending_action==ACTION_BLOCK) {unlock();return -3;}
+    /* EXIT is terminal and may supersede an earlier cooperative BLOCK or
+       YIELD request. Once EXIT is pending, no later action may undo it.
+       BLOCK must not be undone by a later YIELD. */
+    if(t.pending_action==ACTION_EXIT) {unlock();return -3;}
+    if(t.pending_action==ACTION_BLOCK && action==ACTION_YIELD) {unlock();return -3;}
     if(action==ACTION_EXIT || action==ACTION_BLOCK || t.pending_action==ACTION_NONE)
         t.pending_action=action;
     unlock();return 0;
@@ -84,6 +87,10 @@ extern "C" int chimera_sched_submit(chimera_task_fn fn,void* arg,uint32_t priori
 extern "C" int chimera_sched_set_affinity(uint32_t task_id,uint64_t mask){
     if(mask==0)return -1;
     lock();
+    /* Affinity bits name logical CPUs. Reject masks that cannot match any
+       configured CPU instead of accepting a task that can never be dispatched. */
+    const uint64_t online_mask = cpus >= 64u ? UINT64_MAX : ((1ull << cpus) - 1ull);
+    if ((mask & ~online_mask) != 0) { unlock(); return -3; }
     for(uint32_t i=0;i<count;i++) if(tasks[i].info.id==task_id&&tasks[i].info.state!=CHIMERA_TASK_EXITED){
         tasks[i].info.affinity_mask=mask;unlock();return 0;
     }

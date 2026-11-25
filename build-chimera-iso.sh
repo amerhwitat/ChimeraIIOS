@@ -705,9 +705,13 @@ create_boot_menu(){
   for f in spitfire-sf0-mbr.bin spitfire-stage2.bin spitfire-sf1-longmode.o spitfire-sf2-loader.o; do [[ -s "$b/spitfire/$f" ]] || { log_error "Missing Spit Fire artifact: $f"; exit 1; }; cp "$b/spitfire/$f" "$ISO_DIR/boot/spitfire/"; done
   bash "$SCRIPT_DIR/tools/build-live-boot-binaries.sh"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.img" "$ISO_DIR/boot/live/chimera-live-initramfs.img"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.cpio" "$ISO_DIR/boot/live/chimera-live-initramfs.cpio"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/chimera-live-initramfs.cpio.sha256" "$ISO_DIR/boot/live/chimera-live-initramfs.cpio.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/live/live-manifest.json" "$ISO_DIR/boot/live/live-manifest.json"
   mkdir -p "$ISO_DIR/boot/recovery" "$ISO_DIR/recovery"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio"
+  chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.cpio.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/chimera-recovery-initramfs.img.sha256" "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img.sha256"
   chimera_copy_if_distinct "$BUILD_DIR/live-boot/boot/recovery/recovery-manifest.json" "$ISO_DIR/boot/recovery/recovery-manifest.json"
   cp "$SCRIPT_DIR/config/recovery/chimera-recovery-targets.json" "$ISO_DIR/recovery/"
@@ -733,7 +737,9 @@ create_boot_menu(){
   [[ -f "$SCRIPT_DIR/boot/boot-artwork-manifest.json" ]] && cp -f "$SCRIPT_DIR/boot/boot-artwork-manifest.json" "$ISO_DIR/boot/boot-artwork-manifest.json"
   [[ -f "$SCRIPT_DIR/boot/iso/grub.cfg" ]] || { log_error 'GRUB configuration missing'; exit 1; }
   [[ -s "$ISO_DIR/boot/grub/grub.cfg" ]] || { log_error 'Staged GRUB configuration is empty'; exit 1; }
+  [[ -s "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.cpio" ]] || { log_error "Recovery raw initramfs module missing"; exit 1; }
   [[ -s "$ISO_DIR/boot/recovery/chimera-recovery-initramfs.img" ]] || { log_error 'Recovery initramfs missing'; exit 1; }
+  [[ -s "$ISO_DIR/boot/live/chimera-live-initramfs.cpio" ]] || { log_error "Live raw initramfs module missing"; exit 1; }
   [[ -s "$ISO_DIR/boot/live/chimera-live-initramfs.img" ]] || { log_error 'Live initramfs missing'; exit 1; }
 }
 
@@ -1340,7 +1346,8 @@ EOF
   (
     cd "$p"
     find . -print0 | cpio --null --format=newc --create --quiet
-  ) | gzip -9 > "$ISO_DIR/install/installer/installation.img"
+  ) > "$ISO_DIR/install/installer/installation.cpio"
+  gzip -9 -c "$ISO_DIR/install/installer/installation.cpio" > "$ISO_DIR/install/installer/installation.img"
 
   cp -f "$SCRIPT_DIR/install/installation-manifest.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
   cp -f "$SCRIPT_DIR/install/installer-contract.json" "$ISO_DIR/install/installer/" 2>/dev/null || true
@@ -1457,10 +1464,10 @@ verify_iso(){
   grep -qi 'BIOS' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no BIOS El Torito boot entry'; exit 1; }
   grep -qi 'UEFI' "$LOG_DIR/iso-el-torito.log" || { log_error 'ISO has no UEFI El Torito boot entry'; exit 1; }
   grep -q 'multiboot2 /boot/koronos/koronos.elf' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB does not load the staged Koronos ELF through Multiboot2'; exit 1; }
-  grep -q 'module2 /boot/live/chimera-live-initramfs.img' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
+  grep -q 'module2 /boot/live/chimera-live-initramfs.cpio' "$ISO_DIR/boot/grub/grub.cfg" || { log_error 'GRUB live handoff is missing the live initramfs module'; exit 1; }
   xorriso -indev "$iso" -find /boot/grub/grub.cfg -type f | tee "$LOG_DIR/iso-grub-files.log"
   xorriso -indev "$iso" -find /boot/koronos/koronos.elf -type f | tee -a "$LOG_DIR/iso-grub-files.log"
-  xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.img -type f | tee -a "$LOG_DIR/iso-grub-files.log"
+  xorriso -indev "$iso" -find /boot/recovery/chimera-recovery-initramfs.cpio -type f | tee -a "$LOG_DIR/iso-grub-files.log"
 
   # Verify the complete graphical boot/installer contract, not only the kernel.
   local required_iso_paths=(
@@ -1474,8 +1481,12 @@ verify_iso(){
     /boot/targets/target-init-installer.manifest.json
     /boot/targets/target-init-recovery.elf
     /boot/targets/target-init-recovery.manifest.json
+    /boot/live/chimera-live-initramfs.cpio
+    /boot/live/chimera-live-initramfs.cpio.sha256
     /boot/live/chimera-live-initramfs.img
     /boot/live/live-manifest.json
+    /boot/recovery/chimera-recovery-initramfs.cpio
+    /boot/recovery/chimera-recovery-initramfs.cpio.sha256
     /boot/recovery/chimera-recovery-initramfs.img
     /boot/recovery/recovery-manifest.json
     /boot/grub/aurora-theme.txt
@@ -1492,6 +1503,7 @@ verify_iso(){
     /boot/installation/menu.cfg
     /boot/spitfire/spitfire-menu.cfg
     /EFI/BOOT/BOOTX64.EFI
+    /install/installer/installation.cpio
     /install/installer/installation.img
     /install/installer/installation-manifest.json
     /install/installer/installer-contract.json

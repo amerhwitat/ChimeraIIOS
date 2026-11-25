@@ -122,7 +122,9 @@ printf 'USERSPACE READY: target=live init_pid=%s\n' "$$" > /dev/console 2>/dev/n
 exec /bin/sh -i
 EOF
 chmod +x "$INIT/init" "$INIT/bin/chimera-recovery-console.sh" 2>/dev/null || true
-(cd "$INIT" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/live/chimera-live-initramfs.img"
+(cd "$INIT" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/live/chimera-live-initramfs.cpio"
+sha256sum "$OUT/boot/live/chimera-live-initramfs.cpio" > "$OUT/boot/live/chimera-live-initramfs.cpio.sha256"
+gzip -9 -c "$OUT/boot/live/chimera-live-initramfs.cpio" > "$OUT/boot/live/chimera-live-initramfs.img"
 sha256sum "$OUT/boot/live/chimera-live-initramfs.img" > "$OUT/boot/live/chimera-live-initramfs.img.sha256"
 
 # Dedicated recovery image: same hardware/filesystem utilities as Live, but
@@ -166,7 +168,9 @@ printf 'USERSPACE READY: target=recovery init_pid=%s\n' "$$" > /dev/console 2>/d
 exec /bin/chimera-recovery-console.sh
 EOF
 chmod +x "$REC/init" "$REC/bin/chimera-recovery-console.sh"
-(cd "$REC" && find . -print0 | cpio --null -o -H newc | gzip -9) > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
+(cd "$REC" && find . -print0 | cpio --null -o -H newc) > "$OUT/boot/recovery/chimera-recovery-initramfs.cpio"
+sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.cpio" > "$OUT/boot/recovery/chimera-recovery-initramfs.cpio.sha256"
+gzip -9 -c "$OUT/boot/recovery/chimera-recovery-initramfs.cpio" > "$OUT/boot/recovery/chimera-recovery-initramfs.img"
 sha256sum "$OUT/boot/recovery/chimera-recovery-initramfs.img" > "$OUT/boot/recovery/chimera-recovery-initramfs.img.sha256"
 
 for arch in arm64 armv7 x86_64; do
@@ -186,10 +190,10 @@ for arch in arm64 armv7 x86_64; do
     "$arch" "$kernel_ref" "$runtime_ref" > "$OUT/mobile/$arch/manifest.json"
 done
 cat > "$OUT/boot/live/live-manifest.json" <<EOF
-{"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.img","linux_vmlinuz_required":false,"architectures":["x86_64"]}
+{"schema":"CHM-LIVE-KORONOS-1","loader":"Jasper","native_bootloader":"Spit Fire","fallback":"GRUB2","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/live/chimera-live-initramfs.cpio","compressed_image":"/boot/live/chimera-live-initramfs.img","sha256":"/boot/live/chimera-live-initramfs.cpio.sha256","linux_vmlinuz_required":false,"architectures":["x86_64"]}
 EOF
 cat > "$OUT/boot/recovery/recovery-manifest.json" <<EOF
-{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.img","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mounts","mount-root","umount-root","targets","target-detect","mount-target","mount-fs","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"],"runtime_levels":["L0-firmware","L1-koronos","L2-linux","L2-windows","L2-macos","L3-hosted"],"targets":["linux","windows","macos","chimera"]}
+{"schema":"CHM-RECOVERY-BOOT-2","loader":"Jasper","kernel":"/boot/koronos/koronos.elf","kernel_protocol":"Multiboot2","initramfs":"/boot/recovery/chimera-recovery-initramfs.cpio","compressed_image":"/boot/recovery/chimera-recovery-initramfs.img","sha256":"/boot/recovery/chimera-recovery-initramfs.cpio.sha256","console":"/bin/chimera-recovery-console.sh","operations":["status","disks","mounts","mount-root","umount-root","targets","target-detect","mount-target","mount-fs","check-root","repair-root","verify","rollback","boot-normal","network","drivers","logs"],"runtime_levels":["L0-firmware","L1-koronos","L2-linux","L2-windows","L2-macos","L3-hosted"],"targets":["linux","windows","macos","chimera"]}
 EOF
 cp "$OUT/boot/live/live-manifest.json" "$OUT/manifests/live-boot.json"
 cp "$OUT/boot/recovery/recovery-manifest.json" "$OUT/manifests/recovery-boot.json"

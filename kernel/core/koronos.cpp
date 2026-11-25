@@ -477,10 +477,11 @@ extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length)
     }
     koronos_syscall_trace("[SYSC] WRITE user range validated");
     const auto *bytes = reinterpret_cast<const uint8_t *>(static_cast<uintptr_t>(address));
-    if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
-        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
     koronos_syscall_trace("[SYSC] WRITE copying bytes to debug console");
     for (uint64_t i = 0; i < length; ++i) debugcon_write8(bytes[i]);
+    /* Preserve trace causality: user readiness bytes precede kernel PID1 ACTIVE. */
+    if (koronos_target_note_user_write(reinterpret_cast<const char *>(bytes), length))
+        koronos_syscall_trace("[USER] target-specific readiness marker accepted");
     koronos_syscall_trace("[SYSC] WRITE completed");
     return static_cast<int64_t>(length);
 }
@@ -566,8 +567,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[VM  ] Hypervisor detected: ");
     console_hex32(f->hypervisor);
 
-    console_write("[SCH ] Initializing scheduler...");
-    chimera_sched_init(f->logical_cpus);
+    console_write("[SCH ] Initializing scheduler on bootstrap processor only");
+    /* CPUID reports hardware capacity, not online scheduler workers. Until
+       AP startup, per-CPU stacks and cross-CPU dispatch are implemented and
+       acknowledged, expose only the BSP as schedulable. This prevents affinity
+       and diagnostics from implying that unstarted APs can run tasks. */
+    chimera_sched_init(1);
+    console_write("[SCH ] Online scheduler CPUs: 1 (AP startup not implemented)");
     chimera_learning_init(f->logical_cpus);
     console_progress(35, "Scheduler and learning runtime initialized");
 

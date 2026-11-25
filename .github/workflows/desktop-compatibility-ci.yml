@@ -58,6 +58,14 @@ jobs:
           assert any(item["id"] == "freexp" for item in package_profiles["profiles"])
           print("Aurora semantic icons, guarded X.Org provider and FreeXP profile contracts: PASS")
           PY
+      - name: Validate desktop gallery artwork, controls and Linux service registry
+        run: |
+          python3 tests/web/test_desktop_gallery_artwork.py
+          node --check web/desktop_switcher.js
+          node --check web/aurora_webgl_desktops.js
+          python3 -m json.tool web/desktop_profiles.json >/dev/null
+          python3 -m json.tool services/linux/service-catalog.json >/dev/null
+          python3 -m json.tool services/service_registry.json >/dev/null
       - name: Validate X11 provider script and manifest syntax
         run: |
           bash -n desktop/x11/start-session.sh

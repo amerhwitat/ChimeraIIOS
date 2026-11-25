@@ -90,6 +90,14 @@ mkdir -p "$DIST/boot/visual" "$DIST/usr/share/chimera/aurora/assets" "$DIST/desk
 cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/visual/spitfire_background.svg"
 cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/visual/jasper_background.svg"
 cp -f "$ROOT/boot/splash/aurora_boot_splash.svg" "$DIST/boot/visual/aurora_boot_splash.svg"
+
+# Preserve optional renderer-generated boot artwork supplied by downstream
+# integrations (for example, OctavianOS) in the mastered ISO filesystem.
+for artwork in octavian-octopus-aurora.png octavian-artwork-manifest.json; do
+  if [[ -s "$ROOT/boot/visual/$artwork" ]]; then
+    install -m 0644 "$ROOT/boot/visual/$artwork" "$DIST/boot/visual/$artwork"
+  fi
+done
 mkdir -p "$DIST/boot/spitfire" "$DIST/boot/jasper" "$DIST/boot/grub"
 cp -f "$ROOT/boot/splash/spitfire_background.svg" "$DIST/boot/spitfire/spitfire_background.svg"
 cp -f "$ROOT/boot/splash/jasper_background.svg" "$DIST/boot/jasper/jasper_background.svg"
@@ -152,7 +160,7 @@ The archive excludes the Git metadata and generated build/output trees.
 EOF
 
 # Build and stage the live-boot payload explicitly. Jasper/GRUB references
-# /boot/live/chimera-live-initramfs.img and /boot/live/live-manifest.json;
+# /boot/live/chimera-live-initramfs.cpio and /boot/live/live-manifest.json;
 # relying on an optional pre-existing build/live-boot directory caused
 # boot-time "file not found" failures.
 if [[ -f "$ROOT/tools/build-live-boot-binaries.sh" ]]; then
@@ -167,9 +175,14 @@ for required in \
   "$LIVE_BOOT/boot/live/live-manifest.json"; do
   [[ -s "$required" ]] || { echo "Required live artifact missing: $required" >&2; exit 2; }
 done
-mkdir -p "$DIST/boot/live"
+mkdir -p "$DIST/boot/live" "$DIST/boot/recovery"
 cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.img" "$DIST/boot/live/"
+cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio" "$DIST/boot/live/"
+cp -f "$LIVE_BOOT/boot/live/chimera-live-initramfs.cpio.sha256" "$DIST/boot/live/"
 cp -f "$LIVE_BOOT/boot/live/live-manifest.json" "$DIST/boot/live/"
+cp -f "$LIVE_BOOT/boot/recovery/chimera-recovery-initramfs.cpio" "$DIST/boot/recovery/"
+cp -f "$LIVE_BOOT/boot/recovery/chimera-recovery-initramfs.cpio.sha256" "$DIST/boot/recovery/"
+cp -f "$LIVE_BOOT/boot/recovery/recovery-manifest.json" "$DIST/boot/recovery/"
 if [[ -s "$LIVE_BOOT/boot/vmlinuz" ]]; then
   cp -f "$LIVE_BOOT/boot/vmlinuz" "$DIST/boot/live/vmlinuz"
 fi

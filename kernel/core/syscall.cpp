@@ -4,6 +4,7 @@
 #include "chimera/compat.h"
 #include "chimera/scheduler.h"
 #include "chimera/timer.h"
+#include "chimera/initramfs_fs.h"
 
 namespace {
 static volatile uint32_t g_initialized = 0;
@@ -93,6 +94,85 @@ volatile uint64_t koronos_user_exit_code = 0;
 }
 extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
+namespace {
+struct InitramfsFd { uint32_t node; uint64_t offset; uint8_t used; uint8_t writable; };
+static InitramfsFd initramfs_fds[16];
+static uint32_t initramfs_fd_owner = 0;
+static void reset_initramfs_fds(uint32_t pid) {
+    if (pid == initramfs_fd_owner) return;
+    for (uint32_t i=0;i<16u;i++) initramfs_fds[i] = {};
+    initramfs_fd_owner = pid;
+}
+static uint64_t active_cr3_root() {
+    uint64_t root=0;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(root));
+    return root & 0x000FFFFFFFFFF000ull;
+}
+static bool copy_user_path(uint64_t address, uint64_t root, char *out, uint32_t capacity) {
+    if (!address || !root || !out || capacity<2u) return false;
+    for (uint32_t i=0;i<capacity;i++) {
+        if (koronos_address_space_validate_user_range(root,address+i,1u,0u)!=0) return false;
+        const char c=*reinterpret_cast<const volatile char*>(address+i);
+        out[i]=c;
+        if (!c) return i>0u;
+    }
+    out[capacity-1u]=0;
+    return false;
+}
+static int open_initramfs_file(uint64_t path_address,uint64_t flags,uint64_t root,uint32_t pid) {
+    /* The archive root is read-only. Only explicit O_CREAT under /tmp may
+       allocate a writable RAM file; no disk formatting or writes are possible. */
+    constexpr uint64_t O_ACCMODE=3u, O_CREAT=0x40u, O_EXCL=0x80u, O_CLOEXEC=0x80000u;
+    if ((flags&~(O_ACCMODE|O_CREAT|O_EXCL|O_CLOEXEC))!=0u) return -30;
+    if ((flags&O_CREAT) && !(flags&O_EXCL)) return -30;
+    const uint64_t access=flags&O_ACCMODE;
+    char path[256] = {};
+    if (!copy_user_path(path_address,root,path,sizeof(path))) return -14;
+    uint32_t node=0;
+    bool writable=false;
+    if (flags&O_CREAT) {
+        if (access!=1u || path[0]!='/' || path[1]!='t' ||
+            path[2]!='m' || path[3]!='p' || path[4]!='/') return -30;
+        if (koronos_tmpfs_create(path,&node)!=0) return -17;
+        writable=true;
+    } else {
+        if (access!=0u) return -30;
+        koronos_initramfs_stat st{};
+        if (koronos_initramfs_lookup(path,&node)!=0 ||
+            koronos_initramfs_stat_node(node,&st)!=0 || st.type!=2u) return -2;
+    }
+    reset_initramfs_fds(pid);
+    for (uint32_t fd=3;fd<16u;fd++) if (!initramfs_fds[fd].used) {
+        initramfs_fds[fd].node=node;
+        initramfs_fds[fd].offset=0;
+        initramfs_fds[fd].used=1;
+        initramfs_fds[fd].writable=writable?1u:0u;
+        return static_cast<int>(fd);
+    }
+    return -24;
+}
+static int64_t read_initramfs_file(uint64_t fd,uint64_t buffer,uint64_t length,uint64_t root,uint32_t pid) {
+    if (fd<3u || fd>=16u || length>65536u) return -22;
+    reset_initramfs_fds(pid);
+    InitramfsFd &entry=initramfs_fds[fd];
+    if (!entry.used || entry.writable) return -9;
+    if (!length) return 0;
+    if (!buffer || !root ||
+        koronos_address_space_validate_user_range(root,buffer,length,1u)!=0) return -14;
+    uint64_t count=0;
+    if (koronos_initramfs_read(entry.node,entry.offset,
+            reinterpret_cast<void*>(buffer),length,&count)!=0) return -5;
+    entry.offset+=count;
+    return static_cast<int64_t>(count);
+}
+static int close_initramfs_file(uint64_t fd,uint32_t pid) {
+    if (fd<3u || fd>=16u) return -9;
+    reset_initramfs_fds(pid);
+    if (!initramfs_fds[fd].used) return -9;
+    initramfs_fds[fd]={};
+    return 0;
+}
+}
 extern "C" int64_t koronos_console_write_user(uint64_t address, uint64_t length);
 extern "C" void koronos_target_log(const char *message);
 extern "C" void koronos_syscall_trace(const char *message);
@@ -155,26 +235,44 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             return 0;
         case CHM_SYS_TIME_TICKS:
             return chimera_timer_now();
+        case CHM_SYS_OPEN: {
+            const uint64_t raw=frame->rax;
+            const uint64_t path=(raw==257u)?frame->rsi:frame->rdi;
+            const uint64_t flags=(raw==257u)?frame->rdx:frame->rsi;
+            if (raw==257u && static_cast<int64_t>(frame->rdi)!=-100ll)
+                return static_cast<uint64_t>(-38ll); // AT_FDCWD only
+            const int fd=open_initramfs_file(path,flags,active_cr3_root(),koronos_target_active_pid());
+            return static_cast<uint64_t>(static_cast<int64_t>(fd));
+        }
+        case CHM_SYS_CLOSE:
+            return static_cast<uint64_t>(static_cast<int64_t>(
+                close_initramfs_file(frame->rdi,koronos_target_active_pid())));
+        case CHM_SYS_READ: {
+            const int64_t count=read_initramfs_file(frame->rdi,frame->rsi,frame->rdx,
+                active_cr3_root(),koronos_target_active_pid());
+            return static_cast<uint64_t>(count);
+        }
         case CHM_SYS_WRITE: {
-            koronos_syscall_trace("[SYSC] dispatching native WRITE");
-            const uint64_t fd = frame->rdi;
-            const uint64_t address = frame->rsi;
-            const uint64_t length = frame->rdx;
-            koronos_syscall_trace_u64("[SYSC] WRITE fd=0x", fd);
-            koronos_syscall_trace_u64("[SYSC] WRITE ptr=0x", address);
-            koronos_syscall_trace_u64("[SYSC] WRITE len=0x", length);
-            if (fd > 2u) {
-                koronos_syscall_trace("[SYSC] WRITE rejected: fd exceeds stderr");
-                return static_cast<uint64_t>(-22ll);
+            const uint64_t fd=frame->rdi, address=frame->rsi, length=frame->rdx;
+            const uint32_t pid=koronos_target_active_pid();
+            if (fd<=2u) {
+                if (length>4096u) return static_cast<uint64_t>(-22ll);
+                return static_cast<uint64_t>(koronos_console_write_user(address,length));
             }
-            if (length > 4096u) {
-                koronos_syscall_trace("[SYSC] WRITE rejected: length exceeds 4096");
-                return static_cast<uint64_t>(-22ll);
-            }
-            koronos_syscall_trace("[SYSC] WRITE arguments accepted; entering console copy");
-            const int64_t written = koronos_console_write_user(address, length);
-            koronos_syscall_trace("[SYSC] WRITE console copy returned");
-            return static_cast<uint64_t>(written);
+            if (fd>=16u || length>4096u) return static_cast<uint64_t>(-22ll);
+            if (!length) return 0;
+            reset_initramfs_fds(pid);
+            InitramfsFd &entry=initramfs_fds[fd];
+            const uint64_t root=active_cr3_root();
+            if (!entry.used || !entry.writable) return static_cast<uint64_t>(-9ll);
+            if (!root || koronos_address_space_validate_user_range(root,address,length,0u)!=0)
+                return static_cast<uint64_t>(-14ll);
+            uint64_t written=0;
+            if (koronos_tmpfs_write(entry.node,entry.offset,
+                    reinterpret_cast<const void*>(address),length,&written)!=0)
+                return static_cast<uint64_t>(-5ll);
+            entry.offset+=written;
+            return written;
         }
         case CHM_SYS_EXIT:
         case CHM_SYS_EXIT_GROUP:

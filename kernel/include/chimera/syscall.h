@@ -18,6 +18,8 @@ enum chimera_native_syscall {
     CHM_SYS_GETPID = 2,
     CHM_SYS_YIELD = 3,
     CHM_SYS_TIME_TICKS = 4,
+    CHM_SYS_OPEN = 5,
+    CHM_SYS_CLOSE = 6,
     CHM_SYS_READ = 8,
     CHM_SYS_WRITE = 9,
     CHM_SYS_MMAP = 10,

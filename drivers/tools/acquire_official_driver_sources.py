@@ -11,12 +11,33 @@ SOURCES=[
 rows=[]
 for name,url in SOURCES:
     dst=os.path.join(OUT,name)
-    if os.path.isdir(os.path.join(dst,".git")):
+    git_dir=os.path.join(dst,".git")
+    if os.path.isdir(git_dir):
+        # The upstream Windows driver samples repository marks one INF as
+        # working-tree-encoding=UTF-16LE-BOM even though its committed blob is
+        # not valid UTF-8. Override that single path locally before checkout;
+        # the Git object remains untouched and the source snapshot is still
+        # pinned by the recorded commit SHA.
+        if name == "windows-driver-samples":
+            info=os.path.join(git_dir,"info")
+            os.makedirs(info,exist_ok=True)
+            with open(os.path.join(info,"attributes"),"w",encoding="utf-8") as f:
+                f.write("network/netadaptercx/netvadapter/km/netvadapter.inf -working-tree-encoding\n")
         subprocess.run(["git","-C",dst,"fetch","--depth=1","origin"],check=False)
         subprocess.run(["git","-C",dst,"reset","--hard","origin/HEAD"],check=False)
     else:
-        subprocess.run(["git","clone","--depth=1","--filter=blob:none",url,dst],check=False)
-    if os.path.isdir(os.path.join(dst,".git")):
+        clone=["git","clone","--depth=1","--filter=blob:none"]
+        if name == "windows-driver-samples":
+            clone.append("--no-checkout")
+        clone.extend([url,dst])
+        subprocess.run(clone,check=False)
+        if name == "windows-driver-samples" and os.path.isdir(git_dir):
+            info=os.path.join(git_dir,"info")
+            os.makedirs(info,exist_ok=True)
+            with open(os.path.join(info,"attributes"),"w",encoding="utf-8") as f:
+                f.write("network/netadaptercx/netvadapter/km/netvadapter.inf -working-tree-encoding\n")
+            subprocess.run(["git","-C",dst,"checkout","-f","HEAD"],check=False)
+    if os.path.isdir(git_dir):
         rev=subprocess.check_output(["git","-C",dst,"rev-parse","HEAD"],text=True).strip()
         rows.append({"name":name,"url":url,"revision":rev})
 # Apple DriverKit is an SDK/API reference and is not redistributed by this script.
