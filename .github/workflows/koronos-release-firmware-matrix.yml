@@ -1,0 +1,83 @@
+name: Koronos Immutable ISO Firmware Acceptance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "kernel/**"
+      - "boot/iso/**"
+      - "boot/jasper/**"
+      - "iso/**"
+      - "tools/build-live-boot-binaries.sh"
+      - "tools/build-koronos-targets.sh"
+      - "tools/runtime/check-release-firmware-matrix.py"
+      - "tests/boot/verify-userspace-handoff.py"
+      - ".github/workflows/koronos-release-firmware-matrix.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  immutable-iso-six-case:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ISO and firmware test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 ovmf mtools xorriso nasm \
+            grub-common grub-pc-bin grub-efi-amd64-bin
+          OVMF_PATH=""
+          for candidate in /usr/share/ovmf/OVMF.fd /usr/share/OVMF/OVMF.fd /usr/share/qemu/OVMF.fd; do
+            if test -s "$candidate"; then OVMF_PATH="$candidate"; break; fi
+          done
+          test -n "$OVMF_PATH"
+          echo "OVMF_PATH=$OVMF_PATH" >> "$GITHUB_ENV"
+          dpkg-query -W -f='${Version}\n' ovmf
+          qemu-system-x86_64 --version
+
+      - name: Build Koronos kernel and target init ELFs
+        run: |
+          set -euo pipefail
+          chmod +x kernel/build-koronos.sh tools/build-koronos-targets.sh
+          ./kernel/build-koronos.sh
+          ./tools/build-koronos-targets.sh
+          test -s build/koronos/x86_64/koronos.elf
+          test -s build/koronos/x86_64/target-init-live.elf
+          test -s build/koronos/x86_64/target-init-installer.elf
+          test -s build/koronos/x86_64/target-init-recovery.elf
+
+      - name: Build the single immutable BIOS/UEFI ISO
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/build/release-matrix"
+          CHIMERA_KERNEL="$GITHUB_WORKSPACE/build/koronos/x86_64/koronos.elf" \
+          CHIMERA_OUTPUT_ISO="$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso" \
+            bash iso/chimera-live-iso.sh
+          file "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso"
+          sha256sum "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso"
+
+      - name: Run Live/Installer/Recovery x BIOS/UEFI against one ISO
+        run: |
+          set -euo pipefail
+          ovmf_version="$(dpkg-query -W -f='${Version}' ovmf)"
+          python3 tools/runtime/check-release-firmware-matrix.py \
+            --iso "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso" \
+            --ovmf "$OVMF_PATH" \
+            --work "$GITHUB_WORKSPACE/build/release-matrix" \
+            --ovmf-version "$ovmf_version"
+
+      - name: Upload six-case acceptance traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-immutable-iso-firmware-acceptance
+          path: build/release-matrix/
+          if-no-files-found: error
+          retention-days: 90

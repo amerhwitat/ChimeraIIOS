@@ -1,0 +1,135 @@
+name: Koronos Native CPU Gates
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "kernel/**"
+      - "tools/runtime/check-koronos-preemption.sh"
+      - "tools/runtime/check-koronos-smp.sh"
+      - "tools/runtime/check-koronos-native-stack.sh"
+      - "tools/runtime/check-koronos-install-recovery.sh"
+      - ".github/workflows/koronos-preemption-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "kernel/**"
+      - "tools/runtime/check-koronos-preemption.sh"
+      - "tools/runtime/check-koronos-smp.sh"
+      - "tools/runtime/check-koronos-native-stack.sh"
+      - "tools/runtime/check-koronos-install-recovery.sh"
+      - ".github/workflows/koronos-preemption-gate.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  x86_64-preemption:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run native context-switch/timer-preemption gate
+        run: |
+          chmod +x tools/runtime/check-koronos-preemption.sh
+          tools/runtime/check-koronos-preemption.sh
+      - name: Upload preemption diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-preemption-diagnostics
+          path: |
+            build/koronos-preemption/result.txt
+            build/koronos-preemption/iso.sha256
+            build/koronos-preemption/debugcon.log
+            build/koronos-preemption/serial.log
+            build/koronos-preemption/qemu.stdout
+            build/koronos-preemption/qemu.stderr
+            build/koronos-preemption/koronos-preemptive-sched.iso
+            build/koronos/x86_64/koronos.elf
+
+  x86_64-smp:
+    needs: x86_64-preemption
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run native AP startup/two-CPU overlap gate
+        run: |
+          chmod +x tools/runtime/check-koronos-smp.sh
+          tools/runtime/check-koronos-smp.sh
+      - name: Upload AP/SMP diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-smp-diagnostics
+          path: |
+            build/koronos-smp/result.txt
+            build/koronos-smp/iso.sha256
+            build/koronos-smp/debugcon.log
+            build/koronos-smp/serial.log
+            build/koronos-smp/qemu.stdout
+            build/koronos-smp/qemu.stderr
+            build/koronos-smp/koronos-smp-gate.iso
+            build/koronos/x86_64/koronos.elf
+
+  x86_64-native-stack:
+    needs: x86_64-smp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run native block/VFS/PID1 gate
+        run: |
+          chmod +x tools/runtime/check-koronos-native-stack.sh
+          tools/runtime/check-koronos-native-stack.sh
+      - name: Upload native stack diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-native-stack-diagnostics
+          path: |
+            build/koronos-native-stack/result.txt
+            build/koronos-native-stack/iso.sha256
+            build/koronos-native-stack/debugcon-write.log
+            build/koronos-native-stack/debugcon-read.log
+            build/koronos-native-stack/serial-write.log
+            build/koronos-native-stack/serial-read.log
+            build/koronos-native-stack/koronos-native-stack-gate.iso
+            build/koronos/x86_64/koronos.elf
+
+  x86_64-install-recovery:
+    needs: x86_64-native-stack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kernel/ISO test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
+      - name: Run native installer/installed-root/recovery gate
+        run: |
+          chmod +x tools/runtime/check-koronos-install-recovery.sh
+          tools/runtime/check-koronos-install-recovery.sh
+      - name: Upload installer/recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: koronos-install-recovery-diagnostics
+          path: |
+            build/koronos-install-recovery/result.txt
+            build/koronos-install-recovery/iso.sha256
+            build/koronos-install-recovery/debugcon-*.log
+            build/koronos-install-recovery/serial-*.log
+            build/koronos-install-recovery/*.iso
+            build/koronos/x86_64/koronos.elf

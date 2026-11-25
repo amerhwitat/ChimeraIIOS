@@ -1,5 +1,7 @@
 # Koronos core objects (generated from the vendored build-koronos.sh source list)
 obj-y += koronos.o
+obj-y += initramfs_newc.o
+obj-y += initramfs_fs.o
 obj-y += elf64.o
 obj-y += module.o
 obj-y += relocate.o
@@ -36,6 +38,10 @@ obj-y += frame_allocator.o
 obj-y += physmap.o
 obj-y += address_space.o
 obj-y += target_launch.o
+obj-y += preemptive_sched.o
+obj-y += smp.o
+obj-y += native_stack.o
+obj-y += install_recovery.o
 
 # Linux-style per-object flag override
 KORONOS_CXXFLAGS_nbit_note.o := -DCHIMERA_NBIT_IMAGE_BITS=$(CONFIG_KORONOS_NBIT_WIDTH)

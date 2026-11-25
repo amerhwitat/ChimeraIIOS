@@ -456,6 +456,10 @@ static void koronos_submit_bootstrap_tasks() {
 extern "C" void chimera_register_virtio_drivers(void);
 extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
+extern "C" int koronos_preemptive_selftest(void);
+extern "C" int koronos_smp_selftest(void);
+extern "C" int koronos_native_stack_selftest(void);
+extern "C" int koronos_install_recovery_selftest(void);
 
 extern "C" void koronos_syscall_trace(const char *message) {
     /* Syscall-context diagnostics must not touch VGA or UART console paths. */
@@ -637,6 +641,36 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     console_write("[IO  ] Console: VGA text + COM1");
     koronos_submit_bootstrap_tasks();
     console_progress(90, "Bootstrap services registered");
+    const int preempt_rc = koronos_preemptive_selftest();
+    console_write(preempt_rc == 0
+        ? "[PMT ] Native x86_64 context-save/timer-preemption gate passed"
+        : "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED");
+    int smp_rc = -1;
+    if (preempt_rc == 0) {
+        smp_rc = koronos_smp_selftest();
+        console_write(smp_rc == 0
+            ? "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed"
+            : "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED");
+    } else {
+        console_write("[SMP ] gate not started: preemption gate failed");
+    }
+    int native_rc = -1;
+    if (preempt_rc == 0 && smp_rc == 0) {
+        native_rc = koronos_native_stack_selftest();
+        console_write(native_rc == 0
+            ? "[NST ] Native block/VFS/PID1 gate passed"
+            : "[NST ] Native block/VFS/PID1 gate FAILED");
+    } else {
+        console_write("[NST ] gate not started: CPU gates did not pass");
+    }
+    if (preempt_rc == 0 && smp_rc == 0 && native_rc == 0) {
+        const int install_rc = koronos_install_recovery_selftest();
+        console_write(install_rc == 0
+            ? "[INS ] Native installer/installed-root/recovery gate passed"
+            : "[INS ] Native installer/installed-root/recovery gate FAILED");
+    } else {
+        console_write("[INS ] gate not started: earlier native gates did not pass");
+    }
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");
     console_write("[RUN ] Entering Koronos scheduler loop");
