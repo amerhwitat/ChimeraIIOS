@@ -1441,9 +1441,11 @@ build_iso(){
     exit 1
   fi
 
+  local xorriso_opts=( -rockridge on -joliet on )
   grub-mkrescue \
       -o "$iso" \
       "$ISO_DIR" \
+      -- "${xorriso_opts[@]}" \
       2>&1 | tee "$LOG_DIR/grub-mkrescue.log"
 
   [[ -s "$iso" ]] || {
