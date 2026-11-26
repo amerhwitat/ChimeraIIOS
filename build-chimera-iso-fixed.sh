@@ -1,12 +1,10 @@
 #!/bin/bash
 # ==============================================================================
-# BUILD-CHIMERA-ISO.SH - FIXED VERSION WITH HANDOFF SUPPORT
+# LEGACY BUILD SCRIPT - NOT FOR PRODUCTION USE
 # ==============================================================================
-# This version fixes the kernel→userspace handoff blocker by:
-# 1. Building native init ELFs for each target
-# 2. Creating target manifests with acceptance gates
-# 3. Verifying handoff sequence before ISO build
-# 4. Producing bootable ISOs with successful handoffs
+# Historical reference builder only. It emits Linux-host sample init sources and
+# fail-closed reference manifests, and does not establish a Koronos-native handoff
+# or production acceptance. Use build-chimera-iso.sh for real candidate builds.
 
 set -e
 
@@ -198,11 +196,11 @@ cat > target-manifest-live.json << 'EOF'
   "version": "1.0",
   "type": "live_system",
   "init_binary": "init-live",
-  "init_cpl3_verified": true,
+  "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
-    "native_init_present": true,
-    "status": "ACCEPTED"
+    "native_init_present": false,
+    "status": "BLOCKED"
   },
   "handoff_sequence": [
     "kernel_control_transfer",
@@ -222,11 +220,11 @@ cat > target-manifest-installer.json << 'EOF'
   "version": "1.0",
   "type": "installer_system",
   "init_binary": "init-installer",
-  "init_cpl3_verified": true,
+  "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
-    "native_init_present": true,
-    "status": "ACCEPTED"
+    "native_init_present": false,
+    "status": "BLOCKED"
   },
   "handoff_sequence": [
     "kernel_control_transfer",
@@ -244,11 +242,11 @@ cat > target-manifest-recovery.json << 'EOF'
   "version": "1.0",
   "type": "recovery_system",
   "init_binary": "init-recovery",
-  "init_cpl3_verified": true,
+  "init_cpl3_verified": false,
   "acceptance_gate": {
     "requires_native_init": true,
-    "native_init_present": true,
-    "status": "ACCEPTED"
+    "native_init_present": false,
+    "status": "BLOCKED"
   },
   "handoff_sequence": [
     "kernel_control_transfer",
@@ -283,22 +281,22 @@ for target in live installer recovery; do
     fi
     
     # Check acceptance gate
-    GATE=$(grep -c "ACCEPTED" "target-manifest-$target.json" || echo "0")
+    GATE=$(grep -c '"status": "BLOCKED"' "target-manifest-$target.json" || echo "0")
     if [ "$GATE" -eq 0 ]; then
-        error "Acceptance gate for $target not ACCEPTED"
+        error "Legacy manifest for $target is not fail-closed; refusing to claim acceptance"
     fi
     
-    success "$target target verified (init + manifest + gate)"
+    success "$target target uses a fail-closed reference manifest (no production acceptance)"
 done
 
-log "✓ Handoff architecture verified"
+log "✓ Reference handoff scaffolding present (not verified; no production acceptance)"
 log ""
 
 # ==============================================================================
 # PHASE 4: BUILD ISO IMAGES
 # ==============================================================================
 
-log "PHASE 4: Building ISO images with verified handoff..."
+log "PHASE 4: Building candidate ISO images (handoff not verified)..."
 
 mkdir -p "$ISO_OUTPUT"
 
@@ -381,14 +379,14 @@ done || log "    (ISOs may be archived or minimal)"
 
 log ""
 log "HANDOFF VERIFICATION:"
-log "  ✓ Native init ELFs: PRESENT"
-log "  ✓ Target manifests: PRESENT"
-log "  ✓ Acceptance gates: ACCEPTED"
-log "  ✓ Handoff sequence: VERIFIED"
+log "  ✓ Native init ELFs: REFERENCE SAMPLES ONLY"
+log "  ✓ Target manifests: PRESENT (BLOCKED / REFERENCE_ONLY_NOT_PRODUCTION)"
+log "  ✓ Acceptance gates: NOT ACCEPTED; runtime evidence required"
+log "  ✓ Handoff sequence: NOT VERIFIED"
 log ""
 
-log "STATUS: BUILD COMPLETE"
-log "Next: Boot ISOs to verify handoff sequence"
+log "STATUS: CANDIDATE ARTIFACTS CREATED; production acceptance not established"
+log "Next: boot ISOs and supply runtime acceptance evidence"
 log ""
 
 } 2>&1 | tee "$LOG_FILE"

@@ -1,3 +1,5 @@
+> Legacy status document (2026-11-26): build tooling is documented here, but production acceptance is gated and not established. The enforced release verifier and final disposition remain authoritative.
+
 🎉 CHIMERA II OS - COMPLETE AUTOMATED BUILD SYSTEM - READY TO USE
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -377,7 +379,7 @@ Author: Amer Abdullah Suleiman Hwitat - عامر الحويطات
 ✓ Single ISO - ~3.5-4 GB bootable file
 ✓ Multiple Boot Options - 6 menu choices
 ✓ Complete Toolchain - All dev tools included
-✓ Production Ready - Tagged versions
+✓ Checksums generated; production certification not established
 ✓ Well Documented - Comprehensive guides
 ✓ Verified - SHA256 + MD5 checksums
 

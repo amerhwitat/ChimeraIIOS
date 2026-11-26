@@ -2,7 +2,7 @@
 # ==============================================================================
 # KORONOS COMPLETE USERSPACE BUILD - FULL HANDOFF WITH PARALLEL CPU SUPPORT
 # ==============================================================================
-# This comprehensive build system creates a production-grade Koronos userspace with:
+# This legacy generator emits Linux-host reference/userland sketches; runtime handoff is not verified.
 # - Kernel interface abstraction (syscalls)
 # - Core libraries (libc, libm, libpthread)
 # - Multi-core CPU detection and load balancing
@@ -10,7 +10,7 @@
 # - Complete filesystem management
 # - Network integration
 # - Interactive shell
-# - All handoffs verified
+# - Handoff evidence: NOT VERIFIED
 
 set -e
 
@@ -582,7 +582,7 @@ int main(int argc, char *argv[], char *envp[]) {
 }
 EOF
 
-echo "✓ Complete init binary created with full handoff support"
+echo "✓ Reference init source generated; handoff not verified"
 echo ""
 
 # ==============================================================================
@@ -639,7 +639,7 @@ cat > "$OUTPUT_DIR/USERSPACE_BUILD_REPORT.txt" << 'REPORT'
 KORONOS COMPLETE USERSPACE BUILD REPORT
 ================================================================================
 
-Build Status: COMPLETE
+Build Status: SOURCE GENERATED; runtime acceptance not established
 Timestamp: {TIMESTAMP}
 Architecture: {ARCH}
 CPU Cores Detected: {CORES}
@@ -684,16 +684,16 @@ COMPONENTS BUILT
       * Automatic respawn on failure
 
 [✓] Complete Init Binary (init-complete)
-    - Full kernel→userspace handoff
+    - Full kernel→userspace handoff: NOT VERIFIED
     - CPL3 acknowledgement marker
     - 6-phase startup sequence
     - Multi-core CPU detection
     - Parallel service initialization
     - Event loop with signal handling
-    - Ready for production
+    - Ready for production: NOT ESTABLISHED
 
 ================================================================================
-HANDOFF VERIFICATION
+HANDOFF VERIFICATION (NOT PERFORMED)
 ================================================================================
 
 Kernel→Userspace Handoff Sequence:
@@ -720,7 +720,7 @@ Multi-Core Performance:
   ✓ Parallel compilation during build
   ✓ Service manager supports concurrent startup
   ✓ Resource allocation optimized
-  ✓ No deadlocks or race conditions
+  - No deadlock/race verification performed
 
 ================================================================================
 RUNTIME FEATURES
@@ -796,7 +796,7 @@ Performance Metrics:
 DEPLOYMENT STATUS
 ================================================================================
 
-Status: PRODUCTION READY
+Status: NOT ACCEPTED
 
 Ready for:
   ✓ ISO inclusion
@@ -817,7 +817,7 @@ SUMMARY
 ================================================================================
 
 The Koronos Complete Userspace successfully implements:
-  ✓ Full kernel→userspace handoff (CPL3 verified)
+  - Full kernel→userspace handoff: NOT VERIFIED
   ✓ Multi-core CPU detection and utilization
   ✓ Parallel service startup with configurable concurrency
   ✓ Complete userspace libraries and utilities
@@ -825,11 +825,11 @@ The Koronos Complete Userspace successfully implements:
   ✓ Signal handling and event loop
   ✓ No runtime errors or deadlocks
 
-This userspace is ready for production deployment and supports all
+This generated reference userspace is not ready for production deployment;
 target environments (Live, Installer, Recovery) with full parallel
 execution capabilities.
 
-Status: ✅ USERSPACE BUILD COMPLETE
+Status: SOURCE GENERATED; acceptance not established
 REPORT
 
 sed -i "s/{TIMESTAMP}/$TIMESTAMP/g; s/{ARCH}/$ARCH/g; s/{CORES}/$NUM_CORES/g" "$OUTPUT_DIR/USERSPACE_BUILD_REPORT.txt"
@@ -848,7 +848,7 @@ echo "==========================================================================
 echo "KORONOS COMPLETE USERSPACE BUILD - SUMMARY"
 echo "================================================================================"
 echo ""
-echo "Status: ✓ COMPLETE"
+echo "Status: SOURCE GENERATED; acceptance not established"
 echo ""
 echo "Output Directory: $OUTPUT_DIR"
 echo "  ✓ Source code: $OUTPUT_DIR/src"
@@ -863,7 +863,7 @@ echo "  ✓ Service manager (parallel startup)"
 echo "  ✓ Complete init binary (init-complete)"
 echo ""
 echo "Capabilities:"
-echo "  ✓ Full kernel→userspace handoff"
+echo "  - Full kernel→userspace handoff: NOT VERIFIED"
 echo "  ✓ CPL3 ring-3 userspace execution"
 echo "  ✓ Automatic CPU topology detection"
 echo "  ✓ Parallel service startup ($NUM_CORES concurrent)"
@@ -873,7 +873,7 @@ echo ""
 echo "Ready for:"
 echo "  ✓ ISO integration"
 echo "  ✓ Docker deployment"
-echo "  ✓ Production release"
+echo "  - Production release: BLOCKED"
 echo ""
 
 } 2>&1 | tee "$LOG_FILE"

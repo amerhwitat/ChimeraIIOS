@@ -1,3 +1,8 @@
+LEGACY GUIDE SUPERSEDED (2026-11-26): these are Linux-host reference samples and
+reference-only target manifests. Acceptance gates are BLOCKED. This guide does
+not establish a Koronos-native handoff or production acceptance.
+================================================================================
+
 ================================================================================
 🎯 KORONOS ISO HANDOFF BLOCKER - COMPLETE FIX GUIDE
 ================================================================================
@@ -35,7 +40,7 @@ Step 1.2: Compile init binaries
 For Live:
   gcc -static -O2 -o init-live init-live-main.c
   → Static binary (~50-100 KB)
-  → CPL3 verified
+  → CPL3 marker in Linux reference source only (not verified)
   → Accepts kernel handoff
 
 For Installer:
@@ -78,7 +83,7 @@ Live Manifest (target-manifest-live.json):
     "acceptance_gate": {
       "requires_native_init": true,
       "native_init_present": true,
-      "status": "ACCEPTED"
+      "status": "BLOCKED"
     },
     "handoff_sequence": [
       "kernel_control_transfer",
@@ -101,7 +106,7 @@ Purpose:
   - Build script verifies manifests exist
   - Init binary name is specified
   - Handoff sequence is documented
-  - Acceptance gate shows "ACCEPTED" (no withheld handoff)
+  - Acceptance gate remains "BLOCKED" until runtime evidence exists
 
 ================================================================================
 PHASE 3: INTEGRATE INTO BUILD SYSTEM
@@ -132,9 +137,9 @@ for target in live installer recovery; do
     fi
     
     # Verify acceptance gate
-    GATE_STATUS=$(grep "status" "$MANIFEST" | grep "ACCEPTED")
+    GATE_STATUS=$(grep '"status"' "$MANIFEST" | grep 'BLOCKED')
     if [ -z "$GATE_STATUS" ]; then
-        echo "ERROR: Acceptance gate for $target is not ACCEPTED"
+        echo "ERROR: Acceptance gate for $target is not BLOCKED (fail closed)"
         exit 1
     fi
     
@@ -221,8 +226,8 @@ AFTER (Fixed):
   # Step 3: Check acceptance gates
   for target in live installer recovery; do
       STATUS=$(jq -r ".acceptance_gate.status" target-manifest-$target.json)
-      if [ "$STATUS" != "ACCEPTED" ]; then
-          echo "ERROR: $target acceptance gate not ACCEPTED"
+      if [ "$STATUS" != "BLOCKED" ]; then
+          echo "ERROR: $target acceptance gate not BLOCKED (fail closed)"
           exit 1
       fi
   done
@@ -234,8 +239,8 @@ AFTER (Fixed):
   
   BUILD RESULT:
   [SUCCESS] All three targets recognize native init ELFs
-  [SUCCESS] Acceptance gates: ACCEPTED
-  [SUCCESS] Handoff sequence verified
+  [BLOCKED] Acceptance gates: NOT ACCEPTED; runtime evidence required
+  [BLOCKED] Handoff sequence not verified
   ✓ ISO builds complete and bootable
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -287,11 +292,11 @@ BOOT (QEMU/Real):
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 SUCCESS INDICATORS:
-  ✓ [KORONOS_INIT_CPL3_ACKNOWLEDGEMENT] - CPL3 verified
+  ✓ [LINUX_REFERENCE_INIT] marker in source only; CPL3 not verified
   ✓ Filesystems mounted - /proc, /sys, /dev ready
   ✓ Services started - syslog, udev running
   ✓ Desktop launching - Aurora Glass initializing
-  ✓ Shell/UI ready - User can interact
+  ✓ Shell/UI readiness not verified
 
 FAILURE DETECTION:
   ✗ No CPL3 acknowledgement - Init binary not found
@@ -313,7 +318,7 @@ QUICK IMPLEMENTATION CHECKLIST
 
 □ 3. Verify manifests exist
    ls -la target-manifest-{live,installer,recovery}.json
-   grep "ACCEPTED" target-manifest-*.json
+   grep '"status"' target-manifest-*.json
 
 □ 4. Test init locally (optional)
    # In Docker container:
@@ -343,7 +348,7 @@ After fix is applied, running:
   ./build-chimera-iso.sh --clean-state --storage-auto
 
 Should produce:
-  ✓ koronos-live-x86_64.iso (bootable, handoff working)
+  ✓ koronos-live-x86_64.iso (candidate artifact; handoff not verified)
   ✓ koronos-installer-x86_64.iso (bootable, installation ready)
   ✓ koronos-recovery-x86_64.iso (bootable, recovery shell ready)
 
@@ -354,6 +359,6 @@ With verification traces showing:
   Services starting successfully
   Desktop/UI launching
 
-Status: HANDOFF BLOCKER FIXED ✓
+Status: LEGACY GUIDE SUPERSEDED; production certification remains blocked
 
 ================================================================================

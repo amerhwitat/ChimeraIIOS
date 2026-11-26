@@ -1,6 +1,7 @@
 /*
- * Koronos Complete Init
- * Full kernel→userspace handoff with parallel services
+ * Historical Linux reference sample (archived snapshot).
+ * Sample output only; native Koronos handoff and production acceptance are
+ * not established by this file.
  */
 
 #include <stdio.h>
@@ -97,14 +98,14 @@ int main(int argc, char *argv[], char *envp[]) {
     // (Service startup would go here - shell, X server, etc.)
     printf("[KORONOS_INIT] ✓ Services ready\n\n");
     
-    // ===== HANDOFF COMPLETE =====
+    // ===== REFERENCE SAMPLE OUTPUT ONLY =====
     printf("================================================================================\n");
-    printf("[KORONOS_INIT] HANDOFF SEQUENCE COMPLETE\n");
-    printf("[KORONOS_INIT] Userspace fully operational\n");
-    printf("[KORONOS_INIT] CPL3 Ring-3 fully active\n");
+    printf("[LINUX_REFERENCE_INIT] sample sequence output; native handoff not verified\n");
+    printf("[LINUX_REFERENCE_INIT] readiness not verified\n");
+    printf("[LINUX_REFERENCE_INIT] CPL3 not verified\n");
     printf("[KORONOS_INIT] Multi-core support: %d CPUs available\n", cpu_count);
     printf("[KORONOS_INIT] Parallel execution enabled\n");
-    printf("[KORONOS_INIT] Ready for user interaction\n");
+    printf("[LINUX_REFERENCE_INIT] user interaction readiness not verified\n");
     printf("================================================================================\n\n");
     
     // ===== LAUNCH SHELL =====
