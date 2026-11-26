@@ -66,4 +66,4 @@ For WSL VHD maintenance, Microsoft warns against manipulating the distro's AppDa
 
 ## Large ISO format
 
-The builder continues to use ISO9660 Level 3 through `grub-mkrescue`, allowing the comprehensive ISO payload to exceed the classic ISO9660 Level 1/2 file-size limitations. The final output is written to the selected large-storage filesystem, with a SHA-256 checksum beside the ISO.
+The builder finalizes the ISO with `grub-mkrescue` and native xorriso Rock Ridge/Joliet options; it does not set an explicit ISO9660 level. The final output is written to the selected large-storage filesystem, with a SHA-256 checksum beside the ISO.

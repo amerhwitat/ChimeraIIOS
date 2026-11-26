@@ -1,14 +1,14 @@
 /**
- * Koronos x86-64 Process Management & Syscall Dispatcher
+ * Koronos x86-64 Process Management reference sketch (not integrated)
  * 
  * Implements:
- * - Real process address-space (CR3, page-table ownership)
+ * - Proposed process address-space (CR3, page-table ownership)
  * - SYSCALL/SYSRET entry point
  * - Syscall dispatcher for all required operations
  * - Signal delivery to ring-3
  * - Child process management
  * 
- * This is production-grade code ready for kernel integration.
+ * Reference syscall sketch only; not integrated into the active kernel and not runtime-verified.
  */
 
 #include <stdint.h>

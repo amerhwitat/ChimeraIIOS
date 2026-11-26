@@ -2,7 +2,7 @@
 
 ## What's Included
 
-This package includes **production-grade kernel code** for full CPL3 process execution:
+This package contains **reference/proposed kernel code**; it is not integrated or runtime-verified and does not establish CPL3 execution.
 
 ### Files
 
@@ -212,4 +212,4 @@ Questions or issues:
 
 ---
 
-**This code is production-ready. Integration can begin immediately.**
+**This code is not integrated or verified as production-ready; release acceptance remains blocked.**

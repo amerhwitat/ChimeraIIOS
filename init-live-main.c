@@ -1,3 +1,6 @@
+/* Historical Linux reference sample, not a Koronos-native init. Markers below
+ * are sample source output only; they do not establish a native handoff or
+ * production acceptance. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,7 +25,7 @@ void print_banner(void) {
     printf("[KORONOS_INIT] Version: %s\n", KORONOS_VERSION);
     printf("[KORONOS_INIT] Architecture: x86_64\n");
     printf("[KORONOS_INIT] PID: %d (Parent: %d)\n", getpid(), getppid());
-    printf("[KORONOS_INIT] Status: CPL3 RING-3 USER SPACE\n");
+    printf("[LINUX_REFERENCE_INIT] Status: Linux reference marker only\n");
     printf("================================================================================\n\n");
 }
 
@@ -129,7 +132,7 @@ void signal_handler(int sig) {
 }
 
 int main(int argc, char *argv[]) {
-    printf("[KORONOS_INIT_CPL3_ACKNOWLEDGEMENT] PID=%d\n", getpid());
+    printf("[LINUX_REFERENCE_INIT_ACKNOWLEDGEMENT] PID=%d\n", getpid());
     
     // Verify we're PID 1
     if (getpid() != 1) {
@@ -148,8 +151,8 @@ int main(int argc, char *argv[]) {
     setup_environment();
     start_services();
     
-    printf("[KORONOS_INIT] Handoff sequence complete\n");
-    printf("[KORONOS_INIT] CPL3 RING-3 USERSPACE ACTIVE\n");
+    printf("[LINUX_REFERENCE_INIT] reference sequence complete; not a native handoff\n");
+    printf("[LINUX_REFERENCE_INIT] native CPL3 not established\n");
     printf("[KORONOS_INIT] Launching Live environment...\n\n");
     
     // Launch desktop

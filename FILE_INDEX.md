@@ -1,3 +1,5 @@
+> Legacy status document (2026-11-26): build tooling is documented here, but production acceptance is gated and not established. The enforced release verifier and final disposition remain authoritative.
+
 # 📋 MASTER INDEX - CHIMERA II OS BUILD SYSTEM
 ## Complete File Listing & Usage Guide
 
@@ -304,7 +306,7 @@ build-report.txt                                      # Build details
 | Aspect | Details |
 |--------|---------|
 | **System Version** | 1.0.0 |
-| **Status** | ✅ Production Ready |
+| **Status** | Build tooling documented; release acceptance gated |
 | **Last Updated** | 2026-09-19 |
 | **Build System** | Docker + ISO Builder |
 | **Included Repos** | 13 GitHub repositories |

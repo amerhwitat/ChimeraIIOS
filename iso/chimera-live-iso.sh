@@ -237,7 +237,7 @@ ISO_XORRISO_OPTS=(
   -rockridge on
   -volid "CHIMERA_II_OS"
 )
-echo "[INFO] Mastering large-capacity BIOS+UEFI ISO (ISO9660 level 3)..."
+echo "[INFO] Mastering BIOS+UEFI ISO with native xorriso Rock Ridge/Joliet options..."
 grub-mkrescue -o "$OUT" "$STAGE" -- "${ISO_XORRISO_OPTS[@]}"
 test -s "$OUT"
 

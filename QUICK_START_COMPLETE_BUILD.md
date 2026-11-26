@@ -1,3 +1,5 @@
+> Legacy status document (2026-11-26): build tooling is documented here, but production acceptance is gated and not established. The enforced release verifier and final disposition remain authoritative.
+
 # CHIMERA II OS - COMPLETE BUILD SYSTEM - QUICK REFERENCE
 
 ## 🚀 START HERE (3 Commands)
@@ -188,6 +190,6 @@ For manual steps: See COMPLETE_BUILD_GUIDE.md § Manual Steps
 
 ---
 
-*Status: ✅ READY FOR PRODUCTION*
+*Status: production acceptance gated and not established*
 *Version: 1.0.0*
 *Created: 2026-09-19*

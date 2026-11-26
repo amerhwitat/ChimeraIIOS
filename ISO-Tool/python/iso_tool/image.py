@@ -15,7 +15,7 @@ def create_iso(staging:Path,output:Path,label='ISO_TOOL',profile='data'):
     if cfg.uefi_boot and (not efi or not efi.is_file()):raise RuntimeError(f'UEFI boot image missing: {cfg.uefi_boot}')
     if name in ('xorriso','xorrisofs'):
         cmd=[backend,'-as','mkisofs','-iso-level','3','-V',label,'-J','-R','-c','boot.catalog']
-        if cfg.udf_version:cmd+=['-udf']
+        # UDF is unavailable in xorriso mkisofs-emulation mode; do not pass -udf.
         if bios:cmd+=['-b',cfg.bios_boot,'-no-emul-boot','-boot-load-size','4','-boot-info-table']
         if efi:cmd+=['-eltorito-alt-boot','-e',cfg.uefi_boot,'-no-emul-boot']
         cmd+=['-o',str(output),str(staging)]
