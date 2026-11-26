@@ -10,7 +10,7 @@ def main():
     menu=json.loads((ROOT/"boot/boot-menu-contract.json").read_text())
     require(manifest.get("schema")=="CHM-BOOT-ARTWORK-3","unknown artwork manifest schema")
     require(menu.get("schema")=="CHM-BOOT-MENU-4","unknown boot menu contract schema")
-    expected=["spitfire","jasper","grub","koronos","aurora"]
+    expected=["spitfire","jasper","grub","menus","koronos","aurora"]
     chain=manifest.get("boot_chain",{})
     require(all(k in chain for k in expected),"boot chain is missing a required stage")
     require(menu.get("kernel")=="Koronos" and menu.get("primary_loader")=="Spit Fire","boot menu identity mismatch")
@@ -59,7 +59,11 @@ def main():
     values=[]
     for key in expected:
         rawp=str(chain[key].get("progress",""))
+        require(rawp,f"{key} progress contract is empty")
         nums=[int(n) for n in re.findall(r"\d+",rawp)]
+        if key=="menus" and not nums:
+            # The menu stage is selection-dependent; it has no fixed percent.
+            continue
         require(nums,f"{key} progress is not machine-readable")
         values.append(nums[0])
     require(values==sorted(values),f"boot progress stages are not monotonic: {values}")

@@ -231,10 +231,10 @@ printf '%s\n' '[6/7] Master BIOS + UEFI hybrid ISO'
 command -v grub-mkrescue >/dev/null || { echo "grub-mkrescue is required." >&2; exit 2; }
 command -v xorriso >/dev/null || { echo "xorriso is required." >&2; exit 2; }
 # grub-mkrescue accepts its own options before the source tree. Do not pass
-# genisoimage/mkisofs flags such as -iso-level directly: grub-mkrescue forwards
-# them to xorriso, where they are rejected as unknown commands. Let xorriso use
-# its native defaults for a hybrid BIOS/UEFI image.
-grub-mkrescue -o "$DIST/output.iso" "$DIST/iso"
+# genisoimage/mkisofs flags such as -R/-J/-iso-level directly: grub-mkrescue
+# forwards them to xorriso, where they are rejected as unknown commands.
+# Enable Rock Ridge and Joliet with xorriso-native switches instead.
+grub-mkrescue -o "$DIST/output.iso" "$DIST/iso" -- -rockridge on -joliet on
 test -s "$DIST/output.iso"
 sha256sum "$DIST/output.iso" | tee "$DIST/output.iso.sha256"
 

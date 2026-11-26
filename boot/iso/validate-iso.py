@@ -18,7 +18,7 @@ def validate(tree: pathlib.Path):
     for p in sorted(tree.rglob('*')):
         if p.is_file() and 'checksums' not in p.parts:
             files.append({'path':p.relative_to(tree).as_posix(),'size':p.stat().st_size,'sha256':sha256(p)})
-    return {'format':'chimera-iso-layout-v2','media':'iso9660-el-torito','boot':['bios-multiboot2','uefi-when-available'],'files':files}
+    return {'format':'chimera-iso-layout-v3','media':'iso9660-el-torito','boot':['bios-multiboot2','uefi-when-available'],'files':files}
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--tree',required=True); ap.add_argument('--write-manifest'); ap.add_argument('--json',action='store_true'); a=ap.parse_args()

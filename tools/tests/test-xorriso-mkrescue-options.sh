@@ -22,21 +22,27 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 script="$SCRIPT_DIR/build-chimera-iso.sh"
 
-# xorriso's mkisofs emulation supports -R/-r for Rock Ridge, not -rockridge.
-# Keep the build script limited to options documented by xorriso.
-if grep -Eq 'local xorriso_opts=.*-rockridge' "$script"; then
-    echo "FAIL: build-chimera-iso.sh passes unsupported -rockridge to xorriso"
+# grub-mkrescue forwards post-`--` arguments to xorriso in native command
+# mode. The mkisofs compatibility flags -R/-J are rejected there; the
+# supported switches are -rockridge on and -joliet on.
+grep -Fq 'xorriso_opts=( -rockridge on -joliet on )' "$script" || {
+    echo "FAIL: build-chimera-iso.sh lacks supported xorriso Rock Ridge/Joliet switches"
+    exit 1
+}
+
+grep -Fq '"${xorriso_opts[@]}"' "$script" || {
+    echo "FAIL: build-chimera-iso.sh does not pass xorriso_opts to grub-mkrescue"
+    exit 1
+}
+
+if grep -Eq 'xorriso_opts=.*[[:space:]]-R[[:space:]]' "$script"; then
+    echo "FAIL: build-chimera-iso.sh uses unsupported mkisofs -R flag"
+    exit 1
+fi
+if grep -Eq 'xorriso_opts=.*[[:space:]]-J[[:space:]]' "$script"; then
+    echo "FAIL: build-chimera-iso.sh uses unsupported mkisofs -J flag"
     exit 1
 fi
 
-grep -Eq 'local xorriso_opts=.*-R([[:space:]]|[-])' "$script" || {
-    echo "FAIL: build-chimera-iso.sh does not enable Rock Ridge with supported -R"
-    exit 1
-}
 
-grep -Eq 'local xorriso_opts=.*-J([[:space:]]|[-])' "$script" || {
-    echo "FAIL: build-chimera-iso.sh does not enable Joliet with supported -J"
-    exit 1
-}
-
-echo "PASS: xorriso mkisofs options use supported Rock Ridge/Joliet flags"
+echo "PASS: xorriso native options use supported Rock Ridge/Joliet switches"
