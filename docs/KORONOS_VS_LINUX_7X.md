@@ -26,8 +26,8 @@ reference model* — the same boot contract, the same build ergonomics, the same
 | Console | `tty`, `printk` → serial/VT | `console_write` → debugcon/serial, `pc-display` driver | Userspace writes go through `CHM_SYS_WRITE` to the same console. |
 | Build system | Kbuild/Kconfig, `make defconfig`, `-j`, modules | `kernel/Kbuild` + `Kconfig` + `scripts/kconfig`, `make -C kernel defconfig && make -C kernel -j`, `make modules`, `make install` | **Aligned**: Linux-style targets and per-directory `Kbuild` fragments; the legacy `build-koronos.sh` recipe is retained as `make legacy`. |
 | Module model | `insmod`, ELF relocations, vermagic | Multiboot2 modules (`module2`), typed by name (`chimera-live-initramfs`, `chimera-installer-contract`, `chimera-user-init-elf`, …) | Modules are staged by the ISO, not loaded at runtime. |
-| Init contract | `/sbin/init`, persistent PID 1, `execve` | one target-specific `chimera-user-init-elf` probe per boot | **Probe only.** Current target launcher enters ring 3 synchronously, waits for return, destroys the address space, and marks the process exited. It is not a persistent PID 1 or service manager. |
-| Initramfs | cpio + gzip/zstd, unpacked by the kernel | cpio+gzip image staged as a Multiboot2 module, surfaced to the target | The initramfs is *payload data* today, not an unpacked rootfs. |
+| Init contract | `/sbin/init`, persistent PID 1, `execve` | target ELF receives a kernel PID, proves CPL3 syscall origin, emits readiness and `PID1 ACTIVE`, then spins in `init_pid1_wait()` | A resident ring-3 context exists, but it is a synchronous busy-loop, not a process-aware scheduler, child supervisor, or service manager. |
+| Initramfs | cpio + gzip/zstd, unpacked by the kernel | bounded CPIO archive is validated and mounted into a limited RAM namespace; writable `/tmp` is reserved | This is not a general VFS: device nodes, normal file descriptors, filesystem-backed `open/read/write/close`, and a full root namespace are still missing. |
 | Verification | boot selftests, `kselftest`, CI | fail-closed trace verifier (`tests/*/verify-userspace-handoff.py`), QEMU BIOS+UEFI matrix | Kept intentionally stricter than the kernel it validates: marker must come from user code after a CPL-3 syscall. |
 
 ## 2. What "use Linux as the reference" changed in this tree
@@ -60,8 +60,10 @@ a production userspace runtime.
 | CR3 activation and ring-3 entry | Synchronous x86-64 entry path exists |
 | CPL3-originated syscall acknowledgement | Implemented in the probe path; must be confirmed in fresh QEMU traces |
 | Target/PID readiness marker | Probe contract exists; a marker is not proof of a persistent init |
-| Persistent PID 1 and process-aware scheduler | NOT IMPLEMENTED |
-| Initramfs unpacking and mounted rootfs/VFS | NOT IMPLEMENTED |
+| Resident ring-3 PID 1 | Implemented as a single synchronous context that emits the kernel `PID1 ACTIVE` marker and then busy-loops in `init_pid1_wait()` |
+| Process-aware scheduler, child lifecycle and service supervision | NOT IMPLEMENTED |
+| Limited CPIO RAM namespace | Implemented for the selected archive; not a general VFS or full mounted root |
+| General VFS and filesystem-backed syscall surface | NOT IMPLEMENTED |
 | Live shell and native desktop startup | NOT IMPLEMENTED on the freestanding Koronos path |
 | Installer disk writes and reboot persistence | NOT IMPLEMENTED |
 | Recovery repair operations and postcondition checks | NOT IMPLEMENTED |
@@ -70,9 +72,10 @@ a production userspace runtime.
 Do not reuse historical six-case PASS statements as current release evidence. A valid
 release claim requires fresh traces from the exact immutable ISO SHA, with the
 unchanged fail-closed verifier, plus separate Live desktop, installer persistence,
-Recovery repair, and AP-concurrency acceptance tests. The current readiness ELF
-manifests explicitly identify their payloads as probes and set
-`production_ready=false`.
+Recovery repair, and AP-concurrency acceptance tests. The current readiness ELF manifests explicitly identify their payloads as
+`ring3-readiness-probe` and set `production_ready=false`. The resident pause loop
+keeps the one ring-3 context alive; it does not provide scheduling or service
+supervision.
 
 ## 4. Deliberate non-goals
 
