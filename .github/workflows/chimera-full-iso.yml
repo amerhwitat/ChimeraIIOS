@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - "kernel/**"
+      - "src/kernel/**"
+      - "include/chimera/**"
+      - "cmake/**"
+      - "tests/unit/**"
       - "boot/**"
       - "installer/**"
       - "desktop/**"
@@ -16,6 +20,7 @@ on:
       - "tools/build-full-iso.*"
       - "CMakeLists.txt"
       - "tests/boot/**"
+      - "tests/unit/**"
       - ".github/workflows/chimera-full-iso.yml"
   push:
     branches: [main]
