@@ -5,6 +5,12 @@ on:
   pull_request:
     paths:
       - "kernel/**"
+      - "src/kernel/**"
+      - "include/chimera/**"
+      - "cmake/**"
+      - "CMakeLists.txt"
+      - "tests/unit/**"
+      - "tests/boot/**"
       - "boot/iso/**"
       - "boot/jasper/**"
       - "iso/**"
