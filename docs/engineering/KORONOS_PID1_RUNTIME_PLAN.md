@@ -7,15 +7,20 @@ Reference model: Linux `init/main.c`, especially `rest_init()`, `kernel_init()`,
 ## Verified source boundary
 
 - `kernel/core/target_launch.cpp` admits and maps one target ELF, switches to its
-  address space, enters ring 3 synchronously, waits for a return/deadline, then
-  destroys the address space and marks the process exited/faulted.
+  address space, enters ring 3 synchronously, and validates a CPL3-originated
+  syscall plus a target/PID readiness write. The target then remains in the
+  `init_pid1_wait()` pause loop; the same kernel call stack is still occupied.
+  If the entry returns or times out, the launcher destroys the address space and
+  marks the process exited/faulted.
 - `kernel/core/process.cpp` is a process metadata/state table. The public header
   still defines `CHIMERA_PROCESS_LOAD_PLAN_ONLY`.
 - `kernel/core/scheduler.cpp` runs callbacks to completion. It does not save/restore
   user register contexts; `chimera_sched_run_parallel()` returns zero until AP
   startup and per-CPU workers are real.
-- Current Live, Installer and Recovery init payloads are readiness probes. They
-  are not production PID 1, a disk installer, or a repair environment.
+- Current Live, Installer and Recovery payloads emit readiness and then remain
+  in a ring-3 `pause` busy-loop. The kernel emits a matching `KORONOS PID1 ACTIVE`
+  marker, but this is not a process-aware scheduler, child supervisor, or service
+  manager. Installer remains report-only; Recovery performs no repair.
 - Initramfs modules are currently boot payloads, not a mounted root filesystem
   with a production VFS/syscall surface.
 
