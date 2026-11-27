@@ -6,18 +6,21 @@
   "execution": {
     "pe32": true,
     "pe32_plus": true,
-    "exe_process_loader": true,
-    "dll_image_loader": true,
-    "section_mapping": true,
+    "exe_process_loader": false,
+    "dll_image_loader": false,
+    "section_mapping": false,
     "base_relocations": true,
     "import_table": true,
     "export_table": true,
-    "tls_directory": "planned",
+    "tls_directory": "parsed-not-executed",
     "seh_unwind": "planned",
     "delay_load": "planned",
     "api_set_schema": "planned",
-    "native_execution_entrypoint": "planned",
-    "wow64_x86_on_x64": "planned"
+    "native_execution_entrypoint": "not-implemented",
+    "wow64_x86_on_x64": "planned",
+    "import_resolution": "not-implemented",
+    "pe_inspection": true,
+    "in_memory_image_model": true
   },
   "architecture_rules": {
     "x86_process": [
@@ -194,5 +197,14 @@
       "implemented API imports or execution on Windows host"
     ],
     "source_import_note": "Do not claim any particular assembly source file has been imported unless it is present in the repository and tested."
+  },
+  "implementation_status": {
+    "pe_parser": "implemented-partial",
+    "pe_image_mapping": "implemented-buffer-model-only",
+    "import_resolution": "not-implemented",
+    "kernel_process_creation": "not-implemented",
+    "native_pe_execution": "not-implemented",
+    "win32_api_shims": "partial/planned",
+    "win32_gui": "planned"
   }
 }
