@@ -168,8 +168,10 @@ def main() -> int:
 
         qemu_args = [
             "qemu-system-x86_64",
+            "-machine", "q35,accel=tcg",
+            "-cpu", "max",
             "-m", "512",
-            "-smp", "1",
+            "-smp", "2",
             "-cdrom", str(iso),
             "-hda", str(disk),
             "-serial", f"file:{serial_trace}",
@@ -204,6 +206,10 @@ def main() -> int:
                     kernel_trace,
                     [
                         "[KRN ] KORONOS READY",
+                        "[PMT ] SELFTEST PASS",
+                        "[SMP ] SELFTEST PASS",
+                        "[SMP ] ap_online=1",
+                        "[SMP ] overlap_samples=256",
                         f"USER INIT SYSCALL: target={target}",
                         f"USERSPACE READY: target={target}",
                     ],
@@ -233,6 +239,17 @@ def main() -> int:
             "init_syscall": f"USER INIT SYSCALL: target={target}" in trace_text,
             "userspace_ready": f"USERSPACE READY: target={target}" in trace_text,
         }
+        runtime_gates = {
+            "timer_preemption": "[PMT ] SELFTEST PASS" in trace_text,
+            "ap_startup": "[SMP ] SELFTEST PASS" in trace_text,
+            "ap_online": "[SMP ] ap_online=1" in trace_text,
+            "two_cpu_overlap_256_rounds": "[SMP ] overlap_samples=256" in trace_text,
+            "native_block_vfs_pid1": "[NST ] SELFTEST PASS" in trace_text,
+            "installer_recovery_transaction": "[INS ] SELFTEST PASS" in trace_text,
+        }
+        if not runtime_gates["timer_preemption"] or not runtime_gates["ap_startup"] or not runtime_gates["ap_online"] or not runtime_gates["two_cpu_overlap_256_rounds"]:
+            status = "FAIL"
+            failure = failure or "native timer-preemption/AP-startup/two-CPU-overlap runtime gate failed"
         if verify.returncode != 0:
             status = "FAIL"
             failure = failure or f"handoff verifier failed: {verify.stderr.strip() or verify.stdout.strip()}"
@@ -258,6 +275,7 @@ def main() -> int:
             "qemu_command": command_line,
             "qemu_exit_code": exit_code,
             "handoff": handoff,
+            "runtime_gates": runtime_gates,
             "handoff_verifier": {
                 "returncode": verify.returncode,
                 "stdout": verify.stdout.strip(),
