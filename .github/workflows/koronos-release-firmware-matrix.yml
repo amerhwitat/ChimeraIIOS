@@ -60,8 +60,19 @@ jobs:
           CHIMERA_KERNEL="$GITHUB_WORKSPACE/build/koronos/x86_64/koronos.elf" \
           CHIMERA_OUTPUT_ISO="$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso" \
             bash iso/chimera-live-iso.sh
+          test -s "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso"
+          sha256sum "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso" > "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso.sha256"
           file "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso"
-          sha256sum "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso"
+          sha256sum -c "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso.sha256"
+
+      - name: Run BIOS Live ring-3 VFS acceptance on the immutable ISO
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/boot/run-qemu-live-vfs.py
+          python3 tools/boot/run-qemu-live-vfs.py \
+            --iso "$GITHUB_WORKSPACE/build/release-matrix/chimera-release-matrix.iso" \
+            --output "$GITHUB_WORKSPACE/build/release-matrix/live-vfs-bios" \
+            --timeout 75
 
       - name: Run Live/Installer/Recovery x BIOS/UEFI against one ISO
         run: |
