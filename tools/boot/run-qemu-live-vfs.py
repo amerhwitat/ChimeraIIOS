@@ -42,35 +42,18 @@ def read_text(path: Path) -> str:
         return ""
 
 
-def wait_for_grub_menu(serial_log: Path, process: subprocess.Popen[bytes]) -> bool:
-    """Wait until GRUB has actually rendered the Live menu before injecting a key."""
-    deadline = time.monotonic() + 25
+def connect_serial(path: Path, process: subprocess.Popen[bytes], timeout: float = 15.0):
+    deadline = time.monotonic() + timeout
     while time.monotonic() < deadline and process.poll() is None:
-        serial = read_text(serial_log)
-        if "Live Aurora / Koronos" in serial:
-            time.sleep(0.5)
-            return True
-        time.sleep(0.2)
-    return False
-
-
-def send_enter(monitor_path: Path, process: subprocess.Popen[bytes]) -> bool:
-    deadline = time.monotonic() + 15
-    while time.monotonic() < deadline and process.poll() is None:
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
-            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as monitor:
-                monitor.settimeout(1)
-                monitor.connect(str(monitor_path))
-                try:
-                    monitor.recv(4096)
-                except OSError:
-                    pass
-                monitor.sendall(b"sendkey ret\n")
-                return True
+            client.connect(str(path))
+            client.settimeout(0.1)
+            return client
         except OSError:
+            client.close()
             time.sleep(0.1)
-    return False
-
+    return None
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -85,7 +68,7 @@ def main() -> int:
     checksum = iso.with_suffix(iso.suffix + ".sha256")
     serial_log = output / "bios-serial.log"
     debug_log = output / "bios-debugcon.log"
-    monitor = output / "qemu-monitor.sock"
+    serial_socket = output / "qemu-serial.sock"
     evidence_file = output / "bios-live-runtime-evidence.json"
 
     if not iso.is_file() or not checksum.is_file():
@@ -100,32 +83,57 @@ def main() -> int:
     command = [
         "qemu-system-x86_64", "-machine", "q35,accel=tcg", "-m", "2048",
         "-smp", "1", "-cdrom", str(iso), "-boot", "d", "-display", "none",
-        "-serial", f"file:{serial_log}", "-debugcon", f"file:{debug_log}",
-        "-global", "isa-debugcon.iobase=0xe9",
-        "-monitor", f"unix:{monitor},server,nowait", "-no-reboot", "-no-shutdown",
+        "-serial", f"unix:{serial_socket},server=on,wait=off",
+        "-debugcon", f"file:{debug_log}",
+        "-global", "isa-debugcon.iobase=0xe9", "-no-reboot", "-no-shutdown",
     ]
     process = None
+    serial_client = None
+    grub_menu_seen = False
     enter_sent = False
     timed_out = False
     try:
         process = subprocess.Popen(command, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        grub_menu_seen = wait_for_grub_menu(serial_log, process)
-        enter_sent = send_enter(monitor, process) if grub_menu_seen else False
+        serial_client = connect_serial(serial_socket, process)
+        if serial_client is None:
+            raise RuntimeError("QEMU serial socket did not accept a connection")
         deadline = time.monotonic() + max(15, args.timeout)
-        while time.monotonic() < deadline and process.poll() is None:
-            trace = read_text(debug_log)
-            if all(marker in trace for marker in REQUIRED.values()):
-                break
-            if "KORONOS PANIC:" in trace or "[RUN ] ERROR:" in trace:
-                break
-            time.sleep(0.25)
-        else:
-            timed_out = True
+        serial_buffer = bytearray()
+        with serial_log.open("wb") as serial_stream:
+            while time.monotonic() < deadline and process.poll() is None:
+                try:
+                    chunk = serial_client.recv(65536)
+                except socket.timeout:
+                    chunk = b""
+                if chunk:
+                    serial_stream.write(chunk)
+                    serial_stream.flush()
+                    serial_buffer.extend(chunk)
+                    if len(serial_buffer) > 8192:
+                        del serial_buffer[:-8192]
+                    if not grub_menu_seen and b"Live Aurora / Koronos" in serial_buffer:
+                        grub_menu_seen = True
+                        time.sleep(0.25)
+                        serial_client.sendall(b"\\r")
+                        enter_sent = True
+                trace = read_text(debug_log)
+                if all(marker in trace for marker in REQUIRED.values()):
+                    break
+                if "KORONOS PANIC:" in trace or "[RUN ] ERROR:" in trace:
+                    break
+                time.sleep(0.1)
+            else:
+                timed_out = True
     except FileNotFoundError:
         print("QEMU runtime test: qemu-system-x86_64 is not installed", file=sys.stderr)
         return 2
     finally:
+        if serial_client is not None:
+            try:
+                serial_client.close()
+            except OSError:
+                pass
         if process is not None and process.poll() is None:
             process.terminate()
             try:
@@ -134,7 +142,7 @@ def main() -> int:
                 process.kill()
                 process.wait(timeout=5)
         try:
-            monitor.unlink(missing_ok=True)
+            serial_socket.unlink(missing_ok=True)
         except OSError:
             pass
 
