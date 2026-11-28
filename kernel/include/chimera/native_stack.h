@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+enum koronos_gate_result { KORONOS_GATE_FAILED = -1, KORONOS_GATE_PASS = 0, KORONOS_GATE_SKIPPED = 1 };
+
 /* Native block/VFS/PID 1 acceptance stack.
  *
  * The block backend is a real legacy virtio-blk PCI device driven through
