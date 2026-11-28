@@ -15,6 +15,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/smp.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
