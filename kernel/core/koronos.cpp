@@ -648,9 +648,13 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     int smp_rc = -1;
     if (preempt_rc == 0) {
         smp_rc = koronos_smp_selftest();
-        console_write(smp_rc == 0
-            ? "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed"
-            : "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED");
+        if (smp_rc == 0) {
+            console_write("[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed");
+        } else if (smp_rc == KORONOS_SMP_SELFTEST_SKIPPED) {
+            console_write("[SMP ] AP startup gate skipped: only one logical CPU is available");
+        } else {
+            console_write("[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED");
+        }
     } else {
         console_write("[SMP ] gate not started: preemption gate failed");
     }
