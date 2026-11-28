@@ -130,6 +130,17 @@ qemu_boot() {
     -no-reboot >"$OUT/qemu.stdout" 2>"$OUT/qemu.stderr"
 }
 
+assert_token() {
+  local file="$1"
+  local token="$2"
+  grep -aFq "$token" "$file" || fail "missing debugcon token in $file: $token"
+}
+field() {
+  local file="$1"
+  local token="$2"
+  grep -aF "$token" "$file" | tail -n 1 | tr -d '\r' | awk -F= '{print $2}'
+}
+
 echo "== Normal boot safety preflight: disk must remain untouched without explicit module =="
 disk_before="$(sha256sum "$DISK" | awk '{print $1}')"
 set +e
@@ -154,17 +165,6 @@ qemu_boot "$ISO" "$WRITE_LOG" "$OUT/serial-write.log" 180
 write_rc=$?
 set -e
 [[ "$write_rc" -eq 0 || "$write_rc" -eq 124 ]] || fail "first QEMU boot exited with $write_rc"
-
-assert_token() {
-  local file="$1"
-  local token="$2"
-  grep -aFq "$token" "$file" || fail "missing debugcon token in $file: $token"
-}
-field() {
-  local file="$1"
-  local token="$2"
-  grep -aF "$token" "$file" | tail -n 1 | tr -d '\r' | awk -F= '{print $2}'
-}
 
 assert_token "$WRITE_LOG" "[NST ] PERSIST WRITE PASS"
 assert_token "$WRITE_LOG" "[NST ] REBOOTING FOR PERSISTENCE CHECK"
