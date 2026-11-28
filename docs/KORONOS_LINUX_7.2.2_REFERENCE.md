@@ -53,6 +53,20 @@ This is architectural study material, not a source-code donor. Do not copy propr
 
 Linux kernel source is GPL-2.0-only. This project uses its algorithms, contracts, and public interfaces as design references and writes original Koronos code. If any Linux source is copied or adapted directly, record the exact upstream path, commit, copyright/license notices, and comply with GPL-2.0 obligations before distributing the derivative. Do not mix Linux code into a differently licensed component without a deliberate license review.
 
+## Current Aurora/Wayland implementation gap
+
+A source-tree check found that `desktop/aurora/wayland/aurora_wayland_backend.hpp` exists, but its included `aurora_desktop.hpp` and the referenced `aurora_wayland_backend.cpp` implementation are absent from the source tree. The Developer Guide contains an old illustrative implementation, but it is not production-safe to copy as-is: it loses the distinction between backend and surface user data, does not retain surface ownership in the backend map, leaves pointer/keyboard resources unbound, and has no usable shared-memory buffer/output/xdg-shell pipeline. It is a design note, not a compilable compositor.
+
+`desktop/native/chimera-desktop-shell.cpp` is a GTK host shell client. It is not a Wayland compositor and cannot run directly on Koronos. The current `kernel/targets/live_init.c` is a ring-3 text console. A real native Aurora session still requires:
+- A compilable compositor core and a retained surface/resource lifetime model.
+- `wl_shm` or DMA-BUF buffer import, damage tracking, output globals, frame callbacks, and xdg-shell roles.
+- Seat/pointer/keyboard resource ownership and real input-event delivery.
+- DRM/KMS or framebuffer presentation, modesetting, synchronization, and fallback.
+- Kernel process scheduling and graphics/input service APIs so the compositor and shell can run as ordinary user processes.
+- A session manager, launcher, terminal, file manager, and logout/shutdown lifecycle.
+
+The desktop compatibility workflow's GTK/OpenGL/OpenCV tests are host/component checks; they do not close these native compositor or Koronos runtime gates.
+
 ## Desktop source references
 
 For compositor and protocol work, use the upstream [Wayland](https://gitlab.freedesktop.org/wayland/wayland), [wayland-protocols](https://gitlab.freedesktop.org/wayland/wayland-protocols), and [Weston](https://gitlab.freedesktop.org/wayland/weston) source trees. For the Linux-side device contracts, trace DRM/KMS and evdev/input in the pinned kernel source. A successful OpenGL/OpenCV component build or an Aurora artwork/media check is not evidence that a native compositor, shell, session manager, and applications have started.
