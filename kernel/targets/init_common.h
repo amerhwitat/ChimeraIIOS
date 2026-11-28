@@ -63,7 +63,7 @@ static long init_lseek(long fd, long offset, long whence) {
     return init_syscall3(LINUX_X86_64_SYS_LSEEK, fd, offset, whence);
 }
 static long init_close(long fd) {
-    return init_syscall1(LINUX_X86_64_SYS_CLOSE);
+    return init_syscall3(LINUX_X86_64_SYS_CLOSE, fd, 0, 0);
 }
 static int init_bytes_equal(const char *a, const char *b, long length) {
     for (long i=0;i<length;i++) if (a[i]!=b[i]) return 0;
