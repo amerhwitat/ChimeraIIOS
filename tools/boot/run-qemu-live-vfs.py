@@ -115,7 +115,7 @@ def main() -> int:
                     if not grub_menu_seen and b"Live Aurora / Koronos" in serial_buffer:
                         grub_menu_seen = True
                         time.sleep(0.25)
-                        serial_client.sendall(b"\\r")
+                        serial_client.sendall(b"\r")
                         enter_sent = True
                 trace = read_text(debug_log)
                 if all(marker in trace for marker in REQUIRED.values()):
