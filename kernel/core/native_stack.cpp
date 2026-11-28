@@ -134,6 +134,14 @@ static uint32_t reaped_status_ = 0;
 static uint32_t zombies_after_reap_ = 0;
 static int selftest_result_ = -1;
 
+static bool user_init_module_present_() {
+    for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
+        const chimera_boot_module *module = chimera_multiboot_module(i);
+        if (module && module->kind == CHIMERA_MODULE_USER_INIT_ELF) return true;
+    }
+    return false;
+}
+
 static bool install_module_present_() {
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
@@ -357,9 +365,14 @@ static void machine_reset_() {
 extern "C" int koronos_native_stack_selftest(void) {
     if (selftest_result_ >= 0) return selftest_result_;
     selftest_result_ = -1;
+    if (user_init_module_present_()) {
+        debug_("[NST ] SKIPPED: production USER_INIT_ELF selected; destructive reboot self-test is test-boot only");
+        selftest_result_ = 1;
+        return selftest_result_;
+    }
     if (install_module_present_()) {
         debug_("[NST ] SKIPPED: install target selected");
-        selftest_result_ = 0;
+        selftest_result_ = 1;
         return selftest_result_;
     }
     debug_("[NST ] starting native block/VFS/PID1 gate");
