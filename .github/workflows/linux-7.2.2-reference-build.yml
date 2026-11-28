@@ -1,0 +1,128 @@
+name: Linux 7.2.2 Reference Kernel and BusyBox
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/linux-7.2.2-reference-build.yml"
+      - "docs/KORONOS_LINUX_7.2.2_REFERENCE.md"
+
+permissions:
+  contents: read
+
+jobs:
+  linux-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux and BusyBox build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc bison flex libelf-dev libssl-dev libncurses-dev dwarves perl python3 rsync cpio gzip xz-utils qemu-system-x86 curl
+
+      - name: Acquire and pin upstream Linux v7.2.2
+        run: |
+          git clone --depth 1 --branch v7.2.2 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git linux-v7.2.2
+          cd linux-v7.2.2
+          commit="$(git rev-parse HEAD)"
+          printf '%s\n' "$commit" | tee ../linux-source-commit.txt
+          case "$commit" in
+            52c36105f76e*) ;;
+            *) echo "Unexpected Linux v7.2.2 tag commit: $commit" >&2; exit 1 ;;
+          esac
+          test "$(git describe --tags --exact-match)" = "v7.2.2"
+
+      - name: Configure and build Linux x86_64 bzImage
+        run: |
+          cd linux-v7.2.2
+          make ARCH=x86_64 x86_64_defconfig
+          scripts/config --enable BLK_DEV_INITRD
+          scripts/config --enable DEVTMPFS
+          scripts/config --enable DEVTMPFS_MOUNT
+          scripts/config --enable SERIAL_8250
+          scripts/config --enable SERIAL_8250_CONSOLE
+          scripts/config --enable VIRTIO_PCI
+          scripts/config --enable VIRTIO_BLK
+          scripts/config --enable EXT4_FS
+          scripts/config --enable PROC_FS
+          scripts/config --enable SYSFS
+          scripts/config --enable TMPFS
+          make ARCH=x86_64 olddefconfig
+          make ARCH=x86_64 -j2 bzImage
+          test -s arch/x86/boot/bzImage
+          test -s vmlinux
+          file arch/x86/boot/bzImage vmlinux
+          readelf -h vmlinux | grep -q 'ELF64'
+
+      - name: Acquire and verify BusyBox 1.37.0 source
+        run: |
+          curl --fail --location --retry 3 --output busybox-1.37.0.tar.bz2 https://busybox.net/downloads/busybox-1.37.0.tar.bz2
+          echo "3311dff32e746499f4df0d5df04d7eb396382d7e108bb9250e7b519b837043a4  busybox-1.37.0.tar.bz2" | sha256sum --check
+          tar -xjf busybox-1.37.0.tar.bz2
+
+      - name: Build static BusyBox and assemble Linux initramfs
+        run: |
+          cd busybox-1.37.0
+          make defconfig
+          sed -i 's/^# CONFIG_STATIC is not set/CONFIG_STATIC=y/' .config
+          yes "" | make oldconfig
+          make -j2
+          make CONFIG_PREFIX="$GITHUB_WORKSPACE/linux-rootfs" install
+          cd "$GITHUB_WORKSPACE"
+          ROOTFS="$GITHUB_WORKSPACE/linux-rootfs"
+          mkdir -p "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/tmp" "$ROOTFS/etc"
+          cat > "$ROOTFS/init" <<'INIT'
+          #!/bin/sh
+          mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+          mount -t proc proc /proc
+          mount -t sysfs sysfs /sys
+          echo "[LINUX-REF] Linux v7.2.2 initramfs PID1 reached"
+          cat /proc/version
+          uname -a
+          busybox | head -n 1
+          echo "[LINUX-REF] BusyBox userspace ready"
+          exec /bin/sh
+          INIT
+          chmod 0755 "$ROOTFS/init"
+          (cd "$ROOTFS" && find . -print0 | cpio --null --create --format=newc | gzip -9) > linux-reference-initramfs.cpio.gz
+          test -s linux-reference-initramfs.cpio.gz
+
+      - name: Boot Linux plus BusyBox in QEMU
+        run: |
+          set +e
+          timeout 30s qemu-system-x86_64 \
+            -machine pc -cpu max -m 512 \
+            -kernel linux-v7.2.2/arch/x86/boot/bzImage \
+            -initrd linux-reference-initramfs.cpio.gz \
+            -append "console=ttyS0 rdinit=/init panic=-1" \
+            -nographic -monitor none -no-reboot > linux-reference-qemu.log 2>&1
+          rc=$?
+          set -e
+          [[ "$rc" -eq 124 || "$rc" -eq 0 ]]
+          grep -Fq "Linux version 7.2.2" linux-reference-qemu.log
+          grep -Fq "[LINUX-REF] Linux v7.2.2 initramfs PID1 reached" linux-reference-qemu.log
+          grep -Fq "BusyBox v1.37.0" linux-reference-qemu.log
+          grep -Fq "[LINUX-REF] BusyBox userspace ready" linux-reference-qemu.log
+          echo "LINUX_QEMU_EXIT=$rc" | tee linux-reference-result.txt
+          echo "LINUX_VERSION=7.2.2" | tee -a linux-reference-result.txt
+          echo "BUSYBOX_VERSION=1.37.0" | tee -a linux-reference-result.txt
+          echo "LINUX_DESKTOP=not_built_by_this_reference_job" | tee -a linux-reference-result.txt
+
+      - name: Upload Linux reference build and runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-7.2.2-busybox-1.37.0-reference
+          path: |
+            linux-source-commit.txt
+            linux-v7.2.2/.config
+            linux-v7.2.2/vmlinux
+            linux-v7.2.2/arch/x86/boot/bzImage
+            linux-rootfs/bin/busybox
+            linux-reference-initramfs.cpio.gz
+            linux-reference-qemu.log
+            linux-reference-result.txt
+          if-no-files-found: warn
+          retention-days: 90
