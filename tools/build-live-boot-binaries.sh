@@ -64,6 +64,14 @@ for f in tools/chimera-driver-manager.sh tools/chimera-logrotate.sh tools/boot/c
 [[ -f "$ROOT/config/drivers/driver-repositories.json" ]] && cp -f "$ROOT/config/drivers/driver-repositories.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/drivers/driver-policy.json" ]] && cp -f "$ROOT/config/drivers/driver-policy.json" "$INIT/etc/chimera/drivers/"
 [[ -f "$ROOT/config/recovery/chimera-recovery-targets.json" ]] && cp -f "$ROOT/config/recovery/chimera-recovery-targets.json" "$INIT/etc/chimera/"
+# A deterministic, read-only OS identity file is part of the native Koronos
+# initramfs contract and is exercised by the ring-3 Live acceptance payload.
+cat > "$INIT/etc/os-release" <<'OS_RELEASE'
+NAME="Chimera II OS"
+ID=chimera
+PRETTY_NAME="Chimera II OS (Koronos native)"
+VERSION_ID="1.0"
+OS_RELEASE
 cat > "$INIT/init" <<'EOF'
 #!/bin/sh
 set -eu
