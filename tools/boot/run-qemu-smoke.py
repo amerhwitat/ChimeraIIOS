@@ -89,7 +89,7 @@ def main() -> int:
             "-machine", "pc,accel=tcg",
             "-cpu", "max",
             "-m", "2048",
-            "-smp", "1",
+            "-smp", "2",
             "-cdrom", str(iso),
             "-boot", "order=d,menu=on",
             "-display", "none",
@@ -136,7 +136,23 @@ def main() -> int:
                 "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED" in combined
                 or "[PMT ] SELFTEST FAIL" in combined
             )
-            if "[KRN ] KORONOS READY" in combined and (preemption_pass or preemption_fail):
+            smp_pass = "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed" in combined
+            smp_fail = "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED" in combined
+            native_stack_skipped = "[NST ] SKIPPED: explicit test module absent" in combined
+            install_recovery_skipped = "[INS ] SKIPPED: no install target module" in combined
+            live_userspace_ready = "USERSPACE READY: target=live" in combined
+            pid1_active = "KORONOS PID1 ACTIVE: target=live init_pid=1" in combined
+            if "[KRN ] KORONOS READY" in combined and (preemption_fail or smp_fail):
+                break
+            if (
+                "[KRN ] KORONOS READY" in combined
+                and preemption_pass
+                and smp_pass
+                and native_stack_skipped
+                and install_recovery_skipped
+                and live_userspace_ready
+                and pid1_active
+            ):
                 break
             time.sleep(0.25)
 
@@ -170,22 +186,48 @@ def main() -> int:
         "smp_selftest_pass": (
             "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed" in combined
         ),
+        "smp_selftest_failed": (
+            "[SMP ] Native x86_64 AP startup/two-CPU overlap gate FAILED" in combined
+        ),
         "native_stack_selftest_pass": (
             "[NST ] Native block/VFS/PID1 gate passed" in combined
+        ),
+        "native_stack_selftest_skipped_safely": (
+            "[NST ] SKIPPED: explicit test module absent" in combined
         ),
         "installer_recovery_selftest_pass": (
             "[INS ] Native test-volume journal/rollback/repair gate passed" in combined
         ),
+        "installer_recovery_selftest_skipped_safely": (
+            "[INS ] SKIPPED: no install target module" in combined
+        ),
         "live_userspace_ready": "USERSPACE READY: target=live" in combined,
+        "pid1_active": "KORONOS PID1 ACTIVE: target=live init_pid=1" in combined,
+        "no_false_selftest_pass": (
+            "[NST ] Native block/VFS/PID1 gate passed" not in combined
+            and "[INS ] Native test-volume journal/rollback/repair gate passed" not in combined
+        ),
         "grub_or_kernel_output_seen": bool(serial_text or debug_text or menu_seen),
     }
-    if error is None and markers["kernel_ready"] and markers["preemptive_kernel_task_selftest"]:
+    if (
+        error is None
+        and menu_seen
+        and enter_sent
+        and markers["kernel_ready"]
+        and markers["preemptive_kernel_task_selftest"]
+        and markers["smp_selftest_pass"]
+        and markers["native_stack_selftest_skipped_safely"]
+        and markers["installer_recovery_selftest_skipped_safely"]
+        and markers["live_userspace_ready"]
+        and markers["pid1_active"]
+        and markers["no_false_selftest_pass"]
+    ):
         result = 0
 
     logs = (serial, debugcon, qemu_log, monitor_log)
     evidence_doc = {
-        "schema": "CHIMERA-QEMU-SMOKE-3",
-        "scope": "BIOS QEMU default Live entry; COM1/debugcon; one vCPU; preemption self-test",
+        "schema": "CHIMERA-QEMU-SMOKE-4",
+        "scope": "BIOS QEMU default Live entry; COM1/debugcon; two vCPUs; preemption, AP startup, safe test skips, and ring-3 PID1 readiness",
         "production_acceptance": False,
         "iso_sha256": iso_digest,
         "qemu_command": qemu_command,
