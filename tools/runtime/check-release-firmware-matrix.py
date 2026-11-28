@@ -209,7 +209,12 @@ def main() -> int:
                     ],
                     150,
                 )
-                time.sleep(2)
+                # The target's current PIT deadline is 10 seconds. Observe
+                # beyond that deadline; a readiness marker followed by the
+                # kernel abort must never be certified as resident PID 1.
+                time.sleep(11)
+                if proc.poll() is not None:
+                    raise RuntimeError("QEMU exited during PID 1 lifetime observation")
                 status = "PASS"
             except Exception as exc:
                 failure = f"{type(exc).__name__}: {exc}"
