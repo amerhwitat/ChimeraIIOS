@@ -17,6 +17,12 @@ def run(target, trace):
         return subprocess.run([sys.executable, str(SCRIPT), target, str(log)], capture_output=True, text=True)
 
 class UserspaceHandoffVerifierTests(unittest.TestCase):
+    def test_firmware_matrix_observes_beyond_kernel_pid1_deadline(self):
+        root = Path(__file__).resolve().parents[2]
+        source = (root / "tools/runtime/check-release-firmware-matrix.py").read_text(encoding="utf-8")
+        self.assertIn("time.sleep(11)", source)
+        self.assertIn("QEMU exited during PID 1 lifetime observation", source)
+
     def test_kernel_ready_alone_is_not_userspace_ready(self):
         result = run("live", KERNEL)
         self.assertEqual(result.returncode, 1)
