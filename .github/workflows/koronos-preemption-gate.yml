@@ -101,6 +101,10 @@ jobs:
           path: |
             build/koronos-native-stack/result.txt
             build/koronos-native-stack/iso.sha256
+            build/koronos-native-stack/debugcon-normal.log
+            build/koronos-native-stack/serial-normal.log
+            build/koronos-native-stack/normal-boot.iso
+            build/koronos-native-stack/normal-iso.sha256
             build/koronos-native-stack/debugcon-write.log
             build/koronos-native-stack/debugcon-read.log
             build/koronos-native-stack/serial-write.log
