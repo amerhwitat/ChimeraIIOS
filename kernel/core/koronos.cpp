@@ -658,8 +658,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     if (preempt_rc == 0 && smp_rc == 0) {
         native_rc = koronos_native_stack_selftest();
         console_write(native_rc == 0
-            ? "[NST ] Native block/VFS/PID1 gate passed"
-            : "[NST ] Native block/VFS/PID1 gate FAILED");
+            ? "[NST ] Native block/VFS/PID1 self-test passed"
+            : (native_rc > 0
+                ? "[NST ] Native block/VFS/PID1 self-test SKIPPED for production target"
+                : "[NST ] Native block/VFS/PID1 self-test FAILED"));
     } else {
         console_write("[NST ] gate not started: CPU gates did not pass");
     }
@@ -668,6 +670,8 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
         console_write(install_rc == 0
             ? "[INS ] Native installer/installed-root/recovery gate passed"
             : "[INS ] Native installer/installed-root/recovery gate FAILED");
+    } else if (native_rc > 0 && preempt_rc == 0 && smp_rc == 0) {
+        console_write("[INS ] self-test SKIPPED: production USER_INIT_ELF selected");
     } else {
         console_write("[INS ] gate not started: earlier native gates did not pass");
     }
