@@ -288,5 +288,5 @@ extern "C" int koronos_install_recovery_selftest(void) {
         debug_("[INS ] REBOOTING FOR NEXT PHASE");
         koronos_native_machine_reset();
     }
-    return 0;
+    return KORONOS_GATE_PASS;
 }
