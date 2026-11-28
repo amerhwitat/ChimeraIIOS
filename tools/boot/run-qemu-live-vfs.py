@@ -99,7 +99,7 @@ def main() -> int:
 
     command = [
         "qemu-system-x86_64", "-machine", "q35,accel=tcg", "-m", "2048",
-        "-smp", "2", "-cdrom", str(iso), "-boot", "d", "-display", "none",
+        "-smp", "1", "-cdrom", str(iso), "-boot", "d", "-display", "none",
         "-serial", f"file:{serial_log}", "-debugcon", f"file:{debug_log}",
         "-global", "isa-debugcon.iobase=0xe9",
         "-monitor", f"unix:{monitor},server,nowait", "-no-reboot", "-no-shutdown",
@@ -148,7 +148,7 @@ def main() -> int:
               or "LIVE: FAIL" in line]
     evidence = {
         "schema": "CHIMERA-QEMU-LIVE-VFS-1",
-        "scope": "one BIOS QEMU boot; x86-64 kernel preemption self-test and Live ring-3 initramfs/tmpfs syscalls",
+        "scope": "one BIOS single-CPU QEMU boot; x86-64 kernel-task preemption and Live ring-3 initramfs/tmpfs syscalls",
         "production_acceptance": False,
         "iso_sha256": actual,
         "qemu_command": command,
