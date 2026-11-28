@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Native x86_64 Koronos block/VFS/PID 1 gate.
 #
-# Boots the real kernel with a persistent virtio-blk disk. On the first boot
-# the kernel writes a marker through the real block device and resets the
-# machine; on the second boot it mounts the block filesystem, reads the marker
-# back, and exercises PID 1 child creation/exit/reaping. All preemption and
-# AP/SMP evidence must also be present in the final boot trace.
+# Boots the real kernel with a persistent virtio-blk test disk. An ordinary
+# boot must leave that disk unchanged unless an explicit test module is present.
+# The opt-in test writes/reads a marker across reset and mounts Koronos's small
+# custom test filesystem. Its child exit/reap check is a synchronous callback
+# model, not a scheduler-owned child process. Preemption and AP/SMP evidence
+# must also be present in the final test trace.
 #
 # Usage: tools/runtime/check-koronos-native-stack.sh [--help]
 
@@ -206,6 +207,8 @@ zombies="$(field "$READ_LOG" '[NST ] zombies_after_reap=')"
   echo "PASS: Koronos x86_64 native block/VFS/PID1 gate"
   echo "NORMAL_BOOT_QEMU_EXIT=$normal_rc"
   echo "NORMAL_BOOT_DISK_UNCHANGED=1"
+  echo "NORMAL_BOOT_DISK_SHA256_BEFORE=$disk_before"
+  echo "NORMAL_BOOT_DISK_SHA256_AFTER=$disk_after"
   echo "BOOT1_QEMU_EXIT=$write_rc"
   echo "BOOT2_QEMU_EXIT=$read_rc"
   echo "ISO_SHA256=$(awk '{print $1}' "$OUT/iso.sha256")"
