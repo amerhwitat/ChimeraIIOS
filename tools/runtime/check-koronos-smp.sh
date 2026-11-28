@@ -115,11 +115,13 @@ ap_id="$(field '[SMP ] ap_apic_id=')"
 online="$(field '[SMP ] ap_online=')"
 overlap="$(field '[SMP ] overlap_samples=')"
 ap_rounds="$(field '[SMP ] ap_saw_bsp_rounds=')"
+ap_round_ack="$(field '[SMP ] ap_rounds=')"
 tsc_overlap="$(field '[SMP ] tsc_overlap=')"
 
 [[ "$online" == "1" ]] || fail "AP online=$online, expected 1"
 [[ "$overlap" == "256" ]] || fail "overlap samples=$overlap, expected 256"
 [[ "$ap_rounds" == "256" ]] || fail "AP observed BSP rounds=$ap_rounds, expected 256"
+[[ "$ap_round_ack" == "256" ]] || fail "AP round acknowledgements=$ap_round_ack, expected 256"
 [[ "$tsc_overlap" == "1" ]] || fail "TSC intervals did not overlap"
 [[ -n "$bsp_id" && -n "$ap_id" && "$bsp_id" != "$ap_id" ]] || fail "BSP/AP APIC IDs are not distinct: bsp=$bsp_id ap=$ap_id"
 
