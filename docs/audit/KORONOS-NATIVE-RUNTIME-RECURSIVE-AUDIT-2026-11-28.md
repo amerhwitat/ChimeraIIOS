@@ -107,3 +107,32 @@ This commit is an audit/plan artifact, not a kernel implementation or a successf
 ## 8. Immediate next engineering slice
 
 Start with the scheduler-owned x86-64 thread context and deterministic two-thread switch test, then connect timer preemption and process lifetime. This is the dependency root for a real PID 1 and service supervision. Do not start by promoting current init payloads or by modifying acceptance wording.
+
+
+## 9. Historical ISO evidence reviewed on 2026-11-28
+
+An available prior artifact bundle, `chimera-immutable-iso-firmware-acceptance.zip`, contains six QEMU cases (Live, Installer and Recovery under BIOS and UEFI) for ISO SHA-256:
+
+`4de3011b2231cf106ac2241ecd4494ce4f93521b05a8c39a065ad1058550f639`
+
+Its summary records all six cases as PASS, with QEMU exit code 0, kernel-ready, init-syscall and userspace-ready flags. However, the recorded QEMU command for every case uses `-smp 1`; the verifier checks the target-specific user-originated init syscall/readiness handshake. This is useful historical firmware/boot/handoff evidence, but it does not exercise AP startup or concurrent execution, independent thread contexts, timer preemption, child process supervision, VFS durability, installer disk writes/reboot persistence, recovery repair, or graphical desktop startup.
+
+The bundle must not be relabelled as a production acceptance result. In particular, the current source implementations still explicitly report Installer dry-run/no block-device writes, Recovery diagnostics-only, and Live text-console-only. The artifact's PASS statuses are scoped to the checks actually performed and do not override these source facts.
+
+A separate prior Koronos/Octavian candidate artifact records a different ISO SHA (`3b01fa899ac8ef66b7faee94e27adab7956356606cb6d36ffb3938ae78d49d9e`) and `all_pass: false`, with all six target/firmware cases failing to complete the expected kernel-ready / user-init syscall / userspace-ready sequence. These are distinct artifacts and must not be conflated.
+
+## 10. PR-head CI triggered by this audit baseline
+
+The PR-head commit `f5e0e5db9b710c9c45c60a925aaaf68a00a5fec4` automatically triggered:
+- Structured ISO workflow run `46171980282` (run 11198), job `iso` (`141062209358`).
+- Desktop Compatibility CI run `46171980336` (run 16864), job `portable` (`141062209328`).
+- Chimera CI/CD run `46171980225` (run 9236), with infrastructure validation and code-generation jobs completed successfully; Windows build and overall workflow were still in progress at the time of inspection.
+- GitHub Pages deployment and WSL drive-alias validation completed successfully.
+
+At inspection time, the structured ISO, desktop compatibility and Chimera CI/CD workflows were still in progress. Their success is not assumed. Even if the ISO workflow produces a new artifact, its test scope must be read from the job logs and result JSON before assigning acceptance status. A documentation-only PR trigger is not itself proof of a source implementation change.
+
+## 11. Next implementation order and stop conditions
+
+The next source change must be the smallest verifiable scheduler vertical slice: a documented x86-64 context ABI, assembly save/restore, first-run thread trampoline, two independently resumable kernel threads, and deterministic switch tests. Only after that passes should timer interrupt preemption, blocking/wakeup, process wait/reap and PID 1 supervision be layered on. SMP then requires real AP bring-up and cross-CPU reschedule signaling; VFS/storage and target init work depend on stable process/address-space ownership.
+
+Do not add placeholder APIs that are never called, turn the existing callback scheduler into a production claim, or mark a gate passed because a test emitted a marker. If a safe source patch cannot be built and run against the target architecture, keep it unmerged and report the precise missing proof.
