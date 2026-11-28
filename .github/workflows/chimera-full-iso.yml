@@ -169,7 +169,7 @@ jobs:
           # through QEMU's monitor after firmware/GRUB startup instead of
           # weakening the ISO's user-facing timeout for CI.
           ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 30s qemu-system-x86_64 \
-            -machine pc -m 1024 -smp 1 -accel tcg \
+            -machine pc -cpu max -m 1024 -smp 2 -accel tcg \
             -display none -serial none -monitor stdio \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
@@ -260,7 +260,7 @@ jobs:
               continue
             fi
             set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            timeout 12s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             qemu_rc=$?
             set -e
             # The target init must remain alive after readiness. QEMU is
