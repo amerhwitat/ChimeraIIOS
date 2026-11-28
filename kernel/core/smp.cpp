@@ -68,6 +68,28 @@ SharedState state;
 alignas(16) uint8_t ap_stack[16u * 1024u];
 volatile int selftest_result = -1;
 
+static void reset_shared_state() {
+    state.ap_online = 0;
+    state.start_round = 0;
+    state.stop_ap = 0;
+    state.bsp_round = 0;
+    state.ap_round = 0;
+    state.ap_saw_bsp = 0;
+    state.overlap_samples = 0;
+    state.bsp_apic_id = 0;
+    state.ap_apic_id = 0;
+    state.reserved = 0;
+    state.bsp_start_tsc = 0;
+    state.ap_start_tsc = 0;
+    state.bsp_end_tsc = 0;
+    state.ap_end_tsc = 0;
+    state.bsp_observe_tsc = 0;
+    state.ap_stopped = 0;
+    state.reserved2 = 0;
+    state.bsp_tsc_at_sipi = 0;
+    fence();
+}
+
 static inline void out8(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
 }
@@ -204,6 +226,7 @@ extern "C" int koronos_smp_selftest(void) {
         return selftest_result;
     }
 
+    reset_shared_state();
     debug_write("[SMP ] starting AP startup gate");
     if (!x2apic_available()) {
         debug_write("[SMP ] FAIL: x2APIC unavailable");
@@ -221,7 +244,12 @@ extern "C" int koronos_smp_selftest(void) {
     spin_delay(BOOT_DELAY);
     send_all_except_self(0x000C0600u | SIPI_VECTOR);
     spin_delay(BOOT_DELAY);
-    send_all_except_self(0x000C0600u | SIPI_VECTOR);
+    /* The second SIPI is a fallback only. Re-sending it after the AP has
+       acknowledged online can restart the trampoline on some firmware and
+       race the shared round counters. */
+    if (!state.ap_online) {
+        send_all_except_self(0x000C0600u | SIPI_VECTOR);
+    }
 
     uint64_t spins = 0;
     while (!state.ap_online && spins++ < ONLINE_TIMEOUT) pause_cpu();
@@ -274,6 +302,7 @@ extern "C" int koronos_smp_selftest(void) {
     debug_u32("[SMP ] ap_apic_id=", state.ap_apic_id);
     debug_u32("[SMP ] ap_online=", online ? 1u : 0u);
     debug_u32("[SMP ] overlap_samples=", state.overlap_samples);
+    debug_u32("[SMP ] ap_rounds=", state.ap_round);
     debug_u32("[SMP ] ap_saw_bsp_rounds=", state.ap_saw_bsp);
     debug_u32("[SMP ] tsc_overlap=", tsc_overlap ? 1u : 0u);
     debug_u32("[SMP ] bsp_tsc_start_lo=", static_cast<uint32_t>(state.bsp_start_tsc));
