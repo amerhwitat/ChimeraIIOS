@@ -95,7 +95,7 @@ volatile uint64_t koronos_user_exit_code = 0;
 extern "C" uint32_t koronos_target_active_pid(void);
 extern "C" uint32_t koronos_target_validate_syscall_context(uint64_t user_rip);
 namespace {
-struct InitramfsFd { uint32_t node; uint64_t offset; uint8_t used; uint8_t writable; };
+struct InitramfsFd { uint32_t node; uint64_t offset; uint8_t used; uint8_t readable; uint8_t writable; };
 static InitramfsFd initramfs_fds[16];
 static uint32_t initramfs_fd_owner = 0;
 static void reset_initramfs_fds(uint32_t pid) {
@@ -129,23 +129,29 @@ static int open_initramfs_file(uint64_t path_address,uint64_t flags,uint64_t roo
     char path[256] = {};
     if (!copy_user_path(path_address,root,path,sizeof(path))) return -14;
     uint32_t node=0;
-    bool writable=false;
+    bool readable=false, writable=false;
     if (flags&O_CREAT) {
-        if (access!=1u || path[0]!='/' || path[1]!='t' ||
+        /* Writable files are confined to /tmp. O_RDWR is supported so a
+           single descriptor can exercise a write/seek/read round trip. */
+        if ((access!=1u && access!=2u) || path[0]!='/' || path[1]!='t' ||
             path[2]!='m' || path[3]!='p' || path[4]!='/') return -30;
         if (koronos_tmpfs_create(path,&node)!=0) return -17;
+        readable=(access==2u);
         writable=true;
     } else {
+        /* The archive namespace is immutable and currently opened read-only. */
         if (access!=0u) return -30;
         koronos_initramfs_stat st{};
         if (koronos_initramfs_lookup(path,&node)!=0 ||
             koronos_initramfs_stat_node(node,&st)!=0 || st.type!=2u) return -2;
+        readable=true;
     }
     reset_initramfs_fds(pid);
     for (uint32_t fd=3;fd<16u;fd++) if (!initramfs_fds[fd].used) {
         initramfs_fds[fd].node=node;
         initramfs_fds[fd].offset=0;
         initramfs_fds[fd].used=1;
+        initramfs_fds[fd].readable=readable?1u:0u;
         initramfs_fds[fd].writable=writable?1u:0u;
         return static_cast<int>(fd);
     }
@@ -155,7 +161,7 @@ static int64_t read_initramfs_file(uint64_t fd,uint64_t buffer,uint64_t length,u
     if (fd<3u || fd>=16u || length>65536u) return -22;
     reset_initramfs_fds(pid);
     InitramfsFd &entry=initramfs_fds[fd];
-    if (!entry.used || entry.writable) return -9;
+    if (!entry.used || !entry.readable) return -9;
     if (!length) return 0;
     if (!buffer || !root ||
         koronos_address_space_validate_user_range(root,buffer,length,1u)!=0) return -14;
@@ -164,6 +170,38 @@ static int64_t read_initramfs_file(uint64_t fd,uint64_t buffer,uint64_t length,u
             reinterpret_cast<void*>(buffer),length,&count)!=0) return -5;
     entry.offset+=count;
     return static_cast<int64_t>(count);
+}
+static int64_t seek_initramfs_file(uint64_t fd,int64_t displacement,uint64_t whence,uint32_t pid) {
+    if (fd<3u || fd>=16u) return -9;
+    reset_initramfs_fds(pid);
+    InitramfsFd &entry=initramfs_fds[fd];
+    if (!entry.used) return -9;
+
+    uint64_t base=0;
+    if (whence==0u) {
+        base=0; // SEEK_SET
+    } else if (whence==1u) {
+        base=entry.offset; // SEEK_CUR
+    } else if (whence==2u) {
+        koronos_initramfs_stat st{};
+        if (koronos_initramfs_stat_node(entry.node,&st)!=0) return -5;
+        base=st.size; // SEEK_END
+    } else {
+        return -22;
+    }
+
+    uint64_t next=0;
+    if (displacement<0) {
+        const uint64_t magnitude=static_cast<uint64_t>(-(displacement+1))+1u;
+        if (magnitude>base) return -22;
+        next=base-magnitude;
+    } else {
+        const uint64_t magnitude=static_cast<uint64_t>(displacement);
+        if (magnitude>static_cast<uint64_t>(INT64_MAX)-base) return -22;
+        next=base+magnitude;
+    }
+    entry.offset=next;
+    return static_cast<int64_t>(next);
 }
 static int close_initramfs_file(uint64_t fd,uint32_t pid) {
     if (fd<3u || fd>=16u) return -9;
@@ -244,6 +282,10 @@ extern "C" uint64_t koronos_syscall_user_dispatch(const koronos_user_syscall_fra
             const int fd=open_initramfs_file(path,flags,active_cr3_root(),koronos_target_active_pid());
             return static_cast<uint64_t>(static_cast<int64_t>(fd));
         }
+        case CHM_SYS_SEEK:
+            return static_cast<uint64_t>(seek_initramfs_file(
+                frame->rdi,static_cast<int64_t>(frame->rsi),frame->rdx,
+                koronos_target_active_pid()));
         case CHM_SYS_CLOSE:
             return static_cast<uint64_t>(static_cast<int64_t>(
                 close_initramfs_file(frame->rdi,koronos_target_active_pid())));
