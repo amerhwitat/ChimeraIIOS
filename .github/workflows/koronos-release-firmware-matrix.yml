@@ -42,6 +42,9 @@ jobs:
           dpkg-query -W -f='${Version}\n' ovmf
           qemu-system-x86_64 --version
 
+      - name: Test persistent PID 1 observation window
+        run: python3 tests/boot/test_userspace_handoff_verifier.py
+
       - name: Build Koronos kernel and target init ELFs
         run: |
           set -euo pipefail
