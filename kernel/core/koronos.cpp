@@ -666,10 +666,10 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     if (preempt_rc == 0 && smp_rc == 0) {
         const int install_rc = koronos_install_recovery_selftest();
         console_write(install_rc == KORONOS_GATE_PASS
-            ? "[INS ] Native installer/installed-root/recovery gate passed"
+            ? "[INS ] Native test-volume journal/rollback/repair gate passed"
             : (install_rc == KORONOS_GATE_SKIPPED
-                ? "[INS ] Native installer/installed-root/recovery gate SKIPPED"
-                : "[INS ] Native installer/installed-root/recovery gate FAILED"));
+                ? "[INS ] Native test-volume journal/rollback/repair gate SKIPPED"
+                : "[INS ] Native test-volume journal/rollback/repair gate FAILED"));
     } else {
         console_write("[INS ] gate not started: CPU gates did not pass");
     }
