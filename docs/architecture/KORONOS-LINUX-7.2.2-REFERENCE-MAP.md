@@ -34,6 +34,22 @@ Additional files to inspect recursively before implementing their respective sub
 
 Windows names and structures are useful for comparison only. Koronos should implement its own documented interfaces and must not copy proprietary Windows code.
 
+## Additional Linux userspace and desktop source references
+
+The following upstream source files were inspected as behavioral and architectural references. Their implementation code is not copied into Koronos.
+
+| Subsystem | Upstream source | Recorded blob |
+|---|---|---|
+| PID 1 bootstrap and manager initialization | [systemd `src/core/main.c`](https://github.com/systemd/systemd/blob/main/src/core/main.c) | `9bba133cd71e82adc11897cb81b1451e6b027883` |
+| Service lifecycle and restart state | [systemd `src/core/service.c`](https://github.com/systemd/systemd/blob/main/src/core/service.c) | `acae0de3e16bb576797ea509764d1e4fdc9abbc4` |
+| Compositor/output/input lifecycle | [Weston `libweston/compositor.c`](https://github.com/intel/external-weston/blob/master/libweston/compositor.c) | `67b5d28303f088c8d8caa9378511d7d6501d22f2` |
+| Desktop shell policy and surface roles | [Weston `desktop-shell/shell.c`](https://github.com/intel/external-weston/blob/master/desktop-shell/shell.c) | `ceb45c74db0e1ebc30f34b452d9548a46cd21e2b` |
+
+These references define future Koronos work, not features already completed:
+- PID 1 must own service state, dependencies, child reaping, restart policy, and shutdown sequencing.
+- A native compositor must own display outputs, input devices, surface/buffer lifetimes, frame scheduling, and shell policy.
+- Aurora, Marine Blue, FreeXP and FreeWin11 require real sessions backed by that compositor and the native graphics/input stack. Static wallpapers, profile builds and gallery previews are not desktop-session acceptance.
+
 ## Current source baseline and this change set
 
 The current source already has:
@@ -48,7 +64,8 @@ This change set adds one narrow Linux x86-64 userspace/VFS vertical slice:
 3. `lseek` supports `SEEK_SET`, `SEEK_CUR`, and `SEEK_END`, with signed-offset underflow and overflow checks.
 4. The Live initramfs includes a deterministic `/etc/os-release`.
 5. The native ring-3 Live init tests `open/read/close` on `/etc/os-release`, then performs a `/tmp` write/seek/read/close round trip **before** emitting its userspace-ready marker.
-6. A new BIOS/QEMU workflow step requires the exact built ISO to emit kernel preemption, both user-originated filesystem PASS markers, the target-matched userspace-ready marker and the kernel PID1-active marker. The logs and ISO SHA are retained as a separate artifact.
+6. A BIOS/QEMU workflow step requires the exact built ISO to emit kernel preemption, both user-originated filesystem PASS markers, the target-matched userspace-ready marker and kernel PID1-active evidence; the same structured ISO is also run through the six-case BIOS/UEFI handoff matrix.
+7. The AP startup self-test now explicitly clears shared state, sends its second SIPI only if the AP has not acknowledged online, and reports a one-logical-CPU skip distinctly from an SMP pass.
 
 The QEMU test is intentionally scoped to one BIOS Live boot. It does not prove UEFI, Installer, Recovery, production SMP scheduling, persistent disk VFS, process creation/reaping, a supervised PID1, or graphical desktop sessions.
 
