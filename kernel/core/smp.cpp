@@ -87,7 +87,7 @@ static void reset_shared_state() {
     state.ap_stopped = 0;
     state.reserved2 = 0;
     state.bsp_tsc_at_sipi = 0;
-    fence();
+    __asm__ volatile("mfence" ::: "memory");
 }
 
 static inline void out8(uint16_t port, uint8_t value) {
