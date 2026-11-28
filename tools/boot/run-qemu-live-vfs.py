@@ -42,6 +42,18 @@ def read_text(path: Path) -> str:
         return ""
 
 
+def wait_for_grub_menu(serial_log: Path, process: subprocess.Popen[bytes]) -> bool:
+    """Wait until GRUB has actually rendered the Live menu before injecting a key."""
+    deadline = time.monotonic() + 25
+    while time.monotonic() < deadline and process.poll() is None:
+        serial = read_text(serial_log)
+        if "Live Aurora / Koronos" in serial:
+            time.sleep(0.5)
+            return True
+        time.sleep(0.2)
+    return False
+
+
 def send_enter(monitor_path: Path, process: subprocess.Popen[bytes]) -> bool:
     deadline = time.monotonic() + 15
     while time.monotonic() < deadline and process.poll() is None:
@@ -98,7 +110,8 @@ def main() -> int:
     try:
         process = subprocess.Popen(command, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        enter_sent = send_enter(monitor, process)
+        grub_menu_seen = wait_for_grub_menu(serial_log, process)
+        enter_sent = send_enter(monitor, process) if grub_menu_seen else False
         deadline = time.monotonic() + max(15, args.timeout)
         while time.monotonic() < deadline and process.poll() is None:
             trace = read_text(debug_log)
@@ -140,6 +153,7 @@ def main() -> int:
         "iso_sha256": actual,
         "qemu_command": command,
         "timeout_seconds": args.timeout,
+        "grub_menu_seen_on_serial": grub_menu_seen,
         "enter_sent_to_grub": enter_sent,
         "timed_out_waiting_for_full_marker_set": timed_out,
         "markers": markers,
