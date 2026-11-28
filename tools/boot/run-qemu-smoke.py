@@ -64,12 +64,20 @@ def main() -> int:
             if proc.poll() is not None: break
             if monitor_command(mon,b"info status",monlog): break
             time.sleep(.1)
-        # GRUB timeout is intentionally long; send Enter to select default Live.
-        enter=monitor_command(mon,b"sendkey ret",monlog)
+        # Wait until GRUB has printed its menu before injecting a key; otherwise
+        # the selection can be lost during BIOS startup.
+        menu_deadline=min(deadline,time.monotonic()+30.0)
+        while time.monotonic()<menu_deadline and proc.poll() is None:
+            stext=read(serial); dtext=read(debug)
+            merged=stext+"\\n"+dtext
+            if "Chimera II OS" in stext or "Live Aurora / Koronos" in stext:
+                menu_seen=True
+                enter=monitor_command(mon,b"sendkey ret",monlog)
+                break
+            time.sleep(.25)
         while time.monotonic()<deadline and proc.poll() is None:
             stext=read(serial); dtext=read(debug)
-            merged=stext+"\n"+dtext
-            if "KORONOS READY" in merged or "KORONOS" in merged: menu_seen=True
+            merged=stext+"\\n"+dtext
             if "[KRN ] KORONOS READY" in merged and ("[PMT ]" in merged or "SELFTEST" in merged): break
             time.sleep(.25)
     except FileNotFoundError:
@@ -82,7 +90,7 @@ def main() -> int:
     st=read(serial); dt=read(debug); qd=read(qlog); md=read(monlog)
     merged=st+"\n"+dt
     markers={
-      "monitor_connected_and_enter_sent":enter,
+      "grub_menu_seen":menu_seen,\n      "monitor_connected_and_enter_sent":enter,
       "kernel_ready":"[KRN ] KORONOS READY" in merged,
       "preemptive_kernel_task_selftest":("[PMT ] Native x86_64 context-save/timer-preemption gate passed" in merged or "[PMT ] SELFTEST PASS" in merged),
       "smp_selftest_pass":"[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed" in merged,
