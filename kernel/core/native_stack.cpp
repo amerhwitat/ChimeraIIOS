@@ -321,6 +321,7 @@ static void child_work_(SupervisedProcess *process) {
 }
 
 static bool supervisor_selftest_() {
+    debug_("[NST ] child_model=synchronous-callback (not scheduler-owned process)");
     memory_set_(reinterpret_cast<uint8_t *>(processes_), 0, sizeof(processes_));
     reaped_pid_ = 0;
     reaped_status_ = 0;
