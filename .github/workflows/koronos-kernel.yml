@@ -45,6 +45,12 @@ jobs:
             kernel/core/platform_features.cpp kernel/core/compat.cpp \
             -o /tmp/chimera-platform-features
           /tmp/chimera-platform-features
+      - name: Test Linux x86-64 syscall translation including lseek
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -I kernel/include \
+            tests/kernel/compat_syscall_translation_test.cpp kernel/core/compat.cpp \
+            -o /tmp/chimera-compat-syscalls
+          /tmp/chimera-compat-syscalls
       - name: Validate ELF64
         run: python3 tools/koronos/validate_elf.py build/koronos/x86_64/koronos.elf
       - name: Assert no unresolved symbols
