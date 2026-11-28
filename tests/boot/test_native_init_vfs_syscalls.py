@@ -38,3 +38,12 @@ def test_ring3_linux_syscall_helpers_use_linux_x86_64_numbers():
     assert "#define LINUX_X86_64_SYS_CLOSE 3" in common
     assert "#define LINUX_X86_64_SYS_LSEEK 8" in common
     assert "init_syscall3(LINUX_X86_64_SYS_CLOSE, fd, 0, 0)" in common
+
+def test_single_cpu_boot_does_not_wait_for_a_nonexistent_ap():
+    smp = (ROOT / "kernel/core/smp.cpp").read_text()
+    header = (ROOT / "kernel/include/chimera/smp.h").read_text()
+    harness = (ROOT / "tools/boot/run-qemu-live-vfs.py").read_text()
+    assert "logical_processor_count() < 2u" in smp
+    assert "KORONOS_SMP_SELFTEST_SKIPPED" in smp
+    assert "KORONOS_SMP_SELFTEST_SKIPPED" in header
+    assert '"-smp", "1"' in harness
