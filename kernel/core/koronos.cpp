@@ -577,7 +577,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
        acknowledged, expose only the BSP as schedulable. This prevents affinity
        and diagnostics from implying that unstarted APs can run tasks. */
     chimera_sched_init(1);
-    console_write("[SCH ] Online scheduler CPUs: 1 (AP startup not implemented)");
+    console_write("[SCH ] Online scheduler CPUs: 1 (production process scheduler is BSP-only; AP startup is covered by a separate self-test)");
     chimera_learning_init(f->logical_cpus);
     console_progress(35, "Scheduler and learning runtime initialized");
 
