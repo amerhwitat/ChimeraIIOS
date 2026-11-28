@@ -49,3 +49,10 @@ def test_single_cpu_boot_does_not_wait_for_a_nonexistent_ap():
     assert '"-smp", "1"' in harness
     grub = (ROOT / "boot/iso/grub.cfg").read_text()
     assert "terminal_input serial console" in grub
+
+def test_smp_gate_resets_shared_state_and_sends_only_fallback_sipi():
+    smp = (ROOT / "kernel/core/smp.cpp").read_text()
+    assert "static void reset_shared_state()" in smp
+    assert "reset_shared_state();" in smp
+    assert "if (!state.ap_online)" in smp
+    assert 'debug_u32("[SMP ] ap_rounds=", state.ap_round);' in smp
