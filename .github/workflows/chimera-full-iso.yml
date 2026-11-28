@@ -189,6 +189,14 @@ jobs:
                   raise SystemExit(f"QEMU did not reach Koronos marker {marker!r}; debugcon={data!r}")
               cursor = found + 1
           print("QEMU reached x86 entry, long mode, Koronos handoff and post-init markers (ELBC).")
+          required = (
+              "[KRN ] KORONOS READY",
+              "[PMT ] Native x86_64 context-save/timer-preemption gate passed",
+              "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed",
+          )
+          for marker in required:
+              if marker not in data:
+                  raise SystemExit(f"Full-ISO QEMU smoke missing required runtime marker: {marker!r}")
           PY
           else
             echo "QEMU produced no debugcon output (exit $qemu_rc)" >&2
@@ -277,6 +285,31 @@ jobs:
             fi
             if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
               echo "::warning::$target target did not reach Koronos readiness"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed' "$trace"; then
+              echo "::warning::$target target did not pass the AP startup/two-CPU overlap gate"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[NST ] SKIPPED: explicit test module absent' "$trace"; then
+              echo "::warning::$target ordinary boot did not explicitly skip destructive native-stack self-test"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[INS ] SKIPPED: no install target module' "$trace"; then
+              echo "::warning::$target ordinary boot did not explicitly skip test-volume recovery self-test"
+              accepted=false
+              continue
+            fi
+            if grep -Fq '[NST ] Native block/VFS/PID1 gate passed' "$trace"; then
+              echo "::warning::$target ordinary boot falsely reported native-stack test PASS"
+              accepted=false
+              continue
+            fi
+            if grep -Fq '[INS ] Native test-volume journal/rollback/repair gate passed' "$trace"; then
+              echo "::warning::$target ordinary boot falsely reported test-volume recovery PASS"
               accepted=false
               continue
             fi
