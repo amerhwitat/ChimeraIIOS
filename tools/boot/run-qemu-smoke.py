@@ -1,111 +1,199 @@
 #!/usr/bin/env python3
-"""Capture and verify a bounded BIOS/QEMU smoke boot of the Chimera ISO.
-
-The test is intentionally narrow: it does not claim six-case production
-acceptance. Logs and evidence are retained even when boot markers are absent.
-"""
+"""Capture a bounded BIOS/QEMU smoke boot; never imply production acceptance."""
 from __future__ import annotations
-import argparse, hashlib, json, socket, subprocess, sys, time
+
+import argparse
+import hashlib
+import json
+import socket
+import subprocess
+import sys
+import time
 from pathlib import Path
 
+
 def sha256(path: Path) -> str:
-    h=hashlib.sha256()
-    with path.open("rb") as f:
-        for block in iter(lambda:f.read(1024*1024),b""): h.update(block)
-    return h.hexdigest()
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
 
 def read(path: Path) -> str:
-    try: return path.read_text(encoding="utf-8",errors="replace")
-    except OSError: return ""
+    try:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
 
 def monitor_command(path: Path, command: bytes, log: Path) -> bool:
     try:
-        with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as s:
-            s.settimeout(2); s.connect(str(path))
-            greeting=s.recv(8192)
-            s.sendall(command+b"\n")
-            time.sleep(.25)
-            try: response=s.recv(8192)
-            except (TimeoutError,OSError): response=b""
-            with log.open("ab") as f: f.write(greeting+response+b"\n")
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+            sock.settimeout(2)
+            sock.connect(str(path))
+            greeting = sock.recv(8192)
+            sock.sendall(command + b"\n")
+            try:
+                response = sock.recv(8192)
+            except (TimeoutError, OSError):
+                response = b""
+        with log.open("ab") as stream:
+            stream.write(greeting + response + b"\n")
         return True
-    except (FileNotFoundError,ConnectionRefusedError,TimeoutError,OSError):
+    except (FileNotFoundError, ConnectionRefusedError, TimeoutError, OSError) as exc:
+        with log.open("a", encoding="utf-8") as stream:
+            stream.write(f"monitor error: {type(exc).__name__}: {exc}\n")
         return False
 
-def main() -> int:
-    ap=argparse.ArgumentParser()
-    ap.add_argument("--iso",type=Path,required=True)
-    ap.add_argument("--timeout",type=int,default=60)
-    ap.add_argument("--output",type=Path,required=True)
-    a=ap.parse_args()
-    iso=a.iso.resolve(); out=a.output.resolve(); out.mkdir(parents=True,exist_ok=True)
-    serial=out/"bios-serial.log"; debug=out/"bios-debugcon.log"
-    qlog=out/"qemu-debug.log"; monlog=out/"qemu-monitor.log"
-    mon=out/"qemu-monitor.sock"; evidence=out/"qemu-smoke-evidence.json"
-    for p in (serial,debug,qlog,monlog):
-        p.unlink(missing_ok=True)
-    sums=Path(str(iso)+".sha256")
-    if not iso.is_file() or not sums.is_file():
-        print("QEMU smoke: ISO or checksum sidecar missing",file=sys.stderr); return 2
-    fields=sums.read_text(encoding="ascii").strip().split()
-    expected=fields[0] if fields else ""; actual=sha256(iso)
-    if expected!=actual:
-        print("QEMU smoke: checksum sidecar mismatch",file=sys.stderr); return 2
-    cmd=["qemu-system-x86_64","-machine","q35,accel=tcg","-cpu","qemu64",
-         "-m","2048","-smp","2","-cdrom",str(iso),"-boot","order=d,menu=on",
-         "-display","none","-serial",f"file:{serial}","-debugcon",f"file:{debug}",
-         "-global","isa-debugcon.iobase=0xe9","-monitor",f"unix:{mon},server,nowait",
-         "-no-reboot","-no-shutdown","-d","guest_errors,int","-D",str(qlog)]
-    proc=None; enter=False; menu_seen=False
-    deadline=time.monotonic()+max(10,a.timeout)
-    try:
-        proc=subprocess.Popen(cmd,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-        for _ in range(80):
-            if proc.poll() is not None: break
-            if monitor_command(mon,b"info status",monlog): break
-            time.sleep(.1)
-        # Wait until GRUB has printed its menu before injecting a key; otherwise
-        # the selection can be lost during BIOS startup.
-        menu_deadline=min(deadline,time.monotonic()+30.0)
-        while time.monotonic()<menu_deadline and proc.poll() is None:
-            stext=read(serial); dtext=read(debug)
-            merged=stext+"\\n"+dtext
-            if "Chimera II OS" in stext or "Live Aurora / Koronos" in stext:
-                menu_seen=True
-                enter=monitor_command(mon,b"sendkey ret",monlog)
-                break
-            time.sleep(.25)
-        while time.monotonic()<deadline and proc.poll() is None:
-            stext=read(serial); dtext=read(debug)
-            merged=stext+"\\n"+dtext
-            if "[KRN ] KORONOS READY" in merged and ("[PMT ]" in merged or "SELFTEST" in merged): break
-            time.sleep(.25)
-    except FileNotFoundError:
-        print("QEMU smoke: qemu-system-x86_64 unavailable",file=sys.stderr); return 2
-    finally:
-        if proc is not None and proc.poll() is None:
-            proc.terminate()
-            try: proc.wait(timeout=5)
-            except subprocess.TimeoutExpired: proc.kill(); proc.wait(timeout=5)
-    st=read(serial); dt=read(debug); qd=read(qlog); md=read(monlog)
-    merged=st+"\n"+dt
-    markers={
-      "grub_menu_seen":menu_seen,\n      "monitor_connected_and_enter_sent":enter,
-      "kernel_ready":"[KRN ] KORONOS READY" in merged,
-      "preemptive_kernel_task_selftest":("[PMT ] Native x86_64 context-save/timer-preemption gate passed" in merged or "[PMT ] SELFTEST PASS" in merged),
-      "smp_selftest_pass":"[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed" in merged,
-      "native_stack_selftest_pass":"[NST ] Native block/VFS/PID1 gate passed" in merged,
-      "installer_recovery_selftest_pass":"[INS ] Native installer/installed-root/recovery gate passed" in merged,
-      "live_userspace_ready":"USERSPACE READY: target=live" in merged,
-      "grub_or_kernel_output_seen":bool(st or dt or menu_seen),
-    }
-    ev={"schema":"CHIMERA-QEMU-SMOKE-2","scope":"BIOS QEMU default Live entry; markers read from both COM1 and debugcon",
-        "production_acceptance":False,"iso_sha256":actual,"qemu_command":cmd,
-        "timeout_seconds":a.timeout,"markers":markers,
-        "logs":{p.name:sha256(p) if p.exists() else None for p in (serial,debug,qlog,monlog)},
-        "log_sizes":{p.name:p.stat().st_size if p.exists() else 0 for p in (serial,debug,qlog,monlog)}}
-    evidence.write_text(json.dumps(ev,indent=2)+"\n",encoding="utf-8")
-    print(json.dumps(ev,indent=2))
-    return 0 if markers["kernel_ready"] and markers["preemptive_kernel_task_selftest"] else 1
 
-if __name__=="__main__": raise SystemExit(main())
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--iso", type=Path, required=True)
+    parser.add_argument("--timeout", type=int, default=60)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+
+    iso = args.iso.resolve()
+    output = args.output.resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    serial = output / "bios-serial.log"
+    debugcon = output / "bios-debugcon.log"
+    qemu_log = output / "qemu-debug.log"
+    monitor_log = output / "qemu-monitor.log"
+    monitor = output / "qemu-monitor.sock"
+    evidence = output / "qemu-smoke-evidence.json"
+    for path in (serial, debugcon, qemu_log, monitor_log):
+        path.write_text("", encoding="utf-8")
+
+    result = 1
+    qemu_command: list[str] = []
+    iso_digest = None
+    menu_seen = False
+    enter_sent = False
+    error = None
+    process = None
+
+    try:
+        checksum_file = Path(str(iso) + ".sha256")
+        if not iso.is_file() or not checksum_file.is_file():
+            raise RuntimeError("ISO or checksum sidecar missing")
+        fields = checksum_file.read_text(encoding="ascii").strip().split()
+        expected = fields[0] if fields else ""
+        iso_digest = sha256(iso)
+        if expected != iso_digest:
+            raise RuntimeError("ISO checksum sidecar mismatch")
+
+        qemu_command = [
+            "qemu-system-x86_64",
+            "-machine", "q35,accel=tcg",
+            "-cpu", "qemu64",
+            "-m", "2048",
+            "-smp", "2",
+            "-cdrom", str(iso),
+            "-boot", "order=d,menu=on",
+            "-display", "none",
+            "-serial", f"file:{serial}",
+            "-debugcon", f"file:{debugcon}",
+            "-global", "isa-debugcon.iobase=0xe9",
+            "-monitor", f"unix:{monitor},server,nowait",
+            "-no-reboot",
+            "-no-shutdown",
+            "-d", "guest_errors,int",
+            "-D", str(qemu_log),
+        ]
+        process = subprocess.Popen(
+            qemu_command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        deadline = time.monotonic() + max(10, args.timeout)
+        for _ in range(80):
+            if process.poll() is not None:
+                break
+            if monitor_command(monitor, b"info status", monitor_log):
+                break
+            time.sleep(0.1)
+
+        menu_deadline = min(deadline, time.monotonic() + 30)
+        while time.monotonic() < menu_deadline and process.poll() is None:
+            serial_text = read(serial)
+            debug_text = read(debugcon)
+            if "Chimera II OS" in serial_text or "Live Aurora / Koronos" in serial_text:
+                menu_seen = True
+                enter_sent = monitor_command(monitor, b"sendkey ret", monitor_log)
+                break
+            time.sleep(0.25)
+
+        while time.monotonic() < deadline and process.poll() is None:
+            combined = read(serial) + "\n" + read(debugcon)
+            if "[KRN ] KORONOS READY" in combined and (
+                "[PMT ]" in combined or "SELFTEST" in combined
+            ):
+                break
+            time.sleep(0.25)
+
+    except Exception as exc:  # preserve evidence for all test-harness failures
+        error = f"{type(exc).__name__}: {exc}"
+        print(f"QEMU smoke error: {error}", file=sys.stderr)
+    finally:
+        if process is not None and process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=5)
+
+    serial_text = read(serial)
+    debug_text = read(debugcon)
+    combined = serial_text + "\n" + debug_text
+    markers = {
+        "grub_menu_seen": menu_seen,
+        "monitor_connected_and_enter_sent": enter_sent,
+        "kernel_ready": "[KRN ] KORONOS READY" in combined,
+        "preemptive_kernel_task_selftest": (
+            "[PMT ] Native x86_64 context-save/timer-preemption gate passed" in combined
+            or "[PMT ] SELFTEST PASS" in combined
+        ),
+        "smp_selftest_pass": (
+            "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed" in combined
+        ),
+        "native_stack_selftest_pass": (
+            "[NST ] Native block/VFS/PID1 gate passed" in combined
+        ),
+        "installer_recovery_selftest_pass": (
+            "[INS ] Native installer/installed-root/recovery gate passed" in combined
+        ),
+        "live_userspace_ready": "USERSPACE READY: target=live" in combined,
+        "grub_or_kernel_output_seen": bool(serial_text or debug_text or menu_seen),
+    }
+    if error is None and markers["kernel_ready"] and markers["preemptive_kernel_task_selftest"]:
+        result = 0
+
+    logs = (serial, debugcon, qemu_log, monitor_log)
+    evidence_doc = {
+        "schema": "CHIMERA-QEMU-SMOKE-3",
+        "scope": "BIOS QEMU default Live entry; COM1 and debugcon markers",
+        "production_acceptance": False,
+        "iso_sha256": iso_digest,
+        "qemu_command": qemu_command,
+        "timeout_seconds": args.timeout,
+        "error": error,
+        "qemu_exit_code": process.returncode if process is not None else None,
+        "markers": markers,
+        "logs": {
+            path.name: sha256(path) if path.exists() else None for path in logs
+        },
+        "log_sizes": {
+            path.name: path.stat().st_size if path.exists() else 0 for path in logs
+        },
+    }
+    evidence.write_text(json.dumps(evidence_doc, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(evidence_doc, indent=2))
+    return result
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
