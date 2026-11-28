@@ -11,9 +11,10 @@
 
 CHIMERA_HELP="Usage: $(basename "$0") [--help]
 
-Builds and boots the native Koronos ELF64 kernel twice against one persistent
-virtio-blk disk image and verifies block I/O, mount, reboot persistence, and
-PID 1 supervision/reaping.
+Builds and boots the native Koronos ELF64 kernel with a persistent virtio-blk disk.
+It first proves an ordinary boot leaves the disk unchanged without an explicit
+test module, then runs the opt-in block/VFS persistence test. The child exit/reap
+check is a synchronous callback model, not scheduler-owned process supervision.
 
 Options:
   --help    Show this help and exit.
@@ -181,6 +182,7 @@ assert_token "$READ_LOG" "[SMP ] SELFTEST PASS"
 assert_token "$READ_LOG" "[NST ] PERSIST READ PASS"
 assert_token "$READ_LOG" "[NST ] mounted=1"
 assert_token "$READ_LOG" "[NST ] self-tests passed"
+assert_token "$READ_LOG" "[NST ] child_model=synchronous-callback (not scheduler-owned process)"
 assert_token "$READ_LOG" "[NST ] SELFTEST PASS"
 assert_token "$READ_LOG" "[NST ] Native block/VFS/PID1 gate passed"
 
@@ -209,6 +211,7 @@ zombies="$(field "$READ_LOG" '[NST ] zombies_after_reap=')"
   echo "ISO_SHA256=$(awk '{print $1}' "$OUT/iso.sha256")"
   echo "BLOCK_SECTORS=$sectors"
   echo "MOUNTED=$mounted"
+  echo "CHILD_MODEL=synchronous-callback"
   echo "CHILD_PROGRESS=$child_progress"
   echo "CHILD_EXIT_STATUS=$child_status"
   echo "REAPED_PID=$reaped_pid"
