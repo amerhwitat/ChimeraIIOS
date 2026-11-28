@@ -15,6 +15,7 @@
 #include "chimera/service.h"
 #include "chimera/platform_features.h"
 #include "chimera/process.h"
+#include "chimera/native_stack.h"
 
 extern "C" void koronos_outb(uint16_t port, uint8_t value);
 extern "C" void koronos_target_log(const char *message);
@@ -458,8 +459,6 @@ extern "C" void chimera_register_display_drivers(void);
 extern "C" void chimera_register_pci_generic_drivers(void);
 extern "C" int koronos_preemptive_selftest(void);
 extern "C" int koronos_smp_selftest(void);
-extern "C" int koronos_native_stack_selftest(void);
-extern "C" int koronos_install_recovery_selftest(void);
 
 extern "C" void koronos_syscall_trace(const char *message) {
     /* Syscall-context diagnostics must not touch VGA or UART console paths. */
@@ -577,7 +576,7 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
        acknowledged, expose only the BSP as schedulable. This prevents affinity
        and diagnostics from implying that unstarted APs can run tasks. */
     chimera_sched_init(1);
-    console_write("[SCH ] Online scheduler CPUs: 1 (AP startup not implemented)");
+    console_write("[SCH ] Online scheduler CPUs: 1 (production process scheduler is BSP-only; AP startup is covered by a separate self-test)");
     chimera_learning_init(f->logical_cpus);
     console_progress(35, "Scheduler and learning runtime initialized");
 
@@ -654,22 +653,25 @@ extern "C" void koronos_boot(const koronos_boot_context *ctx) {
     } else {
         console_write("[SMP ] gate not started: preemption gate failed");
     }
-    int native_rc = -1;
     if (preempt_rc == 0 && smp_rc == 0) {
-        native_rc = koronos_native_stack_selftest();
-        console_write(native_rc == 0
+        const int native_rc = koronos_native_stack_selftest();
+        console_write(native_rc == KORONOS_GATE_PASS
             ? "[NST ] Native block/VFS/PID1 gate passed"
-            : "[NST ] Native block/VFS/PID1 gate FAILED");
+            : (native_rc == KORONOS_GATE_SKIPPED
+                ? "[NST ] Native block/VFS/PID1 gate SKIPPED"
+                : "[NST ] Native block/VFS/PID1 gate FAILED"));
     } else {
         console_write("[NST ] gate not started: CPU gates did not pass");
     }
-    if (preempt_rc == 0 && smp_rc == 0 && native_rc == 0) {
+    if (preempt_rc == 0 && smp_rc == 0) {
         const int install_rc = koronos_install_recovery_selftest();
-        console_write(install_rc == 0
-            ? "[INS ] Native installer/installed-root/recovery gate passed"
-            : "[INS ] Native installer/installed-root/recovery gate FAILED");
+        console_write(install_rc == KORONOS_GATE_PASS
+            ? "[INS ] Native test-volume journal/rollback/repair gate passed"
+            : (install_rc == KORONOS_GATE_SKIPPED
+                ? "[INS ] Native test-volume journal/rollback/repair gate SKIPPED"
+                : "[INS ] Native test-volume journal/rollback/repair gate FAILED"));
     } else {
-        console_write("[INS ] gate not started: earlier native gates did not pass");
+        console_write("[INS ] gate not started: CPU gates did not pass");
     }
     console_write("[RUN ] Starting cooperative scheduler runtime...");
     console_write("[RUN ] Scheduler now has runnable bootstrap tasks");

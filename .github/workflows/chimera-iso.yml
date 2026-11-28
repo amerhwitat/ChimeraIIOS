@@ -246,7 +246,20 @@ jobs:
           done
           grep -Fq "target-init-live.elf chimera-user-init-elf target=live" boot/iso/dist/iso/boot/loader-menu.cfg
           grep -Fq "target-init-recovery.elf chimera-user-init-elf target=recovery" boot/iso/dist/iso/boot/loader-menu.cfg
+      - name: Run BIOS QEMU smoke against the built ISO
+        run: |
+          python3 -m py_compile tools/boot/run-qemu-smoke.py
+          python3 tools/boot/run-qemu-smoke.py --iso boot/iso/dist/output.iso --output build/runtime-smoke --timeout 60
+      - name: Upload BIOS QEMU diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimera-qemu-diagnostics-${{ github.sha }}
+          path: build/runtime-smoke/
+          if-no-files-found: warn
+          retention-days: 90
       - name: Upload structured ISO and native boot payloads
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: chimera-structured-iso-${{ github.sha }}

@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 # Native x86_64 Koronos installer / installed-root / recovery gate.
 #
-# Boots the real kernel four times against one persistent virtio-blk disk. Each
-# boot carries a Multiboot2 module cmdline selecting installer, installed-root,
-# recovery, or verify. The gate requires a committed installer journal, a real
-# installed-root handoff, an interrupted transaction rollback, actual filesystem
-# superblock repair, and a final verify boot.
+# Boots the real kernel four times against one persistent virtio-blk test disk.
+# Each boot carries a Multiboot2 test module selecting one transaction phase.
+# This validates a synthetic Koronos test-volume journal/metadata state machine;
+# it does not partition arbitrary disks, mount ext4/FAT, or install a user OS.
 #
 # Usage: tools/runtime/check-koronos-install-recovery.sh [--help]
 
 CHIMERA_HELP="Usage: $(basename "$0") [--help]
 
 Builds and boots the native Koronos kernel four times against one persistent
-virtio-blk disk image and verifies installer writes, journal commit, installed
-root handoff, rollback of a pending transaction, filesystem repair, and final
-verification.
+virtio-blk test-volume and verifies journal commit, metadata-state validation,
+simulated interrupted-write rollback, test-volume metadata restoration, and
+final verification. This is not a general-purpose disk installer.
 
 Options:
   --help    Show this help and exit.
@@ -130,12 +129,13 @@ boot_phase installer
 IL="$OUT/debugcon-installer.log"
 assert_token "$IL" "[PMT ] SELFTEST PASS"
 assert_token "$IL" "[SMP ] SELFTEST PASS"
-assert_token "$IL" "[NST ] SKIPPED: install target selected"
+assert_token "$IL" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$IL"; then fail "installer phase falsely reported native-stack PASS"; fi
 assert_token "$IL" "[INS ] mode_selected=1"
 assert_token "$IL" "[INS ] JOURNAL WRITE PASS"
 assert_token "$IL" "[INS ] JOURNAL COMMIT PASS"
-assert_token "$IL" "[INS ] INSTALLED ROOT WRITTEN"
-assert_token "$IL" "[INS ] HANDOFF next=installed"
+assert_token "$IL" "[INS ] TEST-VOLUME ROOT IMAGE WRITTEN"
+assert_token "$IL" "[INS ] TEST PHASE next=installed"
 assert_token "$IL" "[INS ] SELFTEST PASS"
 assert_token "$IL" "[INS ] REBOOTING FOR NEXT PHASE"
 
@@ -143,43 +143,49 @@ echo "== Boot 2: installed-root handoff, then interrupted transaction =="
 boot_phase installed
 ID="$OUT/debugcon-installed.log"
 assert_token "$ID" "[PMT ] SELFTEST PASS"
+assert_token "$ID" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$ID"; then fail "installed phase falsely reported native-stack PASS"; fi
 assert_token "$ID" "[SMP ] SELFTEST PASS"
 assert_token "$ID" "[INS ] mode_selected=2"
-assert_token "$ID" "[INS ] INSTALLED ROOT HANDOFF PASS"
-assert_token "$ID" "[INS ] ROOT MOUNTED=1"
-assert_token "$ID" "[INS ] ROOT MARKER PASS"
+assert_token "$ID" "[INS ] TEST-VOLUME ROOT STATE VALIDATION PASS"
+assert_token "$ID" "[INS ] TEST-VOLUME ROOT MOUNTED=0 (metadata-only validation)"
+assert_token "$ID" "[INS ] TEST-VOLUME ROOT MARKER PASS"
 assert_token "$ID" "[INS ] CRASH SIMULATION PASS"
-assert_token "$ID" "[INS ] HANDOFF next=recovery"
+assert_token "$ID" "[INS ] TEST PHASE next=recovery"
 assert_token "$ID" "[INS ] SELFTEST PASS"
 assert_token "$ID" "[INS ] REBOOTING FOR NEXT PHASE"
 
-echo "== Boot 3: recovery rolls back journal and repairs superblock =="
+echo "== Boot 3: test recovery rolls back journal and restores test-volume metadata =="
 boot_phase recovery
 RC="$OUT/debugcon-recovery.log"
 assert_token "$RC" "[PMT ] SELFTEST PASS"
+assert_token "$RC" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$RC"; then fail "recovery phase falsely reported native-stack PASS"; fi
 assert_token "$RC" "[SMP ] SELFTEST PASS"
 assert_token "$RC" "[INS ] mode_selected=3"
 assert_token "$RC" "[REC ] JOURNAL ROLLBACK PASS"
-assert_token "$RC" "[REC ] SUPERBLOCK REPAIR PASS"
-assert_token "$RC" "[REC ] FILESYSTEM REPAIR PASS"
-assert_token "$RC" "[REC ] HANDOFF next=verify"
+assert_token "$RC" "[REC ] TEST-VOLUME SUPERBLOCK REPAIR PASS"
+assert_token "$RC" "[REC ] TEST-VOLUME METADATA RESTORE PASS"
+assert_token "$RC" "[REC ] TEST PHASE next=verify"
 assert_token "$RC" "[INS ] SELFTEST PASS"
 assert_token "$RC" "[INS ] REBOOTING FOR NEXT PHASE"
 
-echo "== Boot 4: verify restored root, rollback and repair =="
+echo "== Boot 4: verify restored test-volume state, rollback and repair =="
 boot_phase verify
 VF="$OUT/debugcon-verify.log"
 assert_token "$VF" "[PMT ] SELFTEST PASS"
+assert_token "$VF" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$VF"; then fail "verify phase falsely reported native-stack PASS"; fi
 assert_token "$VF" "[SMP ] SELFTEST PASS"
 assert_token "$VF" "[INS ] mode_selected=4"
-assert_token "$VF" "[INS ] ROOT VERIFY PASS"
+assert_token "$VF" "[INS ] TEST-VOLUME ROOT VERIFY PASS"
 assert_token "$VF" "[INS ] ROLLBACK VERIFY PASS"
-assert_token "$VF" "[INS ] REPAIR VERIFY PASS"
+assert_token "$VF" "[INS ] TEST-VOLUME REPAIR VERIFY PASS"
 assert_token "$VF" "[INS ] SELFTEST PASS"
-assert_token "$VF" "[INS ] Native installer/installed-root/recovery gate passed"
+assert_token "$VF" "[INS ] Native test-volume journal/rollback/repair gate passed"
 
 {
-  echo "PASS: Koronos x86_64 native installer/installed-root/recovery gate"
+  echo "PASS: Koronos x86_64 synthetic test-volume journal/rollback/repair gate"
   echo "INSTALLER_QEMU_EXIT=$(cat "$OUT/qemu-installer.rc")"
   echo "INSTALLED_QEMU_EXIT=$(cat "$OUT/qemu-installed.rc")"
   echo "RECOVERY_QEMU_EXIT=$(cat "$OUT/qemu-recovery.rc")"
@@ -188,7 +194,7 @@ assert_token "$VF" "[INS ] Native installer/installed-root/recovery gate passed"
   echo "JOURNAL_COMMIT=1"
   echo "INSTALLED_HANDOFF=1"
   echo "ROLLBACK=1"
-  echo "FILESYSTEM_REPAIR=1"
+  echo "TEST_VOLUME_METADATA_REPAIR=1"
   echo "FINAL_VERIFY=1"
 } | tee "$RESULT"
 

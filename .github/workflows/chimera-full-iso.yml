@@ -169,7 +169,7 @@ jobs:
           # through QEMU's monitor after firmware/GRUB startup instead of
           # weakening the ISO's user-facing timeout for CI.
           ( sleep 5; printf '%s\n' 'sendkey ret'; sleep 1 ) | timeout 30s qemu-system-x86_64 \
-            -machine pc -m 1024 -smp 1 -accel tcg \
+            -machine pc -cpu max -m 1024 -smp 2 -accel tcg \
             -display none -serial none -monitor stdio \
             -no-reboot -no-shutdown -cdrom build/iso/chimera-ii-os.iso \
             -debugcon file:/tmp/chimera-qemu-debugcon.log \
@@ -189,6 +189,14 @@ jobs:
                   raise SystemExit(f"QEMU did not reach Koronos marker {marker!r}; debugcon={data!r}")
               cursor = found + 1
           print("QEMU reached x86 entry, long mode, Koronos handoff and post-init markers (ELBC).")
+          required = (
+              "[KRN ] KORONOS READY",
+              "[PMT ] Native x86_64 context-save/timer-preemption gate passed",
+              "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed",
+          )
+          for marker in required:
+              if marker not in data:
+                  raise SystemExit(f"Full-ISO QEMU smoke missing required runtime marker: {marker!r}")
           PY
           else
             echo "QEMU produced no debugcon output (exit $qemu_rc)" >&2
@@ -260,7 +268,7 @@ jobs:
               continue
             fi
             set +e
-            timeout 12s qemu-system-x86_64 -machine q35 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
+            timeout 12s qemu-system-x86_64 -machine pc -cpu max -smp 2 -m 1024 -cdrom "$test_iso" -boot d -display none -serial none -monitor none -no-reboot -no-shutdown -debugcon "file:$trace" -global isa-debugcon.iobase=0xe9 >/dev/null 2>&1
             qemu_rc=$?
             set -e
             # The target init must remain alive after readiness. QEMU is
@@ -277,6 +285,31 @@ jobs:
             fi
             if ! grep -Fq '[KRN ] KORONOS READY' "$trace"; then
               echo "::warning::$target target did not reach Koronos readiness"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed' "$trace"; then
+              echo "::warning::$target target did not pass the AP startup/two-CPU overlap gate"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[NST ] SKIPPED: explicit test module absent' "$trace"; then
+              echo "::warning::$target ordinary boot did not explicitly skip destructive native-stack self-test"
+              accepted=false
+              continue
+            fi
+            if ! grep -Fq '[INS ] SKIPPED: no install target module' "$trace"; then
+              echo "::warning::$target ordinary boot did not explicitly skip test-volume recovery self-test"
+              accepted=false
+              continue
+            fi
+            if grep -Fq '[NST ] Native block/VFS/PID1 gate passed' "$trace"; then
+              echo "::warning::$target ordinary boot falsely reported native-stack test PASS"
+              accepted=false
+              continue
+            fi
+            if grep -Fq '[INS ] Native test-volume journal/rollback/repair gate passed' "$trace"; then
+              echo "::warning::$target ordinary boot falsely reported test-volume recovery PASS"
               accepted=false
               continue
             fi
