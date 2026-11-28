@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 # Native x86_64 Koronos installer / installed-root / recovery gate.
 #
-# Boots the real kernel four times against one persistent virtio-blk disk. Each
-# boot carries a Multiboot2 module cmdline selecting installer, installed-root,
-# recovery, or verify. The gate requires a committed installer journal, a real
-# installed-root handoff, an interrupted transaction rollback, actual filesystem
-# superblock repair, and a final verify boot.
+# Boots the real kernel four times against one persistent virtio-blk test disk.
+# Each boot carries a Multiboot2 test module selecting one transaction phase.
+# This validates a synthetic Koronos test-volume journal/metadata state machine;
+# it does not partition arbitrary disks, mount ext4/FAT, or install a user OS.
 #
 # Usage: tools/runtime/check-koronos-install-recovery.sh [--help]
 
 CHIMERA_HELP="Usage: $(basename "$0") [--help]
 
 Builds and boots the native Koronos kernel four times against one persistent
-virtio-blk disk image and verifies installer writes, journal commit, installed
-root handoff, rollback of a pending transaction, filesystem repair, and final
-verification.
+virtio-blk test-volume and verifies journal commit, metadata-state validation,
+simulated interrupted-write rollback, test-volume metadata restoration, and
+final verification. This is not a general-purpose disk installer.
 
 Options:
   --help    Show this help and exit.
@@ -156,7 +155,7 @@ assert_token "$ID" "[INS ] TEST PHASE next=recovery"
 assert_token "$ID" "[INS ] SELFTEST PASS"
 assert_token "$ID" "[INS ] REBOOTING FOR NEXT PHASE"
 
-echo "== Boot 3: recovery rolls back journal and repairs superblock =="
+echo "== Boot 3: test recovery rolls back journal and restores test-volume metadata =="
 boot_phase recovery
 RC="$OUT/debugcon-recovery.log"
 assert_token "$RC" "[PMT ] SELFTEST PASS"
@@ -171,7 +170,7 @@ assert_token "$RC" "[REC ] TEST PHASE next=verify"
 assert_token "$RC" "[INS ] SELFTEST PASS"
 assert_token "$RC" "[INS ] REBOOTING FOR NEXT PHASE"
 
-echo "== Boot 4: verify restored root, rollback and repair =="
+echo "== Boot 4: verify restored test-volume state, rollback and repair =="
 boot_phase verify
 VF="$OUT/debugcon-verify.log"
 assert_token "$VF" "[PMT ] SELFTEST PASS"
