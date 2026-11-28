@@ -120,6 +120,10 @@ def main() -> int:
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.wait(timeout=5)
+        try:
+            monitor.unlink(missing_ok=True)
+        except OSError:
+            pass
 
     trace = read_text(debug_log)
     serial = read_text(serial_log)
