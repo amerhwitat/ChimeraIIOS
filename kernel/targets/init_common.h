@@ -53,23 +53,23 @@ static long init_syscall3(long number, long arg1, long arg2, long arg3) {
 static long init_getpid(void) {
     return init_syscall1(LINUX_X86_64_SYS_GETPID);
 }
-static long init_open(const char *path, long flags, long mode) {
+__attribute__((unused)) static long init_open(const char *path, long flags, long mode) {
     return init_syscall3(LINUX_X86_64_SYS_OPEN, (long)path, flags, mode);
 }
-static long init_read(long fd, char *buffer, long length) {
+__attribute__((unused)) static long init_read(long fd, char *buffer, long length) {
     return init_syscall3(LINUX_X86_64_SYS_READ, fd, (long)buffer, length);
 }
-static long init_lseek(long fd, long offset, long whence) {
+__attribute__((unused)) static long init_lseek(long fd, long offset, long whence) {
     return init_syscall3(LINUX_X86_64_SYS_LSEEK, fd, offset, whence);
 }
-static long init_close(long fd) {
+__attribute__((unused)) static long init_close(long fd) {
     return init_syscall3(LINUX_X86_64_SYS_CLOSE, fd, 0, 0);
 }
-static int init_bytes_equal(const char *a, const char *b, long length) {
+__attribute__((unused)) static int init_bytes_equal(const char *a, const char *b, long length) {
     for (long i=0;i<length;i++) if (a[i]!=b[i]) return 0;
     return 1;
 }
-static int init_contains(const char *haystack, long haystack_length,
+__attribute__((unused)) static int init_contains(const char *haystack, long haystack_length,
                          const char *needle, long needle_length) {
     if (needle_length<=0 || haystack_length<needle_length) return 0;
     for (long i=0;i<=haystack_length-needle_length;i++) {
