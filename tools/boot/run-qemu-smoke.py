@@ -174,7 +174,7 @@ def main() -> int:
             "[NST ] Native block/VFS/PID1 gate passed" in combined
         ),
         "installer_recovery_selftest_pass": (
-            "[INS ] Native installer/installed-root/recovery gate passed" in combined
+            "[INS ] Native test-volume journal/rollback/repair gate passed" in combined
         ),
         "live_userspace_ready": "USERSPACE READY: target=live" in combined,
         "grub_or_kernel_output_seen": bool(serial_text or debug_text or menu_seen),
