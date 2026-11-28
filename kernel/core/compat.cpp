@@ -113,6 +113,7 @@ static uint32_t linux_canonical(uint32_t n, uint32_t bits) {
         case 1: return 9;
         case 2: return 5;
         case 3: return 6;
+        case 8: return 7; // lseek
         case 9: return 10;
         case 11: return 11;
         case 12: return 12;
