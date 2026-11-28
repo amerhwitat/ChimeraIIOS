@@ -112,7 +112,7 @@ jobs:
             build/koronos-native-stack/koronos-native-stack-gate.iso
             build/koronos/x86_64/koronos.elf
 
-  x86_64-install-recovery:
+  x86_64-test-volume-recovery:
     needs: x86_64-native-stack
     runs-on: ubuntu-latest
     steps:
