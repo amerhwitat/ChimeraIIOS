@@ -27,6 +27,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y nasm g++ binutils python3
       - name: Build Koronos ELF64
         run: bash kernel/build-koronos.sh
+      - name: Test native self-test target isolation
+        run: python3 tests/kernel/test_native_selftest_target_isolation.py
       - name: Test protected-process admission
         run: |
           g++ -std=c++17 -I kernel/include kernel/core/elf64.cpp kernel/core/process.cpp kernel/tests/process_admission.cpp -o /tmp/chimera-process-admission
