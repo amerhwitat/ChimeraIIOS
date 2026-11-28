@@ -23,6 +23,9 @@ int main() {
         CHM_ENTRY_X86_SYSCALL, 64u, 3u, &id) == 0);
     assert(id.canonical == CHM_SYS_CLOSE);
     assert(chimera_compat_recognize_syscall(
+        CHM_ENTRY_X86_SYSCALL, 64u, 8u, &id) == 0);
+    assert(id.canonical == CHM_SYS_SEEK);
+    assert(chimera_compat_recognize_syscall(
         CHM_ENTRY_X86_SYSCALL, 64u, 257u, &id) == 0);
     assert(id.canonical == CHM_SYS_OPEN);
 
