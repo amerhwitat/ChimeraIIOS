@@ -134,17 +134,23 @@ static uint32_t reaped_status_ = 0;
 static uint32_t zombies_after_reap_ = 0;
 static int selftest_result_ = -1;
 
-static bool install_module_present_() {
+static bool has_token_(const char *text, const char *token) {
+    if (!text || !token) return false;
+    for (uint32_t i = 0; text[i]; ++i) {
+        if (i && text[i - 1u] != ' ') continue;
+        uint32_t k = 0;
+        while (token[k] && text[i + k] == token[k]) ++k;
+        if (!token[k] && (text[i + k] == 0 || text[i + k] == ' ')) return true;
+    }
+    return false;
+}
+
+static bool native_stack_test_selected_() {
     for (uint32_t i = 0; i < chimera_multiboot_module_count(); ++i) {
         const chimera_boot_module *module = chimera_multiboot_module(i);
-        if (!module) continue;
-        const char *cmdline = module->cmdline;
-        for (uint32_t j = 0; cmdline[j]; ++j) {
-            const char token[] = "koronos-install-stack";
-            uint32_t k = 0;
-            while (token[k] && cmdline[j + k] == token[k]) ++k;
-            if (!token[k]) return true;
-        }
+        if (module &&
+            has_token_(module->cmdline, "koronos-native-stack") &&
+            has_token_(module->cmdline, "selftest=1")) return true;
     }
     return false;
 }
@@ -357,9 +363,9 @@ static void machine_reset_() {
 extern "C" int koronos_native_stack_selftest(void) {
     if (selftest_result_ >= 0) return selftest_result_;
     selftest_result_ = -1;
-    if (install_module_present_()) {
-        debug_("[NST ] SKIPPED: install target selected");
-        selftest_result_ = 0;
+    if (!native_stack_test_selected_()) {
+        debug_("[NST ] SKIPPED: explicit test module absent");
+        selftest_result_ = KORONOS_GATE_SKIPPED;
         return selftest_result_;
     }
     debug_("[NST ] starting native block/VFS/PID1 gate");
@@ -395,7 +401,7 @@ extern "C" int koronos_native_stack_selftest(void) {
     const bool pass = supervisor_ok && mounted_ok && marker_ok;
     if (pass) debug_("[NST ] self-tests passed");
     debug_(pass ? "[NST ] SELFTEST PASS" : "[NST ] SELFTEST FAIL");
-    selftest_result_ = pass ? 0 : -1;
+    selftest_result_ = pass ? KORONOS_GATE_PASS : KORONOS_GATE_FAILED;
     return selftest_result_;
 }
 
