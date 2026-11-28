@@ -247,11 +247,11 @@ extern "C" int koronos_install_recovery_selftest(void) {
     const Phase phase = selected_phase_();
     if (phase == PHASE_NONE) {
         debug_("[INS ] SKIPPED: no install target module");
-        return 0;
+        return KORONOS_GATE_SKIPPED;
     }
     if (koronos_native_block_init() != 0) {
         debug_("[INS ] SELFTEST FAIL: block backend unavailable");
-        return -1;
+        return KORONOS_GATE_FAILED;
     }
     debug_u32_("[INS ] mode_selected=", static_cast<uint32_t>(phase));
 
@@ -278,7 +278,7 @@ extern "C" int koronos_install_recovery_selftest(void) {
     }
     if (!pass) {
         debug_("[INS ] SELFTEST FAIL");
-        return -1;
+        return KORONOS_GATE_FAILED;
     }
     debug_("[INS ] SELFTEST PASS");
     if (reset) {
