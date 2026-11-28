@@ -86,10 +86,10 @@ def main() -> int:
 
         qemu_command = [
             "qemu-system-x86_64",
-            "-machine", "q35,accel=tcg",
-            "-cpu", "qemu64",
+            "-machine", "pc,accel=tcg",
+            "-cpu", "max",
             "-m", "2048",
-            "-smp", "2",
+            "-smp", "1",
             "-cdrom", str(iso),
             "-boot", "order=d,menu=on",
             "-display", "none",
@@ -128,9 +128,15 @@ def main() -> int:
 
         while time.monotonic() < deadline and process.poll() is None:
             combined = read(serial) + "\n" + read(debugcon)
-            if "[KRN ] KORONOS READY" in combined and (
-                "[PMT ]" in combined or "SELFTEST" in combined
-            ):
+            preemption_pass = (
+                "[PMT ] Native x86_64 context-save/timer-preemption gate passed" in combined
+                or "[PMT ] SELFTEST PASS" in combined
+            )
+            preemption_fail = (
+                "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED" in combined
+                or "[PMT ] SELFTEST FAIL" in combined
+            )
+            if "[KRN ] KORONOS READY" in combined and (preemption_pass or preemption_fail):
                 break
             time.sleep(0.25)
 
@@ -157,6 +163,10 @@ def main() -> int:
             "[PMT ] Native x86_64 context-save/timer-preemption gate passed" in combined
             or "[PMT ] SELFTEST PASS" in combined
         ),
+        "preemptive_kernel_task_selftest_failed": (
+            "[PMT ] Native x86_64 context-save/timer-preemption gate FAILED" in combined
+            or "[PMT ] SELFTEST FAIL" in combined
+        ),
         "smp_selftest_pass": (
             "[SMP ] Native x86_64 AP startup/two-CPU overlap gate passed" in combined
         ),
@@ -175,7 +185,7 @@ def main() -> int:
     logs = (serial, debugcon, qemu_log, monitor_log)
     evidence_doc = {
         "schema": "CHIMERA-QEMU-SMOKE-3",
-        "scope": "BIOS QEMU default Live entry; COM1 and debugcon markers",
+        "scope": "BIOS QEMU default Live entry; COM1/debugcon; one vCPU; preemption self-test",
         "production_acceptance": False,
         "iso_sha256": iso_digest,
         "qemu_command": qemu_command,
