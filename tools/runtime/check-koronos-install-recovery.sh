@@ -130,7 +130,8 @@ boot_phase installer
 IL="$OUT/debugcon-installer.log"
 assert_token "$IL" "[PMT ] SELFTEST PASS"
 assert_token "$IL" "[SMP ] SELFTEST PASS"
-assert_token "$IL" "[NST ] SKIPPED: install target selected"
+assert_token "$IL" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$IL"; then fail "installer phase falsely reported native-stack PASS"; fi
 assert_token "$IL" "[INS ] mode_selected=1"
 assert_token "$IL" "[INS ] JOURNAL WRITE PASS"
 assert_token "$IL" "[INS ] JOURNAL COMMIT PASS"
@@ -143,6 +144,8 @@ echo "== Boot 2: installed-root handoff, then interrupted transaction =="
 boot_phase installed
 ID="$OUT/debugcon-installed.log"
 assert_token "$ID" "[PMT ] SELFTEST PASS"
+assert_token "$ID" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$ID"; then fail "installed phase falsely reported native-stack PASS"; fi
 assert_token "$ID" "[SMP ] SELFTEST PASS"
 assert_token "$ID" "[INS ] mode_selected=2"
 assert_token "$ID" "[INS ] INSTALLED ROOT HANDOFF PASS"
@@ -157,6 +160,8 @@ echo "== Boot 3: recovery rolls back journal and repairs superblock =="
 boot_phase recovery
 RC="$OUT/debugcon-recovery.log"
 assert_token "$RC" "[PMT ] SELFTEST PASS"
+assert_token "$RC" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$RC"; then fail "recovery phase falsely reported native-stack PASS"; fi
 assert_token "$RC" "[SMP ] SELFTEST PASS"
 assert_token "$RC" "[INS ] mode_selected=3"
 assert_token "$RC" "[REC ] JOURNAL ROLLBACK PASS"
@@ -170,6 +175,8 @@ echo "== Boot 4: verify restored root, rollback and repair =="
 boot_phase verify
 VF="$OUT/debugcon-verify.log"
 assert_token "$VF" "[PMT ] SELFTEST PASS"
+assert_token "$VF" "[NST ] SKIPPED: explicit test module absent"
+if grep -aFq "[NST ] Native block/VFS/PID1 gate passed" "$VF"; then fail "verify phase falsely reported native-stack PASS"; fi
 assert_token "$VF" "[SMP ] SELFTEST PASS"
 assert_token "$VF" "[INS ] mode_selected=4"
 assert_token "$VF" "[INS ] ROOT VERIFY PASS"
