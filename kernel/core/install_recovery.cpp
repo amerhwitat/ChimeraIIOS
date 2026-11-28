@@ -3,12 +3,15 @@
 
 /* Native installer / installed-root / recovery acceptance stack.
  *
- * Each boot carries a Multiboot2 module whose cmdline names the phase. The
- * phase sequence uses the same real virtio-blk backend as the block/VFS gate:
- *   installer -> committed journal + installed root, reset
- *   installed -> verify handoff, stage an interrupted write, reset
- *   recovery  -> roll back the pending journal and repair the superblock, reset
- *   verify    -> confirm restored root, rolled-back journal, repaired FS
+ * Each boot carries a Multiboot2 test module whose cmdline names a phase. The
+ * sequence operates on a tiny synthetic Koronos test volume (fixed sectors,
+ * custom root marker/superblock, and journal) through the real virtio-blk I/O
+ * backend. It does not partition arbitrary disks, install a general OS root,
+ * mount ext4/FAT, or provide a user-facing installer/recovery utility:
+ *   installer -> write test-volume metadata + committed journal, reset
+ *   installed -> validate test-volume state, stage simulated corruption, reset
+ *   recovery  -> roll back journal + restore test-volume metadata, reset
+ *   verify    -> confirm restored test-volume state
  */
 
 namespace {
@@ -170,9 +173,9 @@ static bool phase_installer_() {
 
     if (koronos_native_block_write(ROOT_SB_SECTOR, scratch_buffer_) != 0) return false;
     if (!write_marker_(GOOD_MARKER)) return false;
-    debug_("[INS ] INSTALLED ROOT WRITTEN");
+    debug_("[INS ] TEST-VOLUME ROOT IMAGE WRITTEN");
     if (!write_control_(PHASE_INSTALLED)) return false;
-    debug_("[INS ] HANDOFF next=installed");
+    debug_("[INS ] TEST PHASE next=installed");
     return true;
 }
 
@@ -181,9 +184,9 @@ static bool phase_installed_() {
     if (koronos_native_block_read(ROOT_SB_SECTOR, scratch_buffer_) != 0) return false;
     if (!superblock_valid_(scratch_buffer_)) return false;
     if (!marker_matches_(GOOD_MARKER)) return false;
-    debug_("[INS ] INSTALLED ROOT HANDOFF PASS");
-    debug_("[INS ] ROOT MOUNTED=1");
-    debug_("[INS ] ROOT MARKER PASS");
+    debug_("[INS ] TEST-VOLUME ROOT STATE VALIDATION PASS");
+    debug_("[INS ] TEST-VOLUME ROOT MOUNTED=0 (metadata-only validation)");
+    debug_("[INS ] TEST-VOLUME ROOT MARKER PASS");
 
     /* Simulate an interrupted installer transaction: journal is pending, the
      * root marker is clobbered, and the superblock checksum is damaged. */
@@ -198,7 +201,7 @@ static bool phase_installed_() {
     if (koronos_native_block_write(ROOT_SB_SECTOR, scratch_buffer_) != 0) return false;
     if (!write_control_(PHASE_RECOVERY)) return false;
     debug_("[INS ] CRASH SIMULATION PASS");
-    debug_("[INS ] HANDOFF next=recovery");
+    debug_("[INS ] TEST PHASE next=recovery");
     return true;
 }
 
@@ -216,13 +219,13 @@ static bool phase_recovery_() {
 
     build_superblock_(scratch_buffer_, GOOD_MARKER, 2u);
     if (koronos_native_block_write(ROOT_SB_SECTOR, scratch_buffer_) != 0) return false;
-    debug_("[REC ] SUPERBLOCK REPAIR PASS");
-    debug_("[REC ] FILESYSTEM REPAIR PASS");
+    debug_("[REC ] TEST-VOLUME SUPERBLOCK REPAIR PASS");
+    debug_("[REC ] TEST-VOLUME METADATA RESTORE PASS");
 
     build_journal_(sector_buffer_, JOURNAL_ROLLED_BACK, GOOD_MARKER, BAD_MARKER, template_sb);
     if (koronos_native_block_write(JOURNAL_SECTOR, sector_buffer_) != 0) return false;
     if (!write_control_(PHASE_VERIFY)) return false;
-    debug_("[REC ] HANDOFF next=verify");
+    debug_("[REC ] TEST PHASE next=verify");
     return true;
 }
 
@@ -235,9 +238,9 @@ static bool phase_verify_() {
     uint8_t before[64], after[64], template_sb[64];
     if (!read_journal_(&state, before, after, template_sb)) return false;
     if (state != JOURNAL_ROLLED_BACK) return false;
-    debug_("[INS ] ROOT VERIFY PASS");
+    debug_("[INS ] TEST-VOLUME ROOT VERIFY PASS");
     debug_("[INS ] ROLLBACK VERIFY PASS");
-    debug_("[INS ] REPAIR VERIFY PASS");
+    debug_("[INS ] TEST-VOLUME REPAIR VERIFY PASS");
     return true;
 }
 
