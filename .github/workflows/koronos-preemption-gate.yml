@@ -121,7 +121,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y g++ nasm binutils grub-common grub-pc-bin grub-efi-amd64-bin mtools xorriso qemu-system-x86 file
-      - name: Run native installer/installed-root/recovery gate
+      - name: Run four-phase synthetic test-volume journal/rollback gate
         run: |
           chmod +x tools/runtime/check-koronos-install-recovery.sh
           tools/runtime/check-koronos-install-recovery.sh
@@ -129,7 +129,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: koronos-install-recovery-diagnostics
+          name: koronos-test-volume-recovery-diagnostics
           path: |
             build/koronos-install-recovery/result.txt
             build/koronos-install-recovery/iso.sha256
