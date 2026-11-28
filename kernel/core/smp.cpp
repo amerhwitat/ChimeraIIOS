@@ -166,6 +166,13 @@ static void install_trampoline() {
             static_cast<uint32_t>(state.bsp_tsc_at_sipi >> 32));
 }
 
+static uint32_t logical_processor_count() {
+    uint32_t eax = 1u, ebx = 0, ecx = 0, edx = 0;
+    __asm__ volatile("cpuid" : "+a"(eax), "=b"(ebx), "+c"(ecx), "=d"(edx));
+    const uint32_t count = (ebx >> 16u) & 0xFFu;
+    return count ? count : 1u;
+}
+
 static bool x2apic_available() {
     uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
     __asm__ volatile("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "a"(1u));
@@ -187,8 +194,15 @@ static void send_all_except_self(uint32_t icr_low) {
 } // namespace
 
 extern "C" int koronos_smp_selftest(void) {
-    if (selftest_result >= 0) return selftest_result;
+    if (selftest_result >= 0 || selftest_result == KORONOS_SMP_SELFTEST_SKIPPED)
+        return selftest_result;
     selftest_result = -1;
+
+    if (logical_processor_count() < 2u) {
+        debug_write("[SMP ] SKIP: one logical processor; AP startup not tested");
+        selftest_result = KORONOS_SMP_SELFTEST_SKIPPED;
+        return selftest_result;
+    }
 
     debug_write("[SMP ] starting AP startup gate");
     if (!x2apic_available()) {
