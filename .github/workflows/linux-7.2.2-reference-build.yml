@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: linux-reference-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   linux-reference:
     runs-on: ubuntu-latest
