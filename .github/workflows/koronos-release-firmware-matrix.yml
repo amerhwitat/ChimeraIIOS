@@ -11,6 +11,7 @@ on:
       - "tools/build-live-boot-binaries.sh"
       - "tools/build-koronos-targets.sh"
       - "tools/runtime/check-release-firmware-matrix.py"
+      - "tools/boot/run-qemu-live-vfs.py"
       - "tests/boot/verify-userspace-handoff.py"
       - ".github/workflows/koronos-release-firmware-matrix.yml"
 
