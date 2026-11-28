@@ -47,3 +47,5 @@ def test_single_cpu_boot_does_not_wait_for_a_nonexistent_ap():
     assert "KORONOS_SMP_SELFTEST_SKIPPED" in smp
     assert "KORONOS_SMP_SELFTEST_SKIPPED" in header
     assert '"-smp", "1"' in harness
+    grub = (ROOT / "boot/iso/grub.cfg").read_text()
+    assert "terminal_input serial console" in grub
