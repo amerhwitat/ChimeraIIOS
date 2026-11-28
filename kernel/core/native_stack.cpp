@@ -372,7 +372,7 @@ extern "C" int koronos_native_stack_selftest(void) {
     }
     if (install_module_present_()) {
         debug_("[NST ] SKIPPED: install target selected");
-        selftest_result_ = 1;
+        selftest_result_ = 2;
         return selftest_result_;
     }
     debug_("[NST ] starting native block/VFS/PID1 gate");
